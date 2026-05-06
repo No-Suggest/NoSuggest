@@ -1791,7 +1791,7 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb, duration){
   currentVideoData = {id:videoId, title, channelName, publishedAt, thumb:thumb||'', duration:duration||''};
   const overlay = document.getElementById('player-overlay');
   document.getElementById('player-iframe').src =
-    `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
+    `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
   document.getElementById('player-title').textContent = title;
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent = timeAgo(publishedAt);
