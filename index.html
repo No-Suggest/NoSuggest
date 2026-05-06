@@ -89,7 +89,9 @@ body{
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;
-  padding-bottom:calc(120px + var(--safe-bot));
+  padding-bottom:calc(80px + var(--safe-bot));
+  .screen-body::-webkit-scrollbar{display:none;}
+  .screen-body{scrollbar-width:none;}
 }
 
 /* ── NAV BAR ── */
@@ -543,7 +545,7 @@ body{
 
 .add-channel-fab{
   position:fixed;
-  bottom:100px;
+  bottom:120px;
   right:1.25rem;
   width:52px;height:52px;
   background:var(--accent);
