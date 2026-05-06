@@ -543,7 +543,7 @@ body{
 
 .add-channel-fab{
   position:fixed;
-  bottom:calc(72px + var(--safe-bot) + 16px);
+  bottom:calc(64px + var(--safe-bot) + 16px);
   right:1.25rem;
   width:52px;height:52px;
   background:var(--accent);
@@ -1988,6 +1988,9 @@ function toggleSaveVideo(video){
     toast('Saved! ✓');
   }
   STORE.savedVideos = saved;
+  // keep saved count in header in sync
+  const countEl = document.getElementById('saved-count');
+  if(countEl) countEl.textContent = `${STORE.savedVideos.length} video${STORE.savedVideos.length===1?'':'s'}`;
 }
 
 function isVideoSaved(id){
@@ -2009,7 +2012,8 @@ function toggleFeedSave(btn, id, title, channelName, publishedAt, thumb, duratio
 ═══════════════════════════════════════════ */
 function initSearch(){
   // keep previous results visible, just focus the input
-  setTimeout(() => document.getElementById('search-input').focus(), 300);
+  // only focus on desktop, not mobile
+  if(window.innerWidth > 768) setTimeout(() => document.getElementById('search-input').focus(), 300);
 }
 
 // Allow Enter key to trigger search
@@ -2196,7 +2200,7 @@ window.addEventListener('load', () => {
   }
 
   // Already authenticated?
-  if(STORE.apiKey || (STORE.isOAuth && location.hash.includes('access_token'))){
+  if(STORE.apiKey){
     const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
     showScreen(savedTab);
   } else if(STORE.isOAuth){
@@ -2206,6 +2210,7 @@ window.addEventListener('load', () => {
     showScreen('setup');
   }
 });
+history.pushState(null, '', location.href);
 
 // Handle Android back button
 window.addEventListener('popstate', () => {
