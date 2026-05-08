@@ -1510,8 +1510,8 @@ function showScreen(name, opts){
 // → Paste the client ID below
 const GOOGLE_CLIENT_ID = '9265791897-g6hp775nfek790h0rv58k1gd9k5sk8bl.apps.googleusercontent.com';
 
-let googleAccessToken = null; // in-memory only, cleared on page close
-let tokenExpiry       = 0;
+let googleAccessToken = sessionStorage.getItem('ns_token') || null;
+let tokenExpiry       = parseInt(sessionStorage.getItem('ns_token_expiry')) || 0;
 let gisTokenClient    = null; // GIS token client instance
 
 function showApiKeyFallback(){
@@ -1545,44 +1545,18 @@ function startGoogleAuth(){
           err.style.display = 'block';
           return;
         }
-        googleAccessToken = response.access_token;
-        tokenExpiry = Date.now() + (parseInt(response.expires_in) * 1000);
-        STORE.isOAuth = true;
-        showScreen('feed');
-        if(!STORE.channels.length) showScreen('channels');
+		googleAccessToken = response.access_token;
+		tokenExpiry = Date.now() + (parseInt(response.expires_in) * 1000);
+		sessionStorage.setItem('ns_token', googleAccessToken);
+		sessionStorage.setItem('ns_token_expiry', tokenExpiry);
+		STORE.isOAuth = true;
+		showScreen('feed');
+		if(!STORE.channels.length) showScreen('channels');
       },
     });
   }
 
   gisTokenClient.requestAccessToken({ prompt: 'select_account' });
-}
-
-function startGoogleAuthSilent(){
-  if(typeof google === 'undefined' || !google.accounts){
-    setTimeout(startGoogleAuthSilent, 200);
-    return;
-  }
-
-  const silentClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/youtube.readonly',
-    prompt: '',  // empty = no account picker, silent re-auth
-    callback: (response) => {
-      if(response.error){
-        // Silent auth failed — fall back to full sign-in screen
-        STORE.isOAuth = false;
-        showScreen('setup');
-        return;
-      }
-      googleAccessToken = response.access_token;
-      tokenExpiry = Date.now() + (parseInt(response.expires_in) * 1000);
-      STORE.isOAuth = true;
-      const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
-      showScreen(savedTab);
-    },
-  });
-
-  silentClient.requestAccessToken({ prompt: '' });
 }
 
 // handleOAuthCallback no longer needed — GIS doesn't use URL redirects
@@ -1645,7 +1619,9 @@ const YT = (path, params) => {
     // If token expired mid-session, re-auth
     if(d.error?.status === 'UNAUTHENTICATED' && STORE.isOAuth){
       googleAccessToken = null;
-      startGoogleAuth();
+	  sessionStorage.removeItem('ns_token');
+	  sessionStorage.removeItem('ns_token_expiry');
+	  startGoogleAuth();
     }
     return d;
   });
@@ -2042,6 +2018,8 @@ function changeApiKey(){
   STORE.apiKey = '';
   STORE.isOAuth = false;
   googleAccessToken = null;
+  sessionStorage.removeItem('ns_token');
+  sessionStorage.removeItem('ns_token_expiry');
   showScreen('setup');
 }
 
@@ -2109,7 +2087,8 @@ function formatViews(n){
 }
 
 function extractYouTubeId(input){
-  // Match all common YouTube URL formats
+  // Decode URL encoding before matching (handles m.youtube.com, %3D etc.)
+  try { input = decodeURIComponent(input); } catch(e) {}
   const patterns = [
     /[?&]v=([a-zA-Z0-9_-]{11})/,       // youtube.com/watch?v=
     /youtu\.be\/([a-zA-Z0-9_-]{11})/,   // youtu.be/
@@ -2348,8 +2327,16 @@ window.addEventListener('load', () => {
     const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
     showScreen(savedTab);
   } else if(STORE.isOAuth){
-    // Was OAuth user, token expired (page reload) — re-auth silently via GIS
-    startGoogleAuthSilent();
+    if(googleAccessToken && Date.now() < tokenExpiry){
+      // Valid token in sessionStorage — restore session directly
+      const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
+      showScreen(savedTab);
+    } else {
+      // Token expired or missing — need fresh login
+      sessionStorage.removeItem('ns_token');
+      sessionStorage.removeItem('ns_token_expiry');
+      startGoogleAuth();
+    }
   } else {
     showScreen('setup');
   }
