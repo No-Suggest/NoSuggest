@@ -1557,6 +1557,34 @@ function startGoogleAuth(){
   gisTokenClient.requestAccessToken({ prompt: 'select_account' });
 }
 
+function startGoogleAuthSilent(){
+  if(typeof google === 'undefined' || !google.accounts){
+    setTimeout(startGoogleAuthSilent, 200);
+    return;
+  }
+
+  const silentClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/youtube.readonly',
+    prompt: '',  // empty = no account picker, silent re-auth
+    callback: (response) => {
+      if(response.error){
+        // Silent auth failed — fall back to full sign-in screen
+        STORE.isOAuth = false;
+        showScreen('setup');
+        return;
+      }
+      googleAccessToken = response.access_token;
+      tokenExpiry = Date.now() + (parseInt(response.expires_in) * 1000);
+      STORE.isOAuth = true;
+      const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
+      showScreen(savedTab);
+    },
+  });
+
+  silentClient.requestAccessToken({ prompt: '' });
+}
+
 // handleOAuthCallback no longer needed — GIS doesn't use URL redirects
 // Keeping as no-op so boot code referencing it still works safely
 function handleOAuthCallback(){ return false; }
@@ -2321,7 +2349,7 @@ window.addEventListener('load', () => {
     showScreen(savedTab);
   } else if(STORE.isOAuth){
     // Was OAuth user, token expired (page reload) — re-auth silently via GIS
-    startGoogleAuth();
+    startGoogleAuthSilent();
   } else {
     showScreen('setup');
   }
