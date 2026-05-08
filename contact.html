@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Contact — NoSuggest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#faf8f4;
+  --surface:#ffffff;
+  --ink:#1a1814;
+  --muted:#6b6860;
+  --faint:#c8c4bc;
+  --accent:#2d5a27;
+  --border:#e8e4dc;
+  --radius:12px;
+  --danger:#c0392b;
+  --success:#2d5a27;
+}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Jost',sans-serif;
+  font-size:16px;
+  line-height:1.8;
+  min-height:100vh;
+}
+header{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:1.5rem 2rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.logo{
+  font-family:'Lora',serif;
+  font-size:1.4rem;
+  font-weight:600;
+  color:var(--ink);
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.logo-dot{
+  width:10px;height:10px;
+  background:var(--accent);
+  border-radius:50%;
+}
+.header-nav a{
+  font-size:13px;
+  color:var(--muted);
+  text-decoration:none;
+  margin-left:1.5rem;
+}
+.header-nav a:hover{color:var(--ink);}
+
+.page-wrap{
+  max-width:720px;
+  margin:0 auto;
+  padding:4rem 2rem;
+}
+
+.page-label{
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:0.75rem;
+  font-family:'Jost',sans-serif;
+}
+
+h1{
+  font-family:'Lora',serif;
+  font-size:clamp(2rem,4vw,2.8rem);
+  font-weight:600;
+  line-height:1.2;
+  letter-spacing:-0.02em;
+  margin-bottom:0.5rem;
+}
+
+.subtitle{
+  font-size:15px;
+  color:var(--muted);
+  margin-bottom:3rem;
+  padding-bottom:2rem;
+  border-bottom:1px solid var(--border);
+  line-height:1.7;
+}
+
+.form-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:2rem;
+}
+
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.25rem;
+}
+
+@media(max-width:560px){
+  .form-row{grid-template-columns:1fr;}
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:0.4rem;
+  margin-bottom:1.25rem;
+}
+
+.field:last-child{margin-bottom:0;}
+
+label{
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  color:var(--ink);
+}
+
+input, textarea{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:0.75rem 1rem;
+  font-size:15px;
+  font-family:'Jost',sans-serif;
+  color:var(--ink);
+  width:100%;
+  transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  outline:none;
+  -webkit-appearance:none;
+}
+
+input:focus, textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(45,90,39,0.08);
+}
+
+input::placeholder, textarea::placeholder{
+  color:var(--faint);
+}
+
+textarea{
+  resize:vertical;
+  min-height:140px;
+  line-height:1.6;
+}
+
+.submit-btn{
+  margin-top:1.5rem;
+  width:100%;
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:0.9rem 1.5rem;
+  font-size:15px;
+  font-weight:500;
+  font-family:'Jost',sans-serif;
+  cursor:pointer;
+  transition:opacity 0.15s ease, transform 0.1s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.submit-btn:hover{opacity:0.88;}
+.submit-btn:active{transform:scale(0.99);}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* Spinner */
+.spinner{
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+  display:none;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Status messages */
+.status{
+  margin-top:1.25rem;
+  padding:1rem 1.25rem;
+  border-radius:8px;
+  font-size:14px;
+  line-height:1.6;
+  display:none;
+}
+.status.success{
+  background:#f0f7ee;
+  border:1px solid #b8d9b2;
+  color:var(--success);
+}
+.status.error{
+  background:#fdf2f2;
+  border:1px solid #e8b4b4;
+  color:var(--danger);
+}
+
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+strong{color:var(--ink);}
+
+footer{
+  border-top:1px solid var(--border);
+  padding:2rem;
+  text-align:center;
+  font-size:12px;
+  color:var(--faint);
+  margin-top:4rem;
+}
+footer a{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="https://nosuggest.com/">
+    <span class="logo-dot"></span>NoSuggest
+  </a>
+  <nav class="header-nav">
+    <a href="https://nosuggest.com/privacy">Privacy Policy</a>
+    <a href="https://nosuggest.com/terms">Terms of Service</a>
+    <a href="https://nosuggest.com/">App</a>
+  </nav>
+</header>
+
+<div class="page-wrap">
+  <div class="page-label">Get in touch</div>
+  <h1>Contact</h1>
+  <p class="subtitle">
+    Have a question, found a bug, or just want to say hello? Send a message and we'll get back to you.
+  </p>
+
+  <div class="form-card">
+    <div class="form-row">
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required autocomplete="name"/>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" placeholder="What's on your mind?" required></textarea>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+      <span id="btn-label">Send Message</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+    <div class="status success" id="status-success">
+      ✓ &nbsp;Message sent! We'll get back to you as soon as possible.
+    </div>
+    <div class="status error" id="status-error">
+      Something went wrong. Please try again or reach out via GitHub Issues.
+    </div>
+  </div>
+</div>
+
+<footer>
+  © 2026 NoSuggest · <a href="https://nosuggest.com/">Home</a> ·
+  <a href="https://nosuggest.com/terms">Terms of Service</a> ·
+  <a href="https://nosuggest.com/privacy">Privacy Policy</a>
+</footer>
+
+<script>
+async function submitForm(){
+  const name    = document.getElementById('name').value.trim();
+  const email   = document.getElementById('email').value.trim();
+  const message = document.getElementById('message').value.trim();
+
+  const successEl = document.getElementById('status-success');
+  const errorEl   = document.getElementById('status-error');
+  const btn       = document.getElementById('submit-btn');
+  const spinner   = document.getElementById('spinner');
+  const btnLabel  = document.getElementById('btn-label');
+
+  // Reset status
+  successEl.style.display = 'none';
+  errorEl.style.display   = 'none';
+
+  // Basic validation
+  if(!name || !email || !message){
+    errorEl.textContent = 'Please fill in your name, email, and message.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    errorEl.textContent = 'Please enter a valid email address.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  // Loading state
+  btn.disabled       = true;
+  spinner.style.display = 'block';
+  btnLabel.textContent  = 'Sending…';
+
+  try{
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify({
+        access_key: 'b2da122b-7c42-4e44-8786-45dadfdc41d5',
+        name,
+        email,
+        message,
+        subject: 'NoSuggest Contact Form',
+      }),
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      successEl.style.display = 'block';
+      // Clear form
+      document.getElementById('name').value    = '';
+      document.getElementById('email').value   = '';
+      document.getElementById('phone').value   = '';
+      document.getElementById('message').value = '';
+    } else {
+      errorEl.textContent = 'Something went wrong. Please try again.';
+      errorEl.style.display = 'block';
+    }
+  } catch(err){
+    errorEl.textContent = 'Could not send message. Check your connection and try again.';
+    errorEl.style.display = 'block';
+  }
+
+  btn.disabled          = false;
+  spinner.style.display = 'none';
+  btnLabel.textContent  = 'Send Message';
+}
+
+// Allow Enter in inputs to submit (but not textarea — users need newlines there)
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('keydown', e => {
+    if(e.key === 'Enter') submitForm();
+  });
+});
+</script>
+
+</body>
+</html>
