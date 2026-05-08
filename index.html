@@ -142,9 +142,10 @@ body{
 ═══════════════════════════════════════ */
 #screen-setup{
   background:var(--bg);
-  justify-content:center;
+  justify-content:flex-start;
   padding:2rem;
   gap:0;
+  overflow-y:auto;
 }
 
 .setup-logo{
@@ -1044,8 +1045,12 @@ body{
   <div class="screen" id="screen-setup">
     <div class="setup-logo">
       <div class="logo-icon">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="10,8 10,16 16,12"/></svg>
-      </div>
+		<svg viewBox="0 0 512 512" width="36" height="36">
+		  <rect x="130" y="148" width="58" height="216" rx="12" fill="currentColor"/>
+		  <rect x="324" y="148" width="58" height="216" rx="12" fill="currentColor"/>
+		  <polygon points="130,148 188,148 382,364 324,364" fill="currentColor"/>
+		</svg>
+	  </div>
       <h1>NoSuggest</h1>
       <p>Your channels. Your schedule. No suggestions, no autoplay, no notifications.</p>
     </div>
