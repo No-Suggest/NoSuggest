@@ -18,6 +18,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://accounts.google.com/gsi/client" async></script>
 
 <style>
 /* ═══════════════════════════════════════
@@ -1045,15 +1046,15 @@ body{
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="10,8 10,16 16,12"/></svg>
       </div>
       <h1>NoSuggest</h1>
-      <p>Watch what matters. Nothing else.</p>
+      <p>Your channels. Your schedule. No suggestions, no autoplay, no notifications.</p>
     </div>
 
     <div class="setup-card">
       <h2>Sign in with Google</h2>
       <p style="font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem">
         NoSuggest uses your Google account to access YouTube.<br/>
-        <strong style="color:var(--text)">We never see your password</strong> — Google handles it securely.<br/>
-        Your watch history and data stay private.
+		<strong style="color:var(--text)">We never see your password</strong> — Google handles it securely.<br/>
+		Come when you feel like it. Watch what you chose. Close it and move on.
       </p>
       <div class="error-msg" id="setup-error" style="margin-bottom:0.75rem"></div>
       <button class="btn" id="google-signin-btn" onclick="startGoogleAuth()">
@@ -1072,8 +1073,8 @@ body{
     <div style="text-align:center;padding:0.75rem 1rem 0">
       <p style="font-size:12px;color:var(--faint);line-height:1.8">
         🔒 Sign-in is handled entirely by Google<br/>
-        Your credentials never touch our servers<br/>
-        Free to use · No credit card ever needed
+		No notifications · No autoplay · No recommendations<br/>
+		Free to use · No credit card ever needed
       </p>
     </div>
 
@@ -1083,7 +1084,7 @@ body{
         Advanced: use my own API key instead
       </button>
     </div>
-
+	
     <!-- API key fallback (hidden by default) -->
     <div id="api-key-fallback" style="display:none;padding:0 0 1rem">
       <div class="setup-card" style="margin-top:1rem">
@@ -1094,6 +1095,16 @@ body{
         <button class="btn btn-ghost" id="setup-btn" style="margin-top:0.75rem">Save Key</button>
       </div>
     </div>
+	
+	<div style="text-align:center;margin-top:2rem;padding-bottom:1rem">
+	  <p style="font-size:11px;color:var(--faint);line-height:2">
+      <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener" style="color:var(--faint);text-decoration:underline">Privacy Policy</a>
+      &nbsp;·&nbsp;
+      <a href="https://nosuggest.com/terms" target="_blank" rel="noopener" style="color:var(--faint);text-decoration:underline">Terms of Service</a>
+      &nbsp;·&nbsp;
+      <a href="https://nosuggest.com/contact" target="_blank" rel="noopener" style="color:var(--faint);text-decoration:underline">Contact</a>
+	  </p>
+	</div>
   </div>
 
   <!-- ══ SCREEN: FEED ══ -->
@@ -1218,6 +1229,15 @@ body{
             </div>
           </div>
         </div>
+		<div style="text-align:center;margin-top:2rem;padding:1rem 0;border-top:1px solid var(--border)">
+		  <p style="font-size:11px;color:var(--faint);line-height:2.2">
+		  <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:none">Privacy Policy</a>
+		  &nbsp;·&nbsp;
+		  <a href="https://nosuggest.com/terms" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:none">Terms of Service</a>
+		  &nbsp;·&nbsp;
+		  <a href="https://nosuggest.com/contact" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:none">Contact</a>
+		  </p>
+		</div>
       </div>
 
     </div>
@@ -1467,7 +1487,7 @@ function showScreen(name, opts){
 ═══════════════════════════════════════════ */
 /* ═══════════════════════════════════════════
    GOOGLE OAUTH — sign in without API key
-   Uses Google Identity Services implicit flow.
+   Uses Google Identity Services token client.
    The access token is stored in memory only
    (not localStorage) for security — user signs
    in once per session. Channel list persists.
@@ -1482,6 +1502,7 @@ const GOOGLE_CLIENT_ID = '9265791897-orf969pe0advpic5ork4lotjjh0j8n0q.apps.googl
 
 let googleAccessToken = null; // in-memory only, cleared on page close
 let tokenExpiry       = 0;
+let gisTokenClient    = null; // GIS token client instance
 
 function showApiKeyFallback(){
   document.getElementById('api-key-fallback').style.display = 'block';
@@ -1489,7 +1510,6 @@ function showApiKeyFallback(){
 
 function startGoogleAuth(){
   if(!GOOGLE_CLIENT_ID){
-    // No client ID configured — fall through to API key mode
     showApiKeyFallback();
     const err = document.getElementById('setup-error');
     err.textContent = 'OAuth not configured yet. Use API key below, or set up a Client ID.';
@@ -1497,35 +1517,39 @@ function startGoogleAuth(){
     return;
   }
 
-  const params = new URLSearchParams({
-    client_id:     GOOGLE_CLIENT_ID,
-    redirect_uri:  location.origin + location.pathname,
-    response_type: 'token',
-    scope:         'https://www.googleapis.com/auth/youtube.readonly',
-    prompt:        'select_account',
-  });
-  // Save current channels before redirect
-  location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
-}
-
-function handleOAuthCallback(){
-  // Check if we're returning from Google OAuth redirect
-  const hash = new URLSearchParams(location.hash.slice(1));
-  const token = hash.get('access_token');
-  const expiresIn = parseInt(hash.get('expires_in') || '0');
-
-  if(token){
-    googleAccessToken = token;
-    tokenExpiry = Date.now() + (expiresIn * 1000);
-    // Clean the URL
-    history.replaceState(null, '', location.pathname);
-    STORE.isOAuth = true;
-    showScreen('feed');
-    if(!STORE.channels.length) showScreen('channels');
-    return true;
+  // Wait for GIS library to load if not ready yet
+  if(typeof google === 'undefined' || !google.accounts){
+    setTimeout(startGoogleAuth, 200);
+    return;
   }
-  return false;
+
+  if(!gisTokenClient){
+    gisTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/youtube.readonly',
+      callback: (response) => {
+        if(response.error){
+          showApiKeyFallback();
+          const err = document.getElementById('setup-error');
+          err.textContent = 'Google sign-in failed. Use API key below.';
+          err.style.display = 'block';
+          return;
+        }
+        googleAccessToken = response.access_token;
+        tokenExpiry = Date.now() + (parseInt(response.expires_in) * 1000);
+        STORE.isOAuth = true;
+        showScreen('feed');
+        if(!STORE.channels.length) showScreen('channels');
+      },
+    });
+  }
+
+  gisTokenClient.requestAccessToken({ prompt: 'select_account' });
 }
+
+// handleOAuthCallback no longer needed — GIS doesn't use URL redirects
+// Keeping as no-op so boot code referencing it still works safely
+function handleOAuthCallback(){ return false; }
 
 // API key fallback
 document.getElementById('setup-btn').onclick = async () => {
@@ -1748,7 +1772,9 @@ async function initFeed(newChannelId){
   `).join('');
 
   // Fetch all channels
-  channels.forEach(ch => loadChannelVideos(ch));
+  channels.forEach((ch, i) => {
+    setTimeout(() => loadChannelVideos(ch), i * 200);
+});
 }
 
 function renderVideos(ch, videos){
@@ -2044,26 +2070,103 @@ function formatViews(n){
   return n+' views';
 }
 
+function extractYouTubeId(input){
+  // Match all common YouTube URL formats
+  const patterns = [
+    /[?&]v=([a-zA-Z0-9_-]{11})/,       // youtube.com/watch?v=
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,   // youtu.be/
+    /\/shorts\/([a-zA-Z0-9_-]{11})/,    // youtube.com/shorts/
+    /\/embed\/([a-zA-Z0-9_-]{11})/,     // youtube.com/embed/
+  ];
+  for(const p of patterns){
+    const m = input.match(p);
+    if(m) return m[1];
+  }
+  return null;
+}
+
 async function doYTSearch(){
   const q = document.getElementById('search-input').value.trim();
   if(!q) return;
 
-  const btn     = document.getElementById('search-go-btn');
-  const loading = document.getElementById('search-loading');
-  const resultsWrap = document.getElementById('search-results-wrap');
-  const resultsList = document.getElementById('search-results-list');
-  const errEl   = document.getElementById('search-error');
-  const empty   = document.getElementById('search-empty');
+  const btn          = document.getElementById('search-go-btn');
+  const loading      = document.getElementById('search-loading');
+  const resultsWrap  = document.getElementById('search-results-wrap');
+  const resultsList  = document.getElementById('search-results-list');
+  const errEl        = document.getElementById('search-error');
+  const empty        = document.getElementById('search-empty');
 
   btn.disabled = true;
   document.getElementById('search-input').blur();
-  loading.style.display = 'block';
+  loading.style.display    = 'block';
   resultsWrap.style.display = 'none';
-  errEl.style.display = 'none';
-  empty.style.display = 'none';
+  errEl.style.display      = 'none';
+  empty.style.display      = 'none';
 
+  // ── URL mode — user pasted a YouTube link ──
+  const videoId = extractYouTubeId(q);
+  if(videoId){
+    try{
+      const details = await YT('videos', {
+        part: 'snippet,contentDetails,statistics',
+        id: videoId,
+      });
+
+      const v = details.items?.[0];
+      loading.style.display = 'none';
+
+      if(!v){
+        errEl.textContent = 'Video not found. Check the URL and try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        return;
+      }
+
+      const video = {
+        id:          v.id,
+        title:       v.snippet.title,
+        channelName: v.snippet.channelTitle,
+        publishedAt: v.snippet.publishedAt,
+        thumb:       v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url || '',
+        duration:    fmtDuration(v.contentDetails?.duration || ''),
+        views:       v.statistics?.viewCount || '0',
+      };
+
+      document.getElementById('search-results-label').textContent = 'Video found';
+      const saved = isVideoSaved(video.id);
+      resultsList.innerHTML = `
+        <div class="search-video-card" onclick="openPlayer('${esc(video.id)}','${esc(video.title.replace(/'/g,"\\'"))}','${esc(video.channelName)}','${esc(video.publishedAt)}','${esc(video.thumb)}','${esc(video.duration)}')">
+          <div class="search-thumb-wrap">
+            <img src="${esc(video.thumb)}" alt="${esc(video.title)}" loading="lazy"/>
+            ${video.duration ? `<span class="search-thumb-duration">${esc(video.duration)}</span>` : ''}
+            <button class="search-save-btn ${saved?'saved':''}" data-vid="${esc(video.id)}" onclick="event.stopPropagation();toggleSearchSave(this,'${esc(video.id)}','${esc(video.title.replace(/'/g,"\\'"))}','${esc(video.channelName)}','${esc(video.publishedAt)}','${esc(video.thumb)}','${esc(video.duration)}')" title="${saved?'Remove from saved':'Save video'}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="${saved?'var(--accent)':'none'}" stroke="var(--accent)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+          <div class="search-card-info">
+            <div class="search-card-title">${esc(video.title)}</div>
+            <div>
+              <div class="search-card-meta">${esc(video.channelName)}</div>
+              <div class="search-views-badge">${formatViews(video.views)}</div>
+            </div>
+          </div>
+        </div>`;
+
+      resultsWrap.style.display = 'block';
+      btn.disabled = false;
+      return;
+
+    } catch(err){
+      loading.style.display = 'none';
+      errEl.textContent = 'Could not load video. Check your connection or API quota.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      return;
+    }
+  }
+
+  // ── Keyword mode — normal search ──
   try{
-    // Search for top 5 by view count — order=viewCount, no shorts filter
     const search = await YT('search', {
       part: 'snippet',
       q: q,
@@ -2072,7 +2175,7 @@ async function doYTSearch(){
       order: 'viewCount',
       videoDuration: 'any',
     });
-
+	
     if(!search.items?.length){
       loading.style.display = 'none';
       errEl.textContent = 'No results found. Try a different keyword.';
@@ -2202,17 +2305,12 @@ function removeSaved(id){
    BOOT
 ═══════════════════════════════════════════ */
 window.addEventListener('load', () => {
-  // Check if returning from Google OAuth redirect
-  if(location.hash.includes('access_token')){
-    if(handleOAuthCallback()) return;
-  }
-
-  // Already authenticated?
+  // Already authenticated via API key?
   if(STORE.apiKey){
     const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
     showScreen(savedTab);
   } else if(STORE.isOAuth){
-    // Was OAuth user but token expired (page reload) — re-auth silently
+    // Was OAuth user, token expired (page reload) — re-auth silently via GIS
     startGoogleAuth();
   } else {
     showScreen('setup');
