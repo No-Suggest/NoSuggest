@@ -62,7 +62,7 @@ Source code is made available for transparency and personal non-commercial use o
 
 You may read and inspect this code. You may not redistribute, rebrand, or redeploy this application commercially or publicly without explicit permission.
 
-© 2026 NoSuggest — [nosuggest.com/contact](https://nosuggest.com/contact)
+© 2026 NoSuggest → [nosuggest.com/contact](https://nosuggest.com/contact)
 
 ---
 
