@@ -18,6 +18,8 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 <script src="https://accounts.google.com/gsi/client" async></script>
 
@@ -1625,6 +1627,12 @@ const YT = (path, params) => {
 	  sessionStorage.removeItem('ns_token');
 	  sessionStorage.removeItem('ns_token_expiry');
 	  startGoogleAuth();
+      throw new Error('Session expired — please sign in again.');
+    }
+    // Surface any other API errors so callers' catch blocks handle them
+    if(d.error){
+      const msg = d.error.message || 'YouTube API error';
+      throw new Error(msg);
     }
     return d;
   });
@@ -2179,7 +2187,7 @@ async function doYTSearch(){
 
     } catch(err){
       loading.style.display = 'none';
-      errEl.textContent = 'Could not load video. Check your connection or API quota.';
+      errEl.textContent = err.message || 'Could not load video. Check your connection or API quota.';
       errEl.style.display = 'block';
       btn.disabled = false;
       return;
@@ -2192,8 +2200,7 @@ async function doYTSearch(){
       part: 'snippet',
       q: q,
       type: 'video',
-      maxResults: 8,
-      order: 'viewCount',
+      maxResults: 10,
       videoDuration: 'any',
     });
 	
@@ -2262,7 +2269,7 @@ async function doYTSearch(){
     resultsWrap.style.display = 'block';
   } catch(err){
     loading.style.display = 'none';
-    errEl.textContent = 'Search failed. Check your connection or API quota.';
+    errEl.textContent = err.message || 'Search failed. Check your connection or API quota.';
     errEl.style.display = 'block';
   }
 
