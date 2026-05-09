@@ -47,23 +47,12 @@ Full details → [nosuggest.com/privacy](https://nosuggest.com/privacy)
 
 ## Authentication
 
-NoSuggest uses Google OAuth with the `youtube.readonly` scope — the minimum required to fetch public video data using your own YouTube API quota. This means:
+NoSuggest uses Google OAuth. This means:
 
 - We never see your password
 - We cannot post, like, subscribe, or change anything on your account
 - We can only read publicly available video information
 - Your token expires automatically (typically within 1 hour)
-
----
-
-## Tech
-
-- Single HTML file — no framework, no build step, no dependencies
-- Vanilla JavaScript
-- Google Identity Services (GIS) for OAuth — no deprecated implicit flow
-- YouTube Data API v3
-- PWA with installable manifest
-- localStorage for persistence, in-memory for sensitive tokens
 
 ---
 
@@ -81,4 +70,4 @@ You may read and inspect this code. You may not redistribute, rebrand, or redepl
 
 NoSuggest is free and supported entirely by voluntary contributions from users who find it valuable.
 
-If it's useful to you → [nosuggest.com/fund](https://nosuggest.com/fund) *(coming soon)*
+If it's useful to you → [please fund](https://ko-fi.com/nosuggest)
