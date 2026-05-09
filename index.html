@@ -1550,8 +1550,11 @@ function startGoogleAuth(){
 		sessionStorage.setItem('ns_token', googleAccessToken);
 		sessionStorage.setItem('ns_token_expiry', tokenExpiry);
 		STORE.isOAuth = true;
-		showScreen('feed');
-		if(!STORE.channels.length) showScreen('channels');
+		// Small delay to let GIS popup close and browser settle before firing API calls
+		setTimeout(() => {
+		  showScreen('feed');
+		  if(!STORE.channels.length) showScreen('channels');
+		}, 300);
       },
     });
   }
@@ -1774,9 +1777,10 @@ async function initFeed(newChannelId){
     block.style.animation = 'fadeUp 0.35s ease both';
     body.appendChild(block);
 
-    // Fetch only this channel's videos
-    loadChannelVideos(ch);
-    return;
+	// Fetch only this channel's videos
+	const chIndex = channels.findIndex(c => c.id === newChannelId);
+	setTimeout(() => loadChannelVideos(ch), chIndex * 200);
+	return;
   }
 
   // ── Full rebuild (first load or manual refresh) ──
