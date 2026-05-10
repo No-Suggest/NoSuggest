@@ -771,7 +771,7 @@ body{
 .settings-label{
   font-size:11px;font-weight:600;
   letter-spacing:0.1em;text-transform:uppercase;
-  color:var(--faint);
+  color:var(--muted);
   font-family:'DM Mono',monospace;
   margin-bottom:0.75rem;
 }
@@ -805,7 +805,7 @@ body{
 
 .settings-row-text{flex:1;}
 .settings-row-label{font-size:14px;font-weight:500;color:var(--text);}
-.settings-row-sub{font-size:12px;color:var(--faint);font-family:'DM Mono',monospace;margin-top:1px;}
+.settings-row-sub{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px;}
 
 .settings-row-action{
   font-size:12px;color:var(--muted);
@@ -1240,14 +1240,26 @@ body{
               <div class="settings-row-sub">5 latest full videos (Shorts filtered)</div>
             </div>
           </div>
+		  <div class="settings-row">
+            <div class="settings-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Support NoSuggest</div>
+              <div class="settings-row-sub">NoSuggest is free and always will be. If it's useful to you, a voluntary contribution helps keep it running.</div>
+            </div>
+            <div class="settings-row-action">
+              <a href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener" style="color:var(--accent);font-size:12px;font-weight:500;text-decoration:none;white-space:nowrap">Fund ↗</a>
+            </div>
+          </div>
         </div>
 		<div style="text-align:center;margin-top:2rem;padding:1rem 0;border-top:1px solid var(--border)">
-		  <p style="font-size:11px;color:var(--faint);line-height:2.2">
-		  <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:none">Privacy Policy</a>
+		  <p style="font-size:11px;color:var(--muted);line-height:2.2">
+		  <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Privacy Policy</a>
 		  &nbsp;·&nbsp;
-		  <a href="https://nosuggest.com/terms" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:none">Terms of Service</a>
+		  <a href="https://nosuggest.com/terms" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Terms of Service</a>
 		  &nbsp;·&nbsp;
-		  <a href="https://nosuggest.com/contact" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:none">Contact</a>
+		  <a href="https://nosuggest.com/contact" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Contact</a>
 		  </p>
 		</div>
       </div>
