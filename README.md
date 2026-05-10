@@ -2,7 +2,7 @@
 
 **Watch what you want. Nothing else.**
 
-NoSuggest is a free web app that lets you follow YouTube channels, search for videos, save them for later, and watch — without algorithmic recommendations pulling you in every direction.
+NoSuggest is a free web app that lets you follow YouTube channels, search for videos, save them for later, and watch without algorithmic recommendations pulling you in every direction.
 
 No notifications. No autoplay. No suggestions. You come when you feel like it, watch what you chose, and close it. That's the whole idea.
 
@@ -12,9 +12,9 @@ No notifications. No autoplay. No suggestions. You come when you feel like it, w
 
 ## Why
 
-YouTube's recommendation algorithm is designed to maximise time on platform — not respect your time. Even if you open YouTube with a specific video in mind, it works hard to keep you there longer with autoplay, end cards, homepage suggestions, and an infinite sidebar.
+YouTube's recommendation algorithm is designed to maximise time on platform and not respect your time. Even if you open YouTube with a specific video in mind, it works hard to keep you there longer with autoplay, end cards, homepage suggestions, and an infinite sidebar.
 
-NoSuggest solves this differently. Instead of fighting YouTube's UI, it replaces it entirely for the channels you actually care about. Think of it as a calm, intentional alternative — open it when you have FOMO about what your favourite channels have been up to, catch up, and close it.
+NoSuggest solves this differently. Instead of fighting YouTube's UI, it replaces it entirely for the channels you actually care about. Think of it as a calm, intentional alternative, open it when you have FOMO about what your favourite channels have been up to, catch up, and close it.
 
 ---
 
