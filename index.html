@@ -140,7 +140,7 @@ body{
 .nav-btn span{font-size:9px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
 
 /* ═══════════════════════════════════════
-   SCREEN: SETUP (API KEY)
+   SCREEN: SETUP
 ═══════════════════════════════════════ */
 #screen-setup{
   background:var(--bg);
@@ -1090,23 +1090,6 @@ body{
       </p>
     </div>
 
-    <!-- Advanced: manual API key fallback -->
-    <div style="text-align:center;margin-top:1.5rem">
-      <button onclick="showApiKeyFallback()" style="background:none;border:none;color:var(--faint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:'Outfit',sans-serif">
-        Advanced: use my own API key instead
-      </button>
-    </div>
-	
-    <!-- API key fallback (hidden by default) -->
-    <div id="api-key-fallback" style="display:none;padding:0 0 1rem">
-      <div class="setup-card" style="margin-top:1rem">
-        <h2 style="font-size:1rem;margin-bottom:0.75rem">API Key</h2>
-        <input class="api-input" id="api-key-input" type="password"
-          placeholder="AIzaSy..." autocomplete="off" spellcheck="false"/>
-        <div class="api-input-note">From Google Cloud Console → YouTube Data API v3</div>
-        <button class="btn btn-ghost" id="setup-btn" style="margin-top:0.75rem">Save Key</button>
-      </div>
-    </div>
 	
 	<div style="text-align:center;margin-top:2rem;padding-bottom:1rem">
 	  <p style="font-size:11px;color:var(--faint);line-height:2">
@@ -1388,8 +1371,6 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
    STATE
 ═══════════════════════════════════════════ */
 const STORE = {
-  get apiKey(){ return localStorage.getItem('ft_api_key') || '' },
-  set apiKey(v){ localStorage.setItem('ft_api_key', v) },
   get channels(){ try{ return JSON.parse(localStorage.getItem('ft_channels')||'[]') }catch(e){ return [] } },
   set channels(v){ localStorage.setItem('ft_channels', JSON.stringify(v)) },
   get isOAuth(){ return !!localStorage.getItem('ft_oauth') },
@@ -1478,7 +1459,7 @@ function showScreen(name, opts){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-  const setupMode = !STORE.apiKey && !STORE.isOAuth && !googleAccessToken;
+  const setupMode = !STORE.isOAuth && !googleAccessToken;
   const screen = setupMode ? 'setup' : name;
 
   // Persist active tab so browser reloads land on the same screen
@@ -1528,15 +1509,10 @@ let googleAccessToken = sessionStorage.getItem('ns_token') || null;
 let tokenExpiry       = parseInt(sessionStorage.getItem('ns_token_expiry')) || 0;
 let gisTokenClient    = null; // GIS token client instance
 
-function showApiKeyFallback(){
-  document.getElementById('api-key-fallback').style.display = 'block';
-}
-
 function startGoogleAuth(){
   if(!GOOGLE_CLIENT_ID){
-    showApiKeyFallback();
     const err = document.getElementById('setup-error');
-    err.textContent = 'OAuth not configured yet. Use API key below, or set up a Client ID.';
+    err.textContent = 'OAuth not configured. Contact support.';
     err.style.display = 'block';
     return;
   }
@@ -1553,9 +1529,8 @@ function startGoogleAuth(){
       scope: 'https://www.googleapis.com/auth/youtube.readonly',
       callback: (response) => {
         if(response.error){
-          showApiKeyFallback();
           const err = document.getElementById('setup-error');
-          err.textContent = 'Google sign-in failed. Use API key below.';
+          err.textContent = 'Google sign-in failed. Please try again.';
           err.style.display = 'block';
           return;
         }
@@ -1580,65 +1555,30 @@ function startGoogleAuth(){
 // Keeping as no-op so boot code referencing it still works safely
 function handleOAuthCallback(){ return false; }
 
-// API key fallback
-document.getElementById('setup-btn').onclick = async () => {
-  const key = document.getElementById('api-key-input').value.trim();
-  const err  = document.getElementById('setup-error');
-  err.style.display = 'none';
-
-  if(!key.startsWith('AIza') || key.length < 20){
-    err.textContent = 'Invalid key — should start with AIza';
-    err.style.display = 'block';
-    return;
-  }
-
-  const btn = document.getElementById('setup-btn');
-  btn.textContent = 'Checking…';
-  btn.disabled = true;
-
-  try{
-    const r = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=id&id=dQw4w9WgXcQ&key=${key}`);
-    const d = await r.json();
-    if(d.error){
-      err.textContent = 'Key rejected: ' + (d.error.message || 'invalid key');
-      err.style.display = 'block';
-      btn.textContent = 'Save Key';
-      btn.disabled = false;
-      return;
-    }
-    STORE.apiKey = key;
-    showScreen('channels');
-    toast('API key saved!');
-  } catch(e){
-    err.textContent = 'Could not verify. Check connection.';
-    err.style.display = 'block';
-    btn.textContent = 'Save Key';
-    btn.disabled = false;
-  }
-};
-
 /* ═══════════════════════════════════════════
    YOUTUBE API
 ═══════════════════════════════════════════ */
 const YT = (path, params) => {
   const url = new URL(`https://www.googleapis.com/youtube/v3/${path}`);
   const headers = {};
-  if(googleAccessToken && Date.now() < tokenExpiry){
-    // OAuth mode — use Bearer token, no API key needed
-    headers['Authorization'] = 'Bearer ' + googleAccessToken;
-  } else {
-    // API key mode fallback
-    url.searchParams.set('key', STORE.apiKey);
+  // Proactively catch expired token before the request goes out
+  if(STORE.isOAuth && (!googleAccessToken || Date.now() >= tokenExpiry)){
+    googleAccessToken = null;
+    sessionStorage.removeItem('ns_token');
+    sessionStorage.removeItem('ns_token_expiry');
+    startGoogleAuth();
+    return Promise.reject(new Error('Session expired — please sign in again.'));
   }
+  headers['Authorization'] = 'Bearer ' + googleAccessToken;
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k,v));
   return fetch(url, {headers}).then(async r => {
     const d = await r.json();
-    // If token expired mid-session, re-auth
-    if(d.error?.status === 'UNAUTHENTICATED' && STORE.isOAuth){
+    // If token expired mid-request, re-auth
+    if(d.error?.status === 'UNAUTHENTICATED'){
       googleAccessToken = null;
-	  sessionStorage.removeItem('ns_token');
-	  sessionStorage.removeItem('ns_token_expiry');
-	  startGoogleAuth();
+      sessionStorage.removeItem('ns_token');
+      sessionStorage.removeItem('ns_token_expiry');
+      startGoogleAuth();
       throw new Error('Session expired — please sign in again.');
     }
     // Surface any other API errors so callers' catch blocks handle them
@@ -2030,16 +1970,10 @@ document.getElementById('add-btn').onclick = () => {
 ═══════════════════════════════════════════ */
 function initSettings(){
   const el = document.getElementById('settings-key-preview');
-  if(googleAccessToken){
-    el.textContent = 'Google OAuth (signed in)';
-  } else {
-    const key = STORE.apiKey;
-    el.textContent = key ? key.slice(0,8)+'…'+key.slice(-4) : 'Not set';
-  }
+  el.textContent = googleAccessToken ? 'Google OAuth (signed in)' : 'Not signed in';
 }
 
 function changeApiKey(){
-  STORE.apiKey = '';
   STORE.isOAuth = false;
   googleAccessToken = null;
   sessionStorage.removeItem('ns_token');
@@ -2345,11 +2279,7 @@ function removeSaved(id){
    BOOT
 ═══════════════════════════════════════════ */
 window.addEventListener('load', () => {
-  // Already authenticated via API key?
-  if(STORE.apiKey){
-    const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
-    showScreen(savedTab);
-  } else if(STORE.isOAuth){
+  if(STORE.isOAuth){
     if(googleAccessToken && Date.now() < tokenExpiry){
       // Valid token in sessionStorage — restore session directly
       const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
