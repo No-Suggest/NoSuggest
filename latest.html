@@ -1838,53 +1838,63 @@ document.getElementById('feed-refresh-btn').onclick = () => {
    VIDEO PLAYER
 ═══════════════════════════════════════════ */
 let currentVideoData = null;
-let ytPlayer         = null;  // YT.Player instance
-let ytPlayerReady    = false; // fires after onReady
+let ytPlayer         = null;
+let ytApiReady       = false;
 
 // Called automatically by YouTube IFrame API once script loads
 function onYouTubeIframeAPIReady(){
-  ytPlayer = new YT.Player('player-iframe', {
-    height: '100%',
-    width:  '100%',
-    playerVars: {
-      autoplay:       1,
-      rel:            0,
-      modestbranding: 1,
-      iv_load_policy: 3,
-      endscreen:      0,
-    },
-    events: {
-      onReady: () => { ytPlayerReady = true; },
-      onStateChange: (e) => {
-        // YT.PlayerState.ENDED === 0
-        if(e.data === 0) closePlayer();
-      },
-    },
-  });
+  ytApiReady = true;
 }
 
 function openPlayer(videoId, title, channelName, publishedAt, thumb, duration){
   currentVideoData = {id:videoId, title, channelName, publishedAt, thumb:thumb||'', duration:duration||''};
-  const overlay = document.getElementById('player-overlay');
-
-  if(ytPlayerReady && ytPlayer){
-    ytPlayer.loadVideoById(videoId);
-  } else {
-    // Player not ready yet — fall back to cueVideoById after a short wait
-    const wait = setInterval(() => {
-      if(ytPlayerReady && ytPlayer){
-        clearInterval(wait);
-        ytPlayer.loadVideoById(videoId);
-      }
-    }, 100);
-  }
 
   document.getElementById('player-title').textContent = title;
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
-  overlay.classList.add('open');
+  document.getElementById('player-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  // Always destroy previous player instance before creating a new one
+  if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
+
+  // Reset the target div (destroy() removes the iframe, recreate the div)
+  const wrap = document.querySelector('.player-video-wrap');
+  const div  = document.createElement('div');
+  div.id = 'player-iframe';
+  wrap.innerHTML = '';
+  wrap.appendChild(div);
+
+  function createPlayer(){
+    ytPlayer = new YT.Player('player-iframe', {
+      height: '100%',
+      width:  '100%',
+      videoId: videoId,
+      playerVars: {
+        autoplay:       1,
+        rel:            0,
+        modestbranding: 1,
+        iv_load_policy: 3,
+        endscreen:      0,
+        fs:             1,
+      },
+      events: {
+        onStateChange: (e) => {
+          if(e.data === YT.PlayerState.ENDED) closePlayer();
+        },
+      },
+    });
+  }
+
+  // If API already ready, create immediately; otherwise wait
+  if(ytApiReady){
+    createPlayer();
+  } else {
+    const wait = setInterval(() => {
+      if(ytApiReady){ clearInterval(wait); createPlayer(); }
+    }, 100);
+  }
 }
 
 function updatePlayerSaveBtn(videoId){
@@ -1895,7 +1905,7 @@ function updatePlayerSaveBtn(videoId){
   icon.style.fill   = saved ? 'var(--accent)' : 'none';
   icon.style.stroke = saved ? 'var(--accent)' : 'currentColor';
   label.textContent = saved ? 'Saved' : 'Save';
-  btn.style.color      = saved ? 'var(--accent)' : 'var(--muted)';
+  btn.style.color       = saved ? 'var(--accent)' : 'var(--muted)';
   btn.style.borderColor = saved ? 'var(--accent)' : 'var(--border)';
 }
 
@@ -1907,9 +1917,8 @@ function toggleSaveFromPlayer(){
 }
 
 function closePlayer(){
-  const overlay = document.getElementById('player-overlay');
-  overlay.classList.remove('open');
-  if(ytPlayer && ytPlayerReady) ytPlayer.stopVideo();
+  document.getElementById('player-overlay').classList.remove('open');
+  if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
 }
 
