@@ -12,7 +12,7 @@
 
 <link rel="manifest" href="/manifest.json"/>
 
-<!-- Apple touch icon (inline SVG converted to data URI) -->
+<!-- Apple touch icon -->
 <link rel="apple-touch-icon" href="/nosuggest-logo-v2-512.png"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 
@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 <script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
 /* ═══════════════════════════════════════
@@ -1044,29 +1045,20 @@ body{
    IOS INSTALL BANNER
 ═══════════════════════════════════════ */
 #ios-install-banner{
-  position:fixed;
-  bottom:0;left:0;right:0;
+  position:fixed;bottom:0;left:0;right:0;
   background:var(--bg2);
   border-top:1px solid var(--border2);
   padding:1rem 1.25rem calc(var(--safe-bot) + 1rem);
-  z-index:400;
-  display:none;
+  z-index:400;display:none;
 }
 #ios-install-banner.show{display:block;}
-.ios-banner-title{
-  font-size:14px;font-weight:600;
-  color:var(--text);margin-bottom:0.35rem;
-}
-.ios-banner-steps{
-  font-size:13px;color:var(--muted);
-  line-height:1.8;
-}
+.ios-banner-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:0.35rem;}
+.ios-banner-steps{font-size:13px;color:var(--muted);line-height:1.8;}
 .ios-banner-steps span{color:var(--text);font-weight:500;}
 .ios-banner-dismiss{
   position:absolute;top:0.75rem;right:1rem;
-  background:none;border:none;
-  color:var(--muted);font-size:22px;
-  cursor:pointer;line-height:1;padding:4px;
+  background:none;border:none;color:var(--muted);
+  font-size:22px;cursor:pointer;line-height:1;padding:4px;
 }
 
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -1357,7 +1349,7 @@ body{
       </button>
     </div>
     <div class="player-video-wrap">
-      <iframe id="player-iframe" src="" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+      <div id="player-iframe"></div>
     </div>
     <div class="player-info">
       <div class="player-title" id="player-title"></div>
@@ -1607,7 +1599,7 @@ function handleOAuthCallback(){ return false; }
 /* ═══════════════════════════════════════════
    YOUTUBE API
 ═══════════════════════════════════════════ */
-const YT = (path, params) => {
+const ytApi = (path, params) => {
   const url = new URL(`https://www.googleapis.com/youtube/v3/${path}`);
   const headers = {};
   // Proactively catch expired token before the request goes out
@@ -1644,7 +1636,7 @@ async function searchChannel(query){
   const handle = query.trim().replace(/^@/,'').replace(/.*youtube\.com\/@?/,'').split('/')[0].split('?')[0];
 
   // Search for channel
-  const data = await YT('search', {
+  const data = await ytApi('search', {
     part:'snippet', type:'channel', q:handle, maxResults:1
   });
 
@@ -1654,7 +1646,7 @@ async function searchChannel(query){
   const channelId = item.snippet.channelId;
 
   // Get full channel details (for subscriber count & avatar)
-  const detail = await YT('channels', {
+  const detail = await ytApi('channels', {
     part:'snippet,statistics', id:channelId
   });
 
@@ -1680,7 +1672,7 @@ async function fetchVideos(channelId, uploadsPlaylistId){
   const playlistId = uploadsPlaylistId || ('UU' + channelId.slice(2));
 
   // Fetch 25 latest uploads — 1 unit only!
-  const playlist = await YT('playlistItems', {
+  const playlist = await ytApi('playlistItems', {
     part: 'contentDetails',
     playlistId,
     maxResults: 25,
@@ -1691,7 +1683,7 @@ async function fetchVideos(channelId, uploadsPlaylistId){
   const ids = playlist.items.map(i => i.contentDetails.videoId).join(',');
 
   // Get video details including duration — 1 unit
-  const details = await YT('videos', {
+  const details = await ytApi('videos', {
     part: 'snippet,contentDetails',
     id: ids,
   });
@@ -1845,19 +1837,53 @@ document.getElementById('feed-refresh-btn').onclick = () => {
 /* ═══════════════════════════════════════════
    VIDEO PLAYER
 ═══════════════════════════════════════════ */
-let currentVideoData = null; // track what's playing for save button
+let currentVideoData = null;
+let ytPlayer         = null;  // YT.Player instance
+let ytPlayerReady    = false; // fires after onReady
+
+// Called automatically by YouTube IFrame API once script loads
+function onYouTubeIframeAPIReady(){
+  ytPlayer = new YT.Player('player-iframe', {
+    height: '100%',
+    width:  '100%',
+    playerVars: {
+      autoplay:       1,
+      rel:            0,
+      modestbranding: 1,
+      iv_load_policy: 3,
+      endscreen:      0,
+    },
+    events: {
+      onReady: () => { ytPlayerReady = true; },
+      onStateChange: (e) => {
+        // YT.PlayerState.ENDED === 0
+        if(e.data === 0) closePlayer();
+      },
+    },
+  });
+}
 
 function openPlayer(videoId, title, channelName, publishedAt, thumb, duration){
   currentVideoData = {id:videoId, title, channelName, publishedAt, thumb:thumb||'', duration:duration||''};
   const overlay = document.getElementById('player-overlay');
-  document.getElementById('player-iframe').src =
-    `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&endscreen=0&enablejsapi=1`;
+
+  if(ytPlayerReady && ytPlayer){
+    ytPlayer.loadVideoById(videoId);
+  } else {
+    // Player not ready yet — fall back to cueVideoById after a short wait
+    const wait = setInterval(() => {
+      if(ytPlayerReady && ytPlayer){
+        clearInterval(wait);
+        ytPlayer.loadVideoById(videoId);
+      }
+    }, 100);
+  }
+
   document.getElementById('player-title').textContent = title;
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
   overlay.classList.add('open');
-  // prevent body scroll
   document.body.style.overflow = 'hidden';
 }
 
@@ -1866,10 +1892,10 @@ function updatePlayerSaveBtn(videoId){
   const icon  = document.getElementById('player-save-icon');
   const label = document.getElementById('player-save-label');
   const btn   = document.getElementById('player-save-btn');
-  icon.style.fill  = saved ? 'var(--accent)' : 'none';
+  icon.style.fill   = saved ? 'var(--accent)' : 'none';
   icon.style.stroke = saved ? 'var(--accent)' : 'currentColor';
   label.textContent = saved ? 'Saved' : 'Save';
-  btn.style.color   = saved ? 'var(--accent)' : 'var(--muted)';
+  btn.style.color      = saved ? 'var(--accent)' : 'var(--muted)';
   btn.style.borderColor = saved ? 'var(--accent)' : 'var(--border)';
 }
 
@@ -1883,22 +1909,11 @@ function toggleSaveFromPlayer(){
 function closePlayer(){
   const overlay = document.getElementById('player-overlay');
   overlay.classList.remove('open');
-  document.getElementById('player-iframe').src = '';
+  if(ytPlayer && ytPlayerReady) ytPlayer.stopVideo();
   document.body.style.overflow = '';
 }
 
-// Auto-close player when video ends (YouTube iframe postMessage)
-window.addEventListener('message', e => {
-  if(e.origin !== 'https://www.youtube.com') return;
-  try{
-    const data = JSON.parse(e.data);
-    if(data.event === 'onStateChange' && data.info === 0){
-      closePlayer();
-    }
-  } catch(e){}
-});
-
-// Close player on back button / escape
+// Close player on escape key
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape') closePlayer();
 });
@@ -2142,7 +2157,7 @@ async function doYTSearch(){
   const videoId = extractYouTubeId(q);
   if(videoId){
     try{
-      const details = await YT('videos', {
+      const details = await ytApi('videos', {
         part: 'snippet,contentDetails,statistics',
         id: videoId,
       });
@@ -2202,7 +2217,7 @@ async function doYTSearch(){
 
   // ── Keyword mode — normal search ──
   try{
-    const search = await YT('search', {
+    const search = await ytApi('search', {
       part: 'snippet',
       q: q,
       type: 'video',
@@ -2220,7 +2235,7 @@ async function doYTSearch(){
 
     // Fetch video details (stats + duration) for all found ids
     const ids = search.items.map(i => i.id.videoId).join(',');
-    const details = await YT('videos', {
+    const details = await ytApi('videos', {
       part: 'snippet,contentDetails,statistics',
       id: ids,
     });
