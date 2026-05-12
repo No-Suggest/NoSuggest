@@ -10,11 +10,10 @@
 <meta name="theme-color" content="#0a0a0a"/>
 <title>NoSuggest — Watch Without Distraction</title>
 
-<!-- PWA manifest injected via JS below -->
-<link id="manifest-link" rel="manifest" href=""/>
+<link rel="manifest" href="/manifest.json"/>
 
 <!-- Apple touch icon (inline SVG converted to data URI) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="/nosuggest-logo-v2-512.png"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -22,6 +21,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 <script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
 /* ═══════════════════════════════════════
@@ -1041,6 +1041,26 @@ body{
   pointer-events:none;
 }
 
+/* ═══════════════════════════════════════
+   INSTALL BANNER
+═══════════════════════════════════════ */
+#ios-install-banner{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg2);
+  border-top:1px solid var(--border2);
+  padding:1rem 1.25rem calc(var(--safe-bot) + 1rem);
+  z-index:400;display:none;
+}
+#ios-install-banner.show{display:block;}
+.ios-banner-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:0.35rem;}
+.ios-banner-steps{font-size:13px;color:var(--muted);line-height:1.8;}
+.ios-banner-steps span{color:var(--text);font-weight:500;}
+.ios-banner-dismiss{
+  position:absolute;top:0.75rem;right:1rem;
+  background:none;border:none;color:var(--muted);
+  font-size:22px;cursor:pointer;line-height:1;padding:4px;
+}
+
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
@@ -1060,6 +1080,19 @@ body{
       <h1>NoSuggest</h1>
       <p>Your channels. Your schedule. No suggestions, no autoplay, no notifications.</p>
     </div>
+
+    <!-- Android/Edge install button — shown by beforeinstallprompt only -->
+    <button id="android-install-btn" onclick="triggerInstallPrompt()"
+      style="display:none;align-items:center;justify-content:center;gap:10px;
+             width:100%;padding:0.85rem;margin-bottom:1rem;
+             background:var(--bg2);border:1.5px solid var(--border2);
+             border-radius:var(--radius);color:var(--text);
+             font-size:15px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/>
+      </svg>
+      Install NoSuggest App
+    </button>
 
     <div class="setup-card">
       <h2>Sign in with Google</h2>
@@ -1223,10 +1256,20 @@ body{
               <div class="settings-row-sub">5 latest full videos (Shorts filtered)</div>
             </div>
           </div>
+          <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Install NoSuggest</div>
+              <div class="settings-row-sub" id="settings-install-sub">Add to your home screen for the full app experience</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500;cursor:pointer" onclick="triggerInstallFromSettings()">Install ↓</div>
+          </div>
 		  <a href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
           <div class="settings-row" style="cursor:pointer;">
-            <div class="settings-row-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <div class="settings-row-icon" style="color:#ff4444;stroke:#ff4444">
+              <svg viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </div>
             <div class="settings-row-text">
               <div class="settings-row-label">Support NoSuggest</div>
@@ -1329,7 +1372,7 @@ body{
       </button>
     </div>
     <div class="player-video-wrap">
-      <iframe id="player-iframe" src="" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+      <div id="player-iframe"></div>
     </div>
     <div class="player-info">
       <div class="player-title" id="player-title"></div>
@@ -1343,29 +1386,102 @@ body{
     </div>
   </div>
 
+  <!-- iOS Install Banner -->
+  <div id="ios-install-banner">
+    <button class="ios-banner-dismiss" onclick="dismissIosBanner()">×</button>
+    <div class="ios-banner-title">Install NoSuggest</div>
+    <div class="ios-banner-steps">
+      1. Tap the <span>Share</span> button
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin:0 2px"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      at the bottom of your browser<br/>
+      2. Scroll down and tap <span>Add to Home Screen</span>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div id="toast"></div>
 </div>
 
 <script>
 /* ═══════════════════════════════════════════
-   PWA MANIFEST
+   SERVICE WORKER
 ═══════════════════════════════════════════ */
-const manifest = {
-  name: 'NoSuggest',
-  short_name: 'NoSuggest',
-  description: 'Watch YouTube without distraction',
-  start_url: './',
-  display: 'standalone',
-  background_color: '#0a0a0a',
-  theme_color: '#0a0a0a',
-  icons: [{
-    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E",
-    sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable'
-  }]
-};
-const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-document.getElementById('manifest-link').href = URL.createObjectURL(blob);
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+/* ═══════════════════════════════════════════
+   INSTALL PROMPT (Android, Edge, Chrome)
+═══════════════════════════════════════════ */
+let deferredInstallPrompt = null;
+
+function showInstallBtn(){
+  // Show on setup screen
+  const btn = document.getElementById('android-install-btn');
+  if(btn) btn.style.display = 'flex';
+  // Show on settings screen
+  const row = document.getElementById('settings-install-row');
+  if(row) row.style.display = 'flex';
+}
+
+function hideInstallBtn(){
+  const btn = document.getElementById('android-install-btn');
+  if(btn) btn.style.display = 'none';
+  const row = document.getElementById('settings-install-row');
+  if(row) row.style.display = 'none';
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showInstallBtn();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  hideInstallBtn();
+});
+
+function triggerInstallPrompt(){
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(() => {
+    deferredInstallPrompt = null;
+    hideInstallBtn();
+  });
+}
+
+function triggerInstallFromSettings(){
+  triggerInstallPrompt();
+}
+
+/* ═══════════════════════════════════════════
+   IOS INSTALL BANNER
+═══════════════════════════════════════════ */
+function isIos(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function isInStandaloneMode(){
+  return window.navigator.standalone === true;
+}
+function dismissIosBanner(){
+  document.getElementById('ios-install-banner').classList.remove('show');
+  // Remember dismissed so it doesn't reappear until next day
+  const tomorrow = Date.now() + 86400000;
+  localStorage.setItem('ns_ios_banner_dismissed', tomorrow);
+}
+
+// Show iOS banner — once per day, not if already installed
+if(isIos() && !isInStandaloneMode()){
+  const dismissed = parseInt(localStorage.getItem('ns_ios_banner_dismissed') || '0');
+  if(Date.now() > dismissed){
+    // Show on settings screen init too — handled in initSettings
+    setTimeout(() => {
+      document.getElementById('ios-install-banner').classList.add('show');
+    }, 1000);
+  }
+}
 
 /* ═══════════════════════════════════════════
    STATE
@@ -1493,9 +1609,6 @@ function showScreen(name, opts){
 /* ═══════════════════════════════════════════
    GOOGLE OAUTH — sign in without API key
    Uses Google Identity Services token client.
-   The access token is stored in memory only
-   (not localStorage) for security — user signs
-   in once per session. Channel list persists.
 ═══════════════════════════════════════════ */
 
 // Your Google OAuth Client ID
@@ -1505,8 +1618,8 @@ function showScreen(name, opts){
 // → Paste the client ID below
 const GOOGLE_CLIENT_ID = '9265791897-g6hp775nfek790h0rv58k1gd9k5sk8bl.apps.googleusercontent.com';
 
-let googleAccessToken = sessionStorage.getItem('ns_token') || null;
-let tokenExpiry       = parseInt(sessionStorage.getItem('ns_token_expiry')) || 0;
+let googleAccessToken = localStorage.getItem('ns_token') || null;
+let tokenExpiry       = parseInt(localStorage.getItem('ns_token_expiry')) || 0;
 let gisTokenClient    = null; // GIS token client instance
 
 function startGoogleAuth(){
@@ -1527,6 +1640,7 @@ function startGoogleAuth(){
     gisTokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: 'https://www.googleapis.com/auth/youtube.readonly',
+      prompt: '',
       callback: (response) => {
         if(response.error){
           const err = document.getElementById('setup-error');
@@ -1536,8 +1650,8 @@ function startGoogleAuth(){
         }
 		googleAccessToken = response.access_token;
 		tokenExpiry = Date.now() + (parseInt(response.expires_in) * 1000);
-		sessionStorage.setItem('ns_token', googleAccessToken);
-		sessionStorage.setItem('ns_token_expiry', tokenExpiry);
+		localStorage.setItem('ns_token', googleAccessToken);
+		localStorage.setItem('ns_token_expiry', tokenExpiry);
 		STORE.isOAuth = true;
 		// Small delay to let GIS popup close and browser settle before firing API calls
 		setTimeout(() => {
@@ -1558,14 +1672,14 @@ function handleOAuthCallback(){ return false; }
 /* ═══════════════════════════════════════════
    YOUTUBE API
 ═══════════════════════════════════════════ */
-const YT = (path, params) => {
+const ytApi = (path, params) => {
   const url = new URL(`https://www.googleapis.com/youtube/v3/${path}`);
   const headers = {};
   // Proactively catch expired token before the request goes out
   if(STORE.isOAuth && (!googleAccessToken || Date.now() >= tokenExpiry)){
     googleAccessToken = null;
-    sessionStorage.removeItem('ns_token');
-    sessionStorage.removeItem('ns_token_expiry');
+    localStorage.removeItem('ns_token');
+    localStorage.removeItem('ns_token_expiry');
     startGoogleAuth();
     return Promise.reject(new Error('Session expired — please sign in again.'));
   }
@@ -1576,8 +1690,8 @@ const YT = (path, params) => {
     // If token expired mid-request, re-auth
     if(d.error?.status === 'UNAUTHENTICATED'){
       googleAccessToken = null;
-      sessionStorage.removeItem('ns_token');
-      sessionStorage.removeItem('ns_token_expiry');
+      localStorage.removeItem('ns_token');
+      localStorage.removeItem('ns_token_expiry');
       startGoogleAuth();
       throw new Error('Session expired — please sign in again.');
     }
@@ -1595,7 +1709,7 @@ async function searchChannel(query){
   const handle = query.trim().replace(/^@/,'').replace(/.*youtube\.com\/@?/,'').split('/')[0].split('?')[0];
 
   // Search for channel
-  const data = await YT('search', {
+  const data = await ytApi('search', {
     part:'snippet', type:'channel', q:handle, maxResults:1
   });
 
@@ -1605,7 +1719,7 @@ async function searchChannel(query){
   const channelId = item.snippet.channelId;
 
   // Get full channel details (for subscriber count & avatar)
-  const detail = await YT('channels', {
+  const detail = await ytApi('channels', {
     part:'snippet,statistics', id:channelId
   });
 
@@ -1631,7 +1745,7 @@ async function fetchVideos(channelId, uploadsPlaylistId){
   const playlistId = uploadsPlaylistId || ('UU' + channelId.slice(2));
 
   // Fetch 25 latest uploads — 1 unit only!
-  const playlist = await YT('playlistItems', {
+  const playlist = await ytApi('playlistItems', {
     part: 'contentDetails',
     playlistId,
     maxResults: 25,
@@ -1642,7 +1756,7 @@ async function fetchVideos(channelId, uploadsPlaylistId){
   const ids = playlist.items.map(i => i.contentDetails.videoId).join(',');
 
   // Get video details including duration — 1 unit
-  const details = await YT('videos', {
+  const details = await ytApi('videos', {
     part: 'snippet,contentDetails',
     id: ids,
   });
@@ -1796,20 +1910,62 @@ document.getElementById('feed-refresh-btn').onclick = () => {
 /* ═══════════════════════════════════════════
    VIDEO PLAYER
 ═══════════════════════════════════════════ */
-let currentVideoData = null; // track what's playing for save button
+let currentVideoData    = null;
+let ytPlayer            = null;
+let ytApiReady          = false;
+let endcardPollInterval = null;
+
+function onYouTubeIframeAPIReady(){
+  ytApiReady = true;
+}
 
 function openPlayer(videoId, title, channelName, publishedAt, thumb, duration){
   currentVideoData = {id:videoId, title, channelName, publishedAt, thumb:thumb||'', duration:duration||''};
-  const overlay = document.getElementById('player-overlay');
-  document.getElementById('player-iframe').src =
-    `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&endscreen=0`;
+
   document.getElementById('player-title').textContent = title;
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
-  overlay.classList.add('open');
-  // prevent body scroll
+  document.getElementById('player-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  if(endcardPollInterval){ clearInterval(endcardPollInterval); endcardPollInterval = null; }
+  if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
+
+  const wrap = document.querySelector('.player-video-wrap');
+  const div  = document.createElement('div');
+  div.id = 'player-iframe';
+  wrap.innerHTML = '';
+  wrap.appendChild(div);
+
+  function createPlayer(){
+    ytPlayer = new YT.Player('player-iframe', {
+      height: '100%',
+      width:  '100%',
+      videoId: videoId,
+      playerVars: {
+        autoplay:       1,
+        rel:            0,
+        modestbranding: 1,
+        iv_load_policy: 3,
+        endscreen:      0,
+        fs:             1,
+      },
+      events: {
+        onStateChange: (e) => {
+          if(e.data === YT.PlayerState.ENDED) closePlayer();
+        },
+      },
+    });
+  }
+
+  if(typeof YT !== 'undefined' && YT.Player){
+    createPlayer();
+  } else {
+    const wait = setInterval(() => {
+      if(typeof YT !== 'undefined' && YT.Player){ clearInterval(wait); createPlayer(); }
+    }, 100);
+  }
 }
 
 function updatePlayerSaveBtn(videoId){
@@ -1817,10 +1973,10 @@ function updatePlayerSaveBtn(videoId){
   const icon  = document.getElementById('player-save-icon');
   const label = document.getElementById('player-save-label');
   const btn   = document.getElementById('player-save-btn');
-  icon.style.fill  = saved ? 'var(--accent)' : 'none';
+  icon.style.fill   = saved ? 'var(--accent)' : 'none';
   icon.style.stroke = saved ? 'var(--accent)' : 'currentColor';
   label.textContent = saved ? 'Saved' : 'Save';
-  btn.style.color   = saved ? 'var(--accent)' : 'var(--muted)';
+  btn.style.color       = saved ? 'var(--accent)' : 'var(--muted)';
   btn.style.borderColor = saved ? 'var(--accent)' : 'var(--border)';
 }
 
@@ -1832,13 +1988,12 @@ function toggleSaveFromPlayer(){
 }
 
 function closePlayer(){
-  const overlay = document.getElementById('player-overlay');
-  overlay.classList.remove('open');
-  document.getElementById('player-iframe').src = '';
+  document.getElementById('player-overlay').classList.remove('open');
+  if(endcardPollInterval){ clearInterval(endcardPollInterval); endcardPollInterval = null; }
+  if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
 }
 
-// Close player on back button / escape
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape') closePlayer();
 });
@@ -1971,13 +2126,25 @@ document.getElementById('add-btn').onclick = () => {
 function initSettings(){
   const el = document.getElementById('settings-key-preview');
   el.textContent = googleAccessToken ? 'Google OAuth (signed in)' : 'Not signed in';
+
+  // Show install row if prompt is available (Android/Edge)
+  const row = document.getElementById('settings-install-row');
+  if(row) row.style.display = deferredInstallPrompt ? 'flex' : 'none';
+
+  // Show iOS banner if on iOS and not installed and not dismissed today
+  if(isIos && isIos() && !isInStandaloneMode()){
+    const dismissed = parseInt(localStorage.getItem('ns_ios_banner_dismissed') || '0');
+    if(Date.now() > dismissed){
+      document.getElementById('ios-install-banner').classList.add('show');
+    }
+  }
 }
 
 function changeApiKey(){
   STORE.isOAuth = false;
   googleAccessToken = null;
-  sessionStorage.removeItem('ns_token');
-  sessionStorage.removeItem('ns_token_expiry');
+  localStorage.removeItem('ns_token');
+  localStorage.removeItem('ns_token_expiry');
   showScreen('setup');
 }
 
@@ -2082,7 +2249,7 @@ async function doYTSearch(){
   const videoId = extractYouTubeId(q);
   if(videoId){
     try{
-      const details = await YT('videos', {
+      const details = await ytApi('videos', {
         part: 'snippet,contentDetails,statistics',
         id: videoId,
       });
@@ -2142,7 +2309,7 @@ async function doYTSearch(){
 
   // ── Keyword mode — normal search ──
   try{
-    const search = await YT('search', {
+    const search = await ytApi('search', {
       part: 'snippet',
       q: q,
       type: 'video',
@@ -2160,7 +2327,7 @@ async function doYTSearch(){
 
     // Fetch video details (stats + duration) for all found ids
     const ids = search.items.map(i => i.id.videoId).join(',');
-    const details = await YT('videos', {
+    const details = await ytApi('videos', {
       part: 'snippet,contentDetails,statistics',
       id: ids,
     });
@@ -2281,13 +2448,13 @@ function removeSaved(id){
 window.addEventListener('load', () => {
   if(STORE.isOAuth){
     if(googleAccessToken && Date.now() < tokenExpiry){
-      // Valid token in sessionStorage — restore session directly
+      // Valid token in localStorage — restore session directly
       const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
       showScreen(savedTab);
     } else {
       // Token expired or missing — need fresh login
-      sessionStorage.removeItem('ns_token');
-      sessionStorage.removeItem('ns_token_expiry');
+      localStorage.removeItem('ns_token');
+      localStorage.removeItem('ns_token_expiry');
       startGoogleAuth();
     }
   } else {
