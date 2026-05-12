@@ -12,7 +12,7 @@
 
 <link rel="manifest" href="/manifest.json"/>
 
-<!-- Apple touch icon -->
+<!-- Apple touch icon (inline SVG converted to data URI) -->
 <link rel="apple-touch-icon" href="/nosuggest-logo-v2-512.png"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 
@@ -1042,7 +1042,7 @@ body{
 }
 
 /* ═══════════════════════════════════════
-   IOS INSTALL BANNER
+   INSTALL BANNER
 ═══════════════════════════════════════ */
 #ios-install-banner{
   position:fixed;bottom:0;left:0;right:0;
@@ -1081,7 +1081,8 @@ body{
       <p>Your channels. Your schedule. No suggestions, no autoplay, no notifications.</p>
     </div>
 
-	<button id="android-install-btn" onclick="triggerInstallPrompt()"
+    <!-- Android/Edge install button — shown by beforeinstallprompt only -->
+    <button id="android-install-btn" onclick="triggerInstallPrompt()"
       style="display:none;align-items:center;justify-content:center;gap:10px;
              width:100%;padding:0.85rem;margin-bottom:1rem;
              background:var(--bg2);border:1.5px solid var(--border2);
@@ -1255,6 +1256,16 @@ body{
               <div class="settings-row-sub">5 latest full videos (Shorts filtered)</div>
             </div>
           </div>
+          <div class="settings-row" id="settings-install-row" style="display:none">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Install NoSuggest</div>
+              <div class="settings-row-sub" id="settings-install-sub">Add to your home screen for the full app experience</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500;cursor:pointer" onclick="triggerInstallFromSettings()">Install ↓</div>
+          </div>
 		  <a href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
           <div class="settings-row" style="cursor:pointer;">
             <div class="settings-row-icon">
@@ -1400,6 +1411,51 @@ if('serviceWorker' in navigator){
 }
 
 /* ═══════════════════════════════════════════
+   INSTALL PROMPT (Android, Edge, Chrome)
+═══════════════════════════════════════════ */
+let deferredInstallPrompt = null;
+
+function showInstallBtn(){
+  // Show on setup screen
+  const btn = document.getElementById('android-install-btn');
+  if(btn) btn.style.display = 'flex';
+  // Show on settings screen
+  const row = document.getElementById('settings-install-row');
+  if(row) row.style.display = 'flex';
+}
+
+function hideInstallBtn(){
+  const btn = document.getElementById('android-install-btn');
+  if(btn) btn.style.display = 'none';
+  const row = document.getElementById('settings-install-row');
+  if(row) row.style.display = 'none';
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showInstallBtn();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  hideInstallBtn();
+});
+
+function triggerInstallPrompt(){
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(() => {
+    deferredInstallPrompt = null;
+    hideInstallBtn();
+  });
+}
+
+function triggerInstallFromSettings(){
+  triggerInstallPrompt();
+}
+
+/* ═══════════════════════════════════════════
    IOS INSTALL BANNER
 ═══════════════════════════════════════════ */
 function isIos(){
@@ -1411,38 +1467,20 @@ function isInStandaloneMode(){
 }
 function dismissIosBanner(){
   document.getElementById('ios-install-banner').classList.remove('show');
-  sessionStorage.setItem('ns_ios_banner_dismissed', '1');
-}
-if(isIos() && !isInStandaloneMode() &&
-   !sessionStorage.getItem('ns_ios_banner_dismissed')){
-  setTimeout(() => {
-    document.getElementById('ios-install-banner').classList.add('show');
-  }, 1500);
+  // Remember dismissed so it doesn't reappear until next day
+  const tomorrow = Date.now() + 86400000;
+  localStorage.setItem('ns_ios_banner_dismissed', tomorrow);
 }
 
-/* ═══════════════════════════════════════════
-   ANDROID INSTALL PROMPT
-═══════════════════════════════════════════ */
-let deferredInstallPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  document.getElementById('android-install-btn').style.display = 'flex';
-});
-
-window.addEventListener('appinstalled', () => {
-  deferredInstallPrompt = null;
-  document.getElementById('android-install-btn').style.display = 'none';
-});
-
-function triggerInstallPrompt(){
-  if(!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(() => {
-    deferredInstallPrompt = null;
-    document.getElementById('android-install-btn').style.display = 'none';
-  });
+// Show iOS banner — once per day, not if already installed
+if(isIos() && !isInStandaloneMode()){
+  const dismissed = parseInt(localStorage.getItem('ns_ios_banner_dismissed') || '0');
+  if(Date.now() > dismissed){
+    // Show on settings screen init too — handled in initSettings
+    setTimeout(() => {
+      document.getElementById('ios-install-banner').classList.add('show');
+    }, 1000);
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -1583,8 +1621,8 @@ function showScreen(name, opts){
 // → Paste the client ID below
 const GOOGLE_CLIENT_ID = '9265791897-g6hp775nfek790h0rv58k1gd9k5sk8bl.apps.googleusercontent.com';
 
-let googleAccessToken = sessionStorage.getItem('ns_token') || null;
-let tokenExpiry       = parseInt(sessionStorage.getItem('ns_token_expiry')) || 0;
+let googleAccessToken = localStorage.getItem('ns_token') || null;
+let tokenExpiry       = parseInt(localStorage.getItem('ns_token_expiry')) || 0;
 let gisTokenClient    = null; // GIS token client instance
 
 function startGoogleAuth(){
@@ -1605,6 +1643,7 @@ function startGoogleAuth(){
     gisTokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: 'https://www.googleapis.com/auth/youtube.readonly',
+      prompt: '',
       callback: (response) => {
         if(response.error){
           const err = document.getElementById('setup-error');
@@ -1614,8 +1653,8 @@ function startGoogleAuth(){
         }
 		googleAccessToken = response.access_token;
 		tokenExpiry = Date.now() + (parseInt(response.expires_in) * 1000);
-		sessionStorage.setItem('ns_token', googleAccessToken);
-		sessionStorage.setItem('ns_token_expiry', tokenExpiry);
+		localStorage.setItem('ns_token', googleAccessToken);
+		localStorage.setItem('ns_token_expiry', tokenExpiry);
 		STORE.isOAuth = true;
 		// Small delay to let GIS popup close and browser settle before firing API calls
 		setTimeout(() => {
@@ -1642,8 +1681,8 @@ const ytApi = (path, params) => {
   // Proactively catch expired token before the request goes out
   if(STORE.isOAuth && (!googleAccessToken || Date.now() >= tokenExpiry)){
     googleAccessToken = null;
-    sessionStorage.removeItem('ns_token');
-    sessionStorage.removeItem('ns_token_expiry');
+    localStorage.removeItem('ns_token');
+    localStorage.removeItem('ns_token_expiry');
     startGoogleAuth();
     return Promise.reject(new Error('Session expired — please sign in again.'));
   }
@@ -1654,8 +1693,8 @@ const ytApi = (path, params) => {
     // If token expired mid-request, re-auth
     if(d.error?.status === 'UNAUTHENTICATED'){
       googleAccessToken = null;
-      sessionStorage.removeItem('ns_token');
-      sessionStorage.removeItem('ns_token_expiry');
+      localStorage.removeItem('ns_token');
+      localStorage.removeItem('ns_token_expiry');
       startGoogleAuth();
       throw new Error('Session expired — please sign in again.');
     }
@@ -1874,11 +1913,11 @@ document.getElementById('feed-refresh-btn').onclick = () => {
 /* ═══════════════════════════════════════════
    VIDEO PLAYER
 ═══════════════════════════════════════════ */
-let currentVideoData = null;
-let ytPlayer         = null;
-let ytApiReady       = false;
+let currentVideoData    = null;
+let ytPlayer            = null;
+let ytApiReady          = false;
+let endcardPollInterval = null;
 
-// Called automatically by YouTube IFrame API once script loads
 function onYouTubeIframeAPIReady(){
   ytApiReady = true;
 }
@@ -1893,10 +1932,9 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb, duration){
   document.getElementById('player-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // Always destroy previous player instance before creating a new one
+  if(endcardPollInterval){ clearInterval(endcardPollInterval); endcardPollInterval = null; }
   if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
 
-  // Reset the target div (destroy() removes the iframe, recreate the div)
   const wrap = document.querySelector('.player-video-wrap');
   const div  = document.createElement('div');
   div.id = 'player-iframe';
@@ -1924,7 +1962,6 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb, duration){
     });
   }
 
-  // If API already ready, create immediately; otherwise wait
   if(ytApiReady){
     createPlayer();
   } else {
@@ -1955,11 +1992,11 @@ function toggleSaveFromPlayer(){
 
 function closePlayer(){
   document.getElementById('player-overlay').classList.remove('open');
+  if(endcardPollInterval){ clearInterval(endcardPollInterval); endcardPollInterval = null; }
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
 }
 
-// Close player on escape key
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape') closePlayer();
 });
@@ -2092,13 +2129,25 @@ document.getElementById('add-btn').onclick = () => {
 function initSettings(){
   const el = document.getElementById('settings-key-preview');
   el.textContent = googleAccessToken ? 'Google OAuth (signed in)' : 'Not signed in';
+
+  // Show install row if prompt is available (Android/Edge)
+  const row = document.getElementById('settings-install-row');
+  if(row) row.style.display = deferredInstallPrompt ? 'flex' : 'none';
+
+  // Show iOS banner if on iOS and not installed and not dismissed today
+  if(isIos && isIos() && !isInStandaloneMode()){
+    const dismissed = parseInt(localStorage.getItem('ns_ios_banner_dismissed') || '0');
+    if(Date.now() > dismissed){
+      document.getElementById('ios-install-banner').classList.add('show');
+    }
+  }
 }
 
 function changeApiKey(){
   STORE.isOAuth = false;
   googleAccessToken = null;
-  sessionStorage.removeItem('ns_token');
-  sessionStorage.removeItem('ns_token_expiry');
+  localStorage.removeItem('ns_token');
+  localStorage.removeItem('ns_token_expiry');
   showScreen('setup');
 }
 
@@ -2402,13 +2451,13 @@ function removeSaved(id){
 window.addEventListener('load', () => {
   if(STORE.isOAuth){
     if(googleAccessToken && Date.now() < tokenExpiry){
-      // Valid token in sessionStorage — restore session directly
+      // Valid token in localStorage — restore session directly
       const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
       showScreen(savedTab);
     } else {
       // Token expired or missing — need fresh login
-      sessionStorage.removeItem('ns_token');
-      sessionStorage.removeItem('ns_token_expiry');
+      localStorage.removeItem('ns_token');
+      localStorage.removeItem('ns_token_expiry');
       startGoogleAuth();
     }
   } else {
