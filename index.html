@@ -19,7 +19,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap"/>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -1663,7 +1662,9 @@ function startGoogleAuth(){
     });
   }
 
-  gisTokenClient.requestAccessToken({ prompt: 'select_account' });
+  // Try silent first — only show account picker on first ever login
+  const hasLoggedInBefore = STORE.isOAuth;
+  gisTokenClient.requestAccessToken({ prompt: hasLoggedInBefore ? '' : 'select_account' });
 }
 
 // handleOAuthCallback no longer needed — GIS doesn't use URL redirects
@@ -1681,8 +1682,9 @@ const ytApi = (path, params) => {
     googleAccessToken = null;
     localStorage.removeItem('ns_token');
     localStorage.removeItem('ns_token_expiry');
+    // Don't reject immediately — trigger silent refresh and let it retry
     startGoogleAuth();
-    return Promise.reject(new Error('Session expired — please sign in again.'));
+    return Promise.reject(new Error('Refreshing session…'));
   }
   headers['Authorization'] = 'Bearer ' + googleAccessToken;
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k,v));
