@@ -1639,18 +1639,20 @@ function startGoogleAuth(forcePrompt){
   const hint = localStorage.getItem('ns_user_hint') || '';
   const hasLoggedInBefore = STORE.isOAuth;
 
-  // Always re-init token client so hint is always fresh
+  // Re-init every time so hint is always fresh — not cached from first login
   gisTokenClient = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
     scope: 'https://www.googleapis.com/auth/youtube.readonly',
     hint,
     callback: (response) => {
       if(response.error){
-        if((response.error === 'interaction_required' || response.error === 'access_denied') && !forcePrompt){
-          // Silent auth failed — retry with visible account picker
+        if(!forcePrompt && hasLoggedInBefore){
+          // Silent re-auth failed — fall back to visible picker
           startGoogleAuth(true);
           return;
         }
+        // Show error only if picker also failed
+        showScreen('setup');
         const err = document.getElementById('setup-error');
         err.textContent = 'Google sign-in failed. Please try again.';
         err.style.display = 'block';
@@ -1667,7 +1669,6 @@ function startGoogleAuth(forcePrompt){
       }).then(r => r.json()).then(info => {
         if(info.email) localStorage.setItem('ns_user_hint', info.email);
       }).catch(() => {});
-      // Small delay to let GIS popup close and browser settle before firing API calls
       setTimeout(() => {
         showScreen('feed');
         if(!STORE.channels.length) showScreen('channels');
@@ -1679,8 +1680,9 @@ function startGoogleAuth(forcePrompt){
     // First login or silent failed — show account picker
     gisTokenClient.requestAccessToken({ prompt: 'select_account' });
   } else {
-    // Returning user — attempt fully silent, no UI
-    gisTokenClient.requestAccessToken({ prompt: 'none' });
+    // Returning user — hint tells GIS which account, skip picker
+    // Omitting prompt (not using 'none') works better in PWA/WebView contexts
+    gisTokenClient.requestAccessToken({});
   }
 }
 
