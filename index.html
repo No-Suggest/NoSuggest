@@ -1621,6 +1621,33 @@ const GOOGLE_CLIENT_ID = '9265791897-g6hp775nfek790h0rv58k1gd9k5sk8bl.apps.googl
 let googleAccessToken = localStorage.getItem('ns_token') || null;
 let tokenExpiry       = parseInt(localStorage.getItem('ns_token_expiry')) || 0;
 let gisTokenClient    = null; // GIS token client instance
+let tokenRefreshTimer = null;
+
+function scheduleTokenRefresh(){
+  if(tokenRefreshTimer) clearTimeout(tokenRefreshTimer);
+  // Refresh at 50 minutes (token lasts 1 hour)
+  // Only works while app is open — that's the point
+  tokenRefreshTimer = setTimeout(() => {
+    const hint = localStorage.getItem('ns_user_hint') || '';
+    if(!hint) return;
+    // Re-init with fresh hint and request silently
+    // User is actively on the page here so GIS can do this without UI
+    gisTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/youtube.readonly',
+      hint,
+      callback: (response) => {
+        if(response.error) return; // Silent fail is fine — next open will prompt
+        googleAccessToken = response.access_token;
+        tokenExpiry = Date.now() + (parseInt(response.expires_in) * 1000);
+        localStorage.setItem('ns_token', googleAccessToken);
+        localStorage.setItem('ns_token_expiry', tokenExpiry);
+        scheduleTokenRefresh(); // Schedule next refresh
+      },
+    });
+    gisTokenClient.requestAccessToken({});
+  }, 57 * 60 * 1000); // 50 minutes
+}
 
 function startGoogleAuth(forcePrompt){
   if(!GOOGLE_CLIENT_ID){
@@ -1663,6 +1690,7 @@ function startGoogleAuth(forcePrompt){
       localStorage.setItem('ns_token', googleAccessToken);
       localStorage.setItem('ns_token_expiry', tokenExpiry);
       STORE.isOAuth = true;
+	  scheduleTokenRefresh();
       // Store email hint for future silent refreshes
       fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: { Authorization: 'Bearer ' + response.access_token }
