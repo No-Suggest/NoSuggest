@@ -1134,6 +1134,38 @@ body{
 	</div>
   </div>
 
+  <!-- ══ SCREEN: WELCOME BACK ══ -->
+  <div class="screen" id="screen-welcome">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;gap:2rem">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem">
+        <svg width="48" height="48" viewBox="0 0 512 512" style="border-radius:12px">
+          <rect width="512" height="512" rx="80" fill="#0a0a0a"/>
+          <rect x="130" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+          <rect x="324" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+          <polygon points="130,148 188,148 382,364 324,364" fill="#e8ff5a"/>
+        </svg>
+        <span style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:500;letter-spacing:-0.02em">NoSuggest</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.5rem">
+        <p style="font-size:1rem;font-weight:500;color:var(--text)" id="welcome-back-name">Welcome back</p>
+        <p style="font-size:13.5px;color:var(--muted);line-height:1.6">Your session expired.<br/>Tap below to continue watching.</p>
+      </div>
+
+      <button class="btn" id="welcome-continue-btn" onclick="continueSession()" style="width:auto;padding:0.85rem 2.5rem;display:flex;align-items:center;gap:10px">
+        <svg width="18" height="18" viewBox="0 0 48 48">
+          <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.6 29.3 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.2 3l5.7-5.7C34.3 5.5 29.4 3.5 24 3.5 12.7 3.5 3.5 12.7 3.5 24S12.7 44.5 24 44.5c11 0 20.5-8 20.5-20.5 0-1.4-.1-2.7-.4-4z"/>
+          <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3.1 0 6 1.1 8.2 3l5.7-5.7C34.3 5.5 29.4 3.5 24 3.5c-7.6 0-14.2 4.3-17.7 11.2z"/>
+          <path fill="#4CAF50" d="M24 44.5c5.2 0 10-1.9 13.7-5l-6.3-5.2C29.5 35.8 26.9 37 24 37c-5.2 0-9.6-3.5-11.2-8.3l-6.6 5.1C9.8 40.3 16.5 44.5 24 44.5z"/>
+          <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.5l6.3 5.2c3.8-3.5 6.2-8.6 6.2-14.7 0-1.4-.1-2.7-.4-4z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <p style="font-size:12px;color:var(--faint)">🔒 No account selection needed</p>
+    </div>
+  </div>
+
   <!-- ══ SCREEN: FEED ══ -->
   <div class="screen" id="screen-feed">
     <div class="feed-header">
@@ -1576,10 +1608,10 @@ function showScreen(name, opts){
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
   const setupMode = !STORE.isOAuth && !googleAccessToken;
-  const screen = setupMode ? 'setup' : name;
+  const screen = (setupMode && name !== 'welcome') ? 'setup' : name;
 
   // Persist active tab so browser reloads land on the same screen
-  if(screen !== 'setup' && screen !== 'add'){
+  if(screen !== 'setup' && screen !== 'add' && screen !== 'welcome'){
     localStorage.setItem('ns_active_tab', screen);
   }
 
@@ -1588,7 +1620,7 @@ function showScreen(name, opts){
 
   // show/hide nav
   const nav = document.getElementById('main-nav');
-  nav.style.display = (screen === 'setup' || screen === 'add') ? 'none' : 'flex';
+  nav.style.display = (screen === 'setup' || screen === 'add' || screen === 'welcome') ? 'none' : 'flex';
 
   // update nav active state
   const navMap = {feed:'nav-feed', channels:'nav-channels', settings:'nav-settings', search:'nav-search', saved:'nav-saved'};
@@ -1649,7 +1681,16 @@ function scheduleTokenRefresh(){
   }, 57 * 60 * 1000); // 50 minutes
 }
 
-function startGoogleAuth(forcePrompt){
+function continueSession(){
+  const btn = document.getElementById('welcome-continue-btn');
+  if(btn){
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span>';
+  }
+  startGoogleAuth();
+}
+
+function startGoogleAuth(){
   if(!GOOGLE_CLIENT_ID){
     const err = document.getElementById('setup-error');
     err.textContent = 'OAuth not configured. Contact support.';
@@ -1659,7 +1700,7 @@ function startGoogleAuth(forcePrompt){
 
   // Wait for GIS library to load if not ready yet
   if(typeof google === 'undefined' || !google.accounts){
-    setTimeout(() => startGoogleAuth(forcePrompt), 200);
+    setTimeout(startGoogleAuth, 200);
     return;
   }
 
@@ -1672,16 +1713,18 @@ function startGoogleAuth(forcePrompt){
     scope: 'https://www.googleapis.com/auth/youtube.readonly',
     hint,
     callback: (response) => {
+      // Reset welcome button state if it was used
+      const btn = document.getElementById('welcome-continue-btn');
+      if(btn){
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.6 29.3 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.2 3l5.7-5.7C34.3 5.5 29.4 3.5 24 3.5 12.7 3.5 3.5 12.7 3.5 24S12.7 44.5 24 44.5c11 0 20.5-8 20.5-20.5 0-1.4-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3.1 0 6 1.1 8.2 3l5.7-5.7C34.3 5.5 29.4 3.5 24 3.5c-7.6 0-14.2 4.3-17.7 11.2z"/><path fill="#4CAF50" d="M24 44.5c5.2 0 10-1.9 13.7-5l-6.3-5.2C29.5 35.8 26.9 37 24 37c-5.2 0-9.6-3.5-11.2-8.3l-6.6 5.1C9.8 40.3 16.5 44.5 24 44.5z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.5l6.3 5.2c3.8-3.5 6.2-8.6 6.2-14.7 0-1.4-.1-2.7-.4-4z"/></svg> Continue with Google';
+      }
+
       if(response.error){
-        if(!forcePrompt && hasLoggedInBefore){
-          // Silent re-auth failed — fall back to visible picker
-          startGoogleAuth(true);
-          return;
-        }
-        // Show error only if picker also failed
+        // Sign-in failed — go to setup screen with error
         showScreen('setup');
         const err = document.getElementById('setup-error');
-        err.textContent = 'Google sign-in failed. Please try again.';
+        err.textContent = 'Sign-in failed. Please try again.';
         err.style.display = 'block';
         return;
       }
@@ -1690,7 +1733,7 @@ function startGoogleAuth(forcePrompt){
       localStorage.setItem('ns_token', googleAccessToken);
       localStorage.setItem('ns_token_expiry', tokenExpiry);
       STORE.isOAuth = true;
-	  scheduleTokenRefresh();
+      scheduleTokenRefresh();
       // Store email hint for future silent refreshes
       fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: { Authorization: 'Bearer ' + response.access_token }
@@ -1704,12 +1747,11 @@ function startGoogleAuth(forcePrompt){
     },
   });
 
-  if(forcePrompt || !hasLoggedInBefore){
-    // First login or silent failed — show account picker
+  if(!hasLoggedInBefore){
+    // First ever login — show full account picker
     gisTokenClient.requestAccessToken({ prompt: 'select_account' });
   } else {
-    // Returning user — hint tells GIS which account, skip picker
-    // Omitting prompt (not using 'none') works better in PWA/WebView contexts
+    // Returning user — hint set, GIS uses it to skip account picker
     gisTokenClient.requestAccessToken({});
   }
 }
@@ -2504,11 +2546,18 @@ window.addEventListener('load', () => {
       const savedTab = localStorage.getItem('ns_active_tab') || 'feed';
       showScreen(savedTab);
     } else {
-      // Token expired or missing — need fresh login
+      // Token expired — show welcome back screen, user taps to re-auth
+      googleAccessToken = null;
       localStorage.removeItem('ns_token');
       localStorage.removeItem('ns_token_expiry');
-	  // hint stays in localStorage — needed for silent refresh
-      startGoogleAuth();
+      const hint = localStorage.getItem('ns_user_hint');
+      if(hint){
+        // Returning user — show welcome back screen, no account picker
+        showScreen('welcome');
+      } else {
+        // No hint stored — first time or cleared data, go to setup
+        showScreen('setup');
+      }
     }
   } else {
     showScreen('setup');
