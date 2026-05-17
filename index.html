@@ -1751,8 +1751,8 @@ function startGoogleAuth(){
     // First ever login — show full account picker
     gisTokenClient.requestAccessToken({ prompt: 'select_account' });
   } else {
-    // Returning user — hint set, GIS uses it to skip account picker
-    gisTokenClient.requestAccessToken({});
+    // Returning user — empty prompt + hint suppresses account picker
+    gisTokenClient.requestAccessToken({ prompt: '', hint });
   }
 }
 
