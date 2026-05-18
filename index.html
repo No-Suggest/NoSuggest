@@ -678,6 +678,44 @@ body{
   font-size:13px;
 }
 
+/* channel suggestion list */
+.channel-suggestions{
+  margin-top:0.75rem;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+  display:none;
+  animation:fadeUp 0.2s ease;
+}
+
+.channel-suggestion-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0.85rem 1rem;
+  cursor:pointer;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  transition:background 0.15s;
+}
+
+.channel-suggestion-item:last-child{border-bottom:none;}
+.channel-suggestion-item:active{background:var(--bg3);}
+
+.suggestion-avatar{
+  width:38px;height:38px;
+  border-radius:50%;
+  background:var(--bg3);
+  overflow:hidden;flex-shrink:0;
+  border:1px solid var(--border);
+}
+
+.suggestion-avatar img{width:100%;height:100%;object-fit:cover;}
+
+.suggestion-info{flex:1;min-width:0;}
+.suggestion-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.suggestion-subs{font-size:11px;color:var(--muted);margin-top:1px;font-family:'DM Mono',monospace;}
+
 /* ═══════════════════════════════════════
    VIDEO PLAYER OVERLAY
 ═══════════════════════════════════════ */
@@ -1219,6 +1257,8 @@ body{
           placeholder="@artofliving-official or channel name"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
         <div class="input-hint">Type @handle, channel name, or paste a YouTube URL</div>
+
+        <div id="channel-suggestions" class="channel-suggestions"></div>
 
         <div id="channel-searching" class="searching-state" style="display:none">
           <div class="spin"></div>
@@ -1801,32 +1841,33 @@ async function searchChannel(query){
   // Try as handle first (strip @ if present)
   const handle = query.trim().replace(/^@/,'').replace(/.*youtube\.com\/@?/,'').split('/')[0].split('?')[0];
 
-  // Search for channel
+  // Search for up to 5 channels
   const data = await ytApi('search', {
-    part:'snippet', type:'channel', q:handle, maxResults:1
+    part:'snippet', type:'channel', q:handle, maxResults:5
   });
 
   if(!data.items?.length) throw new Error('Channel not found');
 
-  const item = data.items[0];
-  const channelId = item.snippet.channelId;
-
-  // Get full channel details (for subscriber count & avatar)
+  // Batch fetch all channel details in one call
+  const ids = data.items.map(i => i.snippet.channelId).join(',');
   const detail = await ytApi('channels', {
-    part:'snippet,statistics,contentDetails', id:channelId
+    part:'snippet,statistics,contentDetails', id:ids
   });
 
   if(!detail.items?.length) throw new Error('Could not load channel details');
 
-  const ch = detail.items[0];
-  return {
-    id:     channelId,
-    name:   ch.snippet.title,
-    handle: ch.snippet.customUrl || handle,
-    avatar: ch.snippet.thumbnails?.medium?.url || ch.snippet.thumbnails?.default?.url || '',
-    subs:   ch.statistics?.subscriberCount || '0',
+  // Sort by subscriber count descending
+  const channels = detail.items.map(ch => ({
+    id:        ch.id,
+    name:      ch.snippet.title,
+    handle:    ch.snippet.customUrl || handle,
+    avatar:    ch.snippet.thumbnails?.medium?.url || ch.snippet.thumbnails?.default?.url || '',
+    subs:      ch.statistics?.subscriberCount || '0',
     uploadsId: ch.contentDetails?.relatedPlaylists?.uploads || '',
-  };
+  }));
+
+  channels.sort((a,b) => parseInt(b.subs) - parseInt(a.subs));
+  return channels;
 }
 
 async function fetchVideos(channelId, uploadsPlaylistId){
@@ -2142,6 +2183,8 @@ let searchTimeout = null;
 function initAdd(){
   foundChannel = null;
   document.getElementById('channel-input').value = '';
+  document.getElementById('channel-suggestions').style.display = 'none';
+  document.getElementById('channel-suggestions').innerHTML = '';
   document.getElementById('channel-preview').classList.remove('show');
   document.getElementById('add-btn').style.display = 'none';
   document.getElementById('add-error').style.display = 'none';
@@ -2162,37 +2205,38 @@ document.getElementById('channel-input').addEventListener('input', e => {
 });
 
 async function doChannelSearch(query){
-  const searching = document.getElementById('channel-searching');
-  const preview   = document.getElementById('channel-preview');
-  const errEl     = document.getElementById('add-error');
-  const addBtn    = document.getElementById('add-btn');
+  const searching   = document.getElementById('channel-searching');
+  const preview     = document.getElementById('channel-preview');
+  const errEl       = document.getElementById('add-error');
+  const addBtn      = document.getElementById('add-btn');
+  const suggestions = document.getElementById('channel-suggestions');
 
   searching.style.display = 'block';
   preview.classList.remove('show');
   errEl.style.display = 'none';
   addBtn.style.display = 'none';
+  suggestions.style.display = 'none';
+  suggestions.innerHTML = '';
 
   try{
-    const ch = await searchChannel(query);
-    foundChannel = ch;
-
-    // Check if already added
-    const exists = STORE.channels.some(c => c.id === ch.id);
-
-    document.getElementById('preview-img').src   = ch.avatar;
-    document.getElementById('preview-name').textContent = ch.name;
-    document.getElementById('preview-subs').textContent = formatSubs(ch.subs);
-    preview.classList.add('show');
+    const channels = await searchChannel(query);
     searching.style.display = 'none';
 
-    if(exists){
-      addBtn.textContent = 'Already Added';
-      addBtn.disabled = true;
-    } else {
-      addBtn.textContent = `Add ${ch.name}`;
-      addBtn.disabled = false;
-    }
-    addBtn.style.display = 'block';
+    // Show suggestion list
+    suggestions.innerHTML = channels.map((ch, i) => `
+      <div class="channel-suggestion-item" onclick="selectSuggestion(${i})">
+        <div class="suggestion-avatar">
+          <img src="${esc(ch.avatar)}" alt="${esc(ch.name)}" loading="lazy"/>
+        </div>
+        <div class="suggestion-info">
+          <div class="suggestion-name">${esc(ch.name)}</div>
+          <div class="suggestion-subs">${formatSubs(ch.subs)}</div>
+        </div>
+      </div>`).join('');
+
+    // Store all results for selection
+    window._channelSuggestions = channels;
+    suggestions.style.display = 'block';
 
   } catch(err){
     searching.style.display = 'none';
@@ -2200,6 +2244,37 @@ async function doChannelSearch(query){
     errEl.style.display = 'block';
     foundChannel = null;
   }
+}
+
+function selectSuggestion(index){
+  const ch = window._channelSuggestions?.[index];
+  if(!ch) return;
+
+  foundChannel = ch;
+
+  const suggestions = document.getElementById('channel-suggestions');
+  const preview     = document.getElementById('channel-preview');
+  const addBtn      = document.getElementById('add-btn');
+  const errEl       = document.getElementById('add-error');
+
+  // Hide suggestions, show preview card
+  suggestions.style.display = 'none';
+  errEl.style.display = 'none';
+
+  document.getElementById('preview-img').src = ch.avatar;
+  document.getElementById('preview-name').textContent = ch.name;
+  document.getElementById('preview-subs').textContent = formatSubs(ch.subs);
+  preview.classList.add('show');
+
+  const exists = STORE.channels.some(c => c.id === ch.id);
+  if(exists){
+    addBtn.textContent = 'Already Added';
+    addBtn.disabled = true;
+  } else {
+    addBtn.textContent = `Add ${ch.name}`;
+    addBtn.disabled = false;
+  }
+  addBtn.style.display = 'block';
 }
 
 document.getElementById('add-btn').onclick = () => {
