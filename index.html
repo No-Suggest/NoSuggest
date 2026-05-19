@@ -1860,6 +1860,7 @@ function handlePinComplete(){
   } else if(pinMode === 'verify-disable'){
     if(pinBuffer === STORE.kidsPin){
       STORE.kidsMode = false;
+      STORE.kidsPin = ''; // Reset PIN so next enable requires a fresh one
       closePinOverlay();
       applyKidsMode();
       toast('Kids Mode disabled');
@@ -2768,10 +2769,9 @@ async function doYTSearch(){
       id: ids,
     });
 
-    // Sort by view count descending and take top 5
+    // Sort by view count descending — show all 10
     const videos = (details.items || [])
       .sort((a, b) => parseInt(b.statistics?.viewCount||0) - parseInt(a.statistics?.viewCount||0))
-      .slice(0, 5)
       .map(v => ({
         id:          v.id,
         title:       v.snippet.title,
