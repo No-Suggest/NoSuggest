@@ -85,8 +85,101 @@ body{
   transform:translateY(0);
 }
 
-/* ── SCROLLABLE BODY ── */
-.screen-body{
+/* ── KIDS MODE ── */
+.kids-mode-banner{
+  display:none;
+  align-items:center;
+  gap:8px;
+  background:#e8ff5a;
+  color:#0a0a0a;
+  font-size:12px;
+  font-weight:600;
+  padding:6px 1rem;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.kids-mode-banner.show{ display:flex; }
+
+.pin-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:2rem;
+}
+.pin-overlay.show{ display:flex; }
+.pin-box{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:2rem 1.5rem;
+  width:100%;
+  max-width:320px;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  gap:1.25rem;
+}
+.pin-box h3{
+  font-size:1rem;
+  font-weight:600;
+  color:var(--text);
+}
+.pin-box p{
+  font-size:13px;
+  color:var(--muted);
+  margin-top:-0.5rem;
+}
+.pin-dots{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+}
+.pin-dot{
+  width:14px;height:14px;
+  border-radius:50%;
+  border:2px solid var(--border);
+  background:transparent;
+  transition:background 0.15s,border-color 0.15s;
+}
+.pin-dot.filled{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+.pin-keypad{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.pin-key{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  font-size:1.2rem;
+  font-weight:500;
+  color:var(--text);
+  padding:0.9rem 0;
+  cursor:pointer;
+  transition:background 0.15s;
+  font-family:'DM Mono',monospace;
+}
+.pin-key:active{ background:var(--accent);color:#0a0a0a; }
+.pin-error{
+  font-size:12px;
+  color:#ff4444;
+  min-height:16px;
+}
+.pin-cancel{
+  font-size:12px;
+  color:var(--muted);
+  cursor:pointer;
+  text-decoration:underline;
+  background:none;border:none;
+  padding:0;
+}
+
   flex:1;
   overflow-y:auto;
   overflow-x:hidden;
@@ -1104,6 +1197,41 @@ body{
 <body>
 <div id="app">
 
+  <!-- ══ KIDS MODE BANNER ══ -->
+  <div class="kids-mode-banner" id="kids-banner">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Kids Mode
+  </div>
+
+  <!-- ══ PIN OVERLAY ══ -->
+  <div class="pin-overlay" id="pin-overlay">
+    <div class="pin-box">
+      <h3 id="pin-title">Enter Parental PIN</h3>
+      <p id="pin-subtitle">Enter your 4-digit PIN to continue</p>
+      <div class="pin-dots">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key" onclick="pinKey('back')" style="font-size:0.9rem">⌫</button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key pin-cancel" onclick="pinCancel()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ SCREEN: SETUP ══ -->
   <div class="screen" id="screen-setup">
     <div class="setup-logo">
@@ -1135,7 +1263,7 @@ body{
       <h2>Sign in with Google</h2>
       <p style="font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem">
         <strong style="color:var(--text)">Channels you add here stay on this device.</strong>
-		<br/>Your phone and laptop can each have their own list, you choose what each one is for.
+		<br/>Your phone, laptop and your kids ipad can each have their own list, you choose what each one is for.
 		<br/>Come when you feel like it. Watch what you chose. Close it and move on.
       </p>
       <div class="error-msg" id="setup-error" style="margin-bottom:0.75rem"></div>
@@ -1305,6 +1433,22 @@ body{
       </div>
 
       <div class="settings-section" style="padding-top:0">
+        <div class="settings-label">Family</div>
+        <div class="settings-card">
+          <div class="settings-row" style="cursor:pointer" onclick="toggleKidsMode()">
+            <div class="settings-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Kids Mode</div>
+              <div class="settings-row-sub" id="kids-mode-sub">Hides Search and Channels tabs. Requires PIN to disable.</div>
+            </div>
+            <div class="settings-row-action" id="kids-mode-status" style="font-size:12px;font-weight:600;color:var(--muted)">Off</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" style="padding-top:0">
         <div class="settings-label">About</div>
         <div class="settings-card">
           <div class="settings-row">
@@ -1323,7 +1467,7 @@ body{
             <div class="settings-row-text">
               <div class="settings-row-label">Per device</div>
               <div class="settings-row-sub"><strong style="color:var(--text)">Channels you add here stay on this device.</strong>
-			  <br/>Your phone and laptop can each have their own list, you choose what each one is for.</div>
+			  <br/>Your phone, laptop and your kids ipad can each have their own list, you choose what each one is for.</div>
             </div>
           </div>
           <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()">
@@ -1563,6 +1707,10 @@ const STORE = {
   set isOAuth(v){ v ? localStorage.setItem('ft_oauth','1') : localStorage.removeItem('ft_oauth') },
   get savedVideos(){ try{ return JSON.parse(localStorage.getItem('ft_saved_videos')||'[]') }catch(e){ return [] } },
   set savedVideos(v){ localStorage.setItem('ft_saved_videos', JSON.stringify(v)) },
+  get kidsMode(){ return !!localStorage.getItem('ns_kids_mode') },
+  set kidsMode(v){ v ? localStorage.setItem('ns_kids_mode','1') : localStorage.removeItem('ns_kids_mode') },
+  get kidsPin(){ return localStorage.getItem('ns_kids_pin') || '' },
+  set kidsPin(v){ v ? localStorage.setItem('ns_kids_pin', v) : localStorage.removeItem('ns_kids_pin') },
 };
 
 let currentScreen = '';
@@ -1674,8 +1822,119 @@ function showScreen(name, opts){
 }
 
 /* ═══════════════════════════════════════════
-   SETUP SCREEN
+   KIDS MODE
 ═══════════════════════════════════════════ */
+let pinBuffer = '';
+let pinMode = ''; // 'set' | 'verify-disable' | 'verify-set'
+let pinResolve = null;
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    document.getElementById('pd'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function pinKey(k){
+  const errEl = document.getElementById('pin-error');
+  errEl.textContent = '';
+  if(k === 'back'){
+    pinBuffer = pinBuffer.slice(0,-1);
+    updatePinDots();
+    return;
+  }
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += k;
+  updatePinDots();
+  if(pinBuffer.length === 4) setTimeout(handlePinComplete, 150);
+}
+
+function handlePinComplete(){
+  const errEl = document.getElementById('pin-error');
+  if(pinMode === 'set'){
+    // First time setting PIN
+    STORE.kidsPin = pinBuffer;
+    STORE.kidsMode = true;
+    closePinOverlay();
+    applyKidsMode();
+    toast('Kids Mode enabled 🛡️');
+  } else if(pinMode === 'verify-disable'){
+    if(pinBuffer === STORE.kidsPin){
+      STORE.kidsMode = false;
+      closePinOverlay();
+      applyKidsMode();
+      toast('Kids Mode disabled');
+    } else {
+      errEl.textContent = 'Incorrect PIN. Try again.';
+      pinBuffer = '';
+      updatePinDots();
+    }
+  }
+}
+
+function pinCancel(){
+  closePinOverlay();
+}
+
+function closePinOverlay(){
+  pinBuffer = '';
+  pinMode = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-overlay').classList.remove('show');
+}
+
+function showPinOverlay(mode){
+  pinBuffer = '';
+  pinMode = mode;
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  if(mode === 'set'){
+    document.getElementById('pin-title').textContent = 'Set Parental PIN';
+    document.getElementById('pin-subtitle').textContent = 'Choose a 4-digit PIN to protect Kids Mode';
+  } else {
+    document.getElementById('pin-title').textContent = 'Enter Parental PIN';
+    document.getElementById('pin-subtitle').textContent = 'Enter your PIN to disable Kids Mode';
+  }
+  document.getElementById('pin-overlay').classList.add('show');
+}
+
+function toggleKidsMode(){
+  if(STORE.kidsMode){
+    // Already on — verify PIN to disable
+    showPinOverlay('verify-disable');
+  } else {
+    // Turning on — set PIN if not set, else just enable
+    if(STORE.kidsPin){
+      // PIN already set — enable directly
+      STORE.kidsMode = true;
+      applyKidsMode();
+      toast('Kids Mode enabled 🛡️');
+    } else {
+      // No PIN yet — ask to set one
+      showPinOverlay('set');
+    }
+  }
+  initSettings(); // refresh status display
+}
+
+function applyKidsMode(){
+  const on = STORE.kidsMode;
+  // Show/hide banner
+  document.getElementById('kids-banner').classList.toggle('show', on);
+  // Show/hide nav buttons
+  document.getElementById('nav-search').style.display   = on ? 'none' : '';
+  document.getElementById('nav-channels').style.display = on ? 'none' : '';
+  // If currently on a hidden screen, redirect to feed
+  if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add')){
+    showScreen('feed');
+  }
+  // Update settings status
+  const statusEl = document.getElementById('kids-mode-status');
+  if(statusEl) statusEl.textContent = on ? 'On' : 'Off';
+  if(statusEl) statusEl.style.color = on ? 'var(--accent)' : 'var(--muted)';
+}
+
+
 /* ═══════════════════════════════════════════
    GOOGLE OAUTH — sign in without API key
    Uses Google Identity Services token client.
@@ -2307,6 +2566,13 @@ function initSettings(){
       document.getElementById('ios-install-banner').classList.add('show');
     }
   }
+
+  // Sync Kids Mode status display
+  const statusEl = document.getElementById('kids-mode-status');
+  if(statusEl){
+    statusEl.textContent = STORE.kidsMode ? 'On' : 'Off';
+    statusEl.style.color = STORE.kidsMode ? 'var(--accent)' : 'var(--muted)';
+  }
 }
 
 function changeApiKey(){
@@ -2616,6 +2882,9 @@ function removeSaved(id){
    BOOT
 ═══════════════════════════════════════════ */
 window.addEventListener('load', () => {
+  // Apply Kids Mode state immediately on boot
+  applyKidsMode();
+
   if(STORE.isOAuth){
     if(googleAccessToken && Date.now() < tokenExpiry){
       // Valid token in localStorage — restore session directly
