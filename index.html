@@ -264,14 +264,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .search-views-badge{display:inline-block;font-size:9.5px;background:rgba(232,255,90,0.12);color:var(--accent);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;margin-top:3px;}
 .search-empty-state{text-align:center;padding:3.5rem 2rem;color:var(--faint);font-size:14px;line-height:1.7;}
 .search-empty-state .big-icon{font-size:3.5rem;opacity:0.3;margin-bottom:0.75rem;}
-.search-suggestions{border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;display:none;animation:fadeUp 0.2s ease;background:var(--bg2);margin-top:6px;}
-.search-suggestion-item{display:flex;gap:10px;align-items:center;padding:0.7rem 0.9rem;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.15s;}
-.search-suggestion-item:last-child{border-bottom:none;}
-.search-suggestion-item:active{background:var(--bg3);}
-.search-sug-thumb{flex-shrink:0;width:72px;height:40px;border-radius:4px;object-fit:cover;background:var(--bg3);}
-.search-sug-info{flex:1;min-width:0;}
-.search-sug-title{font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.search-sug-meta{font-size:10.5px;color:var(--faint);font-family:'DM Mono',monospace;margin-top:2px;}
 
 /* ═══════════════════════════════════════
    SCREEN: SAVED VIDEOS
@@ -441,9 +433,9 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
         <!-- PRIMARY: Search by name -->
         <div class="field-label">Search by channel name</div>
         <input class="text-input" id="channel-input" type="text"
-          placeholder="e.g. Dhruv Rathee or @handle"
+          placeholder="e.g. MrBeast or @handle"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-        <div class="input-hint">Type a name — results appear automatically after you stop typing</div>
+        <div class="input-hint">Type a name or handle — results appear automatically after you stop typing</div>
 
         <div id="channel-suggestions" class="channel-suggestions"></div>
         <div id="channel-searching" class="searching-state" style="display:none">
@@ -468,14 +460,8 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
         <!-- FALLBACK: Paste URL directly -->
         <div class="fallback-divider"><span>can't find it? paste the link instead</span></div>
         <div class="fallback-card">
-          <p>Paste a YouTube channel URL directly — search scraping sometimes misses niche or newly renamed channels.<br/>
+          <p>Paste a YouTube channel URL directly — search sometimes misses niche or newly renamed channels.<br/>
           Examples: <code>youtube.com/@creator</code> or <code>youtube.com/channel/UCxxxxxxx</code></p>
-          <div class="fallback-row">
-            <input class="fallback-input" id="fallback-input" type="url"
-              placeholder="https://www.youtube.com/@creator"
-              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-            <button class="fallback-go-btn" id="fallback-go-btn" onclick="doFallbackAdd()">Add →</button>
-          </div>
           <div class="error-msg" id="fallback-error" style="margin-top:0.5rem"></div>
         </div>
 
@@ -568,9 +554,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
         <input class="text-input" id="search-input" type="search"
           placeholder="keyword or paste a YouTube URL"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-        <button class="search-go-btn" id="search-go-btn" onclick="doYTSearch()">Search</button>
       </div>
-      <div class="search-suggestions" id="search-suggestions"></div>
     </div>
     <div class="screen-body" id="search-body">
       <div class="search-empty-state" id="search-empty">
@@ -1070,7 +1054,7 @@ function onYouTubeIframeAPIReady(){ /* API ready */ }
 
 function openPlayer(videoId, title, channelName, publishedAt, thumb){
   currentVideoData = { id:videoId, title, channelName, publishedAt, thumb: thumb||'' };
-  document.getElementById('player-title').textContent       = title;
+  document.getElementById('player-title').textContent = title || 'Video';
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent         = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
@@ -1168,7 +1152,6 @@ let searchTimeout = null;
 function initAdd(){
   foundChannel = null;
   document.getElementById('channel-input').value     = '';
-  document.getElementById('fallback-input').value    = '';
   document.getElementById('channel-suggestions').style.display = 'none';
   document.getElementById('channel-suggestions').innerHTML     = '';
   document.getElementById('channel-preview').classList.remove('show');
@@ -1179,15 +1162,26 @@ function initAdd(){
   setTimeout(() => document.getElementById('channel-input').focus(), 300);
 }
 
-/* Primary search — debounced */
+/* Primary search — debounced; URL paste → doFallbackAdd directly */
 document.getElementById('channel-input').addEventListener('input', e => {
   clearTimeout(searchTimeout);
   const q = e.target.value.trim();
   if(!q){
     document.getElementById('channel-preview').classList.remove('show');
+    document.getElementById('add-btn').style.display    = 'none';
+    document.getElementById('add-error').style.display  = 'none';
+    document.getElementById('fallback-error').style.display = 'none';
+    document.getElementById('channel-suggestions').style.display = 'none';
+    return;
+  }
+  // URL paste → resolve directly via fallback logic
+  if(extractChannelIdFromUrl(q)){
+    document.getElementById('channel-suggestions').style.display = 'none';
+    document.getElementById('channel-suggestions').innerHTML     = '';
+    document.getElementById('channel-preview').classList.remove('show');
     document.getElementById('add-btn').style.display   = 'none';
     document.getElementById('add-error').style.display = 'none';
-    document.getElementById('channel-suggestions').style.display = 'none';
+    searchTimeout = setTimeout(() => doFallbackAdd(q), 600);
     return;
   }
   searchTimeout = setTimeout(() => doChannelSearch(q), 500);
@@ -1213,7 +1207,7 @@ async function doChannelSearch(query){
     searching.style.display = 'none';
 
     if(!channels.length || channels.error){
-      errEl.textContent  = 'No channels found. Try a different name — or paste the channel URL below.';
+      errEl.textContent  = 'No channels found. Try a different name — or paste the channel URL directly in this box.';
       errEl.style.display = 'block';
       return;
     }
@@ -1235,7 +1229,7 @@ async function doChannelSearch(query){
 
   } catch(err){
     searching.style.display = 'none';
-    errEl.textContent  = 'Search failed. Check your connection — or paste the channel URL below.';
+    errEl.textContent  = 'Search failed. Check your connection — or paste the channel URL directly in this box.';
     errEl.style.display = 'block';
     foundChannel = null;
   }
@@ -1269,18 +1263,13 @@ document.getElementById('add-btn').onclick = () => {
   location.reload();
 };
 
-/* ── FALLBACK: paste YouTube channel URL ── */
-document.getElementById('fallback-input').addEventListener('keydown', e => {
-  if(e.key === 'Enter') doFallbackAdd();
-});
-
-async function doFallbackAdd(){
-  const input  = document.getElementById('fallback-input').value.trim();
+async function doFallbackAdd(inputVal){
+  const input  = (inputVal || '').trim();
   const errEl  = document.getElementById('fallback-error');
-  const goBtn  = document.getElementById('fallback-go-btn');
+  const searching = document.getElementById('channel-searching');
 
   errEl.style.display = 'none';
-  if(!input){ errEl.textContent = 'Please paste a YouTube channel URL.'; errEl.style.display='block'; return; }
+  if(!input){ errEl.textContent = 'Could not recognise that URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx'; errEl.style.display='block'; return; }
 
   const parsed = extractChannelIdFromUrl(input);
   if(!parsed){
@@ -1289,8 +1278,7 @@ async function doFallbackAdd(){
     return;
   }
 
-  goBtn.disabled = true;
-  goBtn.textContent = '…';
+  searching.style.display = 'block';
 
   try{
     let channelId   = '';
@@ -1299,9 +1287,7 @@ async function doFallbackAdd(){
     let subs        = '';
 
     if(parsed.type === 'id'){
-      // We have the UC... id directly — search by name to get metadata
       channelId = parsed.value;
-      // Try to fetch RSS to confirm channel exists and get name
       const rssUrl   = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
       const res      = await fetch(proxyUrl);
@@ -1309,11 +1295,9 @@ async function doFallbackAdd(){
       const parser   = new DOMParser();
       const doc      = parser.parseFromString(data.contents, 'application/xml');
       channelName    = doc.querySelector('author name')?.textContent || doc.querySelector('title')?.textContent || channelId;
-      // Avatar: use a generic channel thumbnail via yt img CDN (best effort)
       avatar = `https://yt3.googleusercontent.com/ytc/${channelId}`;
 
     } else {
-      // Handle or name — search via Worker to get id + metadata
       const searchQ = parsed.value;
       const res     = await fetch(`${PROXY}/channels?q=${encodeURIComponent(searchQ)}`);
       const results = await res.json();
@@ -1321,7 +1305,6 @@ async function doFallbackAdd(){
       if(!results.length || results.error){
         throw new Error('Channel not found via URL. Try searching by name above.');
       }
-      // Take the first result
       const ch = results[0];
       channelId   = ch.id;
       channelName = ch.name;
@@ -1333,9 +1316,10 @@ async function doFallbackAdd(){
       throw new Error('Could not resolve channel ID from that URL.');
     }
 
+    searching.style.display = 'none';
+
     if(STORE.channels.some(c => c.id === channelId)){
       toast('Already in your list');
-      goBtn.disabled = false; goBtn.textContent = 'Add →';
       return;
     }
 
@@ -1346,10 +1330,9 @@ async function doFallbackAdd(){
     location.reload();
 
   } catch(err){
+    searching.style.display = 'none';
     errEl.textContent   = err.message || 'Could not add channel. Check the URL and try again.';
     errEl.style.display = 'block';
-    goBtn.disabled      = false;
-    goBtn.textContent   = 'Add →';
   }
 }
 
@@ -1393,7 +1376,7 @@ function toggleFeedSave(btn, id, title, channelName, publishedAt, thumb){
 
 /* ═══════════════════════════════════════════
    SEARCH SCREEN — Worker /videos endpoint
-   URL paste → direct play | keyword → autocomplete suggestions
+   URL paste → direct play | keyword → debounced full results
 ═══════════════════════════════════════════ */
 let searchVideoTimeout = null;
 
@@ -1406,8 +1389,8 @@ document.getElementById('search-input').addEventListener('input', e => {
   const q = e.target.value.trim();
 
   if(!q){
-    hideSearchSuggestions();
     document.getElementById('search-results-wrap').style.display = 'none';
+    document.getElementById('search-loading').style.display      = 'none';
     document.getElementById('search-error').style.display        = 'none';
     document.getElementById('search-empty').style.display        = 'block';
     return;
@@ -1416,100 +1399,55 @@ document.getElementById('search-input').addEventListener('input', e => {
   // URL paste → play immediately, no debounce needed
   const videoId = extractYouTubeId(q);
   if(videoId){
-    hideSearchSuggestions();
-    openPlayer(videoId, 'Playing video…', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
+    document.getElementById('search-results-wrap').style.display = 'none';
+    document.getElementById('search-error').style.display        = 'none';
+    document.getElementById('search-empty').style.display        = 'none';
+    openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
     return;
   }
 
-  // Keyword → debounced autocomplete
-  searchVideoTimeout = setTimeout(() => fetchSearchSuggestions(q), 800);
+  // Keyword → debounced full results
+  document.getElementById('search-loading').style.display      = 'block';
+  document.getElementById('search-results-wrap').style.display = 'none';
+  document.getElementById('search-error').style.display        = 'none';
+  document.getElementById('search-empty').style.display        = 'none';
+
+  searchVideoTimeout = setTimeout(() => doYTSearch(q), 800);
 });
 
 document.getElementById('search-input').addEventListener('keydown', e => {
-  if(e.key === 'Enter') doYTSearch();
-  if(e.key === 'Escape') hideSearchSuggestions();
+  if(e.key === 'Enter'){
+    clearTimeout(searchVideoTimeout);
+    const q = document.getElementById('search-input').value.trim();
+    if(q && !extractYouTubeId(q)) doYTSearch(q);
+  }
 });
 
 document.getElementById('search-input').addEventListener('search', () => {
-  if(!document.getElementById('search-input').value){
-    hideSearchSuggestions();
+  if(!document.getElementById('search-input').value.trim()){
+    clearTimeout(searchVideoTimeout);
     document.getElementById('search-results-wrap').style.display = 'none';
+    document.getElementById('search-loading').style.display      = 'none';
     document.getElementById('search-error').style.display        = 'none';
     document.getElementById('search-empty').style.display        = 'block';
   }
 });
 
-function hideSearchSuggestions(){
-  const el = document.getElementById('search-suggestions');
-  el.style.display = 'none';
-  el.innerHTML     = '';
-}
-
-async function fetchSearchSuggestions(q){
-  try{
-    const res    = await fetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`);
-    const videos = await res.json();
-
-    if(!Array.isArray(videos) || !videos.length) return;
-
-    // If input changed while we were fetching, abort
-    const current = document.getElementById('search-input').value.trim();
-    if(current !== q) return;
-
-    const el = document.getElementById('search-suggestions');
-    el.innerHTML = videos.slice(0, 6).map((v, i) => `
-      <div class="search-suggestion-item" onclick="selectSearchSuggestion(${i})">
-        <img class="search-sug-thumb" src="${esc(v.thumb)}" alt="" loading="lazy" onerror="this.style.display='none'"/>
-        <div class="search-sug-info">
-          <div class="search-sug-title">${esc(v.title)}</div>
-          <div class="search-sug-meta">${esc(v.channel)}${v.views ? ' · ' + esc(v.views) : ''}</div>
-        </div>
-      </div>`).join('');
-
-    window._searchSuggestions = videos;
-    el.style.display = 'block';
-
-  } catch(e){ /* silently fail — suggestions are best-effort */ }
-}
-
-function selectSearchSuggestion(index){
-  const v = window._searchSuggestions?.[index];
-  if(!v) return;
-  hideSearchSuggestions();
-  document.getElementById('search-input').value = v.title;
-  openPlayer(v.id, v.title, v.channel, '', v.thumb);
-}
-
-async function doYTSearch(){
-  const q = document.getElementById('search-input').value.trim();
+async function doYTSearch(q){
+  if(!q) q = document.getElementById('search-input').value.trim();
   if(!q) return;
 
-  hideSearchSuggestions();
-
-  const btn         = document.getElementById('search-go-btn');
   const loading     = document.getElementById('search-loading');
   const resultsWrap = document.getElementById('search-results-wrap');
   const resultsList = document.getElementById('search-results-list');
   const errEl       = document.getElementById('search-error');
   const empty       = document.getElementById('search-empty');
 
-  btn.disabled              = true;
-  document.getElementById('search-input').blur();
   loading.style.display     = 'block';
   resultsWrap.style.display = 'none';
   errEl.style.display       = 'none';
   empty.style.display       = 'none';
 
-  // ── URL paste → extract ID and play immediately, no API needed ──
-  const videoId = extractYouTubeId(q);
-  if(videoId){
-    loading.style.display = 'none';
-    btn.disabled          = false;
-    openPlayer(videoId, 'Playing video…', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
-    return;
-  }
-
-  // ── Keyword search via Cloudflare Worker ──
   try{
     const res    = await fetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`);
     const videos = await res.json();
@@ -1519,7 +1457,6 @@ async function doYTSearch(){
     if(!Array.isArray(videos) || !videos.length || videos.error){
       errEl.textContent   = 'No results found. Try a different keyword.';
       errEl.style.display = 'block';
-      btn.disabled        = false;
       return;
     }
 
@@ -1552,8 +1489,6 @@ async function doYTSearch(){
     errEl.textContent     = 'Search failed. Check your connection.';
     errEl.style.display   = 'block';
   }
-
-  btn.disabled = false;
 }
 
 function toggleSearchSave(btn, id, title, channelName, publishedAt, thumb){
