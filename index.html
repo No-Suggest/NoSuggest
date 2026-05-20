@@ -763,7 +763,7 @@ function clearVideoCache(){
 /* ═══════════════════════════════════════════
    UTILS
 ═══════════════════════════════════════════ */
-const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').trim();
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;').trim();
 
 function toast(msg, dur=2200){
   const t = document.getElementById('toast');
@@ -1019,7 +1019,7 @@ function renderVideos(ch, videos){
   el.innerHTML = videos.map(v => {
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
     return `
-    <div class="video-thumb" onclick="openPlayer('${esc(v.id)}','${esc(v.title.replace(/'/g,"\\'"))}','${esc(ch.name)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
+    <div class="video-thumb" onclick="openPlayer('${esc(v.id)}','${esc(v.title)}','${esc(ch.name)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
       <div class="thumb-img-wrap">
         <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="lazy"/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
@@ -1028,7 +1028,7 @@ function renderVideos(ch, videos){
         <div class="thumb-title">${esc(v.title)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="thumb-meta">${timeAgo(v.publishedAt)}</div>
-          <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSave(this,'${esc(v.id)}','${esc(v.title.replace(/'/g,"\\'"))}','${esc(ch.name)}','${esc(v.publishedAt)}','${esc(v.thumb)}')" title="${savedNow?'Remove from saved':'Save video'}">
+          <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSave(this,'${esc(v.id)}','${esc(v.title)}','${esc(ch.name)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
             <svg width="12" height="12" viewBox="0 0 24 24" stroke-width="2" fill="${savedNow?'var(--accent)':'none'}" stroke="${savedNow?'var(--accent)':'var(--faint)'}"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
@@ -1465,10 +1465,10 @@ async function doYTSearch(q){
     resultsList.innerHTML = videos.map(v => {
       const saved = isVideoSaved(v.id);
       return `
-      <div class="search-video-card" onclick="openPlayer('${esc(v.id)}','${esc(v.title.replace(/'/g,"\\'"))}','${esc(v.channel)}','','${esc(v.thumb)}')">
+      <div class="search-video-card" onclick="openPlayer('${esc(v.id)}','${esc(v.title)}','${esc(v.channel)}','','${esc(v.thumb)}')">
         <div class="search-thumb-wrap">
           <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="lazy"/>
-          <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSave(this,'${esc(v.id)}','${esc(v.title.replace(/'/g,"\\'"))}','${esc(v.channel)}','','${esc(v.thumb)}')" title="${saved?'Remove from saved':'Save video'}">
+          <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSave(this,'${esc(v.id)}','${esc(v.title)}','${esc(v.channel)}','','${esc(v.thumb)}')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="${saved?'var(--accent)':'none'}" stroke="var(--accent)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
