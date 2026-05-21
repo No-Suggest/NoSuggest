@@ -1403,6 +1403,7 @@ document.getElementById('search-input').addEventListener('input', e => {
     document.getElementById('search-error').style.display        = 'none';
     document.getElementById('search-empty').style.display        = 'none';
     openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
+    document.getElementById('search-input').value = '';
     return;
   }
 
