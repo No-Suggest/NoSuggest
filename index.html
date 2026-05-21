@@ -774,6 +774,8 @@ function toast(msg, dur=2200){
 
 function timeAgo(iso){
   if(!iso) return '';
+  // New Worker returns relative strings like "3 hours ago", "1 day ago" — pass through directly
+  if(isNaN(new Date(iso).getTime())) return iso;
   const s = Math.floor((Date.now() - new Date(iso)) / 1000);
   if(s < 3600)   return Math.floor(s/60) + 'm ago';
   if(s < 86400)  return Math.floor(s/3600) + 'h ago';
@@ -1403,7 +1405,7 @@ document.getElementById('search-input').addEventListener('input', e => {
     document.getElementById('search-error').style.display        = 'none';
     document.getElementById('search-empty').style.display        = 'none';
     openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
-    document.getElementById('search-input').value = '';
+	document.getElementById('search-input').value = '';
     return;
   }
 
@@ -1516,7 +1518,7 @@ function initSaved(){
 
   list.innerHTML = videos.map((v, i) => `
     <div class="saved-video-card" style="animation:fadeUp 0.3s ease ${i*30}ms both"
-         onclick="openPlayer('${esc(v.id)}','${esc(v.title.replace(/'/g,"\\'"))}','${esc(v.channelName)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
+         onclick="openPlayer('${esc(v.id)}','${esc(v.title)}','${esc(v.channelName)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
       <div class="saved-thumb-wrap">
         <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="lazy"/>
       </div>
