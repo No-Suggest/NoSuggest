@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="NoSuggest"/>
 <meta name="theme-color" content="#0a0a0a"/>
-<title>NoSuggest — Watch Without Distraction</title>
+<title>NoSuggest</title>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="apple-touch-icon" href="/nosuggest-logo-v2-512.png"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
@@ -436,7 +436,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
         <input class="text-input" id="channel-input" type="text"
           placeholder="e.g. MrBeast or @handle"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-        <div class="input-hint">Type a name or handle — results appear automatically after you stop typing</div>
+        <div class="input-hint">Type a name or handle. Results appear automatically after you stop typing</div>
 
         <div id="channel-suggestions" class="channel-suggestions"></div>
         <div id="channel-searching" class="searching-state" style="display:none">
@@ -461,7 +461,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
         <!-- FALLBACK: Paste URL directly -->
         <div class="fallback-divider"><span>can't find it? paste the link instead</span></div>
         <div class="fallback-card">
-          <p>Paste a YouTube channel URL directly — search sometimes misses niche or newly renamed channels.<br/>
+          <p>Paste a YouTube channel URL directly, search sometimes misses niche or newly renamed channels.<br/>
           Examples: <code>youtube.com/@creator</code> or <code>youtube.com/channel/UCxxxxxxx</code></p>
           <div class="error-msg" id="fallback-error" style="margin-top:0.5rem"></div>
         </div>
@@ -658,7 +658,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 'use strict';
 
 /* ═══════════════════════════════════════════
-   CONFIG — update PROXY if you rename the Worker
+   CONFIG : update PROXY if you rename the Worker
 ═══════════════════════════════════════════ */
 const PROXY = 'https://nosuggest.hebbar-varun-m.workers.dev';
 
@@ -722,7 +722,7 @@ if(isIos() && !isInStandaloneMode()){
 }
 
 /* ═══════════════════════════════════════════
-   STATE — localStorage-backed store
+   STATE : localStorage-backed store
 ═══════════════════════════════════════════ */
 const STORE = {
   get channels(){   try{ return JSON.parse(localStorage.getItem('ft_channels')||'[]') }catch(e){ return [] } },
@@ -741,7 +741,7 @@ let currentScreen = '';
 let foundChannel  = null;
 
 /* ═══════════════════════════════════════════
-   VIDEO CACHE — 3h TTL, per channel
+   VIDEO CACHE : 3h TTL, per channel
 ═══════════════════════════════════════════ */
 const CACHE_TTL = 3 * 60 * 60 * 1000;
 
@@ -775,7 +775,7 @@ function toast(msg, dur=2200){
 
 function timeAgo(iso){
   if(!iso) return '';
-  // New Worker returns relative strings like "3 hours ago", "1 day ago" — pass through directly
+  // New Worker returns relative strings like "3 hours ago", "1 day ago" : pass through directly
   if(isNaN(new Date(iso).getTime())) return iso;
   const s = Math.floor((Date.now() - new Date(iso)) / 1000);
   if(s < 3600)   return Math.floor(s/60) + 'm ago';
@@ -923,7 +923,7 @@ function applyKidsMode(){
 }
 
 /* ═══════════════════════════════════════════
-   RSS FEED — zero quota, no auth
+   RSS FEED : zero quota, no auth
 ═══════════════════════════════════════════ */
 async function fetchVideosRSS(channelId) {
   const rssUrl = `${PROXY}/rss?channel=${channelId}`;
@@ -1147,7 +1147,7 @@ function removeChannel(id){
 
 /* ═══════════════════════════════════════════
    ADD CHANNEL SCREEN
-   Primary: Worker scrape search + 500ms debounce
+   Primary: Worker trigger + 500ms debounce
    Fallback: Paste YouTube channel URL directly
 ═══════════════════════════════════════════ */
 let searchTimeout = null;
@@ -1165,7 +1165,7 @@ function initAdd(){
   setTimeout(() => document.getElementById('channel-input').focus(), 300);
 }
 
-/* Primary search — debounced; URL paste → doFallbackAdd directly */
+/* Primary search : debounced; URL paste → doFallbackAdd directly */
 document.getElementById('channel-input').addEventListener('input', e => {
   clearTimeout(searchTimeout);
   const q = e.target.value.trim();
@@ -1210,7 +1210,7 @@ async function doChannelSearch(query){
     searching.style.display = 'none';
 
     if(!channels.length || channels.error){
-      errEl.textContent  = 'No channels found. Try a different name — or paste the channel URL directly in this box.';
+      errEl.textContent  = 'No channels found. Try a different name or paste the channel URL directly in this box.';
       errEl.style.display = 'block';
       return;
     }
@@ -1232,7 +1232,7 @@ async function doChannelSearch(query){
 
   } catch(err){
     searching.style.display = 'none';
-    errEl.textContent  = 'Search failed. Check your connection — or paste the channel URL directly in this box.';
+    errEl.textContent  = 'Search failed. Check your connection or paste the channel URL directly in this box.';
     errEl.style.display = 'block';
     foundChannel = null;
   }
@@ -1378,7 +1378,7 @@ function toggleFeedSave(btn, id, title, channelName, publishedAt, thumb){
 }
 
 /* ═══════════════════════════════════════════
-   SEARCH SCREEN — Worker /videos endpoint
+   SEARCH SCREEN : Worker /videos endpoint
    URL paste → direct play | keyword → debounced full results
 ═══════════════════════════════════════════ */
 let searchVideoTimeout = null;
