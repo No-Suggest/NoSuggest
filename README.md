@@ -12,7 +12,7 @@ No notifications. No autoplay. No suggestions. You come when you feel like it, w
 
 ## Why
 
-YouTube's recommendation algorithm is designed to maximise time on platform. Even if you open YouTube with a specific video in mind, it works hard to keep you there longer with autoplay, end cards, homepage suggestions, and a sidebar suggestions.
+YouTube's recommendation algorithms are designed to maximise time on platform. Even if you open YouTube with a specific video in mind, it works hard to keep you there longer with autoplay, end cards, homepage suggestions, and a sidebar suggestions.
 
 NoSuggest solves this differently. Think of it as a calm, intentional alternative. Open it when you want to catch up on your favourite channels, watch what you chose, and close it.
 
