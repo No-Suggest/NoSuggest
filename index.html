@@ -409,15 +409,14 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
   <!-- SCREEN: MY CHANNELS -->
   <div class="screen" id="screen-channels">
     <div class="channels-header">
-      <h2>My Channels</h2>
-      <span style="font-size:12px;color:var(--faint);font-family:'DM Mono',monospace" id="ch-count">0 channels</span>
+      <h2 id="ch-heading">My Channels</h2>
+      <button class="icon-btn" onclick="showScreen('add')" title="Add channel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:20px;height:20px;"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
     </div>
     <div class="screen-body" id="channels-body">
       <div class="no-channels" id="no-channels">No channels added yet.<br/>Tap + to add your first channel.</div>
     </div>
-    <button class="add-channel-fab" onclick="showScreen('add')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-    </button>
   </div>
 
   <!-- SCREEN: ADD CHANNEL -->
@@ -926,9 +925,16 @@ function applyKidsMode(){
    RSS FEED : zero quota, no auth
 ═══════════════════════════════════════════ */
 async function fetchVideosRSS(channelId) {
-  const rssUrl = `${PROXY}/rss?channel=${channelId}`;
+  const rssUrl     = `${PROXY}/rss?channel=${channelId}`;
+  const controller = new AbortController();
+  const timer      = setTimeout(() => controller.abort(), 8000);
 
-  const res = await fetch(rssUrl);
+  let res;
+  try {
+    res = await fetch(rssUrl, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (!res.ok) {
     throw new Error('RSS fetch failed');
@@ -941,6 +947,16 @@ async function fetchVideosRSS(channelId) {
   }
 
   return videos;
+}
+
+async function fetchVideosRSSWithRetry(channelId) {
+  try {
+    return await fetchVideosRSS(channelId);
+  } catch(e) {
+    // Wait 1.5s then try once more silently before giving up
+    await new Promise(r => setTimeout(r, 1500));
+    return await fetchVideosRSS(channelId);
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -963,7 +979,7 @@ async function loadChannelVideos(ch){
   try{
     let videos = getCachedVideos(ch.id);
     if(!videos){
-      videos = await fetchVideosRSS(ch.id);
+      videos = await fetchVideosRSSWithRetry(ch.id);
       setCachedVideos(ch.id, videos);
     }
     renderVideos(ch, videos);
@@ -1009,7 +1025,7 @@ async function initFeed(newChannelId){
     ${i < channels.length - 1 ? '<div class="section-divider"></div>' : ''}
   `).join('');
 
-  channels.forEach((ch, i) => { setTimeout(() => loadChannelVideos(ch), i * 500); });
+  channels.forEach((ch, i) => { setTimeout(() => loadChannelVideos(ch), i * 300); });
 }
 
 function renderVideos(ch, videos){
@@ -1115,9 +1131,9 @@ function initChannels(){
   const channels = STORE.channels;
   const body     = document.getElementById('channels-body');
   const noEl     = document.getElementById('no-channels');
-  const countEl  = document.getElementById('ch-count');
+  const headingEl = document.getElementById('ch-heading');
 
-  countEl.textContent = `${channels.length} channel${channels.length===1?'':'s'}`;
+  headingEl.textContent = `My Channels (${channels.length})`;
 
   if(!channels.length){
     body.innerHTML = '';
