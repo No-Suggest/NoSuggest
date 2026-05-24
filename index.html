@@ -1030,7 +1030,7 @@ async function initFeed(newChannelId){
 
 function renderVideos(ch, videos){
   const el = document.getElementById('videos-' + ch.id);
-  if(!el) return;
+  if(!el || !document.getElementById('feed-body').contains(el)) return;
   if(!videos.length){
     el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No videos found for this channel</div>`;
     return;
@@ -1040,7 +1040,7 @@ function renderVideos(ch, videos){
     return `
     <div class="video-thumb" onclick="openPlayer('${esc(v.id)}','${esc(v.title)}','${esc(ch.name)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
       <div class="thumb-img-wrap">
-        <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="lazy"/>
+        <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="eager"/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
       </div>
       <div class="thumb-info">
