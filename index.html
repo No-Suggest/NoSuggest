@@ -984,8 +984,11 @@ async function loadChannelVideos(ch, gen){
       setCachedVideos(ch.id, videos);
     }
     if(gen !== undefined && feedGeneration !== gen) return;
-    renderVideos(ch, videos);
-    applyKidsLinkHiding();
+      requestAnimationFrame(() => {
+      if(gen !== undefined && feedGeneration !== gen) return;
+      renderVideos(ch, videos);
+      applyKidsLinkHiding();
+    });
   } catch(e){
     if(gen !== undefined && feedGeneration !== gen) return;
     const el = document.getElementById('videos-' + ch.id);
