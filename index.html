@@ -736,8 +736,9 @@ const STORE = {
   set kidsPin(v){  v ? localStorage.setItem('ns_kids_pin', v) : localStorage.removeItem('ns_kids_pin') },
 };
 
-let currentScreen = '';
-let foundChannel  = null;
+let currentScreen  = '';
+let foundChannel   = null;
+let feedGeneration = 0;
 
 /* ═══════════════════════════════════════════
    VIDEO CACHE : 3h TTL, per channel
@@ -975,22 +976,25 @@ function channelBlockHTML(ch){
   </div>`;
 }
 
-async function loadChannelVideos(ch){
+async function loadChannelVideos(ch, gen){
   try{
     let videos = getCachedVideos(ch.id);
     if(!videos){
       videos = await fetchVideosRSSWithRetry(ch.id);
       setCachedVideos(ch.id, videos);
     }
+    if(gen !== undefined && feedGeneration !== gen) return;
     renderVideos(ch, videos);
     applyKidsLinkHiding();
   } catch(e){
+    if(gen !== undefined && feedGeneration !== gen) return;
     const el = document.getElementById('videos-' + ch.id);
     if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">Could not load videos. Check connection.</div>`;
   }
 }
 
 async function initFeed(newChannelId){
+  const myGen    = ++feedGeneration;
   const channels = STORE.channels;
   const body     = document.getElementById('feed-body');
   const empty    = document.getElementById('feed-empty');
@@ -1016,7 +1020,7 @@ async function initFeed(newChannelId){
     const block = wrapper.firstElementChild;
     block.style.animation = 'fadeUp 0.35s ease both';
     body.appendChild(block);
-    setTimeout(() => loadChannelVideos(ch), 200);
+    setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, 200);
     return;
   }
 
@@ -1025,7 +1029,9 @@ async function initFeed(newChannelId){
     ${i < channels.length - 1 ? '<div class="section-divider"></div>' : ''}
   `).join('');
 
-  channels.forEach((ch, i) => { setTimeout(() => loadChannelVideos(ch), i * 300); });
+  channels.forEach((ch, i) => {
+    setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, i * 300);
+  });
 }
 
 function renderVideos(ch, videos){
