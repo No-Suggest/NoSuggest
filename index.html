@@ -1009,7 +1009,7 @@ async function initFeed(newChannelId){
     ${i < channels.length - 1 ? '<div class="section-divider"></div>' : ''}
   `).join('');
 
-  channels.forEach((ch, i) => { setTimeout(() => loadChannelVideos(ch), i * 300); });
+  channels.forEach((ch, i) => { setTimeout(() => loadChannelVideos(ch), i * 500); });
 }
 
 function renderVideos(ch, videos){
