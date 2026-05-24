@@ -915,7 +915,7 @@ function applyKidsMode(){
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
   document.querySelectorAll('.ch-link').forEach(el => { el.style.display = on ? 'none' : ''; });
-  if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add')){
+  if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add' || currentScreen === 'settings')){
     showScreen('feed');
   }
   const statusEl = document.getElementById('kids-mode-status');
