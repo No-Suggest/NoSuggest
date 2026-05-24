@@ -1030,7 +1030,9 @@ async function initFeed(newChannelId){
   `).join('');
 
   channels.forEach((ch, i) => {
-    setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, i * 300);
+    const cached = getCachedVideos(ch.id);
+    const delay  = cached ? 0 : i * 300;
+    setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, delay);
   });
 }
 
@@ -1060,6 +1062,7 @@ function renderVideos(ch, videos){
       </div>
     </div>`;
   }).join('');
+  el.offsetHeight;
 }
 
 function applyKidsLinkHiding(){
