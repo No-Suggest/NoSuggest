@@ -983,9 +983,7 @@ async function loadChannelVideos(ch, gen){
       videos = await fetchVideosRSSWithRetry(ch.id);
       setCachedVideos(ch.id, videos);
     }
-    if(gen !== undefined && feedGeneration !== gen) return;
       requestAnimationFrame(() => {
-      if(gen !== undefined && feedGeneration !== gen) return;
       renderVideos(ch, videos);
 	  // Force Android Chrome repaint after dynamic HTML insertion
 	  const el = document.getElementById('videos-' + ch.id);
