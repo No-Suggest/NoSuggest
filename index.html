@@ -1077,7 +1077,17 @@ function applyKidsLinkHiding(){
   document.querySelectorAll('.ch-link').forEach(el => { el.style.display = 'none'; });
 }
 
-document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache(); initFeed(); };
+document.getElementById('feed-refresh-btn').onclick = () => {
+  const btn = document.getElementById('feed-refresh-btn');
+  btn.style.opacity = '0.5';
+  btn.style.pointerEvents = 'none';
+  document.getElementById('feed-body').scrollTop = 0;
+  clearVideoCache();
+  initFeed().finally(() => {
+    btn.style.opacity = '';
+    btn.style.pointerEvents = '';
+  });
+};
 
 /* ═══════════════════════════════════════════
    VIDEO PLAYER
