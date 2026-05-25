@@ -1133,7 +1133,6 @@ function closePlayer(){
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
-  initFeed();
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
