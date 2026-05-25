@@ -1034,7 +1034,7 @@ async function initFeed(newChannelId){
 
   channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
-    const delay  = cached ? 0 : i * 300;
+    const delay = cached ? i * 50 : i * 300;
     setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, delay);
   });
 }
@@ -1133,6 +1133,7 @@ function closePlayer(){
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
+  initFeed();
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
