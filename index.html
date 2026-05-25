@@ -37,8 +37,8 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
    APP SHELL
 ═══════════════════════════════════════ */
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity 0.25s ease,transform 0.25s ease;overflow:hidden;}
-.screen.active{opacity:1;pointer-events:all;transform:translateY(0);}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transform:translate3d(0,12px,0);transition:opacity 0.25s ease,transform 0.25s ease;backface-visibility:hidden;will-change:transform;}
+.screen.active{opacity:1;pointer-events:auto;transform:translate3d(0,0,0);}
 
 /* ═══════════════════════════════════════
    KIDS MODE
@@ -991,7 +991,6 @@ async function loadChannelVideos(ch, gen){
 	  const el = document.getElementById('videos-' + ch.id);
 	  if(el){
 		el.style.transform = 'translateZ(0)';
-		el.style.willChange = 'transform';
 		// Force layout + repaint
 		void el.offsetHeight;
 	  }
@@ -1042,7 +1041,7 @@ async function initFeed(newChannelId){
 
   channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
-    const delay = cached ? i * 20 : i * 120;
+    const delay = cached ? i * 50 : i * 300;
     setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, delay);
   });
 }
