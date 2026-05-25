@@ -1077,7 +1077,7 @@ function applyKidsLinkHiding(){
   document.querySelectorAll('.ch-link').forEach(el => { el.style.display = 'none'; });
 }
 
-document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache(); location.reload(); };
+document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache(); initFeed(); };
 
 /* ═══════════════════════════════════════════
    VIDEO PLAYER
