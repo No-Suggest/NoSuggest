@@ -109,13 +109,13 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .ch-avatar img{width:100%;height:100%;object-fit:cover;}
 .ch-name{font-size:13px;font-weight:600;color:var(--text);letter-spacing:0.01em;}
 .ch-link{margin-left:auto;font-size:11px;color:var(--faint);text-decoration:none;font-family:'DM Mono',monospace;}
-.videos-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.videos-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;transform:translateZ(0);will-change:transform;backface-visibility:hidden;}
 .videos-scroll::-webkit-scrollbar{display:none;}
-.video-thumb{flex-shrink:0;width:200px;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;}
+.video-thumb{flex-shrink:0;width:200px;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
 .video-thumb:active{transform:scale(0.97);}
 .video-thumb:hover{border-color:var(--border2);}
 .thumb-img-wrap{position:relative;padding-bottom:56.25%;background:#111;}
-.thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);backface-visibility:hidden;}
 .thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(0,0,0,0.4);transition:opacity 0.15s;}
 .video-thumb:hover .thumb-play{opacity:1;}
 .thumb-play svg{width:36px;height:36px;fill:white;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));}
@@ -987,6 +987,14 @@ async function loadChannelVideos(ch, gen){
       requestAnimationFrame(() => {
       if(gen !== undefined && feedGeneration !== gen) return;
       renderVideos(ch, videos);
+	  // Force Android Chrome repaint after dynamic HTML insertion
+	  const el = document.getElementById('videos-' + ch.id);
+	  if(el){
+		el.style.transform = 'translateZ(0)';
+		el.style.willChange = 'transform';
+		// Force layout + repaint
+		void el.offsetHeight;
+	  }
       applyKidsLinkHiding();
     });
   } catch(e){
@@ -1034,7 +1042,7 @@ async function initFeed(newChannelId){
 
   channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
-    const delay = cached ? i * 50 : i * 300;
+    const delay = cached ? i * 20 : i * 120;
     setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, delay);
   });
 }
@@ -1051,7 +1059,7 @@ function renderVideos(ch, videos){
     return `
     <div class="video-thumb" onclick="openPlayer('${esc(v.id)}','${esc(v.title)}','${esc(ch.name)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
       <div class="thumb-img-wrap">
-        <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="eager"/>
+        <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="eager" decoding="async"/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
       </div>
       <div class="thumb-info">
@@ -1065,7 +1073,6 @@ function renderVideos(ch, videos){
       </div>
     </div>`;
   }).join('');
-  el.offsetHeight;
 }
 
 function applyKidsLinkHiding(){
