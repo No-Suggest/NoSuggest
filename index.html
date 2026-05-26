@@ -1059,7 +1059,7 @@ async function initFeed(newChannelId){
       requestAnimationFrame(() => { renderVideos(ch, cached); applyKidsLinkHiding(); });
     } else {
       // Small polite delay between live fetches so Cloudflare doesn't rate-limit
-      if(i > 0) await new Promise(r => setTimeout(r, 200));
+      if(i > 0) await new Promise(r => setTimeout(r, 300));
       try{
         const videos = await fetchVideosRSSWithRetry(ch.id);
         if(feedGeneration !== myGen) return;
