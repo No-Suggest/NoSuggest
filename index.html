@@ -133,54 +133,32 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
    FEED BATCH LOADER
 ═══════════════════════════════════════ */
 #feed-batch-loader{
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  padding:2rem 1.25rem;
+  display:none;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;padding:2rem 1.25rem;
   border-top:1px solid var(--border);
 }
 #feed-batch-loader.show{display:flex;}
-.batch-loader-bar{
-  width:180px;height:3px;
-  background:var(--bg3);
-  border-radius:2px;
-  overflow:hidden;
-}
-.batch-loader-fill{
-  height:100%;
-  width:0%;
-  background:var(--accent);
-  border-radius:2px;
-  transition:width 0.4s ease;
-}
-.batch-loader-text{
-  font-size:12px;
-  color:var(--muted);
-  font-family:'DM Mono',monospace;
-  letter-spacing:0.04em;
-}
+.batch-loader-bar{width:180px;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.batch-loader-fill{height:100%;width:0%;background:var(--accent);border-radius:2px;transition:width 0.3s ease;}
+.batch-loader-text{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.04em;}
 
 /* ═══════════════════════════════════════
    DRAG TO REORDER (Channels)
 ═══════════════════════════════════════ */
-.cli-drag{
-  width:32px;height:32px;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--faint);
-  cursor:grab;
-  flex-shrink:0;
-  touch-action:none;
+.cli-drag{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--faint);cursor:grab;flex-shrink:0;touch-action:none;user-select:none;}
+.cli-drag svg{width:16px;height:16px;pointer-events:none;}
+.channel-list-item{touch-action:pan-y;}
+.channel-list-item.drag-over-top{border-top:2px solid var(--accent);}
+.channel-list-item.drag-over-bot{border-bottom:2px solid var(--accent);}
+.channel-list-item.dragging{opacity:0.35;}
+#drag-ghost{
+  position:fixed;left:0;top:0;z-index:9000;pointer-events:none;
+  background:var(--bg2);border:1px solid var(--accent);border-radius:var(--radius-sm);
+  padding:0.7rem 1rem;font-size:14px;font-weight:500;color:var(--text);
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);opacity:0;transition:opacity 0.1s;
+  max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.cli-drag:active{cursor:grabbing;}
-.cli-drag svg{width:16px;height:16px;}
-.channel-list-item.drag-over{
-  border-top:2px solid var(--accent);
-}
-.channel-list-item.dragging{
-  opacity:0.4;
-}
+#drag-ghost.show{opacity:1;}
 
 .empty-feed{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;padding:2rem;text-align:center;}
 .empty-feed .big-icon{font-size:4rem;opacity:0.3;}
@@ -457,7 +435,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
         <p>Add some YouTube channels to start watching without distractions</p>
         <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="showScreen('channels')">Add Channels</button>
       </div>
-      <!-- Batch loader: shown between batches of 5 channels -->
       <div id="feed-batch-loader">
         <div class="batch-loader-bar"><div class="batch-loader-fill" id="feed-batch-fill"></div></div>
         <div class="batch-loader-text" id="feed-batch-text">Loading next channels…</div>
@@ -710,6 +687,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
   </div>
 
   <div id="toast"></div>
+  <div id="drag-ghost"></div>
 </div>
 
 <script>
@@ -987,7 +965,7 @@ function applyKidsMode(){
 async function fetchVideosRSS(channelId) {
   const rssUrl     = `${PROXY}/rss?channel=${channelId}`;
   const controller = new AbortController();
-  const timer      = setTimeout(() => controller.abort(), 10000); // 10s: safe for mobile, snappier than 12s
+  const timer      = setTimeout(() => controller.abort(), 10000);
 
   let res;
   try {
@@ -996,16 +974,10 @@ async function fetchVideosRSS(channelId) {
     clearTimeout(timer);
   }
 
-  if (!res.ok) {
-    throw new Error('RSS fetch failed');
-  }
+  if (!res.ok) throw new Error('RSS fetch failed');
 
   const videos = await res.json();
-
-  if (!Array.isArray(videos)) {
-    throw new Error('Invalid RSS response');
-  }
-
+  if (!Array.isArray(videos)) throw new Error('Invalid RSS response');
   return videos;
 }
 
@@ -1013,7 +985,7 @@ async function fetchVideosRSSWithRetry(channelId) {
   try {
     return await fetchVideosRSS(channelId);
   } catch(e) {
-    // Wait 3s then try once more — batching means only 5 concurrent, so 3s is enough
+    // Only 5 concurrent max now — 3s is enough for connections to free up
     await new Promise(r => setTimeout(r, 3000));
     return await fetchVideosRSS(channelId);
   }
@@ -1048,10 +1020,7 @@ async function loadChannelVideos(ch, gen){
       if(feedGeneration !== gen) return;
       renderVideos(ch, videos);
       const el = document.getElementById('videos-' + ch.id);
-      if(el){
-        el.style.transform = 'translateZ(0)';
-        void el.offsetHeight;
-      }
+      if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
       applyKidsLinkHiding();
     });
   } catch(e){
@@ -1061,20 +1030,18 @@ async function loadChannelVideos(ch, gen){
   }
 }
 
-/* Load channels in batches of BATCH_SIZE.
-   Locks scroll while a batch is in-flight, unlocks when all settle. */
 async function initFeed(newChannelId){
-  const myGen    = ++feedGeneration;
-  const channels = STORE.channels;
-  const body     = document.getElementById('feed-body');
-  const empty    = document.getElementById('feed-empty');
-  const loader   = document.getElementById('feed-batch-loader');
-  const fill     = document.getElementById('feed-batch-fill');
+  const myGen      = ++feedGeneration;
+  const channels   = STORE.channels;
+  const body       = document.getElementById('feed-body');
+  const empty      = document.getElementById('feed-empty');
+  const loader     = document.getElementById('feed-batch-loader');
+  const fill       = document.getElementById('feed-batch-fill');
   const loaderText = document.getElementById('feed-batch-text');
 
-  // Helper: lock scroll on the feed body
-  function lockScroll(){ body.style.overflowY = 'hidden'; }
-  function unlockScroll(){ body.style.overflowY = ''; }
+  // Lock/unlock scroll on the feed's scrollable body only
+  function lockScroll()  { body.style.overflowY = 'hidden'; }
+  function unlockScroll(){ body.style.overflowY = '';        }
 
   if(!channels.length){
     body.innerHTML = '';
@@ -1087,8 +1054,9 @@ async function initFeed(newChannelId){
   }
   empty.style.display = 'none';
   loader.classList.remove('show');
+  unlockScroll();
 
-  // Single new channel added (from add-channel flow) — just append it, no batching needed
+  // Single new channel appended — no batching needed
   if(newChannelId){
     const ch = channels.find(c => c.id === newChannelId);
     if(!ch) return;
@@ -1106,66 +1074,61 @@ async function initFeed(newChannelId){
     return;
   }
 
-  // Full feed render: build all channel skeleton blocks first
-  // Clear old content but keep loader and empty divs
+  // Clear old channel blocks, keep empty + loader in DOM
   Array.from(body.children).forEach(el => {
     if(el.id !== 'feed-empty' && el.id !== 'feed-batch-loader') el.remove();
   });
 
+  // Render all skeleton blocks up front
   channels.forEach((ch, i) => {
     const wrapper = document.createElement('div');
-    wrapper.innerHTML = channelBlockHTML(ch) + (i < channels.length - 1 ? '<div class="section-divider"></div>' : '');
+    wrapper.innerHTML = channelBlockHTML(ch) +
+      (i < channels.length - 1 ? '<div class="section-divider"></div>' : '');
     while(wrapper.firstChild) body.insertBefore(wrapper.firstChild, loader);
   });
 
-  // Process in batches of BATCH_SIZE
-  const total = channels.length;
+  // Load in batches of BATCH_SIZE, locking scroll between batches
+  const total   = channels.length;
   const batches = Math.ceil(total / BATCH_SIZE);
 
   for(let b = 0; b < batches; b++){
-    if(feedGeneration !== myGen) return; // feed was reset (tab switch etc.)
+    if(feedGeneration !== myGen) return;
 
     const batchChannels = channels.slice(b * BATCH_SIZE, (b + 1) * BATCH_SIZE);
-    const isLastBatch   = (b === batches - 1);
+    const isLastBatch   = b === batches - 1;
 
-    // Show loader bar between batches (not before first batch)
+    // Show progress bar + lock scroll BEFORE fetching (except first batch)
     if(b > 0){
+      fill.style.width     = '0%';
+      loaderText.textContent = `Loading channels ${b * BATCH_SIZE + 1}–${Math.min((b+1)*BATCH_SIZE, total)} of ${total}…`;
       loader.classList.add('show');
-      fill.style.width = '0%';
-      loaderText.textContent = `Loading channels ${b * BATCH_SIZE + 1}–${Math.min((b + 1) * BATCH_SIZE, total)} of ${total}…`;
       lockScroll();
-      // Scroll loader into view so user sees progress
-      loader.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // Fire all channels in this batch simultaneously, track progress
     let settled = 0;
     await Promise.allSettled(
-      batchChannels.map(ch => {
+      batchChannels.map((ch, idx) => {
         const cached = getCachedVideos(ch.id);
-        // Stagger uncached fetches slightly within a batch (0, 100, 200ms…)
-        const delay = cached ? 0 : batchChannels.indexOf(ch) * 100;
+        // Stagger only uncached requests 100ms apart within the batch
+        const delay = cached ? 0 : idx * 100;
         return new Promise(resolve => {
           setTimeout(async () => {
             await loadChannelVideos(ch, myGen);
             settled++;
-            // Update progress bar
-            fill.style.width = `${(settled / batchChannels.length) * 100}%`;
+            if(b > 0) fill.style.width = `${(settled / batchChannels.length) * 100}%`;
             resolve();
           }, delay);
         });
       })
     );
 
-    // All settled — hide loader and unlock scroll for this batch
+    // Batch done — hide loader, unlock scroll
     loader.classList.remove('show');
     fill.style.width = '0%';
     unlockScroll();
 
-    // Small pause between batches so the browser can paint before next lock
-    if(!isLastBatch){
-      await new Promise(r => setTimeout(r, 200));
-    }
+    // Brief paint gap before next batch
+    if(!isLastBatch) await new Promise(r => setTimeout(r, 150));
   }
 }
 
@@ -1267,7 +1230,7 @@ function closePlayer(){
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
 /* ═══════════════════════════════════════════
-   CHANNELS SCREEN  (with drag-to-reorder)
+   CHANNELS SCREEN  (drag-to-reorder)
 ═══════════════════════════════════════════ */
 function initChannels(){
   const channels  = STORE.channels;
@@ -1287,9 +1250,11 @@ function initChannels(){
 
   body.innerHTML = channels.map((ch, i) => `
     <div class="channel-list-item" data-id="${esc(ch.id)}" style="animation-delay:${i*40}ms">
-      <div class="cli-drag" title="Drag to reorder">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="8" y1="6"  x2="16" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/>
+      <div class="cli-drag" title="Hold and drag to reorder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="8" y1="6"  x2="16" y2="6"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+          <line x1="8" y1="18" x2="16" y2="18"/>
         </svg>
       </div>
       <div class="cli-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
@@ -1302,90 +1267,118 @@ function initChannels(){
       </button>
     </div>`).join('');
 
-  initDragToReorder(body);
+  initDragReorder();
 }
 
-function initDragToReorder(body){
-  let dragEl    = null;   // the item being dragged
-  let dragIndex = null;
+function initDragReorder(){
+  const ghost = document.getElementById('drag-ghost');
+  let dragEl   = null;   // item being dragged
+  let fromIdx  = null;
 
-  function getItems(){ return [...body.querySelectorAll('.channel-list-item')]; }
+  function items(){ return [...document.querySelectorAll('#channels-body .channel-list-item')]; }
 
-  function getIndex(el){ return getItems().indexOf(el); }
+  function clearHighlights(){
+    items().forEach(el => { el.classList.remove('drag-over-top','drag-over-bot','dragging'); });
+  }
 
-  // ── Touch drag ──────────────────────────────────────────────
-  body.addEventListener('touchstart', e => {
+  function getItemAt(x, y){
+    // Temporarily hide ghost so elementFromPoint works through it
+    ghost.style.display = 'none';
+    const el = document.elementFromPoint(x, y)?.closest('.channel-list-item');
+    ghost.style.display = '';
+    return el;
+  }
+
+  function highlightTarget(target){
+    clearHighlights();
+    if(!target || target === dragEl) return;
+    dragEl.classList.add('dragging');
+    const rect   = target.getBoundingClientRect();
+    const midY   = rect.top + rect.height / 2;
+    // We'll just use drag-over-top to show "insert above this item"
+    const toIdx  = items().indexOf(target);
+    if(toIdx < fromIdx) target.classList.add('drag-over-top');
+    else                target.classList.add('drag-over-bot');
+  }
+
+  function doReorder(target){
+    if(!target || target === dragEl) return;
+    const allItems = items();
+    const to = allItems.indexOf(target);
+    if(to === fromIdx) return;
+    const channels = STORE.channels;
+    const [moved]  = channels.splice(fromIdx, 1);
+    channels.splice(to, 0, moved);
+    STORE.channels = channels;
+    feedGeneration++; // invalidate feed so it re-renders on next visit
+    initChannels();   // re-render list with new order
+    toast('Order saved');
+  }
+
+  // ── TOUCH ──────────────────────────────────────────────────
+  document.getElementById('channels-body').addEventListener('touchstart', e => {
     const handle = e.target.closest('.cli-drag');
     if(!handle) return;
-    dragEl = handle.closest('.channel-list-item');
-    dragIndex = getIndex(dragEl);
+    dragEl  = handle.closest('.channel-list-item');
+    fromIdx = items().indexOf(dragEl);
+    const name = dragEl.querySelector('.cli-name')?.textContent || '';
+    ghost.textContent = name;
+    const t = e.touches[0];
+    ghost.style.transform = `translate(${t.clientX - 20}px, ${t.clientY - 20}px)`;
+    ghost.classList.add('show');
     dragEl.classList.add('dragging');
   }, { passive: true });
 
-  body.addEventListener('touchmove', e => {
+  document.getElementById('channels-body').addEventListener('touchmove', e => {
     if(!dragEl) return;
+    // Do NOT call e.preventDefault() — that would kill the page scroll
+    // Instead we just track position and highlight; native scroll still works for normal swipes
+    const t      = e.touches[0];
+    ghost.style.transform = `translate(${t.clientX - 20}px, ${t.clientY - 24}px)`;
+    const target = getItemAt(t.clientX, t.clientY);
+    highlightTarget(target);
+  }, { passive: true });
+
+  document.getElementById('channels-body').addEventListener('touchend', e => {
+    if(!dragEl) return;
+    const t      = e.changedTouches[0];
+    const target = getItemAt(t.clientX, t.clientY);
+    ghost.classList.remove('show');
+    clearHighlights();
+    doReorder(target);
+    dragEl = null; fromIdx = null;
+  }, { passive: true });
+
+  // ── MOUSE (desktop) ────────────────────────────────────────
+  document.getElementById('channels-body').addEventListener('mousedown', e => {
+    const handle = e.target.closest('.cli-drag');
+    if(!handle) return;
     e.preventDefault();
-    const touch  = e.touches[0];
-    const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.channel-list-item');
-    getItems().forEach(el => el.classList.remove('drag-over'));
-    if(target && target !== dragEl) target.classList.add('drag-over');
-  }, { passive: false });
+    dragEl  = handle.closest('.channel-list-item');
+    fromIdx = items().indexOf(dragEl);
+    const name = dragEl.querySelector('.cli-name')?.textContent || '';
+    ghost.textContent = name;
+    ghost.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 24}px)`;
+    ghost.classList.add('show');
+    dragEl.classList.add('dragging');
 
-  body.addEventListener('touchend', e => {
-    if(!dragEl) return;
-    const touch  = e.changedTouches[0];
-    const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.channel-list-item');
-    getItems().forEach(el => el.classList.remove('drag-over'));
-    dragEl.classList.remove('dragging');
-
-    if(target && target !== dragEl){
-      const toIndex = getIndex(target);
-      reorderChannels(dragIndex, toIndex);
+    function onMove(ev){
+      ghost.style.transform = `translate(${ev.clientX - 20}px, ${ev.clientY - 24}px)`;
+      const target = getItemAt(ev.clientX, ev.clientY);
+      highlightTarget(target);
     }
-    dragEl = null; dragIndex = null;
-  }, { passive: true });
-
-  // ── Mouse drag (desktop) ─────────────────────────────────────
-  body.addEventListener('mousedown', e => {
-    const handle = e.target.closest('.cli-drag');
-    if(!handle) return;
-    e.preventDefault();
-    dragEl = handle.closest('.channel-list-item');
-    dragIndex = getIndex(dragEl);
-    dragEl.classList.add('dragging');
-
-    const onMove = ev => {
-      const target = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.channel-list-item');
-      getItems().forEach(el => el.classList.remove('drag-over'));
-      if(target && target !== dragEl) target.classList.add('drag-over');
-    };
-    const onUp = ev => {
+    function onUp(ev){
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
-      const target = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.channel-list-item');
-      getItems().forEach(el => el.classList.remove('drag-over'));
-      dragEl.classList.remove('dragging');
-      if(target && target !== dragEl){
-        const toIndex = getIndex(target);
-        reorderChannels(dragIndex, toIndex);
-      }
-      dragEl = null; dragIndex = null;
-    };
+      const target = getItemAt(ev.clientX, ev.clientY);
+      ghost.classList.remove('show');
+      clearHighlights();
+      doReorder(target);
+      dragEl = null; fromIdx = null;
+    }
     document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener('mouseup',  onUp);
   });
-}
-
-function reorderChannels(fromIndex, toIndex){
-  const channels = STORE.channels;
-  const [moved]  = channels.splice(fromIndex, 1);
-  channels.splice(toIndex, 0, moved);
-  STORE.channels = channels;
-  // Re-render the list to reflect new order
-  initChannels();
-  toast('Order saved');
-  // Clear feed cache so next feed visit respects new order
-  feedGeneration++;
 }
 
 function removeChannel(id){
