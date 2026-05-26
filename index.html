@@ -954,8 +954,8 @@ async function fetchVideosRSSWithRetry(channelId) {
   try {
     return await fetchVideosRSS(channelId);
   } catch(e) {
-    // Wait 1.5s then try once more silently before giving up
-    await new Promise(r => setTimeout(r, 1500));
+    // Wait 5s then try once more silently before giving up
+    await new Promise(r => setTimeout(r, 5000));
     return await fetchVideosRSS(channelId);
   }
 }
