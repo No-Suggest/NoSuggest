@@ -928,84 +928,77 @@ function applyKidsMode(){
 async function fetchVideosRSS(channelId) {
   const rssUrl     = `${PROXY}/rss?channel=${channelId}`;
   const controller = new AbortController();
-  const timer      = setTimeout(() => controller.abort(), 15000);
+  const timer      = setTimeout(() => controller.abort(), 12000);
 
   let res;
   try {
     res = await fetch(rssUrl, { signal: controller.signal });
+  } finally {
     clearTimeout(timer);
-  } catch(e) {
-    clearTimeout(timer);
-    throw e; // network error or abort — let retry handle it
   }
 
   if (!res.ok) {
-    throw new Error(`RSS fetch failed: ${res.status}`);
+    throw new Error('RSS fetch failed');
   }
 
-  let videos;
-  try {
-    videos = await res.json();
-  } catch(e) {
-    throw new Error('Invalid JSON from RSS endpoint');
-  }
+  const videos = await res.json();
 
   if (!Array.isArray(videos)) {
-    throw new Error('Invalid RSS response format');
+    throw new Error('Invalid RSS response');
   }
 
   return videos;
 }
 
 async function fetchVideosRSSWithRetry(channelId) {
-  const MAX_RETRIES = 3;
-  const RETRY_DELAY = 2000; // ms between retries
-  let lastError;
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      return await fetchVideosRSS(channelId);
-    } catch(e) {
-      lastError = e;
-      console.warn(`[NoSuggest] Channel ${channelId} attempt ${attempt} failed:`, e.message);
-      if (attempt < MAX_RETRIES) {
-        await new Promise(r => setTimeout(r, RETRY_DELAY));
-      }
-    }
+  try {
+    return await fetchVideosRSS(channelId);
+  } catch(e) {
+    // Wait 5s then try once more silently before giving up
+    await new Promise(r => setTimeout(r, 5000));
+    return await fetchVideosRSS(channelId);
   }
-  console.error(`[NoSuggest] Channel ${channelId} failed all ${MAX_RETRIES} attempts`);
-  throw lastError;
 }
 
 /* ═══════════════════════════════════════════
    FEED SCREEN
 ═══════════════════════════════════════════ */
-function channelBlockHTML(ch, includeSkeletons){
-  const skeletons = includeSkeletons
-    ? [0,1,2,3,4].map(() => `<div class="skeleton-video"><div class="sk-thumb"></div><div class="sk-line"></div><div class="sk-line s"></div></div>`).join('')
-    : '';
+function channelBlockHTML(ch){
   return `<div class="channel-section" id="feed-ch-${ch.id}">
     <div class="channel-label">
       <div class="ch-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
       <span class="ch-name">${esc(ch.name)}</span>
       <a class="ch-link" href="https://www.youtube.com/channel/${esc(ch.id)}" target="_blank" rel="noopener">YouTube ↗</a>
     </div>
-    <div class="videos-scroll" id="videos-${ch.id}">${skeletons}</div>
+    <div class="videos-scroll" id="videos-${ch.id}">
+      ${[0,1,2,3,4].map(() => `<div class="skeleton-video"><div class="sk-thumb"></div><div class="sk-line"></div><div class="sk-line s"></div></div>`).join('')}
+    </div>
   </div>`;
 }
 
-/* Append a single channel block to the feed body and return its videos container */
-function appendChannelBlock(ch, body, addDivider, useSkeletons){
-  if(addDivider){
-    const div = document.createElement('div');
-    div.className = 'section-divider';
-    body.appendChild(div);
+async function loadChannelVideos(ch, gen){
+  try{
+    let videos = getCachedVideos(ch.id);
+    if(!videos){
+      videos = await fetchVideosRSSWithRetry(ch.id);
+      setCachedVideos(ch.id, videos);
+    }
+      requestAnimationFrame(() => {
+      renderVideos(ch, videos);
+	  // Force Android Chrome repaint after dynamic HTML insertion
+	  const el = document.getElementById('videos-' + ch.id);
+	  if(el){
+		el.style.transform = 'translateZ(0)';
+		// Force layout + repaint
+		void el.offsetHeight;
+	  }
+      applyKidsLinkHiding();
+    });
+  } catch(e){
+    if(gen !== undefined && feedGeneration !== gen) return;
+    const el = document.getElementById('videos-' + ch.id);
+    if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">Could not load videos. Check connection.</div>`;
   }
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = channelBlockHTML(ch, useSkeletons);
-  const block = wrapper.firstElementChild;
-  body.appendChild(block);
-  applyKidsLinkHiding();
-  return document.getElementById('videos-' + ch.id);
 }
 
 async function initFeed(newChannelId){
@@ -1022,63 +1015,33 @@ async function initFeed(newChannelId){
   }
   empty.style.display = 'none';
 
-  /* ── Single new channel appended after add ── */
   if(newChannelId){
     const ch = channels.find(c => c.id === newChannelId);
     if(!ch) return;
-    const hasSections = body.querySelectorAll('.channel-section').length > 0;
-    // Show skeletons while fetching for newly added channel
-    appendChannelBlock(ch, body, hasSections, true);
-    try{
-      const cached = getCachedVideos(ch.id);
-      const videos = cached || await fetchVideosRSSWithRetry(ch.id);
-      if(!cached) setCachedVideos(ch.id, videos);
-      if(feedGeneration !== myGen) return;
-      requestAnimationFrame(() => { renderVideos(ch, videos); applyKidsLinkHiding(); });
-    } catch(e){
-      if(feedGeneration !== myGen) return;
-      const el = document.getElementById('videos-' + ch.id);
-      if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--danger)">No videos loaded. Connection failure.</div>`;
+    if(body.querySelectorAll('.channel-section').length > 0){
+      const div = document.createElement('div');
+      div.className = 'section-divider';
+      body.appendChild(div);
     }
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = channelBlockHTML(ch);
+    const block = wrapper.firstElementChild;
+    block.style.animation = 'fadeUp 0.35s ease both';
+    body.appendChild(block);
+    setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, 200);
     return;
   }
 
-  /* ── Full feed load: sequential, one channel at a time ── */
-  body.innerHTML = '';
+  body.innerHTML = channels.map((ch, i) => `
+    ${channelBlockHTML(ch)}
+    ${i < channels.length - 1 ? '<div class="section-divider"></div>' : ''}
+  `).join('');
 
-  for(let i = 0; i < channels.length; i++){
-    if(feedGeneration !== myGen) return; // stale generation — bail
-
-    const ch     = channels[i];
+  channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
-
-    // Only show skeletons when we actually have to wait (no cache)
-    appendChannelBlock(ch, body, i > 0, !cached);
-
-    if(cached){
-      requestAnimationFrame(() => { renderVideos(ch, cached); applyKidsLinkHiding(); });
-    } else {
-      // Small polite delay between live fetches so Cloudflare doesn't rate-limit
-      if(i > 0) await new Promise(r => setTimeout(r, 300));
-      try{
-        const videos = await fetchVideosRSSWithRetry(ch.id);
-        if(feedGeneration !== myGen) return;
-        setCachedVideos(ch.id, videos);
-        requestAnimationFrame(() => {
-          renderVideos(ch, videos);
-          const el = document.getElementById('videos-' + ch.id);
-          if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
-          applyKidsLinkHiding();
-        });
-      } catch(e){
-        if(feedGeneration !== myGen) return;
-        // All 3 retries exhausted — show error and stop loading further channels
-        const el = document.getElementById('videos-' + ch.id);
-        if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--danger)">No videos loaded. Connection failure.</div>`;
-        return; // Stop sequential loading here
-      }
-    }
-  }
+    const delay = cached ? i * 50 : i * 500;
+    setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, delay);
+  });
 }
 
 function renderVideos(ch, videos){
@@ -1174,30 +1137,20 @@ function closePlayer(){
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
-  // Do NOT call initFeed() here — it would reset feedGeneration and abort
-  // any sequential load still in progress. The feed is already rendered.
+  initFeed();
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
 /* ═══════════════════════════════════════════
    CHANNELS SCREEN
 ═══════════════════════════════════════════ */
-const MAX_CHANNELS = 25;
-
 function initChannels(){
-  const channels  = STORE.channels;
-  const body      = document.getElementById('channels-body');
-  const noEl      = document.getElementById('no-channels');
+  const channels = STORE.channels;
+  const body     = document.getElementById('channels-body');
+  const noEl     = document.getElementById('no-channels');
   const headingEl = document.getElementById('ch-heading');
-  const atLimit   = channels.length >= MAX_CHANNELS;
 
-  headingEl.textContent = `My Channels (${channels.length}/${MAX_CHANNELS})`;
-
-  /* Show/hide the header + button and the FAB based on limit */
-  const headerAddBtn = document.querySelector('#screen-channels .channels-header .icon-btn');
-  const fab          = document.querySelector('.add-channel-fab');
-  if(headerAddBtn) headerAddBtn.style.display = atLimit ? 'none' : '';
-  if(fab)          fab.style.display          = atLimit ? 'none' : '';
+  headingEl.textContent = `My Channels (${channels.length})`;
 
   if(!channels.length){
     body.innerHTML = '';
@@ -1217,13 +1170,6 @@ function initChannels(){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>`).join('');
-
-  if(atLimit){
-    body.insertAdjacentHTML('beforeend',
-      `<div style="padding:1rem 1.25rem;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-align:center">
-        Channel limit reached (${MAX_CHANNELS}). Remove a channel to add another.
-      </div>`);
-  }
 }
 
 function removeChannel(id){
@@ -1347,7 +1293,6 @@ function selectSuggestion(index){
 document.getElementById('add-btn').onclick = () => {
   if(!foundChannel) return;
   if(STORE.channels.some(c => c.id === foundChannel.id)){ toast('Already in your list'); return; }
-  if(STORE.channels.length >= MAX_CHANNELS){ toast(`Channel limit reached (${MAX_CHANNELS})`); return; }
   const channels = STORE.channels;
   channels.push(foundChannel);
   STORE.channels = channels;
@@ -1411,10 +1356,6 @@ async function doFallbackAdd(inputVal){
 
     if(STORE.channels.some(c => c.id === channelId)){
       toast('Already in your list');
-      return;
-    }
-    if(STORE.channels.length >= MAX_CHANNELS){
-      toast(`Channel limit reached (${MAX_CHANNELS})`);
       return;
     }
 
