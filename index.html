@@ -128,47 +128,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .sk-line.s{width:55%;margin-bottom:0.65rem;}
 @keyframes sk{0%,100%{opacity:0.4}50%{opacity:0.8}}
 .section-divider{height:1px;background:var(--border);margin:1rem 1.25rem 0;}
-
-/* ═══════════════════════════════════════
-   FEED BATCH LOADER  (sticky overlay at bottom)
-═══════════════════════════════════════ */
-#feed-batch-loader{
-  display:none;
-  position:fixed;
-  bottom:calc(64px + var(--safe-bot));
-  left:0;right:0;
-  flex-direction:column;align-items:center;
-  justify-content:center;gap:10px;
-  padding:1rem 1.25rem;
-  background:rgba(10,10,10,0.95);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  border-top:1px solid var(--border);
-  z-index:50;
-}
-#feed-batch-loader.show{display:flex;}
-.batch-loader-bar{width:200px;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
-.batch-loader-fill{height:100%;width:0%;background:var(--accent);border-radius:2px;transition:width 0.3s ease;}
-.batch-loader-text{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.04em;}
-
-/* ═══════════════════════════════════════
-   DRAG TO REORDER (Channels)
-═══════════════════════════════════════ */
-.cli-drag{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--faint);cursor:grab;flex-shrink:0;touch-action:none;user-select:none;}
-.cli-drag svg{width:16px;height:16px;pointer-events:none;}
-.channel-list-item{touch-action:pan-y;}
-.channel-list-item.drag-over-top{border-top:2px solid var(--accent);}
-.channel-list-item.drag-over-bot{border-bottom:2px solid var(--accent);}
-.channel-list-item.dragging{opacity:0.35;}
-#drag-ghost{
-  position:fixed;left:0;top:0;z-index:9000;pointer-events:none;
-  background:var(--bg2);border:1px solid var(--accent);border-radius:var(--radius-sm);
-  padding:0.7rem 1rem;font-size:14px;font-weight:500;color:var(--text);
-  box-shadow:0 8px 24px rgba(0,0,0,0.5);opacity:0;transition:opacity 0.1s;
-  max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-#drag-ghost.show{opacity:1;}
-
 .empty-feed{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;padding:2rem;text-align:center;}
 .empty-feed .big-icon{font-size:4rem;opacity:0.3;}
 .empty-feed h3{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;color:var(--muted);}
@@ -437,11 +396,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
         </button>
       </div>
     </div>
-    <!-- Batch loader: fixed overlay above nav bar, outside scroll container -->
-    <div id="feed-batch-loader">
-      <div class="batch-loader-bar"><div class="batch-loader-fill" id="feed-batch-fill"></div></div>
-      <div class="batch-loader-text" id="feed-batch-text">Loading channels…</div>
-    </div>
     <div class="screen-body" id="feed-body">
       <div class="empty-feed" id="feed-empty" style="display:none">
         <div class="big-icon">📺</div>
@@ -697,7 +651,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
   </div>
 
   <div id="toast"></div>
-  <div id="drag-ghost"></div>
 </div>
 
 <script>
@@ -975,7 +928,7 @@ function applyKidsMode(){
 async function fetchVideosRSS(channelId) {
   const rssUrl     = `${PROXY}/rss?channel=${channelId}`;
   const controller = new AbortController();
-  const timer      = setTimeout(() => controller.abort(), 10000);
+  const timer      = setTimeout(() => controller.abort(), 12000);
 
   let res;
   try {
@@ -984,79 +937,73 @@ async function fetchVideosRSS(channelId) {
     clearTimeout(timer);
   }
 
-  if (!res.ok) throw new Error('RSS fetch failed');
+  if (!res.ok) {
+    throw new Error('RSS fetch failed');
+  }
 
   const videos = await res.json();
-  if (!Array.isArray(videos)) throw new Error('Invalid RSS response');
+
+  if (!Array.isArray(videos)) {
+    throw new Error('Invalid RSS response');
+  }
+
   return videos;
 }
 
 async function fetchVideosRSSWithRetry(channelId) {
-  try {
-    return await fetchVideosRSS(channelId);
-  } catch(e) {
-    // Only 5 concurrent max now — 3s is enough for connections to free up
-    await new Promise(r => setTimeout(r, 3000));
-    return await fetchVideosRSS(channelId);
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 1500; // ms between retries
+  let lastError;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await fetchVideosRSS(channelId);
+    } catch(e) {
+      lastError = e;
+      if (attempt < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, RETRY_DELAY));
+      }
+    }
   }
+  throw lastError;
 }
 
 /* ═══════════════════════════════════════════
    FEED SCREEN
 ═══════════════════════════════════════════ */
-const BATCH_SIZE = 5;
-
-function channelBlockHTML(ch){
+function channelBlockHTML(ch, includeSkeletons){
+  const skeletons = includeSkeletons
+    ? [0,1,2,3,4].map(() => `<div class="skeleton-video"><div class="sk-thumb"></div><div class="sk-line"></div><div class="sk-line s"></div></div>`).join('')
+    : '';
   return `<div class="channel-section" id="feed-ch-${ch.id}">
     <div class="channel-label">
       <div class="ch-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
       <span class="ch-name">${esc(ch.name)}</span>
       <a class="ch-link" href="https://www.youtube.com/channel/${esc(ch.id)}" target="_blank" rel="noopener">YouTube ↗</a>
     </div>
-    <div class="videos-scroll" id="videos-${ch.id}">
-      ${[0,1,2,3,4].map(() => `<div class="skeleton-video"><div class="sk-thumb"></div><div class="sk-line"></div><div class="sk-line s"></div></div>`).join('')}
-    </div>
+    <div class="videos-scroll" id="videos-${ch.id}">${skeletons}</div>
   </div>`;
 }
 
-async function loadChannelVideos(ch, gen){
-  try{
-    let videos = getCachedVideos(ch.id);
-    if(!videos){
-      videos = await fetchVideosRSSWithRetry(ch.id);
-      setCachedVideos(ch.id, videos);
-    }
-    requestAnimationFrame(() => {
-      if(feedGeneration !== gen) return;
-      renderVideos(ch, videos);
-      const el = document.getElementById('videos-' + ch.id);
-      if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
-      applyKidsLinkHiding();
-    });
-  } catch(e){
-    if(gen !== undefined && feedGeneration !== gen) return;
-    const el = document.getElementById('videos-' + ch.id);
-    if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">Could not load videos. Check connection.</div>`;
+/* Append a single channel block to the feed body and return its videos container */
+function appendChannelBlock(ch, body, addDivider, useSkeletons){
+  if(addDivider){
+    const div = document.createElement('div');
+    div.className = 'section-divider';
+    body.appendChild(div);
   }
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = channelBlockHTML(ch, useSkeletons);
+  const block = wrapper.firstElementChild;
+  body.appendChild(block);
+  applyKidsLinkHiding();
+  return document.getElementById('videos-' + ch.id);
 }
 
 async function initFeed(newChannelId){
-  const myGen      = ++feedGeneration;
-  const channels   = STORE.channels;
-  const body       = document.getElementById('feed-body');
-  const empty      = document.getElementById('feed-empty');
-  const loader     = document.getElementById('feed-batch-loader');
-  const fill       = document.getElementById('feed-batch-fill');
-  const loaderText = document.getElementById('feed-batch-text');
-
-  // Lock/unlock scroll on the feed's scrollable body only
-  function lockScroll()  { body.style.overflowY = 'hidden'; }
-  function unlockScroll(){ body.style.overflowY = '';        }
-  function showLoader(text){ fill.style.width = '0%'; loaderText.textContent = text; loader.classList.add('show'); }
-  function hideLoader(){ loader.classList.remove('show'); fill.style.width = '0%'; }
-
-  hideLoader();
-  unlockScroll();
+  const myGen    = ++feedGeneration;
+  const channels = STORE.channels;
+  const body     = document.getElementById('feed-body');
+  const empty    = document.getElementById('feed-empty');
 
   if(!channels.length){
     body.innerHTML = '';
@@ -1066,81 +1013,60 @@ async function initFeed(newChannelId){
   }
   empty.style.display = 'none';
 
-  // Single new channel appended — no batching needed
+  /* ── Single new channel appended after add ── */
   if(newChannelId){
     const ch = channels.find(c => c.id === newChannelId);
     if(!ch) return;
-    if(body.querySelectorAll('.channel-section').length > 0){
-      const div = document.createElement('div');
-      div.className = 'section-divider';
-      body.appendChild(div);
+    const hasSections = body.querySelectorAll('.channel-section').length > 0;
+    // Show skeletons while fetching for newly added channel
+    appendChannelBlock(ch, body, hasSections, true);
+    try{
+      const cached = getCachedVideos(ch.id);
+      const videos = cached || await fetchVideosRSSWithRetry(ch.id);
+      if(!cached) setCachedVideos(ch.id, videos);
+      if(feedGeneration !== myGen) return;
+      requestAnimationFrame(() => { renderVideos(ch, videos); applyKidsLinkHiding(); });
+    } catch(e){
+      if(feedGeneration !== myGen) return;
+      const el = document.getElementById('videos-' + ch.id);
+      if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--danger)">No videos loaded. Connection failure.</div>`;
     }
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = channelBlockHTML(ch);
-    const block = wrapper.firstElementChild;
-    block.style.animation = 'fadeUp 0.35s ease both';
-    body.appendChild(block);
-    setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, 100);
     return;
   }
 
-  // Clear old channel blocks only
+  /* ── Full feed load: sequential, one channel at a time ── */
   body.innerHTML = '';
-  body.appendChild(empty);
-  empty.style.display = 'none';
 
-  // Render all skeleton blocks up front so layout is set
-  channels.forEach((ch, i) => {
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = channelBlockHTML(ch) +
-      (i < channels.length - 1 ? '<div class="section-divider"></div>' : '');
-    while(wrapper.firstChild) body.appendChild(wrapper.firstChild);
-  });
+  for(let i = 0; i < channels.length; i++){
+    if(feedGeneration !== myGen) return; // stale generation — bail
 
-  // Load in batches of BATCH_SIZE
-  const total   = channels.length;
-  const batches = Math.ceil(total / BATCH_SIZE);
+    const ch     = channels[i];
+    const cached = getCachedVideos(ch.id);
 
-  for(let b = 0; b < batches; b++){
-    if(feedGeneration !== myGen) return;
+    // Only show skeletons when we actually have to wait (no cache)
+    appendChannelBlock(ch, body, i > 0, !cached);
 
-    const batchChannels = channels.slice(b * BATCH_SIZE, (b + 1) * BATCH_SIZE);
-    const start         = b * BATCH_SIZE + 1;
-    const end           = Math.min((b + 1) * BATCH_SIZE, total);
-    const isLastBatch   = b === batches - 1;
-
-    // Show loader for every batch so user always knows what's happening
-    showLoader(
-      total <= BATCH_SIZE
-        ? `Loading ${total} channel${total > 1 ? 's' : ''}…`
-        : `Loading channels ${start}–${end} of ${total}…`
-    );
-
-    // Lock scroll from batch 2 onwards (batch 1 user can read while loading)
-    if(b > 0) lockScroll();
-
-    let settled = 0;
-    await Promise.allSettled(
-      batchChannels.map((ch, idx) => {
-        const cached = getCachedVideos(ch.id);
-        const delay  = cached ? 0 : idx * 100;
-        return new Promise(resolve => {
-          setTimeout(async () => {
-            await loadChannelVideos(ch, myGen);
-            settled++;
-            fill.style.width = `${(settled / batchChannels.length) * 100}%`;
-            resolve();
-          }, delay);
+    if(cached){
+      requestAnimationFrame(() => { renderVideos(ch, cached); applyKidsLinkHiding(); });
+    } else {
+      try{
+        const videos = await fetchVideosRSSWithRetry(ch.id);
+        if(feedGeneration !== myGen) return;
+        setCachedVideos(ch.id, videos);
+        requestAnimationFrame(() => {
+          renderVideos(ch, videos);
+          const el = document.getElementById('videos-' + ch.id);
+          if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
+          applyKidsLinkHiding();
         });
-      })
-    );
-
-    // Batch done
-    hideLoader();
-    unlockScroll();
-
-    // Brief paint gap before next batch
-    if(!isLastBatch) await new Promise(r => setTimeout(r, 150));
+      } catch(e){
+        if(feedGeneration !== myGen) return;
+        // All 3 retries exhausted — show error and stop loading further channels
+        const el = document.getElementById('videos-' + ch.id);
+        if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--danger)">No videos loaded. Connection failure.</div>`;
+        return; // Stop sequential loading here
+      }
+    }
   }
 }
 
@@ -1242,15 +1168,24 @@ function closePlayer(){
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
 /* ═══════════════════════════════════════════
-   CHANNELS SCREEN  (drag-to-reorder)
+   CHANNELS SCREEN
 ═══════════════════════════════════════════ */
+const MAX_CHANNELS = 25;
+
 function initChannels(){
   const channels  = STORE.channels;
   const body      = document.getElementById('channels-body');
   const noEl      = document.getElementById('no-channels');
   const headingEl = document.getElementById('ch-heading');
+  const atLimit   = channels.length >= MAX_CHANNELS;
 
-  headingEl.textContent = `My Channels (${channels.length})`;
+  headingEl.textContent = `My Channels (${channels.length}/${MAX_CHANNELS})`;
+
+  /* Show/hide the header + button and the FAB based on limit */
+  const headerAddBtn = document.querySelector('#screen-channels .channels-header .icon-btn');
+  const fab          = document.querySelector('.add-channel-fab');
+  if(headerAddBtn) headerAddBtn.style.display = atLimit ? 'none' : '';
+  if(fab)          fab.style.display          = atLimit ? 'none' : '';
 
   if(!channels.length){
     body.innerHTML = '';
@@ -1259,16 +1194,8 @@ function initChannels(){
     return;
   }
   noEl.style.display = 'none';
-
   body.innerHTML = channels.map((ch, i) => `
-    <div class="channel-list-item" data-id="${esc(ch.id)}" style="animation-delay:${i*40}ms">
-      <div class="cli-drag" title="Hold and drag to reorder">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="8" y1="6"  x2="16" y2="6"/>
-          <line x1="8" y1="12" x2="16" y2="12"/>
-          <line x1="8" y1="18" x2="16" y2="18"/>
-        </svg>
-      </div>
+    <div class="channel-list-item" style="animation-delay:${i*40}ms">
       <div class="cli-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
       <div class="cli-info">
         <div class="cli-name">${esc(ch.name)}</div>
@@ -1278,137 +1205,13 @@ function initChannels(){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>`).join('');
-  // NOTE: drag listeners are set up once via setupDragReorder() called at boot — not here
-}
 
-/* Called ONCE at app boot — attaches drag listeners via delegation so re-renders don't duplicate them */
-function setupDragReorder(){
-  const ghost    = document.getElementById('drag-ghost');
-  const chBody   = document.getElementById('channels-body');
-  let dragEl     = null;
-  let fromIdx    = null;
-  let scrollInt  = null;  // auto-scroll interval
-
-  function items(){ return [...chBody.querySelectorAll('.channel-list-item')]; }
-
-  function clearHighlights(){
-    items().forEach(el => el.classList.remove('drag-over-top','drag-over-bot','dragging'));
+  if(atLimit){
+    body.insertAdjacentHTML('beforeend',
+      `<div style="padding:1rem 1.25rem;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-align:center">
+        Channel limit reached (${MAX_CHANNELS}). Remove a channel to add another.
+      </div>`);
   }
-
-  function getItemAt(x, y){
-    ghost.style.display = 'none';
-    const el = document.elementFromPoint(x, y)?.closest('.channel-list-item');
-    ghost.style.display = '';
-    return el;
-  }
-
-  function highlightTarget(target){
-    clearHighlights();
-    if(!target || target === dragEl) return;
-    dragEl.classList.add('dragging');
-    const toIdx = items().indexOf(target);
-    if(toIdx < fromIdx) target.classList.add('drag-over-top');
-    else                target.classList.add('drag-over-bot');
-  }
-
-  // Auto-scroll when finger is near top or bottom edge of channels-body
-  function startAutoScroll(clientY){
-    stopAutoScroll();
-    const ZONE = 80; // px from edge triggers scroll
-    scrollInt = setInterval(() => {
-      const rect = chBody.getBoundingClientRect();
-      if(clientY < rect.top + ZONE){
-        chBody.scrollTop -= 6;
-      } else if(clientY > rect.bottom - ZONE){
-        chBody.scrollTop += 6;
-      }
-    }, 16);
-  }
-  function stopAutoScroll(){ clearInterval(scrollInt); scrollInt = null; }
-
-  function beginDrag(el, x, y){
-    dragEl  = el;
-    fromIdx = items().indexOf(el);
-    const name = el.querySelector('.cli-name')?.textContent || '';
-    ghost.textContent = name;
-    ghost.style.transform = `translate(${x - 20}px, ${y - 24}px)`;
-    ghost.classList.add('show');
-    el.classList.add('dragging');
-  }
-
-  function moveDrag(x, y){
-    ghost.style.transform = `translate(${x - 20}px, ${y - 24}px)`;
-    highlightTarget(getItemAt(x, y));
-    startAutoScroll(y); // refresh scroll zone on every move
-  }
-
-  function endDrag(x, y){
-    stopAutoScroll();
-    const target = getItemAt(x, y);
-    ghost.classList.remove('show');
-    clearHighlights();
-    if(target && target !== dragEl){
-      const toIdx  = items().indexOf(target);
-      if(toIdx !== fromIdx){
-        const channels = STORE.channels;
-        const [moved]  = channels.splice(fromIdx, 1);
-        channels.splice(toIdx, 0, moved);
-        STORE.channels = channels;
-        feedGeneration++;      // invalidate feed cache
-        initChannels();        // re-render list — listeners stay because they're on chBody (delegation)
-        toast('Order saved');
-      }
-    }
-    dragEl = null; fromIdx = null;
-  }
-
-  // ── TOUCH ──────────────────────────────────────────────────
-  chBody.addEventListener('touchstart', e => {
-    const handle = e.target.closest('.cli-drag');
-    if(!handle) return;
-    const t = e.touches[0];
-    beginDrag(handle.closest('.channel-list-item'), t.clientX, t.clientY);
-  }, { passive: true });
-
-  chBody.addEventListener('touchmove', e => {
-    if(!dragEl) return;
-    const t = e.touches[0];
-    moveDrag(t.clientX, t.clientY);
-    // NOTE: passive:true — we don't prevent default so normal scroll still works
-    // when dragging on non-handle areas. When on a handle, native scroll is
-    // suppressed by touch-action:none on .cli-drag.
-  }, { passive: true });
-
-  chBody.addEventListener('touchend', e => {
-    if(!dragEl) return;
-    const t = e.changedTouches[0];
-    endDrag(t.clientX, t.clientY);
-  }, { passive: true });
-
-  chBody.addEventListener('touchcancel', () => {
-    if(!dragEl) return;
-    stopAutoScroll();
-    ghost.classList.remove('show');
-    clearHighlights();
-    dragEl = null; fromIdx = null;
-  }, { passive: true });
-
-  // ── MOUSE (desktop) ────────────────────────────────────────
-  chBody.addEventListener('mousedown', e => {
-    const handle = e.target.closest('.cli-drag');
-    if(!handle) return;
-    e.preventDefault();
-    beginDrag(handle.closest('.channel-list-item'), e.clientX, e.clientY);
-
-    function onMove(ev){ moveDrag(ev.clientX, ev.clientY); }
-    function onUp(ev){
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      endDrag(ev.clientX, ev.clientY);
-    }
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-  });
 }
 
 function removeChannel(id){
@@ -1532,6 +1335,7 @@ function selectSuggestion(index){
 document.getElementById('add-btn').onclick = () => {
   if(!foundChannel) return;
   if(STORE.channels.some(c => c.id === foundChannel.id)){ toast('Already in your list'); return; }
+  if(STORE.channels.length >= MAX_CHANNELS){ toast(`Channel limit reached (${MAX_CHANNELS})`); return; }
   const channels = STORE.channels;
   channels.push(foundChannel);
   STORE.channels = channels;
@@ -1595,6 +1399,10 @@ async function doFallbackAdd(inputVal){
 
     if(STORE.channels.some(c => c.id === channelId)){
       toast('Already in your list');
+      return;
+    }
+    if(STORE.channels.length >= MAX_CHANNELS){
+      toast(`Channel limit reached (${MAX_CHANNELS})`);
       return;
     }
 
@@ -1816,7 +1624,6 @@ function removeSaved(id){
    BOOT
 ═══════════════════════════════════════════ */
 window.addEventListener('load', () => {
-  setupDragReorder(); // set up once — survives initChannels() re-renders
   applyKidsMode();
   if(STORE.hasLaunched){
     showScreen(localStorage.getItem('ns_active_tab') || 'feed');
