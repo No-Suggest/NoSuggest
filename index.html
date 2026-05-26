@@ -928,23 +928,30 @@ function applyKidsMode(){
 async function fetchVideosRSS(channelId) {
   const rssUrl     = `${PROXY}/rss?channel=${channelId}`;
   const controller = new AbortController();
-  const timer      = setTimeout(() => controller.abort(), 12000);
+  const timer      = setTimeout(() => controller.abort(), 15000);
 
   let res;
   try {
     res = await fetch(rssUrl, { signal: controller.signal });
-  } finally {
     clearTimeout(timer);
+  } catch(e) {
+    clearTimeout(timer);
+    throw e; // network error or abort — let retry handle it
   }
 
   if (!res.ok) {
-    throw new Error('RSS fetch failed');
+    throw new Error(`RSS fetch failed: ${res.status}`);
   }
 
-  const videos = await res.json();
+  let videos;
+  try {
+    videos = await res.json();
+  } catch(e) {
+    throw new Error('Invalid JSON from RSS endpoint');
+  }
 
   if (!Array.isArray(videos)) {
-    throw new Error('Invalid RSS response');
+    throw new Error('Invalid RSS response format');
   }
 
   return videos;
@@ -952,18 +959,20 @@ async function fetchVideosRSS(channelId) {
 
 async function fetchVideosRSSWithRetry(channelId) {
   const MAX_RETRIES = 3;
-  const RETRY_DELAY = 1500; // ms between retries
+  const RETRY_DELAY = 2000; // ms between retries
   let lastError;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       return await fetchVideosRSS(channelId);
     } catch(e) {
       lastError = e;
+      console.warn(`[NoSuggest] Channel ${channelId} attempt ${attempt} failed:`, e.message);
       if (attempt < MAX_RETRIES) {
         await new Promise(r => setTimeout(r, RETRY_DELAY));
       }
     }
   }
+  console.error(`[NoSuggest] Channel ${channelId} failed all ${MAX_RETRIES} attempts`);
   throw lastError;
 }
 
@@ -1049,6 +1058,8 @@ async function initFeed(newChannelId){
     if(cached){
       requestAnimationFrame(() => { renderVideos(ch, cached); applyKidsLinkHiding(); });
     } else {
+      // Small polite delay between live fetches so Cloudflare doesn't rate-limit
+      if(i > 0) await new Promise(r => setTimeout(r, 300));
       try{
         const videos = await fetchVideosRSSWithRetry(ch.id);
         if(feedGeneration !== myGen) return;
@@ -1163,7 +1174,8 @@ function closePlayer(){
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
-  initFeed();
+  // Do NOT call initFeed() here — it would reset feedGeneration and abort
+  // any sequential load still in progress. The feed is already rendered.
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
