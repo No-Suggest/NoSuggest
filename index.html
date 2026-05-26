@@ -928,7 +928,7 @@ function applyKidsMode(){
 async function fetchVideosRSS(channelId) {
   const rssUrl     = `${PROXY}/rss?channel=${channelId}`;
   const controller = new AbortController();
-  const timer      = setTimeout(() => controller.abort(), 8000);
+  const timer      = setTimeout(() => controller.abort(), 12000);
 
   let res;
   try {
@@ -1039,7 +1039,7 @@ async function initFeed(newChannelId){
 
   channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
-    const delay = cached ? i * 50 : i * 300;
+    const delay = cached ? i * 50 : i * 500;
     setTimeout(() => { if(feedGeneration === myGen) loadChannelVideos(ch, myGen); }, delay);
   });
 }
