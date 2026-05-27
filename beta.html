@@ -928,36 +928,52 @@ function applyKidsMode(){
 async function fetchVideosRSS(channelId) {
   const rssUrl     = `${PROXY}/rss?channel=${channelId}`;
   const controller = new AbortController();
-  const timer      = setTimeout(() => controller.abort(), 12000);
+  const timer      = setTimeout(() => controller.abort(), 15000);
 
   let res;
   try {
     res = await fetch(rssUrl, { signal: controller.signal });
-  } finally {
     clearTimeout(timer);
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
   }
 
   if (!res.ok) {
-    throw new Error('RSS fetch failed');
+    throw new Error(`RSS fetch failed: ${res.status}`);
   }
 
-  const videos = await res.json();
+  let videos;
+  try {
+    videos = await res.json();
+  } catch(e) {
+    throw new Error('Invalid JSON from RSS endpoint');
+  }
 
   if (!Array.isArray(videos)) {
-    throw new Error('Invalid RSS response');
+    throw new Error('Invalid RSS response format');
   }
 
   return videos;
 }
 
 async function fetchVideosRSSWithRetry(channelId) {
-  try {
-    return await fetchVideosRSS(channelId);
-  } catch(e) {
-    // Wait 5s then try once more silently before giving up
-    await new Promise(r => setTimeout(r, 5000));
-    return await fetchVideosRSS(channelId);
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 2000;
+  let lastError;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await fetchVideosRSS(channelId);
+    } catch(e) {
+      lastError = e;
+      console.warn(`[NoSuggest] Channel ${channelId} attempt ${attempt} failed:`, e.message);
+      if (attempt < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, RETRY_DELAY));
+      }
+    }
   }
+  console.error(`[NoSuggest] Channel ${channelId} failed all ${MAX_RETRIES} attempts`);
+  throw lastError;
 }
 
 /* ═══════════════════════════════════════════
@@ -997,7 +1013,7 @@ async function loadChannelVideos(ch, gen){
   } catch(e){
     if(gen !== undefined && feedGeneration !== gen) return;
     const el = document.getElementById('videos-' + ch.id);
-    if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">Could not load videos. Check connection.</div>`;
+    if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--danger)">No videos loaded. Connection failure.</div>`;
   }
 }
 
@@ -1106,7 +1122,7 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   function createPlayer(){
     ytPlayer = new YT.Player('player-iframe', {
       height: '100%', width: '100%', videoId,
-      playerVars: { autoplay:1, rel:0, modestbranding:1, iv_load_policy:3, fs:1, playsinline:1, cc_load_policy:0 },
+      playerVars: { autoplay:1, rel:0, iv_load_policy:3, fs:1, playsinline:1, cc_load_policy:0 },
       events: { onStateChange: e => { if(e.data === YT.PlayerState.ENDED) closePlayer(); } }
     });
   }
@@ -1137,20 +1153,28 @@ function closePlayer(){
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
-  initFeed();
+  // Do NOT call initFeed() here — feed is already rendered
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
 /* ═══════════════════════════════════════════
    CHANNELS SCREEN
 ═══════════════════════════════════════════ */
-function initChannels(){
-  const channels = STORE.channels;
-  const body     = document.getElementById('channels-body');
-  const noEl     = document.getElementById('no-channels');
-  const headingEl = document.getElementById('ch-heading');
+const MAX_CHANNELS = 25;
 
-  headingEl.textContent = `My Channels (${channels.length})`;
+function initChannels(){
+  const channels  = STORE.channels;
+  const body      = document.getElementById('channels-body');
+  const noEl      = document.getElementById('no-channels');
+  const headingEl = document.getElementById('ch-heading');
+  const atLimit   = channels.length >= MAX_CHANNELS;
+
+  headingEl.textContent = `My Channels (${channels.length}/${MAX_CHANNELS})`;
+
+  const headerAddBtn = document.querySelector('#screen-channels .channels-header .icon-btn');
+  const fab          = document.querySelector('.add-channel-fab');
+  if(headerAddBtn) headerAddBtn.style.display = atLimit ? 'none' : '';
+  if(fab)          fab.style.display          = atLimit ? 'none' : '';
 
   if(!channels.length){
     body.innerHTML = '';
@@ -1170,6 +1194,13 @@ function initChannels(){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>`).join('');
+
+  if(atLimit){
+    body.insertAdjacentHTML('beforeend',
+      `<div style="padding:1rem 1.25rem;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-align:center">
+        Channel limit reached (${MAX_CHANNELS}). Remove a channel to add another.
+      </div>`);
+  }
 }
 
 function removeChannel(id){
@@ -1293,6 +1324,7 @@ function selectSuggestion(index){
 document.getElementById('add-btn').onclick = () => {
   if(!foundChannel) return;
   if(STORE.channels.some(c => c.id === foundChannel.id)){ toast('Already in your list'); return; }
+  if(STORE.channels.length >= MAX_CHANNELS){ toast(`Channel limit reached (${MAX_CHANNELS})`); return; }
   const channels = STORE.channels;
   channels.push(foundChannel);
   STORE.channels = channels;
@@ -1356,6 +1388,10 @@ async function doFallbackAdd(inputVal){
 
     if(STORE.channels.some(c => c.id === channelId)){
       toast('Already in your list');
+      return;
+    }
+    if(STORE.channels.length >= MAX_CHANNELS){
+      toast(`Channel limit reached (${MAX_CHANNELS})`);
       return;
     }
 
