@@ -1107,6 +1107,9 @@ async function initFeed(newChannelId){
   });
 }
 
+/* Video data map — keyed by videoId, avoids quote-escaping bugs in onclick attrs */
+const VIDEO_DATA = {};
+
 function renderVideos(ch, videos){
   const el = document.getElementById('videos-' + ch.id);
   if(!el) return;
@@ -1115,18 +1118,19 @@ function renderVideos(ch, videos){
     return;
   }
   el.innerHTML = videos.map(v => {
+    VIDEO_DATA[v.id] = v;
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
     return `
-    <div class="video-thumb" onclick="openPlayer('${esc(v.id)}','${esc(v.title)}','${esc(ch.name)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
+    <div class="video-thumb" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')">
       <div class="thumb-img-wrap">
-        <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="eager" decoding="async"/>
+        <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
       </div>
       <div class="thumb-info">
         <div class="thumb-title">${esc(v.title)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="thumb-meta">${timeAgo(v.publishedAt)}</div>
-          <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSave(this,'${esc(v.id)}','${esc(v.title)}','${esc(ch.name)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
+          <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
             <svg width="12" height="12" viewBox="0 0 24 24" stroke-width="2" fill="${savedNow?'var(--accent)':'none'}" stroke="${savedNow?'var(--accent)':'var(--faint)'}"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
@@ -1153,6 +1157,39 @@ function onYouTubeIframeAPIReady(){
     window.createPlayerPending();
     window.createPlayerPending = null;
   }
+}
+
+function openPlayerFromSearch(videoId){
+  const v = VIDEO_DATA[videoId];
+  if(!v) return;
+  openPlayer(v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
+}
+
+function toggleSearchSaveById(videoId, btn){
+  const v = VIDEO_DATA[videoId];
+  if(!v) return;
+  toggleSearchSave(btn, v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
+}
+
+function openPlayerFromSaved(videoId){
+  const v = VIDEO_DATA[videoId];
+  if(!v) return;
+  openPlayer(v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
+}
+
+function openPlayerById(videoId, chId){
+  const v  = VIDEO_DATA[videoId];
+  const ch = STORE.channels.find(c => c.id === chId) || {};
+  if(!v) return;
+  openPlayer(v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
+}
+
+function toggleFeedSaveById(videoId, chId){
+  const v  = VIDEO_DATA[videoId];
+  const ch = STORE.channels.find(c => c.id === chId) || {};
+  if(!v) return;
+  const btn = document.querySelector(`.feed-save-btn[onclick*="'${videoId}'"]`);
+  toggleFeedSave(btn, v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
 }
 
 function openPlayer(videoId, title, channelName, publishedAt, thumb){
@@ -1599,12 +1636,13 @@ async function doYTSearch(q){
     document.getElementById('search-results-label').textContent = `Results for "${q}"`;
 
     resultsList.innerHTML = videos.map(v => {
+      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, thumb: v.thumb, publishedAt: '' };
       const saved = isVideoSaved(v.id);
       return `
-      <div class="search-video-card" onclick="openPlayer('${esc(v.id)}','${esc(v.title)}','${esc(v.channel)}','','${esc(v.thumb)}')">
+      <div class="search-video-card" onclick="openPlayerFromSearch('${esc(v.id)}')">
         <div class="search-thumb-wrap">
-          <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="lazy"/>
-          <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSave(this,'${esc(v.id)}','${esc(v.title)}','${esc(v.channel)}','','${esc(v.thumb)}')">
+          <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
+          <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSaveById('${esc(v.id)}',this)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="${saved?'var(--accent)':'none'}" stroke="var(--accent)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
@@ -1649,11 +1687,13 @@ function initSaved(){
   if(!videos.length){ list.innerHTML = ''; empty.style.display = 'flex'; return; }
   empty.style.display = 'none';
 
-  list.innerHTML = videos.map((v, i) => `
+  list.innerHTML = videos.map((v, i) => {
+    VIDEO_DATA[v.id] = v;
+    return `
     <div class="saved-video-card" style="animation:fadeUp 0.3s ease ${i*30}ms both"
-         onclick="openPlayer('${esc(v.id)}','${esc(v.title)}','${esc(v.channelName)}','${esc(v.publishedAt)}','${esc(v.thumb)}')">
+         onclick="openPlayerFromSaved('${esc(v.id)}')">
       <div class="saved-thumb-wrap">
-        <img src="${esc(v.thumb)}" alt="${esc(v.title)}" loading="lazy"/>
+        <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
       </div>
       <div class="saved-card-info">
         <div class="saved-card-title">${esc(v.title)}</div>
@@ -1663,7 +1703,8 @@ function initSaved(){
       <button class="saved-remove-btn" onclick="event.stopPropagation();removeSaved('${esc(v.id)}')" title="Remove">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function removeSaved(id){
