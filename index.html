@@ -122,11 +122,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .thumb-info{padding:0.6rem 0.65rem 0.7rem;}
 .thumb-title{font-size:12px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
 .thumb-meta{font-size:10px;color:var(--faint);font-family:'DM Mono',monospace;}
-.skeleton-video{flex-shrink:0;width:200px;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);}
-.sk-thumb{padding-bottom:56.25%;background:var(--bg3);animation:sk 1.4s ease infinite;}
-.sk-line{height:10px;border-radius:4px;background:var(--bg3);margin:0.6rem 0.65rem 0.3rem;animation:sk 1.4s ease infinite;}
-.sk-line.s{width:55%;margin-bottom:0.65rem;}
-@keyframes sk{0%,100%{opacity:0.4}50%{opacity:0.8}}
+
 .section-divider{height:1px;background:var(--border);margin:1rem 1.25rem 0;}
 .empty-feed{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;padding:2rem;text-align:center;}
 .empty-feed .big-icon{font-size:4rem;opacity:0.3;}
@@ -936,7 +932,7 @@ async function fetchVideosRSS(channelId) {
     clearTimeout(timer);
   } catch(e) {
     clearTimeout(timer);
-    throw e; // network error or abort — let retry handle it
+    throw e;
   }
 
   if (!res.ok) {
@@ -958,54 +954,85 @@ async function fetchVideosRSS(channelId) {
 }
 
 async function fetchVideosRSSWithRetry(channelId) {
-  const MAX_RETRIES = 3;
-  const RETRY_DELAY = 2000; // ms between retries
+  const RETRY_DELAY  = 2000;  // gap between fast retries
+  const SLEEP_BEFORE_WAVE2 = 12000; // sleep after wave 1 fails
   let lastError;
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+
+  // Wave 1: 3 fast retries
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       return await fetchVideosRSS(channelId);
     } catch(e) {
       lastError = e;
-      console.warn(`[NoSuggest] Channel ${channelId} attempt ${attempt} failed:`, e.message);
-      if (attempt < MAX_RETRIES) {
-        await new Promise(r => setTimeout(r, RETRY_DELAY));
-      }
+      console.warn(`[NoSuggest] ${channelId} wave1 attempt ${attempt} failed:`, e.message);
+      if (attempt < 3) await new Promise(r => setTimeout(r, RETRY_DELAY));
     }
   }
-  console.error(`[NoSuggest] Channel ${channelId} failed all ${MAX_RETRIES} attempts`);
+
+  // Wave 1 exhausted — sleep 12s then wave 2
+  console.warn(`[NoSuggest] ${channelId} sleeping ${SLEEP_BEFORE_WAVE2}ms before wave 2`);
+  await new Promise(r => setTimeout(r, SLEEP_BEFORE_WAVE2));
+
+  // Wave 2: 3 more retries
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      return await fetchVideosRSS(channelId);
+    } catch(e) {
+      lastError = e;
+      console.warn(`[NoSuggest] ${channelId} wave2 attempt ${attempt} failed:`, e.message);
+      if (attempt < 3) await new Promise(r => setTimeout(r, RETRY_DELAY));
+    }
+  }
+
+  console.error(`[NoSuggest] ${channelId} failed all 6 attempts`);
   throw lastError;
 }
 
 /* ═══════════════════════════════════════════
    FEED SCREEN
 ═══════════════════════════════════════════ */
-function channelBlockHTML(ch, includeSkeletons){
-  const skeletons = includeSkeletons
-    ? [0,1,2,3,4].map(() => `<div class="skeleton-video"><div class="sk-thumb"></div><div class="sk-line"></div><div class="sk-line s"></div></div>`).join('')
-    : '';
-  return `<div class="channel-section" id="feed-ch-${ch.id}">
+
+/* Append a successfully loaded channel to the feed body */
+function appendChannelToFeed(ch, videos, body){
+  const hasSections = body.querySelectorAll('.channel-section').length > 0;
+  if(hasSections){
+    const div = document.createElement('div');
+    div.className = 'section-divider';
+    body.appendChild(div);
+  }
+  const html = `<div class="channel-section" id="feed-ch-${ch.id}">
     <div class="channel-label">
       <div class="ch-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
       <span class="ch-name">${esc(ch.name)}</span>
       <a class="ch-link" href="https://www.youtube.com/channel/${esc(ch.id)}" target="_blank" rel="noopener">YouTube ↗</a>
     </div>
-    <div class="videos-scroll" id="videos-${ch.id}">${skeletons}</div>
+    <div class="videos-scroll" id="videos-${ch.id}"></div>
   </div>`;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  const block = wrapper.firstElementChild;
+  block.style.animation = 'fadeUp 0.35s ease both';
+  body.appendChild(block);
+  renderVideos(ch, videos);
+  // Force Android Chrome repaint
+  const el = document.getElementById('videos-' + ch.id);
+  if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
+  applyKidsLinkHiding();
 }
 
-/* Append a single channel block to the feed body and return its videos container */
-function appendChannelBlock(ch, body, addDivider, useSkeletons){
-  if(addDivider){
-    const div = document.createElement('div');
-    div.className = 'section-divider';
-    body.appendChild(div);
+async function loadChannelVideos(ch, gen, body){
+  try{
+    let videos = getCachedVideos(ch.id);
+    if(!videos){
+      videos = await fetchVideosRSSWithRetry(ch.id);
+      setCachedVideos(ch.id, videos);
+    }
+    if(feedGeneration !== gen) return;
+    requestAnimationFrame(() => { appendChannelToFeed(ch, videos, body); });
+  } catch(e){
+    // Silently drop — channel just won't appear
+    console.warn(`[NoSuggest] ${ch.id} not shown after all retries:`, e.message);
   }
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = channelBlockHTML(ch, useSkeletons);
-  const block = wrapper.firstElementChild;
-  body.appendChild(block);
-  applyKidsLinkHiding();
-  return document.getElementById('videos-' + ch.id);
 }
 
 async function initFeed(newChannelId){
@@ -1022,68 +1049,57 @@ async function initFeed(newChannelId){
   }
   empty.style.display = 'none';
 
-  /* ── Single new channel appended after add ── */
+  // Single new channel added — just load and append it
   if(newChannelId){
     const ch = channels.find(c => c.id === newChannelId);
     if(!ch) return;
-    const hasSections = body.querySelectorAll('.channel-section').length > 0;
-    // Show skeletons while fetching for newly added channel
-    appendChannelBlock(ch, body, hasSections, true);
-    try{
-      const cached = getCachedVideos(ch.id);
-      const videos = cached || await fetchVideosRSSWithRetry(ch.id);
-      if(!cached) setCachedVideos(ch.id, videos);
-      if(feedGeneration !== myGen) return;
-      requestAnimationFrame(() => { renderVideos(ch, videos); applyKidsLinkHiding(); });
-    } catch(e){
-      if(feedGeneration !== myGen) return;
-      const el = document.getElementById('videos-' + ch.id);
-      if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--danger)">No videos loaded. Connection failure.</div>`;
-    }
+    loadChannelVideos(ch, myGen, body);
     return;
   }
 
-  /* ── Full feed load: sequential, one channel at a time ── */
+  // Full feed load — clear body, fire all channels in parallel
   body.innerHTML = '';
 
-  for(let i = 0; i < channels.length; i++){
-    if(feedGeneration !== myGen) return; // stale generation — bail
+  // Track how many channels complete (success or fail) to detect all-failed case
+  let completed = 0;
+  const total   = channels.length;
 
-    const ch     = channels[i];
+  channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
-
-    // Only show skeletons when we actually have to wait (no cache)
-    appendChannelBlock(ch, body, i > 0, !cached);
-
-    if(cached){
-      requestAnimationFrame(() => { renderVideos(ch, cached); applyKidsLinkHiding(); });
-    } else {
-      // Small polite delay between live fetches so Cloudflare doesn't rate-limit
-      if(i > 0) await new Promise(r => setTimeout(r, 300));
+    const delay  = cached ? i * 50 : i * 300;
+    setTimeout(async () => {
+      if(feedGeneration !== myGen) return;
       try{
-        const videos = await fetchVideosRSSWithRetry(ch.id);
+        let videos = cached;
+        if(!videos){
+          videos = await fetchVideosRSSWithRetry(ch.id);
+          setCachedVideos(ch.id, videos);
+        }
         if(feedGeneration !== myGen) return;
-        setCachedVideos(ch.id, videos);
-        requestAnimationFrame(() => {
-          renderVideos(ch, videos);
-          const el = document.getElementById('videos-' + ch.id);
-          if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
-          applyKidsLinkHiding();
-        });
+        requestAnimationFrame(() => { appendChannelToFeed(ch, videos, body); });
       } catch(e){
-        if(feedGeneration !== myGen) return;
-        // All 3 retries exhausted — show error and stop loading further channels
-        const el = document.getElementById('videos-' + ch.id);
-        if(el) el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--danger)">No videos loaded. Connection failure.</div>`;
-        return; // Stop sequential loading here
+        console.warn(`[NoSuggest] ${ch.id} failed silently:`, e.message);
+      } finally {
+        completed++;
+        if(completed === total){
+          requestAnimationFrame(() => {
+            if(!body.querySelector('.channel-section')){
+              body.innerHTML = '';
+              body.appendChild(empty);
+              empty.querySelector('h3').textContent = 'Connection failure';
+              empty.querySelector('p').textContent  = 'Could not load any channels. Check your connection and refresh.';
+              empty.style.display = 'flex';
+            }
+          });
+        }
       }
-    }
-  }
+    }, delay);
+  });
 }
 
 function renderVideos(ch, videos){
   const el = document.getElementById('videos-' + ch.id);
-  if(!el || !document.getElementById('feed-body').contains(el)) return;
+  if(!el) return;
   if(!videos.length){
     el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No videos found for this channel</div>`;
     return;
@@ -1143,7 +1159,7 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   function createPlayer(){
     ytPlayer = new YT.Player('player-iframe', {
       height: '100%', width: '100%', videoId,
-      playerVars: { autoplay:1, rel:0, modestbranding:1, iv_load_policy:3, fs:1, playsinline:1, cc_load_policy:0 },
+      playerVars: { autoplay:1, rel:0, iv_load_policy:3, fs:1, playsinline:1, cc_load_policy:0 },
       events: { onStateChange: e => { if(e.data === YT.PlayerState.ENDED) closePlayer(); } }
     });
   }
@@ -1174,8 +1190,7 @@ function closePlayer(){
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
-  // Do NOT call initFeed() here — it would reset feedGeneration and abort
-  // any sequential load still in progress. The feed is already rendered.
+  // Do NOT call initFeed() here — feed is already rendered
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
@@ -1193,7 +1208,6 @@ function initChannels(){
 
   headingEl.textContent = `My Channels (${channels.length}/${MAX_CHANNELS})`;
 
-  /* Show/hide the header + button and the FAB based on limit */
   const headerAddBtn = document.querySelector('#screen-channels .channels-header .icon-btn');
   const fab          = document.querySelector('.add-channel-fab');
   if(headerAddBtn) headerAddBtn.style.display = atLimit ? 'none' : '';
