@@ -1170,19 +1170,8 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   function createPlayer(){
     ytPlayer = new YT.Player('player-iframe', {
       height: '100%', width: '100%', videoId,
-      playerVars: { autoplay:1, rel:0, modestbranding:1, iv_load_policy:3, endscreen:0, fs:1, },
-      events: {
-        onStateChange: e => { if(e.data === YT.PlayerState.ENDED) closePlayer(); },
-        onError: e => {
-          if(e.data === 150 || e.data === 101){
-            document.querySelector('.player-video-wrap').style.display = 'none';
-            const blocked = document.getElementById('player-embed-blocked');
-            blocked.classList.add('show');
-            document.getElementById('player-watch-yt-link').href =
-              'https://www.youtube.com/watch?v=' + (currentVideoData?.id || '');
-          }
-        }
-      }
+      playerVars: { autoplay:1, rel:0, modestbranding:1, iv_load_policy:3, fs:1 },
+      events: { onStateChange: e => { if(e.data === YT.PlayerState.ENDED) closePlayer(); } }
     });
   }
   if(typeof YT !== 'undefined' && YT.Player){ createPlayer(); }
