@@ -221,6 +221,13 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .player-fs-close{position:absolute;top:14px;right:14px;z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.55);border:1.5px solid rgba(255,255,255,0.25);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px);transition:background 0.15s;}
 .player-fs-close:active{background:rgba(0,0,0,0.8);}
 .player-fs-close svg{width:18px;height:18px;}
+/* End card overlay — covers full iframe for last 15s */
+#player-endcard-overlay{display:none;position:absolute;inset:0;z-index:6;background:rgba(0,0,0,0.78);align-items:center;justify-content:center;text-align:center;}
+#player-endcard-overlay.show{display:flex;}
+#player-endcard-msg{padding:1.5rem;}
+/* Kids mode bottom blocker — covers bottom 25% of iframe */
+#player-kids-blocker{display:none;position:absolute;bottom:0;left:0;right:0;height:25%;z-index:6;background:transparent;cursor:default;}
+#player-kids-blocker.show{display:block;}
 /* In fullscreen: iframe fills the screen, info panel hidden */
 #player-overlay:fullscreen .player-video-wrap,
 #player-overlay:-webkit-full-screen .player-video-wrap{padding:0;flex:1;}
@@ -663,6 +670,16 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
     </button>
     <div class="player-video-wrap" style="position:relative">
       <div id="player-iframe"></div>
+      <!-- End card overlay: shown for last 15 seconds, blocks entire iframe -->
+      <div id="player-endcard-overlay">
+        <div id="player-endcard-msg">
+          <div style="font-size:1.6rem;margin-bottom:0.5rem">🎬</div>
+          <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:0.3rem">Video ending</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">End cards are blocked.<br>Close or let it finish.</div>
+        </div>
+      </div>
+      <!-- Kids mode bottom blocker: covers bottom 25% of iframe, blocks branding + controls -->
+      <div id="player-kids-blocker"></div>
     </div>
     <div class="player-embed-blocked" id="player-embed-blocked">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
@@ -1234,6 +1251,8 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   document.body.style.overflow = 'hidden';
 
   if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
+  stopEndCardPoll();
+  document.getElementById('player-endcard-overlay').classList.remove('show');
   const wrap = document.querySelector('.player-video-wrap');
   const div  = document.createElement('div');
   div.id = 'player-iframe';
@@ -1259,6 +1278,7 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
       height: '100%', width: '100%', videoId,
       playerVars: { autoplay:1, rel:0, iv_load_policy:3, fs:1, playsinline:1, cc_load_policy:0 },
       events: {
+        onReady: () => { startEndCardPoll(); },
         onStateChange: e => { if(e.data === YT.PlayerState.ENDED) closePlayer(); },
         onError: e => {
           if(e.data === 150 || e.data === 101){
@@ -1274,6 +1294,9 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   }
   if(typeof YT !== 'undefined' && YT.Player){ createPlayer(); }
   else{ window.createPlayerPending = createPlayer; }
+
+  // Kids mode bottom blocker
+  document.getElementById('player-kids-blocker').classList.toggle('show', !!STORE.kidsMode);
 }
 
 function updatePlayerSaveBtn(videoId){
@@ -1293,7 +1316,33 @@ function toggleSaveFromPlayer(){
   updatePlayerSaveBtn(currentVideoData.id);
   if(currentScreen === 'saved') initSaved();
 }
+/* ═══════════════════════════════════════════
+   END CARD OVERLAY — last 15 seconds
+═══════════════════════════════════════════ */
+let endCardPollId = null;
+function startEndCardPoll(){
+  stopEndCardPoll();
+  document.getElementById('player-endcard-overlay').classList.remove('show');
+  endCardPollId = setInterval(() => {
+    if(!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+    try{
+      const dur = ytPlayer.getDuration();
+      const cur = ytPlayer.getCurrentTime();
+      if(dur > 0 && (dur - cur) <= 15){
+        document.getElementById('player-endcard-overlay').classList.add('show');
+      } else {
+        document.getElementById('player-endcard-overlay').classList.remove('show');
+      }
+    } catch(e){}
+  }, 1000);
+}
+function stopEndCardPoll(){
+  if(endCardPollId){ clearInterval(endCardPollId); endCardPollId = null; }
+  document.getElementById('player-endcard-overlay').classList.remove('show');
+}
+
 function closePlayer(){
+  stopEndCardPoll();
   // Exit fullscreen if active
   if(document.fullscreenElement || document.webkitFullscreenElement){
     if(document.exitFullscreen)            document.exitFullscreen().catch(()=>{});
