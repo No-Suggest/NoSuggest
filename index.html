@@ -1268,6 +1268,7 @@ function toggleSaveFromPlayer(){
   if(currentScreen === 'saved') initSaved();
 }
 function closePlayer(){
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
