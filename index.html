@@ -108,7 +108,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .ch-avatar{width:28px;height:28px;background:var(--bg3);border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--border);}
 .ch-avatar img{width:100%;height:100%;object-fit:cover;}
 .ch-name{font-size:13px;font-weight:600;color:var(--text);letter-spacing:0.01em;}
-.ch-link{margin-left:auto;font-size:11px;color:var(--faint);text-decoration:none;font-family:'DM Mono',monospace;}
 .videos-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;transform:translateZ(0);will-change:transform;backface-visibility:hidden;}
 .videos-scroll::-webkit-scrollbar{display:none;}
 .video-thumb{flex-shrink:0;width:200px;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
@@ -218,7 +217,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .player-embed-blocked.show{display:flex;}
 .player-embed-blocked p{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px;}
 .player-embed-blocked a{display:inline-block;padding:0.65rem 1.4rem;background:var(--accent);color:var(--bg);border-radius:var(--radius-sm);font-size:14px;font-weight:600;text-decoration:none;}
-
 /* ═══════════════════════════════════════
    SETTINGS SCREEN
 ═══════════════════════════════════════ */
@@ -265,6 +263,12 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .search-views-badge{display:inline-block;font-size:9.5px;background:rgba(232,255,90,0.12);color:var(--accent);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;margin-top:3px;}
 .search-empty-state{text-align:center;padding:3.5rem 2rem;color:var(--faint);font-size:14px;line-height:1.7;}
 .search-empty-state .big-icon{font-size:3.5rem;opacity:0.3;margin-bottom:0.75rem;}
+.search-choice-btn{display:flex;align-items:center;gap:14px;width:100%;padding:1.1rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:left;transition:border-color 0.15s,background 0.15s;}
+.search-choice-btn:active{background:var(--bg3);}
+.search-choice-icon{font-size:1.6rem;flex-shrink:0;line-height:1;}
+.search-choice-text{flex:1;}
+.search-choice-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.search-choice-sub{font-size:12px;color:var(--muted);line-height:1.4;}
 
 /* ═══════════════════════════════════════
    SCREEN: SAVED VIDEOS
@@ -549,29 +553,51 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
   <!-- SCREEN: SEARCH -->
   <div class="screen" id="screen-search">
     <div class="search-header">
-      <h2>Search</h2>
-      <div class="search-row">
+      <h2 id="search-header-title">Search</h2>
+      <div class="search-row" id="search-input-row" style="display:none">
         <input class="text-input" id="search-input" type="search"
           placeholder="keyword or paste a YouTube URL"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       </div>
     </div>
     <div class="screen-body" id="search-body">
-      <div class="search-empty-state" id="search-empty">
-        <div class="big-icon">🔍</div>
-        <p>Type a keyword or paste a YouTube URL.</p>
+      <!-- Chooser -->
+      <div id="search-chooser" style="display:flex;flex-direction:column;gap:12px;padding:1.5rem 1.25rem">
+        <button class="search-choice-btn" onclick="pickSearchMode('videos')">
+          <div class="search-choice-icon">🎬</div>
+          <div class="search-choice-text">
+            <div class="search-choice-title">Search Videos to Watch</div>
+            <div class="search-choice-sub">Find and play any YouTube video, or paste a link</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--faint)"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button class="search-choice-btn" onclick="pickSearchMode('channels')">
+          <div class="search-choice-icon">📡</div>
+          <div class="search-choice-text">
+            <div class="search-choice-title">Search Channels to Follow</div>
+            <div class="search-choice-sub">Add a channel to your feed by name, handle, or URL</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--faint)"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
-      <div id="search-results-wrap" style="display:none">
-        <div class="search-results">
-          <div class="search-results-label" id="search-results-label">Top results</div>
-          <div id="search-results-list"></div>
+      <!-- Video search pane (hidden until chosen) -->
+      <div id="search-video-pane" style="display:none">
+        <div class="search-empty-state" id="search-empty">
+          <div class="big-icon">🔍</div>
+          <p>Type a keyword or paste a YouTube URL.</p>
         </div>
+        <div id="search-results-wrap" style="display:none">
+          <div class="search-results">
+            <div class="search-results-label" id="search-results-label">Top results</div>
+            <div id="search-results-list"></div>
+          </div>
+        </div>
+        <div id="search-loading" style="display:none;text-align:center;padding:3rem 1rem">
+          <div class="spin"></div>
+          <p style="margin-top:0.75rem;font-size:13px;color:var(--muted)">Searching YouTube…</p>
+        </div>
+        <div id="search-error" class="error-msg" style="margin:1.5rem 1.25rem;display:none"></div>
       </div>
-      <div id="search-loading" style="display:none;text-align:center;padding:3rem 1rem">
-        <div class="spin"></div>
-        <p style="margin-top:0.75rem;font-size:13px;color:var(--muted)">Searching YouTube…</p>
-      </div>
-      <div id="search-error" class="error-msg" style="margin:1.5rem 1.25rem;display:none"></div>
     </div>
   </div>
 
@@ -919,7 +945,6 @@ function applyKidsMode(){
   document.getElementById('kids-banner').classList.toggle('show', on);
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
-  document.querySelectorAll('.ch-link').forEach(el => { el.style.display = on ? 'none' : ''; });
   if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add' || currentScreen === 'settings')){
     showScreen('feed');
   }
@@ -1013,7 +1038,7 @@ function appendChannelToFeed(ch, videos, body){
     <div class="channel-label">
       <div class="ch-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
       <span class="ch-name">${esc(ch.name)}</span>
-      <a class="ch-link" href="https://www.youtube.com/channel/${esc(ch.id)}" target="_blank" rel="noopener">YouTube ↗</a>
+
     </div>
     <div class="videos-scroll" id="videos-${ch.id}"></div>
   </div>`;
@@ -1026,7 +1051,6 @@ function appendChannelToFeed(ch, videos, body){
   // Force Android Chrome repaint
   const el = document.getElementById('videos-' + ch.id);
   if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
-  applyKidsLinkHiding();
 }
 
 async function loadChannelVideos(ch, gen, body){
@@ -1136,11 +1160,6 @@ function renderVideos(ch, videos){
       </div>
     </div>`;
   }).join('');
-}
-
-function applyKidsLinkHiding(){
-  if(!STORE.kidsMode) return;
-  document.querySelectorAll('.ch-link').forEach(el => { el.style.display = 'none'; });
 }
 
 document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache(); location.reload(); };
@@ -1564,6 +1583,24 @@ function toggleFeedSave(btn, id, title, channelName, publishedAt, thumb){
 let searchVideoTimeout = null;
 
 function initSearch(){
+  // Always reset to chooser when tab is opened
+  document.getElementById('search-header-title').textContent  = 'Search';
+  document.getElementById('search-input-row').style.display   = 'none';
+  document.getElementById('search-chooser').style.display     = 'flex';
+  document.getElementById('search-video-pane').style.display  = 'none';
+  document.getElementById('search-results-wrap').style.display = 'none';
+  document.getElementById('search-loading').style.display     = 'none';
+  document.getElementById('search-error').style.display       = 'none';
+  document.getElementById('search-empty').style.display       = 'block';
+  document.getElementById('search-input').value = '';
+}
+
+function pickSearchMode(mode){
+  if(mode === 'channels'){ showScreen('add'); return; }
+  document.getElementById('search-header-title').textContent = 'Search Videos';
+  document.getElementById('search-chooser').style.display    = 'none';
+  document.getElementById('search-video-pane').style.display = 'block';
+  document.getElementById('search-input-row').style.display  = 'flex';
   if(window.innerWidth > 768) setTimeout(() => document.getElementById('search-input').focus(), 300);
 }
 
