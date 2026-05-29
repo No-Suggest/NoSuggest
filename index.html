@@ -1601,7 +1601,7 @@ function pickSearchMode(mode){
   document.getElementById('search-chooser').style.display    = 'none';
   document.getElementById('search-video-pane').style.display = 'block';
   document.getElementById('search-input-row').style.display  = 'flex';
-  if(window.innerWidth > 768) setTimeout(() => document.getElementById('search-input').focus(), 300);
+  setTimeout(() => document.getElementById('search-input').focus(), 300);
 }
 
 document.getElementById('search-input').addEventListener('input', e => {
