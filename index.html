@@ -66,6 +66,9 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .screen-body::-webkit-scrollbar{display:none;}
 .screen-body{scrollbar-width:none;}
 @media(max-width:768px){.screen-body{padding-bottom:calc(120px + var(--safe-bot));}}
+/* Extra bottom padding when install strip is visible */
+body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot));}
+@media(max-width:768px){body.show-install-strip .screen-body{padding-bottom:calc(156px + var(--safe-bot));}}
 
 /* ═══════════════════════════════════════
    NAV BAR
@@ -75,6 +78,34 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .nav-btn.active{color:var(--accent);}
 .nav-btn svg{width:20px;height:20px;}
 .nav-btn span{font-size:9px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
+
+/* ── Nav install strip ── */
+#nav-install-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:99;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:linear-gradient(135deg,rgba(232,255,90,0.08),rgba(232,255,90,0.04));border-top:1px solid rgba(232,255,90,0.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;}
+#nav-install-strip.show{display:flex;}
+#nav-install-strip span{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.02em;}
+#nav-install-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
+
+/* ── iOS install bottom sheet ── */
+#ios-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:450;display:none;opacity:0;transition:opacity 0.25s;}
+#ios-sheet-backdrop.show{display:block;opacity:1;}
+#ios-sheet{position:fixed;bottom:0;left:0;right:0;z-index:451;background:var(--bg2);border-radius:20px 20px 0 0;border-top:1px solid var(--border2);padding:0 1.25rem calc(var(--safe-bot) + 1.5rem);transform:translateY(100%);transition:transform 0.32s cubic-bezier(0.32,0.72,0,1);}
+#ios-sheet.show{transform:translateY(0);}
+.ios-sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 20px;}
+.ios-sheet-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:500;color:var(--text);margin-bottom:4px;}
+.ios-sheet-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;}
+/* Animated steps */
+.ios-steps{display:flex;flex-direction:column;gap:0;}
+.ios-step{display:flex;align-items:center;gap:14px;padding:0.9rem 0;border-bottom:1px solid var(--border);}
+.ios-step:last-child{border-bottom:none;}
+.ios-step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#0a0a0a;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ios-step-text{flex:1;}
+.ios-step-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.ios-step-sub{font-size:12px;color:var(--muted);line-height:1.4;}
+.ios-step-icon{flex-shrink:0;width:36px;height:36px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+/* Pulse animation on the share icon to draw attention */
+@keyframes ios-pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.18);opacity:0.8;}}
+.ios-step-icon.pulse svg{animation:ios-pulse 1.6s ease-in-out infinite;}
+.ios-sheet-close{width:100%;margin-top:1.25rem;padding:0.85rem;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
 
 /* ═══════════════════════════════════════
    SCREEN: SETUP / WELCOME
@@ -298,12 +329,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 @keyframes spin{to{transform:rotate(360deg)}}
 #toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:0.6rem 1.2rem;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:300;white-space:nowrap;pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-#ios-install-banner{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:1rem 1.25rem calc(var(--safe-bot) + 1rem);z-index:400;display:none;}
-#ios-install-banner.show{display:block;}
-.ios-banner-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:0.35rem;}
-.ios-banner-steps{font-size:13px;color:var(--muted);line-height:1.8;}
-.ios-banner-steps span{color:var(--text);font-weight:500;}
-.ios-banner-dismiss{position:absolute;top:0.75rem;right:1rem;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:4px;}
 </style>
 </head>
 <body>
@@ -393,7 +418,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
   <!-- SCREEN: FEED -->
   <div class="screen" id="screen-feed">
     <div class="feed-header">
-      <div class="feed-logo"><span class="dot"></span> NoSuggest</div>
+      <div class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 5 videos/channel</span></div>
       <div class="feed-actions">
         <button class="icon-btn" id="feed-refresh-btn" title="Refresh">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -414,7 +439,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
   <div class="screen" id="screen-channels">
     <div class="channels-header">
       <h2 id="ch-heading">My Channels</h2>
-      <button class="icon-btn" onclick="showScreen('add')" title="Add channel">
+      <button class="icon-btn" onclick="localStorage.setItem('ns_add_return_tab','channels');showScreen('add')" title="Add channel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:20px;height:20px;"><path d="M12 5v14M5 12h14"/></svg>
       </button>
     </div>
@@ -604,7 +629,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
   <!-- SCREEN: SAVED VIDEOS -->
   <div class="screen" id="screen-saved">
     <div class="saved-header">
-      <h2>Saved</h2>
+      <h2>Saved Videos</h2>
       <span class="saved-count" id="saved-count">0 videos</span>
     </div>
     <div class="screen-body" id="saved-body">
@@ -641,6 +666,54 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
     </button>
   </nav>
 
+  <!-- NAV INSTALL STRIP — shown when not installed, hidden after install -->
+  <div id="nav-install-strip">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
+    <span>Tap here to install NoSuggest</span>
+    <button class="strip-dismiss" onclick="dismissNavStrip(event)" aria-label="Dismiss">×</button>
+  </div>
+
+  <!-- iOS INSTALL BOTTOM SHEET -->
+  <div id="ios-sheet-backdrop" onclick="closeIosSheet()"></div>
+  <div id="ios-sheet">
+    <div class="ios-sheet-handle"></div>
+    <div class="ios-sheet-title">Install NoSuggest</div>
+    <div class="ios-sheet-sub">Add to your Home Screen for the full app experience — no App Store needed.</div>
+    <div class="ios-steps">
+      <div class="ios-step">
+        <div class="ios-step-num">1</div>
+        <div class="ios-step-text">
+          <div class="ios-step-label">Tap the Share button</div>
+          <div class="ios-step-sub">At the bottom of your Safari browser</div>
+        </div>
+        <div class="ios-step-icon pulse">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </div>
+      </div>
+      <div class="ios-step">
+        <div class="ios-step-num">2</div>
+        <div class="ios-step-text">
+          <div class="ios-step-label">Scroll down in the menu</div>
+          <div class="ios-step-sub">Look for "Add to Home Screen"</div>
+        </div>
+        <div class="ios-step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+      </div>
+      <div class="ios-step">
+        <div class="ios-step-num">3</div>
+        <div class="ios-step-text">
+          <div class="ios-step-label">Tap "Add to Home Screen"</div>
+          <div class="ios-step-sub">Then tap Add — you're done!</div>
+        </div>
+        <div class="ios-step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>
+        </div>
+      </div>
+    </div>
+    <button class="ios-sheet-close" onclick="closeIosSheet()">Got it</button>
+  </div>
+
   <!-- VIDEO PLAYER OVERLAY -->
   <div id="player-overlay">
     <div class="player-top">
@@ -670,17 +743,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
   </div>
 
   <!-- iOS Install Banner -->
-  <div id="ios-install-banner">
-    <button class="ios-banner-dismiss" onclick="dismissIosBanner()">×</button>
-    <div class="ios-banner-title">Install NoSuggest</div>
-    <div class="ios-banner-steps">
-      1. Tap the <span>Share</span> button
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin:0 2px"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-      at the bottom of your browser<br/>
-      2. Scroll down and tap <span>Add to Home Screen</span>
-    </div>
-  </div>
-
   <div id="toast"></div>
 </div>
 
@@ -700,55 +762,100 @@ if('serviceWorker' in navigator){
 }
 
 /* ═══════════════════════════════════════════
-   PWA INSTALL PROMPT
+   PWA INSTALL — unified for Android + iOS 16.4+ + iOS fallback
 ═══════════════════════════════════════════ */
 let deferredInstallPrompt = null;
 
-function showInstallBtn(){
+/* ── Show/hide helpers ── */
+function showInstallUI(){
   const btn = document.getElementById('android-install-btn');
   if(btn) btn.style.display = 'flex';
   const row = document.getElementById('settings-install-row');
   if(row) row.style.display = 'flex';
+  const strip = document.getElementById('nav-install-strip');
+  if(strip){
+    strip.classList.add('show');
+    document.body.classList.add('show-install-strip');
+  }
 }
-function hideInstallBtn(){
+function hideInstallUI(){
   const btn = document.getElementById('android-install-btn');
   if(btn) btn.style.display = 'none';
   const row = document.getElementById('settings-install-row');
   if(row) row.style.display = 'none';
+  const strip = document.getElementById('nav-install-strip');
+  if(strip){ strip.classList.remove('show'); document.body.classList.remove('show-install-strip'); }
 }
+
+/* ── beforeinstallprompt — fires on Android AND iOS 16.4+ Safari ── */
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  showInstallBtn();
+  showInstallUI();
+  document.getElementById('nav-install-strip').onclick = (ev) => {
+    if(ev.target.classList.contains('strip-dismiss')) return;
+    triggerInstallPrompt();
+  };
 });
+
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
-  hideInstallBtn();
+  hideInstallUI();
 });
+
 function triggerInstallPrompt(){
   if(!deferredInstallPrompt) return;
   deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(() => { deferredInstallPrompt = null; hideInstallBtn(); });
+  deferredInstallPrompt.userChoice.then(() => { deferredInstallPrompt = null; hideInstallUI(); });
 }
-function triggerInstallFromSettings(){ triggerInstallPrompt(); }
+function triggerInstallFromSettings(){
+  if(deferredInstallPrompt){ triggerInstallPrompt(); return; }
+  if(isIos() && !isInStandaloneMode()) openIosSheet();
+}
 
-/* ═══════════════════════════════════════════
-   iOS INSTALL BANNER
-═══════════════════════════════════════════ */
+/* ── Nav strip dismiss — session only, reappears on next visit ── */
+function dismissNavStrip(e){
+  e.stopPropagation();
+  document.getElementById('nav-install-strip').classList.remove('show');
+  document.body.classList.remove('show-install-strip');
+}
+
+/* ── iOS bottom sheet ── */
+function openIosSheet(){
+  document.getElementById('ios-sheet-backdrop').classList.add('show');
+  requestAnimationFrame(() => document.getElementById('ios-sheet').classList.add('show'));
+}
+function closeIosSheet(){
+  document.getElementById('ios-sheet').classList.remove('show');
+  document.getElementById('ios-sheet-backdrop').classList.remove('show');
+}
+
+/* ── iOS detection ── */
 function isIos(){
   return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
-function isInStandaloneMode(){ return window.navigator.standalone === true; }
-function dismissIosBanner(){
-  document.getElementById('ios-install-banner').classList.remove('show');
-  localStorage.setItem('ns_ios_banner_dismissed', Date.now() + 86400000);
+function isInStandaloneMode(){
+  return window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
 }
+
+/* ── iOS fallback: older Safari without beforeinstallprompt ── */
 if(isIos() && !isInStandaloneMode()){
-  const dismissed = parseInt(localStorage.getItem('ns_ios_banner_dismissed') || '0');
-  if(Date.now() > dismissed){
-    setTimeout(() => document.getElementById('ios-install-banner').classList.add('show'), 1000);
-  }
+  setTimeout(() => {
+    if(deferredInstallPrompt) return;
+    const strip = document.getElementById('nav-install-strip');
+    if(strip){
+      strip.classList.add('show');
+      document.body.classList.add('show-install-strip');
+      strip.onclick = (e) => {
+        if(e.target.classList.contains('strip-dismiss')) return;
+        openIosSheet();
+      };
+    }
+    const row = document.getElementById('settings-install-row');
+    if(row){ row.style.display = 'flex'; row.onclick = openIosSheet; }
+  }, 1000);
 }
 
 /* ═══════════════════════════════════════════
@@ -1447,9 +1554,27 @@ function selectSuggestion(index){
 
   const addBtn = document.getElementById('add-btn');
   const exists = STORE.channels.some(c => c.id === ch.id);
-  addBtn.textContent = exists ? 'Already Added' : `Add ${ch.name}`;
-  addBtn.disabled    = exists;
-  addBtn.style.display = 'block';
+  if(exists){
+    addBtn.textContent         = '✓ Already Added';
+    addBtn.disabled            = true;
+    addBtn.style.display       = 'block';
+    addBtn.style.background    = 'transparent';
+    addBtn.style.border        = '1.5px solid var(--border)';
+    addBtn.style.color         = 'var(--muted)';
+    addBtn.style.cursor        = 'default';
+    addBtn.style.pointerEvents = 'none';
+    addBtn.style.opacity       = '1';
+  } else {
+    addBtn.textContent         = `Add ${ch.name}`;
+    addBtn.disabled            = false;
+    addBtn.style.display       = 'block';
+    addBtn.style.background    = '';
+    addBtn.style.border        = '';
+    addBtn.style.color         = '';
+    addBtn.style.cursor        = '';
+    addBtn.style.pointerEvents = '';
+    addBtn.style.opacity       = '';
+  }
 }
 
 document.getElementById('add-btn').onclick = () => {
@@ -1459,6 +1584,9 @@ document.getElementById('add-btn').onclick = () => {
   const channels = STORE.channels;
   channels.push(foundChannel);
   STORE.channels = channels;
+  const returnTab = localStorage.getItem('ns_add_return_tab') || 'feed';
+  localStorage.setItem('ns_active_tab', returnTab);
+  localStorage.removeItem('ns_add_return_tab');
   location.reload();
 };
 
@@ -1544,11 +1672,13 @@ async function doFallbackAdd(inputVal){
 ═══════════════════════════════════════════ */
 function initSettings(){
   const row = document.getElementById('settings-install-row');
-  if(row) row.style.display = deferredInstallPrompt ? 'flex' : 'none';
-
-  if(isIos && isIos() && !isInStandaloneMode()){
-    const dismissed = parseInt(localStorage.getItem('ns_ios_banner_dismissed') || '0');
-    if(Date.now() > dismissed) document.getElementById('ios-install-banner').classList.add('show');
+  if(row){
+    // Show if native prompt available OR if iOS without standalone
+    const showRow = !!deferredInstallPrompt || (isIos() && !isInStandaloneMode());
+    row.style.display = showRow ? 'flex' : 'none';
+    if(isIos() && !isInStandaloneMode() && !deferredInstallPrompt){
+      row.onclick = openIosSheet;
+    }
   }
   const statusEl = document.getElementById('kids-mode-status');
   if(statusEl){ statusEl.textContent = STORE.kidsMode ? 'On' : 'Off'; statusEl.style.color = STORE.kidsMode ? 'var(--accent)' : 'var(--muted)'; }
@@ -1597,7 +1727,11 @@ function initSearch(){
 }
 
 function pickSearchMode(mode){
-  if(mode === 'channels'){ showScreen('add'); return; }
+  if(mode === 'channels'){
+    localStorage.setItem('ns_add_return_tab', 'feed');
+    showScreen('add');
+    return;
+  }
   document.getElementById('search-header-title').textContent = 'Search Videos';
   document.getElementById('search-chooser').style.display    = 'none';
   document.getElementById('search-video-pane').style.display = 'block';
