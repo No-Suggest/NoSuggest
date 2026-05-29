@@ -217,20 +217,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .player-embed-blocked.show{display:flex;}
 .player-embed-blocked p{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px;}
 .player-embed-blocked a{display:inline-block;padding:0.65rem 1.4rem;background:var(--accent);color:var(--bg);border-radius:var(--radius-sm);font-size:14px;font-weight:600;text-decoration:none;}
-/* Floating close button — visible in fullscreen over the iframe */
-.player-fs-close{position:absolute;top:14px;right:14px;z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.55);border:1.5px solid rgba(255,255,255,0.25);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px);transition:background 0.15s;}
-.player-fs-close:active{background:rgba(0,0,0,0.8);}
-.player-fs-close svg{width:18px;height:18px;}
-/* In fullscreen: iframe fills the screen, info panel hidden */
-#player-overlay:fullscreen .player-video-wrap,
-#player-overlay:-webkit-full-screen .player-video-wrap{padding:0;flex:1;}
-#player-overlay:fullscreen .player-video-wrap iframe,
-#player-overlay:-webkit-full-screen .player-video-wrap iframe{max-height:100%;height:100%;width:100%;}
-#player-overlay:fullscreen .player-info,
-#player-overlay:-webkit-full-screen .player-info{display:none;}
-#player-overlay:fullscreen .player-fs-close,
-#player-overlay:-webkit-full-screen .player-fs-close{top:calc(env(safe-area-inset-top, 0px) + 14px);}
-
 /* ═══════════════════════════════════════
    SETTINGS SCREEN
 ═══════════════════════════════════════ */
@@ -657,10 +643,12 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 
   <!-- VIDEO PLAYER OVERLAY -->
   <div id="player-overlay">
-    <!-- Floating close button — always on top, works in fullscreen -->
-    <button class="player-fs-close" onclick="closePlayer()" id="player-fs-close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
+    <div class="player-top">
+      <div class="player-channel" id="player-channel-name"></div>
+      <button class="close-player" onclick="closePlayer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
     <div class="player-video-wrap" style="position:relative">
       <div id="player-iframe"></div>
     </div>
@@ -679,8 +667,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
         </button>
       </div>
     </div>
-    <!-- Hidden channel name kept for JS compatibility -->
-    <div id="player-channel-name" style="display:none"></div>
   </div>
 
   <!-- iOS Install Banner -->
@@ -1242,18 +1228,6 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   document.getElementById('player-embed-blocked').classList.remove('show');
   wrap.appendChild(div);
 
-  // Enter fullscreen, then try landscape lock.
-  // If landscape lock fails, stay in fullscreen as-is (portrait fullscreen is fine).
-  // If fullscreen itself fails (iOS), stay in normal overlay.
-  const overlay = document.getElementById('player-overlay');
-  if(overlay.requestFullscreen){
-    overlay.requestFullscreen().then(() => {
-      screen.orientation.lock('landscape').catch(()=>{});
-    }).catch(()=>{});
-  } else if(overlay.webkitRequestFullscreen){
-    overlay.webkitRequestFullscreen();
-  }
-
   function createPlayer(){
     ytPlayer = new YT.Player('player-iframe', {
       height: '100%', width: '100%', videoId,
@@ -1294,11 +1268,6 @@ function toggleSaveFromPlayer(){
   if(currentScreen === 'saved') initSaved();
 }
 function closePlayer(){
-  // Exit fullscreen if active
-  if(document.fullscreenElement || document.webkitFullscreenElement){
-    if(document.exitFullscreen)            document.exitFullscreen().catch(()=>{});
-    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
-  }
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
   document.body.style.overflow = '';
@@ -1307,26 +1276,16 @@ function closePlayer(){
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
 /* ═══════════════════════════════════════════
-   FULLSCREEN HANDLING
-   Lock landscape when in fullscreen.
-   If user exits fullscreen via device back button,
-   close the player cleanly.
+   ORIENTATION LOCK : landscape on fullscreen
+   Android PWA only — silently ignored elsewhere
 ═══════════════════════════════════════════ */
-function onFullscreenChange(){
-  const inFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
-  if(!inFs){
+document.addEventListener('fullscreenchange', () => {
+  if(document.fullscreenElement){
+    screen.orientation.lock('landscape').catch(()=>{});
+  } else {
     screen.orientation.unlock();
-    // User exited fullscreen externally (back button etc.) — close player
-    const overlay = document.getElementById('player-overlay');
-    if(overlay.classList.contains('open')){
-      overlay.classList.remove('open');
-      if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
-      document.body.style.overflow = '';
-    }
   }
-}
-document.addEventListener('fullscreenchange',       onFullscreenChange);
-document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+});
 
 /* ═══════════════════════════════════════════
    CHANNELS SCREEN
