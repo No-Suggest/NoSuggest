@@ -418,7 +418,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <!-- SCREEN: FEED -->
   <div class="screen" id="screen-feed">
     <div class="feed-header">
-      <div class="feed-logo"><span class="dot"></span> NoSuggest</div>
+      <div class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 5 videos/channel</span></div>
       <div class="feed-actions">
         <button class="icon-btn" id="feed-refresh-btn" title="Refresh">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -439,7 +439,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <div class="screen" id="screen-channels">
     <div class="channels-header">
       <h2 id="ch-heading">My Channels</h2>
-      <button class="icon-btn" onclick="showScreen('add')" title="Add channel">
+      <button class="icon-btn" onclick="localStorage.setItem('ns_add_return_tab','channels');showScreen('add')" title="Add channel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:20px;height:20px;"><path d="M12 5v14M5 12h14"/></svg>
       </button>
     </div>
@@ -629,7 +629,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <!-- SCREEN: SAVED VIDEOS -->
   <div class="screen" id="screen-saved">
     <div class="saved-header">
-      <h2>Saved</h2>
+      <h2>Saved Videos</h2>
       <span class="saved-count" id="saved-count">0 videos</span>
     </div>
     <div class="screen-body" id="saved-body">
@@ -669,7 +669,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <!-- NAV INSTALL STRIP — shown when not installed, hidden after install -->
   <div id="nav-install-strip">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
-    <span>Add NoSuggest to Home Screen</span>
+    <span>Tap here to install NoSuggest</span>
     <button class="strip-dismiss" onclick="dismissNavStrip(event)" aria-label="Dismiss">×</button>
   </div>
 
@@ -768,15 +768,12 @@ let deferredInstallPrompt = null;
 
 /* ── Show/hide helpers ── */
 function showInstallUI(){
-  // Get-started screen button (Android/iOS 16.4+)
   const btn = document.getElementById('android-install-btn');
   if(btn) btn.style.display = 'flex';
-  // Settings row
   const row = document.getElementById('settings-install-row');
   if(row) row.style.display = 'flex';
-  // Nav strip
   const strip = document.getElementById('nav-install-strip');
-  if(strip && !localStorage.getItem('ns_strip_dismissed')){
+  if(strip){
     strip.classList.add('show');
     document.body.classList.add('show-install-strip');
   }
@@ -795,7 +792,6 @@ window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
   showInstallUI();
-  // Wire nav strip click to native prompt (not iOS sheet)
   document.getElementById('nav-install-strip').onclick = (ev) => {
     if(ev.target.classList.contains('strip-dismiss')) return;
     triggerInstallPrompt();
@@ -805,7 +801,6 @@ window.addEventListener('beforeinstallprompt', e => {
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
   hideInstallUI();
-  localStorage.removeItem('ns_strip_dismissed');
 });
 
 function triggerInstallPrompt(){
@@ -815,14 +810,12 @@ function triggerInstallPrompt(){
 }
 function triggerInstallFromSettings(){
   if(deferredInstallPrompt){ triggerInstallPrompt(); return; }
-  // iOS fallback — open bottom sheet from settings too
   if(isIos() && !isInStandaloneMode()) openIosSheet();
 }
 
-/* ── Nav strip dismiss ── */
+/* ── Nav strip dismiss — session only, reappears on next visit ── */
 function dismissNavStrip(e){
   e.stopPropagation();
-  localStorage.setItem('ns_strip_dismissed', '1');
   document.getElementById('nav-install-strip').classList.remove('show');
   document.body.classList.remove('show-install-strip');
 }
@@ -849,12 +842,10 @@ function isInStandaloneMode(){
 
 /* ── iOS fallback: older Safari without beforeinstallprompt ── */
 if(isIos() && !isInStandaloneMode()){
-  // Show strip wired to sheet (only if not dismissed and beforeinstallprompt hasn't fired)
-  // We wait 1s — if beforeinstallprompt fires it will take over; otherwise we set up iOS flow
   setTimeout(() => {
-    if(deferredInstallPrompt) return; // native prompt already handled
+    if(deferredInstallPrompt) return;
     const strip = document.getElementById('nav-install-strip');
-    if(strip && !localStorage.getItem('ns_strip_dismissed')){
+    if(strip){
       strip.classList.add('show');
       document.body.classList.add('show-install-strip');
       strip.onclick = (e) => {
@@ -862,7 +853,6 @@ if(isIos() && !isInStandaloneMode()){
         openIosSheet();
       };
     }
-    // Settings row wired to sheet
     const row = document.getElementById('settings-install-row');
     if(row){ row.style.display = 'flex'; row.onclick = openIosSheet; }
   }, 1000);
@@ -1564,9 +1554,27 @@ function selectSuggestion(index){
 
   const addBtn = document.getElementById('add-btn');
   const exists = STORE.channels.some(c => c.id === ch.id);
-  addBtn.textContent = exists ? 'Already Added' : `Add ${ch.name}`;
-  addBtn.disabled    = exists;
-  addBtn.style.display = 'block';
+  if(exists){
+    addBtn.textContent         = '✓ Already Added';
+    addBtn.disabled            = true;
+    addBtn.style.display       = 'block';
+    addBtn.style.background    = 'transparent';
+    addBtn.style.border        = '1.5px solid var(--border)';
+    addBtn.style.color         = 'var(--muted)';
+    addBtn.style.cursor        = 'default';
+    addBtn.style.pointerEvents = 'none';
+    addBtn.style.opacity       = '1';
+  } else {
+    addBtn.textContent         = `Add ${ch.name}`;
+    addBtn.disabled            = false;
+    addBtn.style.display       = 'block';
+    addBtn.style.background    = '';
+    addBtn.style.border        = '';
+    addBtn.style.color         = '';
+    addBtn.style.cursor        = '';
+    addBtn.style.pointerEvents = '';
+    addBtn.style.opacity       = '';
+  }
 }
 
 document.getElementById('add-btn').onclick = () => {
@@ -1576,6 +1584,9 @@ document.getElementById('add-btn').onclick = () => {
   const channels = STORE.channels;
   channels.push(foundChannel);
   STORE.channels = channels;
+  const returnTab = localStorage.getItem('ns_add_return_tab') || 'feed';
+  localStorage.setItem('ns_active_tab', returnTab);
+  localStorage.removeItem('ns_add_return_tab');
   location.reload();
 };
 
@@ -1716,7 +1727,11 @@ function initSearch(){
 }
 
 function pickSearchMode(mode){
-  if(mode === 'channels'){ showScreen('add'); return; }
+  if(mode === 'channels'){
+    localStorage.setItem('ns_add_return_tab', 'feed');
+    showScreen('add');
+    return;
+  }
   document.getElementById('search-header-title').textContent = 'Search Videos';
   document.getElementById('search-chooser').style.display    = 'none';
   document.getElementById('search-video-pane').style.display = 'block';
