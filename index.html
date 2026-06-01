@@ -85,6 +85,16 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-install-strip span{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.02em;}
 #nav-install-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 
+/* ── Donation banner (every 10th session) ── */
+#nav-donate-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:linear-gradient(135deg,rgba(255,107,53,0.1),rgba(255,68,68,0.06));border-top:1px solid rgba(255,107,53,0.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;text-decoration:none;}
+#nav-donate-strip.show{display:flex;}
+#nav-donate-strip span{font-size:12px;font-weight:600;color:#ff6b35;letter-spacing:0.02em;}
+#nav-donate-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
+/* When donate banner shows, push install strip up further */
+body.show-donate-strip #nav-install-strip{bottom:calc(64px + var(--safe-bot) + 36px);}
+body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot));}
+@media(max-width:768px){body.show-donate-strip .screen-body{padding-bottom:calc(156px + var(--safe-bot));}}
+
 /* ── iOS install bottom sheet ── */
 #ios-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:450;display:none;opacity:0;transition:opacity 0.25s;}
 #ios-sheet-backdrop.show{display:block;opacity:1;}
@@ -673,6 +683,13 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <button class="strip-dismiss" onclick="dismissNavStrip(event)" aria-label="Dismiss">×</button>
   </div>
 
+  <!-- NAV DONATE STRIP — shown every 10th session -->
+  <a id="nav-donate-strip" href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="0"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <span>NoSuggest will always be free!! <b>Tap here</b> if you like to support it.</span>
+    <button class="strip-dismiss" id="donate-strip-dismiss" aria-label="Dismiss">×</button>
+  </a>
+
   <!-- iOS INSTALL BOTTOM SHEET -->
   <div id="ios-sheet-backdrop" onclick="closeIosSheet()"></div>
   <div id="ios-sheet">
@@ -872,6 +889,8 @@ const STORE = {
   set kidsMode(v){ v ? localStorage.setItem('ns_kids_mode','1') : localStorage.removeItem('ns_kids_mode') },
   get kidsPin(){   return localStorage.getItem('ns_kids_pin') || '' },
   set kidsPin(v){  v ? localStorage.setItem('ns_kids_pin', v) : localStorage.removeItem('ns_kids_pin') },
+  get sessionCount(){ return parseInt(localStorage.getItem('ns_session_count')||'0',10) },
+  set sessionCount(v){ localStorage.setItem('ns_session_count', String(v)) },
 };
 
 let currentScreen  = '';
@@ -1897,10 +1916,38 @@ function removeSaved(id){
 }
 
 /* ═══════════════════════════════════════════
+   DONATION BANNER : show on every 10th session
+═══════════════════════════════════════════ */
+function initDonationBanner(){
+  const count = STORE.sessionCount + 1;
+  STORE.sessionCount = count;
+
+  if(count % 10 !== 0) return;          // only on 10th, 20th, 30th… session
+
+  const strip = document.getElementById('nav-donate-strip');
+  if(!strip) return;
+
+  // Wire up dismiss button without navigating to ko-fi
+  const dismissBtn = document.getElementById('donate-strip-dismiss');
+  if(dismissBtn){
+    dismissBtn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      strip.classList.remove('show');
+      document.body.classList.remove('show-donate-strip');
+    });
+  }
+
+  strip.classList.add('show');
+  document.body.classList.add('show-donate-strip');
+}
+
+/* ═══════════════════════════════════════════
    BOOT
 ═══════════════════════════════════════════ */
 window.addEventListener('load', () => {
   applyKidsMode();
+  initDonationBanner();
   if(STORE.hasLaunched){
     showScreen(localStorage.getItem('ns_active_tab') || 'feed');
   } else {
