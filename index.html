@@ -559,6 +559,16 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Install ↓</div>
           </div>
+          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Share NoSuggest</div>
+              <div class="settings-row-sub">Know someone tired of the algorithm? Share NoSuggest with them.</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
+          </div>
           <a href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
           <div class="settings-row" style="cursor:pointer">
             <div class="settings-row-icon" style="color:#ff4444">
@@ -828,6 +838,22 @@ function triggerInstallPrompt(){
 function triggerInstallFromSettings(){
   if(deferredInstallPrompt){ triggerInstallPrompt(); return; }
   if(isIos() && !isInStandaloneMode()) openIosSheet();
+}
+
+function shareNoSuggest(){
+  const shareData = {
+    title: 'NoSuggest',
+    text: 'Watch YouTube without the algorithm. No recommendations, no Shorts loop, no doom scroll — just the channels you choose.',
+    url: 'https://www.nosuggest.com'
+  };
+  if(navigator.share){
+    navigator.share(shareData).catch(() => {});
+  } else {
+    // Fallback for desktop — copy to clipboard
+    navigator.clipboard.writeText('Watch YouTube without the algorithm — ' + shareData.url)
+      .then(() => alert('Link copied to clipboard!'))
+      .catch(() => {});
+  }
 }
 
 /* ── Nav strip dismiss — session only, reappears on next visit ── */
