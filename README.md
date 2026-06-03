@@ -2,9 +2,9 @@
 
 **Watch what you want. Nothing else.**
 
-NoSuggest is a free, source-available YouTube viewer that lets you watch YouTube intentionally — without the recommendation algorithm pulling you somewhere you never chose to go.
+NoSuggest is a completely free, source-available YouTube viewer that lets you watch YouTube intentionally, without the recommendation algorithm pulling you somewhere you never chose to go.
 
-It is a distraction-free YouTube experience built around one idea: your subscriptions only. You follow the channels you care about, watch what you came for, and leave. No suggested videos. No autoplay. No Shorts spiral. No algorithm.
+It is a distraction-free YouTube experience built around one idea: your channel subscriptions, your search only. You follow the channels you care about, watch what you came for, and leave. No suggested videos. No autoplay. No Shorts spiral. No algorithm.
 
 > **[nosuggest.com](https://nosuggest.com)**
 
@@ -12,13 +12,13 @@ It is a distraction-free YouTube experience built around one idea: your subscrip
 
 ## What is this?
 
-If you have ever searched for a way to watch YouTube without recommendations, YouTube without algorithm, or YouTube subscriptions only — this is it.
+If you have ever searched for a way to watch YouTube without recommendations, YouTube without algorithm, or YouTube subscriptions only, this is it.
 
 NoSuggest is a YouTube without algorithm experience. It works as a distraction-free YouTube client that strips out everything except the channels you choose to follow. Think of it as a source-available YouTube viewer built for intentional watching and digital wellness.
 
 It is also the best alternative to PocketTube for users who want something simpler, with no browser extension required, and full mobile support.
 
-For parents: NoSuggest includes a Kids Mode — YouTube for kids without recommendations — where you choose the channels and lock them with a PIN.
+For parents: NoSuggest includes a Kids Mode : YouTube for kids without recommendations, where you choose the channels and lock them with a PIN.
 
 ---
 
@@ -82,4 +82,4 @@ You may not redistribute, rebrand, or redeploy this application commercially or 
 
 NoSuggest is free and always will be. It is supported entirely by voluntary contributions from users who find it valuable.
 
-If it is useful to you, consider supporting at [ko-fi.com/nosuggest](https://ko-fi.com/nosuggest)
+If it is useful to you, please consider supporting at [ko-fi.com/nosuggest](https://ko-fi.com/nosuggest)
