@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NoSuggest vs YouTube vs PocketTube vs FreeTube — Which is Best for Distraction-Free Watching?</title>
+<meta name="description" content="Compare NoSuggest with YouTube Subscriptions, PocketTube, FreeTube and more. See which app lets you watch YouTube without recommendations, autoplay, Shorts and algorithm-driven distraction."/>
+<meta name="keywords" content="NoSuggest vs YouTube, YouTube without recommendations, no algorithm YouTube, PocketTube alternative, FreeTube alternative, distraction free YouTube, YouTube subscription manager"/>
+<meta property="og:title" content="NoSuggest vs YouTube — Watch Without the Algorithm"/>
+<meta property="og:description" content="The only YouTube experience with zero recommendations, zero autoplay, zero Shorts. Compare NoSuggest with every alternative."/>
+<meta property="og:url" content="https://www.nosuggest.com/compare"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="canonical" href="https://www.nosuggest.com/compare"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,600;0,800;1,600&family=DM+Mono:wght@400;500&display=swap"/>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0a0a;
+  --bg2:#111111;
+  --bg3:#1a1a1a;
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.15);
+  --text:#f0f0ee;
+  --muted:#888884;
+  --faint:#444442;
+  --accent:#e8ff5a;
+  --accent2:#ff6b35;
+  --yes:#4ade80;
+  --no:#ff4444;
+  --partial:#f59e0b;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1.5rem;}
+.nav-inner{max-width:1100px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo svg{width:28px;height:28px;}
+.nav-logo span{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-0.02em;}
+.nav-cta{background:var(--accent);color:#0a0a0a;font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;letter-spacing:0.02em;transition:opacity 0.15s;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── HERO ── */
+.hero{padding:5rem 1.5rem 3rem;text-align:center;max-width:760px;margin:0 auto;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(232,255,90,0.08);border:1px solid rgba(232,255,90,0.2);border-radius:99px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.5rem;}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;margin-bottom:1.25rem;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero p{font-size:clamp(1rem,2vw,1.15rem);color:var(--muted);max-width:560px;margin:0 auto 2rem;line-height:1.7;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#0a0a0a;font-weight:700;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;transition:opacity 0.15s;}
+.hero-cta:hover{opacity:0.88;}
+
+/* ── SECTION ── */
+.section{padding:4rem 1.5rem;max-width:1100px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:1rem;line-height:1.2;}
+.section-sub{color:var(--muted);font-size:1rem;max-width:560px;line-height:1.7;margin-bottom:2.5rem;}
+
+/* ── COMPARISON TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;min-width:640px;}
+thead tr{background:var(--bg2);}
+th{padding:1rem 1.25rem;text-align:left;font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+th:first-child{color:var(--text);}
+th.ns-col{color:var(--accent);background:rgba(232,255,90,0.04);}
+td{padding:0.9rem 1.25rem;font-size:14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+td:first-child{font-weight:500;color:var(--text);font-size:13px;}
+td.ns-col{background:rgba(232,255,90,0.03);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+tr:hover td.ns-col{background:rgba(232,255,90,0.05);}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+.badge-yes{background:rgba(74,222,128,0.12);color:var(--yes);}
+.badge-no{background:rgba(255,68,68,0.12);color:var(--no);}
+.badge-partial{background:rgba(245,158,11,0.12);color:var(--partial);}
+.badge svg{width:11px;height:11px;flex-shrink:0;}
+
+/* ── FEATURE CARDS ── */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:2rem;}
+.feature-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+.feature-card-icon{width:40px;height:40px;background:rgba(232,255,90,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;}
+.feature-card-icon svg{width:20px;height:20px;color:var(--accent);}
+.feature-card h3{font-size:15px;font-weight:600;margin-bottom:0.4rem;}
+.feature-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ── FAQ ── */
+.faq-list{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.faq-item{background:var(--bg2);}
+.faq-question{width:100%;background:none;border:none;color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;padding:1.25rem 1.5rem;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:background 0.15s;}
+.faq-question:hover{background:var(--bg3);}
+.faq-question svg{flex-shrink:0;width:16px;height:16px;color:var(--muted);transition:transform 0.25s;}
+.faq-item.open .faq-question svg{transform:rotate(180deg);}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.3s ease;}
+.faq-item.open .faq-answer{max-height:300px;}
+.faq-answer-inner{padding:0 1.5rem 1.25rem;font-size:14px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);}
+.faq-answer-inner a{color:var(--accent);text-decoration:none;}
+
+/* ── FINAL CTA ── */
+.cta-block{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:3rem 2rem;text-align:center;margin:2rem 0;}
+.cta-block h2{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:0.75rem;}
+.cta-block h2 em{font-style:italic;color:var(--accent);}
+.cta-block p{color:var(--muted);font-size:1rem;margin-bottom:1.75rem;max-width:480px;margin-left:auto;margin-right:auto;}
+.cta-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--accent);color:#0a0a0a;font-weight:700;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-ghost{background:transparent;color:var(--text);font-weight:600;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;border:1px solid var(--border2);transition:border-color 0.15s;}
+.btn-ghost:hover{border-color:var(--accent);}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;}
+footer p{font-size:13px;color:var(--faint);}
+footer a{color:var(--muted);text-decoration:none;font-size:13px;}
+footer a:hover{color:var(--accent);}
+
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid var(--border);max-width:1100px;margin:0 auto;}
+
+/* ── SCHEMA ── */
+@media(max-width:640px){
+  .hero{padding:3rem 1.25rem 2rem;}
+  .section{padding:3rem 1.25rem;}
+  .cta-block{padding:2rem 1.25rem;}
+  .footer-inner{flex-direction:column;gap:0.5rem;}
+}
+</style>
+
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "NoSuggest vs YouTube vs PocketTube — Comparison",
+  "description": "Compare NoSuggest with YouTube Subscriptions, PocketTube, FreeTube and other YouTube alternatives. Find the best distraction-free YouTube experience.",
+  "url": "https://www.nosuggest.com/compare",
+  "mainEntity": {
+    "@type": "Table",
+    "name": "YouTube Alternative Comparison Table",
+    "about": "Comparison of features across NoSuggest, YouTube Subscriptions, PocketTube, FreeTube and Invidious"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between NoSuggest and YouTube Subscriptions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "YouTube Subscriptions still shows recommendations, autoplay videos, Shorts, and collects your data. NoSuggest shows only the channels you choose, with no recommendations, no autoplay, no Shorts, and no account required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is NoSuggest better than PocketTube?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PocketTube is a YouTube organiser that requires a Google account and still shows YouTube's recommendations. NoSuggest requires no account, collects no data, and removes all algorithmic suggestions entirely."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does NoSuggest require an account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. NoSuggest requires no Google account, no sign-up, and no login. Your subscribed channels are saved locally on your device."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is NoSuggest free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. NoSuggest is completely free and will always be free. There are no ads, no premium tier, and no paywalled features."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is NoSuggest different from FreeTube?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "FreeTube is a desktop app you have to download and install. NoSuggest works instantly in any browser on any device with no installation required, and can be added to your home screen as a PWA."
+      }
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://www.nosuggest.com">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <rect width="512" height="512" rx="80" fill="#0a0a0a"/>
+        <rect x="130" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <rect x="324" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <polygon points="130,148 188,148 382,364 324,364" fill="#e8ff5a"/>
+      </svg>
+      <span>NoSuggest</span>
+    </a>
+    <a class="nav-cta" href="https://www.nosuggest.com">Open NoSuggest →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Full Comparison 2026
+  </div>
+  <h1>Watch YouTube Without<br/><em>the Algorithm</em></h1>
+  <p>Tired of YouTube pulling you down a rabbit hole? Here's how NoSuggest compares to every other option — so you can choose what actually works for you.</p>
+  <a class="hero-cta" href="https://www.nosuggest.com">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Open NoSuggest — It's Free
+  </a>
+</div>
+
+<hr class="divider"/>
+
+<!-- MAIN COMPARISON TABLE -->
+<div class="section">
+  <div class="section-label">Side by Side</div>
+  <h2 class="section-title">The Full Comparison</h2>
+  <p class="section-sub">Every feature that matters when you want to watch YouTube on your own terms — not YouTube's.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="ns-col">NoSuggest</th>
+          <th>YouTube<br/>Subscriptions</th>
+          <th>PocketTube</th>
+          <th>FreeTube</th>
+          <th>Invidious</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Recommendations / suggested videos</td>
+          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
+          <td><span class="badge badge-yes">Everywhere</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-no">None</span></td>
+          <td><span class="badge badge-no">None</span></td>
+        </tr>
+        <tr>
+          <td>Autoplay next video</td>
+          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>No</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
+        </tr>
+        <tr>
+          <td>YouTube Shorts</td>
+          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Blocked</span></td>
+          <td><span class="badge badge-yes">Everywhere</span></td>
+          <td><span class="badge badge-yes">Shown</span></td>
+          <td><span class="badge badge-no">Blocked</span></td>
+          <td><span class="badge badge-no">Blocked</span></td>
+        </tr>
+        <tr>
+          <td>Account / login required</td>
+          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
+          <td><span class="badge badge-yes">Google account</span></td>
+          <td><span class="badge badge-yes">Google account</span></td>
+          <td><span class="badge badge-no">None</span></td>
+          <td><span class="badge badge-no">None</span></td>
+        </tr>
+        <tr>
+          <td>Data collection / tracking</td>
+          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
+          <td><span class="badge badge-yes">Extensive</span></td>
+          <td><span class="badge badge-partial">Some</span></td>
+          <td><span class="badge badge-no">None</span></td>
+          <td><span class="badge badge-no">None</span></td>
+        </tr>
+        <tr>
+          <td>Works in browser (no install)</td>
+          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-partial">Extension needed</span></td>
+          <td><span class="badge badge-yes">Desktop app only</span></td>
+          <td><span class="badge badge-partial">Self-host needed</span></td>
+        </tr>
+        <tr>
+          <td>Works on mobile</td>
+          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes — PWA</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-partial">Limited</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-partial">Browser only</span></td>
+        </tr>
+        <tr>
+          <td>Installs as home screen app (PWA)</td>
+          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-yes">App only</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+        </tr>
+        <tr>
+          <td>Kids mode / safe viewing</td>
+          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes — PIN locked</span></td>
+          <td><span class="badge badge-partial">YouTube Kids only</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+        </tr>
+        <tr>
+          <td>Official YouTube player (ads, quality)</td>
+          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-yes">No — invidious</span></td>
+          <td><span class="badge badge-yes">No — self-hosted</span></td>
+        </tr>
+        <tr>
+          <td>Save videos for later</td>
+          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-partial">Depends on instance</span></td>
+        </tr>
+        <tr>
+          <td>Search YouTube videos</td>
+          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+        </tr>
+        <tr>
+          <td>Free to use</td>
+          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Always free</span></td>
+          <td><span class="badge badge-partial">Free / Premium</span></td>
+          <td><span class="badge badge-partial">Free / Pro tier</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Free</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Free</span></td>
+        </tr>
+        <tr>
+          <td>Open source</td>
+          <td class="ns-col"><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- WHY NOSUGGEST -->
+<div class="section">
+  <div class="section-label">Why it matters</div>
+  <h2 class="section-title">What Makes NoSuggest Different</h2>
+  <p class="section-sub">Other tools organise YouTube. NoSuggest removes the parts of YouTube that are designed to keep you watching longer than you intended.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      </div>
+      <h3>Zero recommendations</h3>
+      <p>No "Up next", no sidebar suggestions, no homepage feed of random videos. You see only the channels you subscribed to — nothing more.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h3>No account needed</h3>
+      <p>Your subscriptions are saved on your device in local storage. No Google login, no sign-up form, no data sent to any server about who you are.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <h3>Kids mode with PIN</h3>
+      <p>Lock NoSuggest to a curated list of children's channels with a PIN. No YouTube Shorts, no random videos, no way for kids to break out without the code.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h3>Installs like an app</h3>
+      <p>Add NoSuggest to your home screen on iPhone or Android. It opens full screen, feels like a native app, and works on any device — no App Store needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+      </div>
+      <h3>Official YouTube player</h3>
+      <p>Videos play through YouTube's official embed — full quality, subtitles, and your YouTube Premium benefits if you have them. No shady third-party streams.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <h3>Always free</h3>
+      <p>No premium tier, no ads, no subscription. NoSuggest is a quiet indie project built for people who just want a calmer way to watch YouTube.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- VS SECTIONS FOR SEO -->
+<div class="section">
+  <div class="section-label">Head to head</div>
+  <h2 class="section-title">NoSuggest vs Each Alternative</h2>
+  <p class="section-sub">Every alternative solves a different problem. Here's the honest picture.</p>
+
+  <div style="display:flex;flex-direction:column;gap:1.5rem;margin-top:1rem;">
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:0.5rem;">NoSuggest vs YouTube Subscriptions</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">YouTube's own subscription feed is better than the homepage, but it still surfaces recommendations, still autoplays, still shows Shorts between your subscriptions, and still tracks everything you watch to feed the algorithm. NoSuggest shows only the latest videos from channels you chose — in chronological order, with no suggestions added. It's the subscription feed YouTube should have built.</p>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:0.5rem;">NoSuggest vs PocketTube</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">PocketTube is a popular browser extension that organises your YouTube subscriptions into groups. It's genuinely useful — but it still runs inside YouTube, still requires your Google account, and still shows YouTube's recommendations and Shorts. It's an organiser, not an escape from the algorithm. NoSuggest is completely separate from YouTube's interface, requires no account, and collects no data.</p>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:0.5rem;">NoSuggest vs FreeTube</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">FreeTube is an excellent open-source desktop app for Windows, Mac, and Linux. If you only watch YouTube on a desktop and want maximum privacy, FreeTube is worth considering. But it requires downloading and installing an app, doesn't work on mobile, and uses a third-party player. NoSuggest works instantly on any device — mobile or desktop — with no installation, and plays videos through YouTube's official player so quality and subtitles are always perfect.</p>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:0.5rem;">NoSuggest vs Invidious</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">Invidious is an open-source YouTube front-end focused on privacy — no tracking, no JavaScript from Google. The catch: it requires finding a working public instance (many are slow or down), or self-hosting your own server. Video quality and reliability vary. NoSuggest works instantly at nosuggest.com with no setup, and uses YouTube's own player so reliability is never an issue.</p>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- FAQ -->
+<div class="section">
+  <div class="section-label">Common questions</div>
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <p class="section-sub">Everything people ask before switching to NoSuggest.</p>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is NoSuggest really free? What's the catch?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">NoSuggest is completely free and will always be free. There's no premium tier, no ads, and no data sold. It's an indie project built by one person who was tired of the algorithm. If you find it useful, there's a small donation option in Settings — but it's entirely optional.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Do I need a Google or YouTube account?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">No account needed at all. You search for channels, add them to your feed, and NoSuggest saves them in your browser's local storage. Your data stays on your device — nothing is sent to any server about your identity or viewing habits.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How do I install NoSuggest on my phone?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Open <a href="https://www.nosuggest.com">nosuggest.com</a> in your browser and tap "Add to Home Screen" when prompted, or find the option in your browser's share menu. On Android it installs as a full PWA. On iPhone, use Safari and tap the Share icon → Add to Home Screen.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What data does NoSuggest collect?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">NoSuggest collects no personal data. Your subscribed channels and saved videos are stored locally on your device using browser local storage. The only external calls made are to fetch channel feeds and video data from YouTube's public API — no account information is ever involved.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Can I use NoSuggest for my kids?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Yes — NoSuggest has a built-in Kids Mode. You add only the channels suitable for your children, enable Kids Mode with a PIN, and the app is locked to those channels. No Shorts, no recommendations, no way to browse outside the approved channels without the PIN.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- FINAL CTA -->
+<div class="section">
+  <div class="cta-block">
+    <h2>Ready to watch YouTube<br/><em>on your terms?</em></h2>
+    <p>No account. No install. No algorithm. Just the channels you actually want to watch.</p>
+    <div class="cta-buttons">
+      <a class="btn-primary" href="https://www.nosuggest.com">Open NoSuggest →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+    <p>© 2026 NoSuggest. A quiet act of resistance.</p>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <a href="https://www.nosuggest.com">Home</a>
+      <a href="https://www.nosuggest.com/compare">Compare</a>
+      <a href="https://www.nosuggest.com/privacy">Privacy</a>
+      <a href="https://www.nosuggest.com/terms">Terms</a>
+      <a href="https://www.nosuggest.com/contact">Contact</a>
+      <a href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener">Support</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(btn){
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+</script>
+
+</body>
+</html>
