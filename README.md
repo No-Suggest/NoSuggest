@@ -2,7 +2,7 @@
 
 **Watch what you want. Nothing else.**
 
-NoSuggest is a free, open-source YouTube viewer that lets you watch YouTube intentionally — without the recommendation algorithm pulling you somewhere you never chose to go.
+NoSuggest is a free, source-available YouTube viewer that lets you watch YouTube intentionally — without the recommendation algorithm pulling you somewhere you never chose to go.
 
 It is a distraction-free YouTube experience built around one idea: your subscriptions only. You follow the channels you care about, watch what you came for, and leave. No suggested videos. No autoplay. No Shorts spiral. No algorithm.
 
@@ -14,7 +14,7 @@ It is a distraction-free YouTube experience built around one idea: your subscrip
 
 If you have ever searched for a way to watch YouTube without recommendations, YouTube without algorithm, or YouTube subscriptions only — this is it.
 
-NoSuggest is a YouTube without algorithm experience. It works as a distraction-free YouTube client that strips out everything except the channels you choose to follow. Think of it as an open source YouTube viewer built for intentional watching and digital wellness.
+NoSuggest is a YouTube without algorithm experience. It works as a distraction-free YouTube client that strips out everything except the channels you choose to follow. Think of it as a source-available YouTube viewer built for intentional watching and digital wellness.
 
 It is also the best alternative to PocketTube for users who want something simpler, with no browser extension required, and full mobile support.
 
@@ -70,7 +70,7 @@ NoSuggest retrieves publicly available YouTube data — the same information vis
 
 The frontend source code (this repository) is made available for transparency and personal non-commercial use. You may read and inspect it.
 
-The backend worker that handles API requests is kept private to protect service reliability and prevent abuse. This means NoSuggest is best described as **source-available** rather than fully open source — the parts you interact with are visible; the infrastructure layer is not.
+The backend worker that handles API requests is kept private to protect service reliability and prevent abuse. This means NoSuggest is best described as **source-available** — the frontend you interact with is visible and inspectable; the infrastructure layer is not.
 
 You may not redistribute, rebrand, or redeploy this application commercially or publicly without explicit permission.
 
