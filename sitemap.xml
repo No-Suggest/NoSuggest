@@ -3,29 +3,29 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-
   <!-- Main app -->
   <url>
     <loc>https://www.nosuggest.com/</loc>
     <priority>1.0</priority>
   </url>
-
+  <!-- Compare page -->
+  <url>
+    <loc>https://www.nosuggest.com/compare</loc>
+    <priority>0.9</priority>
+  </url>
   <!-- Privacy Policy -->
   <url>
     <loc>https://www.nosuggest.com/privacy</loc>
     <priority>0.5</priority>
   </url>
-
   <!-- Terms of Service -->
   <url>
     <loc>https://www.nosuggest.com/terms</loc>
     <priority>0.5</priority>
   </url>
-
   <!-- Contact -->
   <url>
     <loc>https://www.nosuggest.com/contact</loc>
     <priority>0.3</priority>
   </url>
-
 </urlset>
