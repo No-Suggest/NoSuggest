@@ -1446,13 +1446,7 @@ document.addEventListener('fullscreenchange', () => {
    user exits native iOS video fullscreen
 ═══════════════════════════════════════════ */
 function resetViewportZoom(){
-  window.scrollTo(0, 0);
-  const meta = document.querySelector('meta[name="viewport"]');
-  if(meta){
-    const original = meta.content;
-    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-    requestAnimationFrame(() => { meta.content = original; });
-  }
+  // maximum-scale=1.0 in viewport meta handles zoom reset passively
 }
 document.addEventListener('webkitfullscreenchange', () => {
   if(!document.webkitFullscreenElement) resetViewportZoom();
