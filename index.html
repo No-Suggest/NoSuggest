@@ -1371,7 +1371,6 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   document.getElementById('player-meta').textContent         = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
   document.getElementById('player-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
 
   if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
   const wrap = document.querySelector('.player-video-wrap');
@@ -1425,7 +1424,6 @@ function closePlayer(){
   if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
   document.getElementById('player-overlay').classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
-  document.body.style.overflow = '';
   // Do NOT call initFeed() here — feed is already rendered
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
