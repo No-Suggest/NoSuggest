@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -88,7 +88,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 /* ── Donation banner (every 10th session) ── */
 #nav-donate-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:#1a0a00;border-top:1px solid rgba(255,107,53,0.6);cursor:pointer;text-decoration:none;}
 #nav-donate-strip.show{display:flex;}
-#nav-donate-strip span{font-size:13px;font-weight:600;color:#ff6b35;letter-spacing:0.02em;font-family:'Fraunces',serif;}
+#nav-donate-strip span{font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.02em;}
 #nav-donate-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 /* When donate banner shows, push install strip up further */
 body.show-donate-strip #nav-install-strip{bottom:calc(64px + var(--safe-bot) + 36px);}
@@ -200,7 +200,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .add-header h2{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:500;letter-spacing:-0.02em;}
 .add-body{padding:1.5rem 1.25rem;}
 .field-label{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;font-family:'DM Mono',monospace;}
-.text-input{width:100%;padding:0.85rem 1rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;outline:none;transition:border-color 0.15s;-webkit-appearance:none;}
+.text-input{width:100%;padding:0.85rem 1rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;font-size:16px;outline:none;transition:border-color 0.15s;-webkit-appearance:none;}
 .text-input:focus{border-color:var(--accent);}
 .text-input::placeholder{color:var(--faint);}
 .input-hint{font-size:12px;color:var(--faint);margin-top:0.4rem;font-family:'DM Mono',monospace;}
@@ -232,7 +232,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .fallback-card p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;font-family:'DM Mono',monospace;}
 .fallback-card p code{color:var(--accent);background:rgba(232,255,90,0.08);padding:1px 4px;border-radius:3px;}
 .fallback-row{display:flex;gap:8px;}
-.fallback-input{flex:1;padding:0.7rem 0.9rem;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color 0.15s;-webkit-appearance:none;}
+.fallback-input{flex:1;padding:0.7rem 0.9rem;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:16px;outline:none;transition:border-color 0.15s;-webkit-appearance:none;}
 .fallback-input:focus{border-color:var(--accent);}
 .fallback-input::placeholder{color:var(--faint);}
 .fallback-go-btn{flex-shrink:0;padding:0 1rem;height:42px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--accent);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s,border-color 0.15s;white-space:nowrap;}
@@ -282,7 +282,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .search-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
 .search-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:0.9rem;}
 .search-row{display:flex;gap:8px;align-items:center;}
-.search-row .text-input{flex:1;font-size:14px;padding:0.7rem 0.9rem;}
+.search-row .text-input{flex:1;font-size:16px;padding:0.7rem 0.9rem;}
 .search-go-btn{flex-shrink:0;height:42px;padding:0 1.1rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
 .search-go-btn:active{transform:scale(0.97);opacity:0.9;}
 .search-go-btn:disabled{opacity:0.5;cursor:default;}
@@ -1441,6 +1441,27 @@ document.addEventListener('fullscreenchange', () => {
     screen.orientation.unlock();
   }
 });
+
+/* ═══════════════════════════════════════════
+   iOS FULLSCREEN EXIT : reset viewport zoom
+   webkitpresentationmodechanged fires when
+   user exits native iOS video fullscreen
+═══════════════════════════════════════════ */
+function resetViewportZoom(){
+  window.scrollTo(0, 0);
+  const meta = document.querySelector('meta[name="viewport"]');
+  if(meta){
+    const original = meta.content;
+    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+    requestAnimationFrame(() => { meta.content = original; });
+  }
+}
+document.addEventListener('webkitfullscreenchange', () => {
+  if(!document.webkitFullscreenElement) resetViewportZoom();
+});
+document.addEventListener('webkitpresentationmodechanged', (e) => {
+  if(e.target && e.target.webkitPresentationMode !== 'fullscreen') resetViewportZoom();
+}, true);
 
 /* ═══════════════════════════════════════════
    CHANNELS SCREEN
