@@ -86,9 +86,9 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-install-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 
 /* ── Donation banner (every 10th session) ── */
-#nav-donate-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:linear-gradient(135deg,rgba(255,107,53,0.1),rgba(255,68,68,0.06));border-top:1px solid rgba(255,107,53,0.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;text-decoration:none;}
+#nav-donate-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:#1a0a00;border-top:1px solid rgba(255,107,53,0.6);cursor:pointer;text-decoration:none;}
 #nav-donate-strip.show{display:flex;}
-#nav-donate-strip span{font-size:12px;font-weight:600;color:#ff6b35;letter-spacing:0.02em;}
+#nav-donate-strip span{font-size:13px;font-weight:600;color:#ff6b35;letter-spacing:0.02em;font-family:'Fraunces',serif;}
 #nav-donate-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 /* When donate banner shows, push install strip up further */
 body.show-donate-strip #nav-install-strip{bottom:calc(64px + var(--safe-bot) + 36px);}
