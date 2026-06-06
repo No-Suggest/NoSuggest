@@ -243,8 +243,8 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 /* ═══════════════════════════════════════
    VIDEO PLAYER OVERLAY
 ═══════════════════════════════════════ */
-#player-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:200;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.2s;}
-#player-overlay.open{opacity:1;pointer-events:all;}
+#player-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:200;display:none;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+#player-overlay.open{display:flex;opacity:1;pointer-events:all;}
 .player-top{padding:calc(var(--safe-top) + 0.75rem) 1rem 0.75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .player-channel{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.04em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-right:0.5rem;}
 .close-player{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);}
@@ -1370,7 +1370,9 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent         = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
-  document.getElementById('player-overlay').classList.add('open');
+  const overlay = document.getElementById('player-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('open'));
 
   if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
   const wrap = document.querySelector('.player-video-wrap');
@@ -1422,8 +1424,11 @@ function toggleSaveFromPlayer(){
 }
 function closePlayer(){
   if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-  document.getElementById('player-overlay').classList.remove('open');
+  const overlay = document.getElementById('player-overlay');
+  overlay.classList.remove('open');
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
+  // Wait for 0.2s fade-out transition then fully hide to release iOS touch tracking
+  setTimeout(() => { overlay.style.display = 'none'; }, 220);
   // Do NOT call initFeed() here — feed is already rendered
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
