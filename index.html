@@ -1576,6 +1576,10 @@ async function doChannelSearch(query){
     const channels = await res.json();
     searching.style.display = 'none';
 
+    // Discard stale response if user has typed something different
+    const currentQ = document.getElementById('channel-input').value.trim();
+    if(currentQ.toLowerCase() !== query.trim().toLowerCase()) return;
+
     if(!channels.length || channels.error){
       errEl.textContent  = 'No channels found. Try a different name or paste the channel URL directly in this box.';
       errEl.style.display = 'block';
@@ -1874,6 +1878,10 @@ async function doYTSearch(q){
     const videos = await res.json();
 
     loading.style.display = 'none';
+
+    // Discard stale response if user has typed something different
+    const currentQ = document.getElementById('search-input').value.trim();
+    if(currentQ.toLowerCase() !== q.trim().toLowerCase()) return;
 
     if(!Array.isArray(videos) || !videos.length || videos.error){
       errEl.textContent   = 'No results found. Try a different keyword.';
