@@ -1109,6 +1109,17 @@ function applyKidsMode(){
 /* ═══════════════════════════════════════════
    RSS FEED : zero quota, no auth
 ═══════════════════════════════════════════ */
+
+/* Resolve the best available handle for a channel object.
+   New channels store it in ch.handle.
+   Channels added before that change store the @handle string in ch.subs.
+   Falls back to '' if neither is present. */
+function resolveHandle(ch) {
+  if (ch.handle && ch.handle.trim()) return ch.handle.trim();
+  if (ch.subs && ch.subs.trim().startsWith('@')) return ch.subs.trim();
+  return '';
+}
+
 async function fetchVideosRSS(channelId, handle) {
   const handleParam = (handle && handle.trim()) ? encodeURIComponent(handle.trim()) : '';
   const rssUrl     = handleParam
@@ -1214,7 +1225,7 @@ async function loadChannelVideos(ch, gen, body){
   try{
     let videos = getCachedVideos(ch.id);
     if(!videos){
-      videos = await fetchVideosRSSWithRetry(ch.id, ch.handle || '');
+      videos = await fetchVideosRSSWithRetry(ch.id, resolveHandle(ch));
       setCachedVideos(ch.id, videos);
     }
     if(feedGeneration !== gen) return;
@@ -1262,7 +1273,7 @@ async function initFeed(newChannelId){
       try{
         let videos = cached;
         if(!videos){
-          videos = await fetchVideosRSSWithRetry(ch.id, ch.handle || '');
+          videos = await fetchVideosRSSWithRetry(ch.id, resolveHandle(ch));
           setCachedVideos(ch.id, videos);
         }
         if(feedGeneration !== myGen) return;
