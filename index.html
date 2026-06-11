@@ -1992,7 +1992,7 @@ function initDonationBanner(){
   const count = STORE.sessionCount + 1;
   STORE.sessionCount = count;
 
-  if(count % 10 !== 0) return;          // only on 10th, 20th, 30th… session
+  if(count % 5 !== 0) return;
 
   const strip = document.getElementById('nav-donate-strip');
   if(!strip) return;
