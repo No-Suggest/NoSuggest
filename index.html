@@ -339,6 +339,21 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 @keyframes spin{to{transform:rotate(360deg)}}
 #toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:0.6rem 1.2rem;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:300;white-space:nowrap;pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Export confirmation modal ── */
+#export-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#export-modal-backdrop.show{display:flex;}
+#export-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1rem;}
+#export-modal .em-icon{width:48px;height:48px;background:rgba(232,255,90,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.25rem;}
+#export-modal .em-icon svg{width:24px;height:24px;stroke:var(--accent);}
+#export-modal .em-title{font-size:16px;font-weight:600;color:var(--text);}
+#export-modal .em-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;}
+#export-modal .em-code{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.75rem 1rem;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);word-break:break-all;line-height:1.5;max-height:80px;overflow-y:auto;user-select:all;-webkit-user-select:all;}
+#export-modal .em-hint{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;}
+#export-modal .em-actions{display:flex;gap:8px;margin-top:0.25rem;}
+#export-modal .em-btn-copy{flex:1;padding:0.75rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
+#export-modal .em-btn-copy:active{opacity:0.85;}
+#export-modal .em-btn-close{padding:0.75rem 1.1rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -582,7 +597,48 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
           </div>
           </a>
         </div>
-        <div style="text-align:center;margin-top:2rem;padding:1rem 0;border-top:1px solid var(--border)">
+      </div>
+
+      <div class="settings-section" style="padding-top:0">
+        <div class="settings-label">Backup &amp; Restore</div>
+        <div class="settings-card">
+          <div class="settings-row" style="cursor:pointer" onclick="doExportBackup()">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Export Data</div>
+              <div class="settings-row-sub">Copies a backup code to your clipboard. Includes channels and saved videos.</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Copy ↗</div>
+          </div>
+          <div class="settings-row" style="cursor:pointer" onclick="showImportPanel()">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Import Data</div>
+              <div class="settings-row-sub">Paste a backup code to fully restore channels and saved videos. Replaces current data.</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Paste ↙</div>
+          </div>
+        </div>
+        <!-- Import panel — hidden until triggered -->
+        <div id="import-panel" style="display:none;margin-top:0.75rem">
+          <textarea id="import-textarea"
+            placeholder="Paste your backup code here…"
+            style="width:100%;box-sizing:border-box;padding:0.85rem 1rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.5;resize:vertical;min-height:100px;outline:none;-webkit-appearance:none;"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          <div id="import-error" style="display:none;color:var(--danger);font-size:12px;margin-top:0.4rem;font-family:'DM Mono',monospace;"></div>
+          <div style="display:flex;gap:8px;margin-top:0.6rem">
+            <button onclick="doImportBackup()" style="flex:1;padding:0.75rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Restore</button>
+            <button onclick="hideImportPanel()" style="padding:0.75rem 1.1rem;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" style="padding-top:0">
+        <div style="text-align:center;padding:1rem 0;border-top:1px solid var(--border)">
           <p style="font-size:11px;color:var(--muted);line-height:2.2">
             <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Privacy Policy</a>
             &nbsp;·&nbsp;
@@ -772,6 +828,23 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   </div>
 
   <!-- iOS Install Banner -->
+  <!-- Export confirmation modal -->
+  <div id="export-modal-backdrop">
+    <div id="export-modal">
+      <div class="em-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="em-title">Backup code ready</div>
+      <div class="em-body">Your channels and saved videos have been encoded. The code below has been copied to your clipboard.</div>
+      <div class="em-code" id="export-modal-code"></div>
+      <div class="em-hint">Tip: Send this to new device via message/WhatsApp/email and paste this in import data to get same channels feeds and saved videos in new device.</div>
+      <div class="em-actions">
+        <button class="em-btn-copy" onclick="copyExportCodeAgain()">Copy again</button>
+        <button class="em-btn-close" onclick="closeExportModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast"></div>
 </div>
 
@@ -2010,6 +2083,129 @@ function initDonationBanner(){
 
   strip.classList.add('show');
   document.body.classList.add('show-donate-strip');
+}
+
+/* ═══════════════════════════════════════════
+   BACKUP & RESTORE : channels + saved videos
+   Export → modal with base64 blob + copy button
+   Import → paste blob → validate → full replace
+═══════════════════════════════════════════ */
+let _exportCode = '';
+
+function doExportBackup(){
+  try{
+    const payload = {
+      v: 1,
+      channels:    STORE.channels,
+      savedVideos: STORE.savedVideos
+    };
+    _exportCode = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    document.getElementById('export-modal-code').textContent = _exportCode;
+    document.getElementById('export-modal-backdrop').classList.add('show');
+    /* Also attempt clipboard copy immediately so it's ready */
+    copyToClipboard(_exportCode);
+  } catch(e){
+    toast('Export failed. Try again.');
+  }
+}
+
+function copyToClipboard(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(() => fallbackCopyExport(text));
+  } else {
+    fallbackCopyExport(text);
+  }
+}
+
+function fallbackCopyExport(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity  = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try{ document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
+}
+
+function copyExportCodeAgain(){
+  copyToClipboard(_exportCode);
+  const btn = document.querySelector('#export-modal .em-btn-copy');
+  if(btn){ btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = 'Copy again'; }, 1800); }
+}
+
+function closeExportModal(){
+  document.getElementById('export-modal-backdrop').classList.remove('show');
+}
+
+function showImportPanel(){
+  const panel = document.getElementById('import-panel');
+  const errEl = document.getElementById('import-error');
+  const ta    = document.getElementById('import-textarea');
+  if(!panel) return;
+  ta.value            = '';
+  errEl.style.display = 'none';
+  errEl.textContent   = '';
+  panel.style.display = 'block';
+  setTimeout(() => ta.focus(), 150);
+}
+
+function hideImportPanel(){
+  const panel = document.getElementById('import-panel');
+  const errEl = document.getElementById('import-error');
+  const ta    = document.getElementById('import-textarea');
+  if(!panel) return;
+  panel.style.display = 'none';
+  ta.value            = '';
+  errEl.style.display = 'none';
+  errEl.textContent   = '';
+}
+
+function doImportBackup(){
+  const ta    = document.getElementById('import-textarea');
+  const errEl = document.getElementById('import-error');
+  const raw   = (ta.value || '').trim();
+
+  errEl.style.display = 'none';
+  errEl.textContent   = '';
+
+  if(!raw){
+    errEl.textContent   = 'Please paste your backup code first.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  let payload;
+  try{
+    payload = JSON.parse(decodeURIComponent(escape(atob(raw))));
+  } catch(e){
+    errEl.textContent   = "That doesn't look like a valid backup code. Make sure you copied it in full.";
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if(!payload || payload.v !== 1 || !Array.isArray(payload.channels) || !Array.isArray(payload.savedVideos)){
+    errEl.textContent   = 'Backup code is not valid or is from an incompatible version.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if(payload.channels.length > 100 || payload.savedVideos.length > 500){
+    errEl.textContent   = 'Backup code appears corrupt (too many entries). Please export a fresh backup and try again.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const chCount = payload.channels.length;
+  const svCount = payload.savedVideos.length;
+  const msg = 'This will replace ALL current data with:\n\u2022 ' + chCount + ' channel' + (chCount === 1 ? '' : 's') + '\n\u2022 ' + svCount + ' saved video' + (svCount === 1 ? '' : 's') + '\n\nContinue?';
+  if(!confirm(msg)) return;
+
+  STORE.channels    = payload.channels;
+  STORE.savedVideos = payload.savedVideos;
+  toast('Restored successfully ✓');
+  setTimeout(() => location.reload(), 800);
 }
 
 /* ═══════════════════════════════════════════
