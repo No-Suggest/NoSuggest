@@ -82,4 +82,4 @@ You may not redistribute, rebrand, or redeploy this application commercially or 
 
 NoSuggest is free and always will be. It is supported entirely by voluntary contributions from users who find it valuable.
 
-If it is useful to you, please consider supporting at [ko-fi.com/nosuggest](https://ko-fi.com/nosuggest)
+If it is useful to you, [please consider supporting](https://donate.stripe.com/14A9AS1zneyudtH0eYak000).
