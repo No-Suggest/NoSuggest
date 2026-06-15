@@ -584,7 +584,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
           </div>
-          <a href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
+          <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
           <div class="settings-row" style="cursor:pointer">
             <div class="settings-row-icon" style="color:#ff4444">
               <svg viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -752,7 +752,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   </div>
 
   <!-- NAV DONATE STRIP — shown every 10th session -->
-  <a id="nav-donate-strip" href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener">
+  <a id="nav-donate-strip" href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="0"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
     <span>NoSuggest will always be free!! <b>Tap here</b> if you like to support it.</span>
     <button class="strip-dismiss" id="donate-strip-dismiss" aria-label="Dismiss">×</button>
@@ -851,14 +851,8 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 <script>
 'use strict';
 
-/* ═══════════════════════════════════════════
-   CONFIG : update PROXY if you rename the Worker
-═══════════════════════════════════════════ */
 const PROXY = 'https://api.nosuggest.com';
 
-/* ═══════════════════════════════════════════
-   SERVICE WORKER
-═══════════════════════════════════════════ */
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').catch(()=>{});
 }
@@ -2070,7 +2064,7 @@ function initDonationBanner(){
   const strip = document.getElementById('nav-donate-strip');
   if(!strip) return;
 
-  // Wire up dismiss button without navigating to ko-fi
+  // Wire up dismiss button without navigating to Stripe
   const dismissBtn = document.getElementById('donate-strip-dismiss');
   if(dismissBtn){
     dismissBtn.addEventListener('click', e => {
