@@ -259,6 +259,24 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .player-embed-blocked p{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px;}
 .player-embed-blocked a{display:inline-block;padding:0.65rem 1.4rem;background:var(--accent);color:var(--bg);border-radius:var(--radius-sm);font-size:14px;font-weight:600;text-decoration:none;}
 /* ═══════════════════════════════════════
+   SCREEN: FEATURED ON
+═══════════════════════════════════════ */
+.featured-header{padding:calc(var(--safe-top) + 1rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;}
+.featured-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;flex:1;}
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;padding:1.5rem 1.25rem;}
+@media(max-width:400px){.featured-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:1rem;}}
+@media(min-width:768px){.featured-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:2rem;}}
+.badge-cell{display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 10px;min-height:68px;transition:border-color 0.15s,opacity 0.15s;position:relative;overflow:hidden;}
+.badge-cell a{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+.badge-cell img{max-width:100%;max-height:44px;object-fit:contain;display:block;border-radius:4px;}
+.badge-cell:not(.pending):hover{border-color:var(--border2);}
+.badge-cell.pending{opacity:0.45;cursor:default;}
+.badge-cell.pending::after{content:'Pending';position:absolute;bottom:5px;right:7px;font-size:9px;font-family:'DM Mono',monospace;color:var(--faint);letter-spacing:0.04em;}
+/* Text-only badge (no SVG available) */
+.badge-text{font-size:12px;font-weight:600;color:var(--text);font-family:'Outfit',sans-serif;letter-spacing:0.01em;text-align:center;line-height:1.4;}
+.badge-text span{display:block;font-size:10px;font-weight:400;color:var(--faint);margin-top:2px;font-family:'DM Mono',monospace;}
+
+/* ═══════════════════════════════════════
    SETTINGS SCREEN
 ═══════════════════════════════════════ */
 .settings-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
@@ -637,26 +655,32 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         </div>
       </div>
 
-      <!-- ── Featured badges + GitHub ── -->
+      <!-- ── Featured On + GitHub ── -->
       <div class="settings-section" style="padding-top:0">
-        <div style="padding:1.5rem 1.25rem 1.25rem;border-top:1px solid var(--border)">
-          <div style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--faint);font-family:'DM Mono',monospace;margin-bottom:1rem;text-align:center">Featured on</div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap">
-            <!-- Smol Launch -->
-            <a href="https://smollaunch.com/products/nosuggest" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;opacity:0.85;transition:opacity 0.15s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
-              <img src="https://smollaunch.com/badges/featured-dark.svg" alt="NoSuggest — Featured on Smol Launch" loading="lazy" width="180" height="43" style="display:block;border-radius:6px"/>
-            </a>
-            <!-- Findly Tools -->
-            <a href="https://findly.tools/nosuggest" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;opacity:0.85;transition:opacity 0.15s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
-              <img src="https://findly.tools/badges/findly-tools-badge-dark.svg" alt="Featured on Findly.tools" loading="lazy" width="120" style="display:block;border-radius:6px"/>
-            </a>
-            <!-- GitHub — star the repo -->
-            <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;padding:7px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);text-decoration:none;font-size:12px;font-weight:600;font-family:'Outfit',sans-serif;opacity:0.85;transition:opacity 0.15s,border-color 0.15s" onmouseover="this.style.opacity='1';this.style.borderColor='var(--accent)'" onmouseout="this.style.opacity='0.85';this.style.borderColor='var(--border2)'">
-              <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-              <span>Star on GitHub</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </a>
+        <div class="settings-label">Featured On</div>
+        <div class="settings-card">
+          <div class="settings-row" style="cursor:pointer" onclick="showScreen('featured')">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">View All Listings</div>
+              <div class="settings-row-sub">Platforms and directories that feature NoSuggest</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">View →</div>
           </div>
+          <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
+          <div class="settings-row" style="cursor:pointer">
+            <div class="settings-row-icon" style="color:var(--text)">
+              <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Star on GitHub</div>
+              <div class="settings-row-sub">Open source at github.com/No-Suggest/NoSuggest</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Star ↗</div>
+          </div>
+          </a>
         </div>
       </div>
 
@@ -739,6 +763,145 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         <p>Tap the bookmark icon on any video<br/>to save it for later.</p>
       </div>
       <div id="saved-list"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: FEATURED ON -->
+  <div class="screen" id="screen-featured">
+    <div class="featured-header">
+      <button class="back-btn" onclick="showScreen('settings')" aria-label="Back to Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <h2>Featured On</h2>
+    </div>
+    <div class="screen-body">
+      <div class="featured-grid">
+
+        <!-- 1. Hacker News -->
+        <div class="badge-cell">
+          <a href="https://news.ycombinator.com/item?id=48390175" target="_blank" rel="noopener" aria-label="Hacker News">
+            <div class="badge-text">Hacker News<span>Front Page</span></div>
+          </a>
+        </div>
+
+        <!-- 2. AlternativeTo -->
+        <div class="badge-cell">
+          <a href="https://alternativeto.net/software/nosuggest/" target="_blank" rel="noopener" aria-label="AlternativeTo">
+            <div class="badge-text">AlternativeTo<span>Listed</span></div>
+          </a>
+        </div>
+
+        <!-- 3. Indie Hackers -->
+        <div class="badge-cell">
+          <a href="https://www.indiehackers.com/product/nosuggest" target="_blank" rel="noopener" aria-label="Indie Hackers">
+            <div class="badge-text">Indie Hackers<span>Product</span></div>
+          </a>
+        </div>
+
+        <!-- 4. Product Hunt -->
+        <div class="badge-cell">
+          <a href="https://www.producthunt.com/products/nosuggest" target="_blank" rel="noopener" aria-label="Product Hunt">
+            <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=nosuggest&theme=dark" alt="NoSuggest on Product Hunt" loading="lazy"/>
+          </a>
+        </div>
+
+        <!-- 5. Smol Launch -->
+        <div class="badge-cell">
+          <a href="https://smollaunch.com/products/nosuggest" target="_blank" rel="noopener" aria-label="Smol Launch">
+            <img src="https://smollaunch.com/badges/featured-dark.svg" alt="Featured on Smol Launch" loading="lazy"/>
+          </a>
+        </div>
+
+        <!-- 6. Findly Tools -->
+        <div class="badge-cell">
+          <a href="https://findly.tools/nosuggest" target="_blank" rel="noopener" aria-label="Findly Tools">
+            <img src="https://findly.tools/badges/findly-tools-badge-dark.svg" alt="Featured on Findly Tools" loading="lazy"/>
+          </a>
+        </div>
+
+        <!-- 7. SaaSHub -->
+        <div class="badge-cell">
+          <a href="https://www.saashub.com/nosuggest" target="_blank" rel="noopener" aria-label="SaaSHub">
+            <div class="badge-text">SaaSHub<span>Listed</span></div>
+          </a>
+        </div>
+
+        <!-- 8. SourceForge -->
+        <div class="badge-cell">
+          <a href="https://sourceforge.net/projects/nosuggest" target="_blank" rel="noopener" aria-label="SourceForge">
+            <div class="badge-text">SourceForge<span>Open Source</span></div>
+          </a>
+        </div>
+
+        <!-- 9. Open Alternative -->
+        <div class="badge-cell">
+          <a href="https://openalternative.co/nosuggest" target="_blank" rel="noopener" aria-label="Open Alternative">
+            <div class="badge-text">OpenAlternative<span>Listed</span></div>
+          </a>
+        </div>
+
+        <!-- 10. MicroLaunch -->
+        <div class="badge-cell">
+          <a href="https://microlaunch.net/p/nosuggest" target="_blank" rel="noopener" aria-label="MicroLaunch">
+            <div class="badge-text">MicroLaunch<span>Product</span></div>
+          </a>
+        </div>
+
+        <!-- 11. dev.to -->
+        <div class="badge-cell">
+          <a href="https://dev.to/vj_2_108/no-suggest-distraction-free-youtube-client-9p7" target="_blank" rel="noopener" aria-label="dev.to">
+            <div class="badge-text">dev.to<span>Article</span></div>
+          </a>
+        </div>
+
+        <!-- 12. StackShare -->
+        <div class="badge-cell">
+          <a href="https://stackshare.io/posts/1sz8rrbguy" target="_blank" rel="noopener" aria-label="StackShare">
+            <div class="badge-text">StackShare<span>Post</span></div>
+          </a>
+        </div>
+
+        <!-- 13. Peerlist (project) -->
+        <div class="badge-cell">
+          <a href="https://peerlist.io/hebbarvarunm/project/nosuggest" target="_blank" rel="noopener" aria-label="Peerlist">
+            <div class="badge-text">Peerlist<span>Project</span></div>
+          </a>
+        </div>
+
+        <!-- 14. Side Projectors -->
+        <div class="badge-cell">
+          <a href="https://www.sideprojectors.com/project/82109/nosuggest" target="_blank" rel="noopener" aria-label="Side Projectors">
+            <div class="badge-text">Side Projectors<span>Listed</span></div>
+          </a>
+        </div>
+
+        <!-- 15. Startupa.ge -->
+        <div class="badge-cell">
+          <a href="https://startupa.ge/startups/nosuggest" target="_blank" rel="noopener" aria-label="Startupa.ge">
+            <div class="badge-text">Startupa.ge<span>Startup</span></div>
+          </a>
+        </div>
+
+        <!-- 16. Smoll Launch blog -->
+        <div class="badge-cell">
+          <a href="https://microlaunch.net/blog/preview/nosuggest" target="_blank" rel="noopener" aria-label="MicroLaunch Blog">
+            <div class="badge-text">MicroLaunch Blog<span>Feature</span></div>
+          </a>
+        </div>
+
+        <!-- 17. Peerlist post -->
+        <div class="badge-cell">
+          <a href="https://peerlist.io/scroll/post/ACTH6A7PRD89DDMLKF9AGERPMNMNR6" target="_blank" rel="noopener" aria-label="Peerlist Post">
+            <div class="badge-text">Peerlist Post<span>Community</span></div>
+          </a>
+        </div>
+
+        <!-- 18. Pitchwall — pending, not clickable -->
+        <div class="badge-cell pending" aria-label="Pitchwall — pending approval">
+          <div class="badge-text">Pitchwall<span>Approval pending</span></div>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -1101,7 +1264,7 @@ function showScreen(name, opts){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-  if(name !== 'setup' && name !== 'add'){
+  if(name !== 'setup' && name !== 'add' && name !== 'featured'){
     localStorage.setItem('ns_active_tab', name);
   }
 
@@ -1120,6 +1283,7 @@ function showScreen(name, opts){
   if(name === 'add')      initAdd();
   if(name === 'search')   initSearch();
   if(name === 'saved')    initSaved();
+  // 'featured' needs no init — static content
 }
 
 function getStarted(){
@@ -2242,6 +2406,7 @@ window.addEventListener('popstate', () => {
   const overlay = document.getElementById('player-overlay');
   if(overlay.classList.contains('open')){ closePlayer(); }
   else if(currentScreen === 'add'){ showScreen('channels'); }
+  else if(currentScreen === 'featured'){ showScreen('settings'); }
   else{ history.pushState(null, '', location.href); }
 });
 </script>
