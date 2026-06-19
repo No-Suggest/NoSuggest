@@ -267,14 +267,15 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 @media(max-width:400px){.featured-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:1rem;}}
 @media(min-width:768px){.featured-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:2rem;}}
 .badge-cell{display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 10px;min-height:68px;transition:border-color 0.15s,opacity 0.15s;position:relative;overflow:hidden;}
-.badge-cell a{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+.badge-cell a{display:flex;align-items:center;justify-content:center;width:100%;height:100%;text-decoration:none;color:inherit;}
+.badge-cell a:visited,.badge-cell a:hover,.badge-cell a:active{color:inherit;text-decoration:none;}
 .badge-cell img{max-width:100%;max-height:44px;object-fit:contain;display:block;border-radius:4px;}
 .badge-cell:not(.pending):hover{border-color:var(--border2);}
 .badge-cell.pending{opacity:0.45;cursor:default;}
 .badge-cell.pending::after{content:'Pending';position:absolute;bottom:5px;right:7px;font-size:9px;font-family:'DM Mono',monospace;color:var(--faint);letter-spacing:0.04em;}
 /* Text-only badge (no SVG available) */
 .badge-text{font-size:12px;font-weight:600;color:var(--text);font-family:'Outfit',sans-serif;letter-spacing:0.01em;text-align:center;line-height:1.4;}
-.badge-text span{display:block;font-size:10px;font-weight:400;color:var(--faint);margin-top:2px;font-family:'DM Mono',monospace;}
+.badge-text span{display:block;font-size:10px;font-weight:500;color:var(--accent);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:0.04em;}
 
 /* ═══════════════════════════════════════
    SETTINGS SCREEN
@@ -780,7 +781,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         <!-- 1. Hacker News -->
         <div class="badge-cell">
           <a href="https://news.ycombinator.com/item?id=48390175" target="_blank" rel="noopener" aria-label="Hacker News">
-            <div class="badge-text">Hacker News<span>Front Page</span></div>
+            <div class="badge-text">Hacker News<span>Listed</span></div>
           </a>
         </div>
 
@@ -833,59 +834,59 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
           </a>
         </div>
 
-        <!-- 9. Open Alternative -->
-        <div class="badge-cell">
-          <a href="https://openalternative.co/nosuggest" target="_blank" rel="noopener" aria-label="Open Alternative">
-            <div class="badge-text">OpenAlternative<span>Listed</span></div>
-          </a>
-        </div>
-
-        <!-- 10. MicroLaunch -->
+        <!-- 9. MicroLaunch -->
         <div class="badge-cell">
           <a href="https://microlaunch.net/p/nosuggest" target="_blank" rel="noopener" aria-label="MicroLaunch">
             <div class="badge-text">MicroLaunch<span>Product</span></div>
           </a>
         </div>
 
-        <!-- 11. dev.to -->
+        <!-- 10. dev.to article -->
         <div class="badge-cell">
-          <a href="https://dev.to/vj_2_108/no-suggest-distraction-free-youtube-client-9p7" target="_blank" rel="noopener" aria-label="dev.to">
+          <a href="https://dev.to/vj_2_108/tired-of-the-youtube-doomscroll-meet-nosuggest-a-quiet-act-of-resistance-5a2d" target="_blank" rel="noopener" aria-label="dev.to">
             <div class="badge-text">dev.to<span>Article</span></div>
           </a>
         </div>
 
-        <!-- 12. StackShare -->
+        <!-- 11. DevDigest -->
+        <div class="badge-cell">
+          <a href="https://devdigest.org/articles/nosuggest-a-youtube-frontend-that-kills-the-algorithm" target="_blank" rel="noopener" aria-label="DevDigest">
+            <div class="badge-text">DevDigest<span>Feature</span></div>
+          </a>
+        </div>
+
+        <!-- 12. Peerlist article -->
+        <div class="badge-cell">
+          <a href="https://peerlist.io/hebbarvarunm/articles/nosuggest-watch-youtube-distraction-free" target="_blank" rel="noopener" aria-label="Peerlist Article">
+            <div class="badge-text">Peerlist<span>Article</span></div>
+          </a>
+        </div>
+
+        <!-- 13. StackShare -->
         <div class="badge-cell">
           <a href="https://stackshare.io/posts/1sz8rrbguy" target="_blank" rel="noopener" aria-label="StackShare">
             <div class="badge-text">StackShare<span>Post</span></div>
           </a>
         </div>
 
-        <!-- 13. Peerlist (project) -->
+        <!-- 14. Peerlist (project) -->
         <div class="badge-cell">
-          <a href="https://peerlist.io/hebbarvarunm/project/nosuggest" target="_blank" rel="noopener" aria-label="Peerlist">
+          <a href="https://peerlist.io/hebbarvarunm/project/nosuggest" target="_blank" rel="noopener" aria-label="Peerlist Project">
             <div class="badge-text">Peerlist<span>Project</span></div>
           </a>
         </div>
 
-        <!-- 14. Side Projectors -->
+        <!-- 15. Side Projectors -->
         <div class="badge-cell">
           <a href="https://www.sideprojectors.com/project/82109/nosuggest" target="_blank" rel="noopener" aria-label="Side Projectors">
             <div class="badge-text">Side Projectors<span>Listed</span></div>
           </a>
         </div>
 
-        <!-- 15. Startupa.ge -->
+        <!-- 16. Startupa.ge -->
         <div class="badge-cell">
           <a href="https://startupa.ge/startups/nosuggest" target="_blank" rel="noopener" aria-label="Startupa.ge">
             <div class="badge-text">Startupa.ge<span>Startup</span></div>
-          </a>
-        </div>
-
-        <!-- 16. Smoll Launch blog -->
-        <div class="badge-cell">
-          <a href="https://microlaunch.net/blog/preview/nosuggest" target="_blank" rel="noopener" aria-label="MicroLaunch Blog">
-            <div class="badge-text">MicroLaunch Blog<span>Feature</span></div>
           </a>
         </div>
 
@@ -896,7 +897,17 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
           </a>
         </div>
 
-        <!-- 18. Pitchwall — pending, not clickable -->
+        <!-- 18. OpenAlternative — pending -->
+        <div class="badge-cell pending" aria-label="OpenAlternative — pending approval">
+          <div class="badge-text">OpenAlternative<span>Approval pending</span></div>
+        </div>
+
+        <!-- 19. MicroLaunch Blog — pending -->
+        <div class="badge-cell pending" aria-label="MicroLaunch Blog — pending approval">
+          <div class="badge-text">MicroLaunch Blog<span>Approval pending</span></div>
+        </div>
+
+        <!-- 20. Pitchwall — pending -->
         <div class="badge-cell pending" aria-label="Pitchwall — pending approval">
           <div class="badge-text">Pitchwall<span>Approval pending</span></div>
         </div>
@@ -1196,6 +1207,41 @@ function setCachedVideos(channelId, videos){
 }
 function clearVideoCache(){
   Object.keys(localStorage).filter(k => k.startsWith('ft_vc_')).forEach(k => localStorage.removeItem(k));
+}
+
+/* ═══════════════════════════════════════════
+   RESUME STORE
+   Key: 'ns_resume' → { [videoId]: { t, saved, title, ch } }
+   Entries expire after 30 days and are cleaned on boot.
+═══════════════════════════════════════════ */
+const RESUME_TTL = 30 * 24 * 60 * 60 * 1000;
+
+function getResumeStore(){
+  try{ return JSON.parse(localStorage.getItem('ns_resume') || '{}'); } catch(e){ return {}; }
+}
+function setResumeStore(obj){
+  try{ localStorage.setItem('ns_resume', JSON.stringify(obj)); } catch(e){}
+}
+function saveResumePosition(videoId, seconds, title, channelName){
+  const store = getResumeStore();
+  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'' };
+  setResumeStore(store);
+}
+function deleteResumeEntry(videoId){
+  const store = getResumeStore();
+  if(store[videoId]){ delete store[videoId]; setResumeStore(store); }
+}
+function getResumeEntry(videoId){
+  return getResumeStore()[videoId] || null;
+}
+function purgeExpiredResume(){
+  const store = getResumeStore();
+  const now   = Date.now();
+  let changed = false;
+  Object.keys(store).forEach(id => {
+    if(now - store[id].saved > RESUME_TTL){ delete store[id]; changed = true; }
+  });
+  if(changed) setResumeStore(store);
 }
 
 /* ═══════════════════════════════════════════
@@ -1588,8 +1634,9 @@ document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache();
 /* ═══════════════════════════════════════════
    VIDEO PLAYER
 ═══════════════════════════════════════════ */
-let currentVideoData = null;
-let ytPlayer         = null;
+let currentVideoData    = null;
+let ytPlayer            = null;
+let videoEndedNaturally = false;
 
 function onYouTubeIframeAPIReady(){
   if(typeof window.createPlayerPending === 'function'){
@@ -1650,12 +1697,30 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   document.getElementById('player-embed-blocked').classList.remove('show');
   wrap.appendChild(div);
 
+  const resumeEntry  = getResumeEntry(videoId);
+  const startSeconds = resumeEntry ? resumeEntry.t : 0;
+  videoEndedNaturally = false;
+
   function createPlayer(){
     ytPlayer = new YT.Player('player-iframe', {
       height: '100%', width: '100%', videoId,
-      playerVars: { autoplay:1, rel:0, iv_load_policy:3, fs:1, playsinline:1, cc_load_policy:0 },
+      playerVars: { autoplay:1, rel:0, iv_load_policy:3, fs:1, playsinline:1, cc_load_policy:0,
+                    start: startSeconds },
       events: {
-        onStateChange: e => { if(e.data === YT.PlayerState.ENDED) closePlayer(); },
+        onReady: () => {
+          if(startSeconds > 0){
+            toast('Resuming from ' + formatSeconds(startSeconds), 3500);
+          }
+        },
+        onStateChange: e => {
+          if(e.data === YT.PlayerState.ENDED){
+            videoEndedNaturally = true;
+            deleteResumeEntry(videoId);
+            closePlayer();
+          } else if(e.data === YT.PlayerState.PAUSED){
+            captureResumeOnPause();
+          }
+        },
         onError: e => {
           if(e.data === 150 || e.data === 101){
             document.querySelector('.player-video-wrap').style.display = 'none';
@@ -1670,6 +1735,37 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   }
   if(typeof YT !== 'undefined' && YT.Player){ createPlayer(); }
   else{ window.createPlayerPending = createPlayer; }
+}
+
+function formatSeconds(s){
+  s = Math.floor(s);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
+/* Evaluate current position and save or delete the resume entry.
+   Called on pause, on close, and on background (visibilitychange). */
+function captureResumeOnPause(){
+  if(!currentVideoData || !ytPlayer) return;
+  try{
+    const current  = ytPlayer.getCurrentTime();
+    const duration = ytPlayer.getDuration();
+    if(!duration || duration <= 0) return;
+    const remaining = duration - current;
+    if(current < 30){
+      // Barely started — don't save
+      deleteResumeEntry(currentVideoData.id);
+      return;
+    }
+    if(remaining <= 30){
+      // Near the end — treat as finished
+      deleteResumeEntry(currentVideoData.id);
+      return;
+    }
+    // Mid-video — save position
+    saveResumePosition(currentVideoData.id, current, currentVideoData.title, currentVideoData.channelName);
+  } catch(e){}
 }
 
 function updatePlayerSaveBtn(videoId){
@@ -1690,6 +1786,7 @@ function toggleSaveFromPlayer(){
   if(currentScreen === 'saved') initSaved();
 }
 function closePlayer(){
+  if(!videoEndedNaturally) captureResumeOnPause();
   if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
   const overlay = document.getElementById('player-overlay');
   overlay.classList.remove('open');
@@ -2392,6 +2489,7 @@ function doImportBackup(){
    BOOT
 ═══════════════════════════════════════════ */
 window.addEventListener('load', () => {
+  purgeExpiredResume();
   applyKidsMode();
   initDonationBanner();
   if(STORE.hasLaunched){
@@ -2408,6 +2506,16 @@ window.addEventListener('popstate', () => {
   else if(currentScreen === 'add'){ showScreen('channels'); }
   else if(currentScreen === 'featured'){ showScreen('settings'); }
   else{ history.pushState(null, '', location.href); }
+});
+
+/* Capture resume when app goes to background (tab switch, home button on mobile PWA) */
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){
+    const overlay = document.getElementById('player-overlay');
+    if(overlay && overlay.classList.contains('open')){
+      captureResumeOnPause();
+    }
+  }
 });
 </script>
 </body>
