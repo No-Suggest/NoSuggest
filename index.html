@@ -389,12 +389,14 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   <div class="pin-overlay" id="pin-overlay">
     <div class="pin-box">
       <h3 id="pin-title">Enter Parental PIN</h3>
-      <p id="pin-subtitle">Enter your 4-digit PIN to continue</p>
+      <p id="pin-subtitle">Enter your 6-digit PIN to continue</p>
       <div class="pin-dots">
         <div class="pin-dot" id="pd0"></div>
         <div class="pin-dot" id="pd1"></div>
         <div class="pin-dot" id="pd2"></div>
         <div class="pin-dot" id="pd3"></div>
+        <div class="pin-dot" id="pd4"></div>
+        <div class="pin-dot" id="pd5"></div>
       </div>
       <div class="pin-error" id="pin-error"></div>
       <div class="pin-keypad">
@@ -594,7 +596,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Install ↓</div>
           </div>
-          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()">
+          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()" id="settings-share-row">
             <div class="settings-row-icon" style="color:var(--accent)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             </div>
@@ -604,7 +606,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
           </div>
-          <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
+          <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener" style="text-decoration:none;display:block;" id="settings-support-row">
           <div class="settings-row" style="cursor:pointer">
             <div class="settings-row-icon" style="color:#ff4444">
               <svg viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -645,10 +647,11 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         </div>
         <!-- Import panel — hidden until triggered -->
         <div id="import-panel" style="display:none;margin-top:0.75rem">
-          <textarea id="import-textarea"
-            placeholder="Paste your backup code here…"
-            style="width:100%;box-sizing:border-box;padding:0.85rem 1rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.5;resize:vertical;min-height:100px;outline:none;-webkit-appearance:none;"
-            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          <div id="import-paste-area" onclick="pasteFromClipboard()" style="width:100%;box-sizing:border-box;padding:0.85rem 1rem;background:var(--bg2);border:1.5px dashed var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;min-height:60px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            <span id="import-paste-label">Tap to paste backup code from clipboard</span>
+          </div>
+          <textarea id="import-textarea" style="display:none" readonly></textarea>
           <div id="import-error" style="display:none;color:var(--danger);font-size:12px;margin-top:0.4rem;font-family:'DM Mono',monospace;"></div>
           <div style="display:flex;gap:8px;margin-top:0.6rem">
             <button onclick="doImportBackup()" style="flex:1;padding:0.75rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Restore</button>
@@ -658,7 +661,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
       </div>
 
       <!-- ── Featured On + GitHub ── -->
-      <div class="settings-section" style="padding-top:0">
+      <div class="settings-section" style="padding-top:0" id="settings-featured-section">
         <div class="settings-label">Featured On</div>
         <div class="settings-card">
           <div class="settings-row" style="cursor:pointer" onclick="showScreen('featured')">
@@ -1345,15 +1348,15 @@ let pinBuffer = '';
 let pinMode   = '';
 
 function updatePinDots(){
-  for(let i = 0; i < 4; i++) document.getElementById('pd'+i).classList.toggle('filled', i < pinBuffer.length);
+  for(let i = 0; i < 6; i++) document.getElementById('pd'+i).classList.toggle('filled', i < pinBuffer.length);
 }
 function pinKey(k){
   document.getElementById('pin-error').textContent = '';
   if(k === 'back'){ pinBuffer = pinBuffer.slice(0,-1); updatePinDots(); return; }
-  if(pinBuffer.length >= 4) return;
+  if(pinBuffer.length >= 6) return;
   pinBuffer += k;
   updatePinDots();
-  if(pinBuffer.length === 4) setTimeout(handlePinComplete, 150);
+  if(pinBuffer.length === 6) setTimeout(handlePinComplete, 150);
 }
 function handlePinComplete(){
   const errEl = document.getElementById('pin-error');
@@ -1399,6 +1402,14 @@ function applyKidsMode(){
   document.getElementById('kids-banner').classList.toggle('show', on);
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
+  // Hide elements kids shouldn't see or accidentally tap
+  const kidsHide = ['settings-share-row','settings-support-row','settings-featured-section','nav-donate-strip'];
+  kidsHide.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = on ? 'none' : '';
+  });
+  // Also suppress the donate strip body class
+  if(on) document.body.classList.remove('show-donate-strip');
   if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add' || currentScreen === 'settings')){
     showScreen('feed');
   }
@@ -2418,15 +2429,41 @@ function closeExportModal(){
 }
 
 function showImportPanel(){
-  const panel = document.getElementById('import-panel');
-  const errEl = document.getElementById('import-error');
-  const ta    = document.getElementById('import-textarea');
+  const panel  = document.getElementById('import-panel');
+  const errEl  = document.getElementById('import-error');
+  const ta     = document.getElementById('import-textarea');
+  const label  = document.getElementById('import-paste-label');
+  const area   = document.getElementById('import-paste-area');
   if(!panel) return;
   ta.value            = '';
   errEl.style.display = 'none';
   errEl.textContent   = '';
+  label.textContent   = 'Tap to paste backup code from clipboard';
+  area.style.borderColor = '';
   panel.style.display = 'block';
-  setTimeout(() => ta.focus(), 150);
+}
+
+async function pasteFromClipboard(){
+  const ta    = document.getElementById('import-textarea');
+  const label = document.getElementById('import-paste-label');
+  const area  = document.getElementById('import-paste-area');
+  const errEl = document.getElementById('import-error');
+  errEl.style.display = 'none';
+  try{
+    const text = await navigator.clipboard.readText();
+    if(!text || !text.trim()){
+      label.textContent = 'Clipboard is empty — copy your backup code first';
+      area.style.borderColor = 'var(--danger)';
+      return;
+    }
+    ta.value = text.trim();
+    label.textContent = 'Backup code ready. Tap Restore to continue.';
+    area.style.borderColor = 'var(--accent)';
+  } catch(e){
+    // Clipboard API denied — fallback message
+    label.textContent = 'Clipboard access denied. Please allow clipboard permission and try again.';
+    area.style.borderColor = 'var(--danger)';
+  }
 }
 
 function hideImportPanel(){
