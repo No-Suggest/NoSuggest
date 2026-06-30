@@ -279,6 +279,20 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .badge-text span{display:block;font-size:10px;font-weight:500;color:var(--accent);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:0.04em;}
 
 /* ═══════════════════════════════════════
+   FAQ
+═══════════════════════════════════════ */
+.faq-list{display:flex;flex-direction:column;gap:2px;}
+.faq-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.15s;}
+.faq-item.open{border-color:var(--border2);}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);line-height:1.4;font-family:'Outfit',sans-serif;}
+.faq-q span{flex:1;}
+.faq-chevron{width:16px;height:16px;flex-shrink:0;color:var(--faint);transition:transform 0.2s;}
+.faq-item.open .faq-chevron{transform:rotate(180deg);color:var(--accent);}
+.faq-a{display:none;padding:0 14px 13px;font-size:12.5px;color:var(--muted);line-height:1.7;font-family:'Outfit',sans-serif;border-top:1px solid var(--border);}
+.faq-item.open .faq-a{display:block;}
+.faq-a strong{color:var(--text);font-weight:600;}
+
+/* ═══════════════════════════════════════
    SETTINGS SCREEN
 ═══════════════════════════════════════ */
 .settings-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
@@ -686,6 +700,70 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Star ↗</div>
           </div>
           </a>
+        </div>
+      </div>
+
+      <!-- ── FAQ ── -->
+      <div class="settings-section" style="padding-top:0" id="settings-faq-section">
+        <div class="settings-label">FAQs</div>
+        <div class="faq-list">
+
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+              <span>What is NoSuggest?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">NoSuggest is a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no auto-play, no trending feed, no sign-in required.<br><br>Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual.<br><br>NoSuggest itself will never show ads and will remain free forever. The only source of revenue is voluntary donations from users who wish to support the project.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+              <span>How does Kids Mode work?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">Kids Mode limits NoSuggest to a safe, distraction-free experience for children. When enabled, the Search tab and Add Channels feature are hidden so kids can only watch videos from channels a parent has already approved.<br><br>To prevent accidental taps, the donation banner and donation link in Settings are also hidden — we don't want a child triggering an unintended donation on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+              <span>How can teachers, schools and students use NoSuggest?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">NoSuggest is ready for classroom use without any new features or IT setup. A teacher adds only the YouTube channels relevant to their subject — educational channels, and save documentaries, lesson videos — and exports the entire setup as a backup code from Settings.<br><br>That code is shared with students via Google Classroom, WhatsApp, email, or any messaging platform. Students open nosuggest.com, go to Settings, tap Import, paste the code, and their feed instantly shows only the teacher-approved channels and saved videos.<br><br>No accounts, no logins, no data collected. The 6-digit PIN lock prevents students from modifying the channel list. Works on phones, tablets, Chromebooks, and laptops — no installation required.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+              <span>How do I move my channels and saved videos to another device?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">Go to Settings and tap Export Backup. NoSuggest generates a backup code containing all your channels and saved videos. Copy that code and paste it into Settings → Import Backup on your new device. Everything transfers instantly.<br><br>There is no login or account by design — NoSuggest intentionally does not ask for your name, email, or any personal information. The export and import approach keeps your data entirely on your own devices.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+              <span>Tapping the YouTube logo opens YouTube with recommendations. How do I block it?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">This happens because the video plays inside the official YouTube player, which includes a YouTube logo and title link. NoSuggest cannot modify what is inside that player.<br><br>To prevent YouTube from opening on the device:<br><br><strong>iPhone (Safari &amp; Chrome):</strong><br>Settings → Screen Time → Content &amp; Privacy Restrictions → Content Restrictions → Web Content → Limit Adult Websites. Under Never Allow, tap Add Website and enter youtube.com. This applies across all browsers on the device.<br><br><strong>Android &amp; laptops:</strong><br>Install the BlockSite app, grant the required permissions, and add youtube.com to your block list.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+              <span>Can I reorder channels so my favourite appears first?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">The feed intentionally does not follow a fixed channel order. When you open the app, NoSuggest fetches all your channels simultaneously rather than one by one — this is what makes the feed load so quickly. Videos appear as each channel responds, so the order varies slightly each time based on response speed.<br><br>A drag-to-reorder feature would not change this behaviour since feed order is determined by network response times, not by how channels are arranged in your list. The speed trade-off is intentional — it keeps the app fast on all devices and connections.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+              <span>Is NoSuggest available on the App Store or Google Play?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">NoSuggest is not listed on the App Store or Google Play Store. It is a Progressive Web App (PWA), which means it installs directly from the browser with no app store needed.<br><br><strong>iPhone / iPad:</strong> Open nosuggest.com in Safari → tap the Share button → Add to Home Screen.<br><br><strong>Android:</strong> Open nosuggest.com in Chrome → tap Install App.<br><br>It will appear and behave like a native app on your home screen.</div>
+          </div>
+
         </div>
       </div>
 
@@ -1385,7 +1463,7 @@ function showPinOverlay(mode){
   pinBuffer = ''; pinMode = mode; updatePinDots();
   document.getElementById('pin-error').textContent = '';
   document.getElementById('pin-title').textContent    = mode === 'set' ? 'Set Parental PIN' : 'Enter Parental PIN';
-  document.getElementById('pin-subtitle').textContent = mode === 'set' ? 'Choose a 4-digit PIN to protect Kids Mode' : 'Enter your PIN to disable Kids Mode';
+  document.getElementById('pin-subtitle').textContent = mode === 'set' ? 'Choose a 6-digit PIN to protect Kids Mode' : 'Enter your PIN to disable Kids Mode';
   document.getElementById('pin-overlay').classList.add('show');
 }
 function toggleKidsMode(){
@@ -1778,6 +1856,12 @@ function captureResumeOnPause(){
     // Mid-video — save position
     saveResumePosition(currentVideoData.id, current, currentVideoData.title, currentVideoData.channelName);
   } catch(e){}
+}
+
+function toggleFaq(item){
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
 }
 
 function updatePlayerSaveBtn(videoId){
