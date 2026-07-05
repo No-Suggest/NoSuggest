@@ -244,44 +244,14 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 /* ═══════════════════════════════════════
    VIDEO PLAYER OVERLAY
 ═══════════════════════════════════════ */
-#player-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:200;display:none;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.2s,inset 0.25s cubic-bezier(0.32,0.72,0,1),border-radius 0.25s;}
+#player-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:200;display:none;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.2s,inset 0.25s cubic-bezier(0.32,0.72,0,1),border-radius 0.2s;}
 #player-overlay.open{display:flex;opacity:1;pointer-events:all;}
-
-/* ── Mini player (in-app PiP) ── */
-#player-overlay.mini{
-  inset:auto calc(12px + env(safe-area-inset-right,0px)) calc(76px + var(--safe-bot)) auto;
-  width:168px;height:94px;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 8px 28px rgba(0,0,0,0.5);
-  background:#000;
-  border:1px solid var(--border2);
-  cursor:pointer;
-}
-#player-overlay.mini .player-top,
-#player-overlay.mini .player-info,
-#player-overlay.mini .player-embed-blocked{display:none;}
-#player-overlay.mini .player-video-wrap{height:100%;pointer-events:none;}
-#player-overlay.mini #player-iframe{pointer-events:none;}
-.mini-controls{display:none;}
-#player-overlay.mini .mini-controls{
-  display:flex;position:absolute;inset:0;z-index:2;
-  align-items:flex-start;justify-content:flex-end;padding:4px;gap:4px;
-}
-.mini-btn{
-  width:24px;height:24px;border-radius:50%;
-  background:rgba(0,0,0,0.6);border:none;color:#fff;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
-}
-.player-top .minimize-player{
-  background:var(--bg2);border:1px solid var(--border);border-radius:50%;
-  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--muted);margin-right:8px;
-}
 .player-top{padding:calc(var(--safe-top) + 0.75rem) 1rem 0.75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .player-channel{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.04em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-right:0.5rem;}
 .close-player{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);}
 .close-player svg{width:18px;height:18px;}
+.minimize-player{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);margin-right:8px;}
+.minimize-player svg{width:16px;height:16px;}
 .player-video-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:0 0 1rem;}
 .player-video-wrap iframe{width:100%;aspect-ratio:16/9;border:none;max-height:60vh;}
 .player-info{padding:0 1.25rem calc(var(--safe-bot) + 1rem);flex-shrink:0;}
@@ -291,6 +261,34 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .player-embed-blocked.show{display:flex;}
 .player-embed-blocked p{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px;}
 .player-embed-blocked a{display:inline-block;padding:0.65rem 1.4rem;background:var(--accent);color:var(--bg);border-radius:var(--radius-sm);font-size:14px;font-weight:600;text-decoration:none;}
+
+/* ── Mini player: shrinks the same live iframe into a floating box so
+   playback continues while browsing other screens. Pure CSS resize/
+   reposition of the already-mounted YouTube iframe — no browser PiP
+   API involved — so it behaves the same on Android, iOS, and desktop. */
+#player-overlay.mini{
+  inset:auto calc(14px + env(safe-area-inset-right,0px)) calc(80px + var(--safe-bot)) auto;
+  width:220px;height:124px;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,0.55);
+  background:#000;
+  border:1px solid var(--border2);
+}
+#player-overlay.mini .player-top,
+#player-overlay.mini .player-info,
+#player-overlay.mini .player-embed-blocked{display:none;}
+#player-overlay.mini .player-video-wrap{padding:0;height:100%;}
+#player-overlay.mini .player-video-wrap iframe{max-height:none;height:100%;aspect-ratio:auto;pointer-events:none;}
+.mini-controls{display:none;}
+#player-overlay.mini .mini-controls{
+  display:flex;position:absolute;top:6px;right:6px;z-index:2;gap:6px;
+}
+.mini-btn{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(0,0,0,0.65);border:none;color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+}
 /* ═══════════════════════════════════════
    SCREEN: FEATURED ON
 ═══════════════════════════════════════ */
@@ -1113,7 +1111,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   <div id="player-overlay">
     <div class="player-top">
       <div class="player-channel" id="player-channel-name"></div>
-      <div style="display:flex;align-items:center">
+      <div style="display:flex;align-items:center;flex-shrink:0">
         <button class="minimize-player" onclick="minimizePlayer()" title="Minimize">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
         </button>
@@ -1122,7 +1120,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         </button>
       </div>
     </div>
-    <div class="player-video-wrap" style="position:relative" onclick="if(isMiniPlayer) expandPlayer()">
+    <div class="player-video-wrap" style="position:relative" onclick="handleVideoWrapClick()">
       <div id="player-iframe"></div>
       <div class="mini-controls">
         <button class="mini-btn" onclick="event.stopPropagation(); closePlayer()" title="Close">
@@ -1822,7 +1820,6 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   overlay.classList.remove('mini');
   overlay.style.display = 'flex';
   requestAnimationFrame(() => overlay.classList.add('open'));
-  setMediaSessionMetadata(title, channelName, thumb);
 
   if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
   const wrap = document.querySelector('.player-video-wrap');
@@ -1847,19 +1844,14 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
           if(startSeconds > 0){
             toast('Resuming from ' + formatSeconds(startSeconds), 3500);
           }
-          setupMediaSessionHandlers();
         },
         onStateChange: e => {
           if(e.data === YT.PlayerState.ENDED){
             videoEndedNaturally = true;
             deleteResumeEntry(videoId);
-            setMediaSessionPlaybackState('none');
             closePlayer();
           } else if(e.data === YT.PlayerState.PAUSED){
             captureResumeOnPause();
-            setMediaSessionPlaybackState('paused');
-          } else if(e.data === YT.PlayerState.PLAYING){
-            setMediaSessionPlaybackState('playing');
           }
         },
         onError: e => {
@@ -1940,7 +1932,6 @@ function closePlayer(){
   overlay.classList.remove('mini');
   isMiniPlayer = false;
   if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
-  clearMediaSession();
   // Wait for 0.2s fade-out transition then fully hide to release iOS touch tracking
   setTimeout(() => { overlay.style.display = 'none'; }, 220);
   // Do NOT call initFeed() here — feed is already rendered
@@ -1951,62 +1942,15 @@ function closePlayer(){
    No PiP browser API used — just CSS resize/reposition of the mounted
    YouTube iframe, so it behaves the same on Android, iOS, and desktop. */
 function minimizePlayer(){
-  const overlay = document.getElementById('player-overlay');
-  overlay.classList.add('mini');
+  document.getElementById('player-overlay').classList.add('mini');
   isMiniPlayer = true;
 }
 function expandPlayer(){
-  const overlay = document.getElementById('player-overlay');
-  overlay.classList.remove('mini');
+  document.getElementById('player-overlay').classList.remove('mini');
   isMiniPlayer = false;
 }
-
-/* ── Media Session API: lock-screen / notification playback controls.
-   Progressive enhancement only — guarded by feature checks, so it's a
-   no-op (not an error) on browsers/platforms without support. Controls
-   are bridged to the YouTube IFrame Player API since the actual <video>
-   element lives inside YouTube's cross-origin iframe. */
-function setMediaSessionMetadata(title, channelName, thumb){
-  if(!('mediaSession' in navigator)) return;
-  try{
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: title || 'Video',
-      artist: channelName || 'NoSuggest',
-      artwork: thumb ? [
-        { src: thumb, sizes: '480x360', type: 'image/jpeg' }
-      ] : []
-    });
-  } catch(e){}
-}
-function setMediaSessionPlaybackState(state){
-  if(!('mediaSession' in navigator)) return;
-  try{ navigator.mediaSession.playbackState = state; } catch(e){}
-}
-function clearMediaSession(){
-  if(!('mediaSession' in navigator)) return;
-  try{
-    navigator.mediaSession.metadata = null;
-    navigator.mediaSession.playbackState = 'none';
-  } catch(e){}
-}
-let mediaSessionHandlersReady = false;
-function setupMediaSessionHandlers(){
-  if(!('mediaSession' in navigator) || mediaSessionHandlersReady) return;
-  mediaSessionHandlersReady = true;
-  const safeHandler = fn => (() => { try{ fn(); } catch(e){} });
-  try{
-    navigator.mediaSession.setActionHandler('play',  safeHandler(() => ytPlayer && ytPlayer.playVideo()));
-    navigator.mediaSession.setActionHandler('pause', safeHandler(() => ytPlayer && ytPlayer.pauseVideo()));
-    navigator.mediaSession.setActionHandler('stop',  safeHandler(closePlayer));
-    navigator.mediaSession.setActionHandler('seekbackward', safeHandler(() => {
-      if(ytPlayer) ytPlayer.seekTo(Math.max(0, ytPlayer.getCurrentTime() - 10), true);
-    }));
-    navigator.mediaSession.setActionHandler('seekforward', safeHandler(() => {
-      if(ytPlayer) ytPlayer.seekTo(ytPlayer.getCurrentTime() + 10, true);
-    }));
-  } catch(e){
-    // Individual action handlers can throw on unsupported actions (e.g. seek on some platforms) — ignore
-  }
+function handleVideoWrapClick(){
+  if(isMiniPlayer) expandPlayer();
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
