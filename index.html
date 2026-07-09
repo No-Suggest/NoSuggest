@@ -388,6 +388,26 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 #export-modal .em-btn-copy{flex:1;padding:0.75rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
 #export-modal .em-btn-copy:active{opacity:0.85;}
 #export-modal .em-btn-close{padding:0.75rem 1.1rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+
+/* ── Channel Pack modals (create + incoming confirm) — mirrors export-modal ── */
+#pack-modal-backdrop,#pack-confirm-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#pack-modal-backdrop.show,#pack-confirm-backdrop.show{display:flex;}
+#pack-modal,#pack-confirm-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1rem;max-height:85vh;overflow-y:auto;}
+#pack-modal .em-icon,#pack-confirm-modal .em-icon{width:48px;height:48px;background:rgba(232,255,90,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.25rem;}
+#pack-modal .em-icon svg,#pack-confirm-modal .em-icon svg{width:24px;height:24px;stroke:var(--accent);}
+#pack-modal .em-title,#pack-confirm-modal .em-title{font-size:16px;font-weight:600;color:var(--text);}
+#pack-modal .em-body,#pack-confirm-modal .em-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;}
+#pack-modal .em-code{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.75rem 1rem;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);word-break:break-all;line-height:1.5;max-height:80px;overflow-y:auto;user-select:all;-webkit-user-select:all;}
+#pack-modal .em-hint,#pack-confirm-modal .em-hint{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;}
+#pack-modal .em-actions,#pack-confirm-modal .em-actions{display:flex;gap:8px;margin-top:0.25rem;}
+.pack-btn-primary{flex:1;padding:0.75rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
+.pack-btn-primary:active{opacity:0.85;}
+.pack-btn-secondary{padding:0.75rem 1.1rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.pack-channel-list{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.6rem 0.75rem;}
+.pack-channel-item{font-size:13px;color:var(--text);font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:6px;}
+.pack-channel-item::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;}
+.pack-note{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.5;}
+.pack-note.warn{color:#e8a53b;}
 </style>
 </head>
 <body>
@@ -479,7 +499,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   <!-- SCREEN: FEED -->
   <div class="screen" id="screen-feed">
     <div class="feed-header">
-      <div class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 5 videos/channel</span></div>
+      <div class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 10 videos/channel</span></div>
       <div class="feed-actions">
         <button class="icon-btn" id="feed-refresh-btn" title="Refresh">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -674,7 +694,22 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         </div>
       </div>
 
-      <!-- ── Featured On + GitHub ── -->
+      <!-- ── Channel Pack: share a curated channel list via link ── -->
+      <div class="settings-section" style="padding-top:0">
+        <div class="settings-label">Channel Pack</div>
+        <div class="settings-card">
+          <div class="settings-row" style="cursor:pointer" onclick="doCreatePack()">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Create a Pack</div>
+              <div class="settings-row-sub">Turn your current channel list into a shareable link. Only channels, nothing personal. Anyone who opens the link can add them to their own feed.</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
+          </div>
+        </div>
+      </div>
       <div class="settings-section" style="padding-top:0" id="settings-featured-section">
         <div class="settings-label">Featured On</div>
         <div class="settings-card">
@@ -738,6 +773,14 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
             <div class="faq-a">Go to Settings and tap Export Backup. NoSuggest generates a backup code containing all your channels and saved videos. Copy that code and paste it into Settings → Import Backup on your new device. Everything transfers instantly.<br><br>There is no login or account by design — NoSuggest intentionally does not ask for your name, email, or any personal information. The export and import approach keeps your data entirely on your own devices.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+              <span>What is Create a Pack?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">Create a Pack turns your current list of channels into a single shareable link — useful when a teacher, channel owner, or friend wants to hand someone a ready-made feed. Go to Settings → Create a Pack to generate the link, then share it however you like.<br><br>Anyone who opens the link sees exactly which channels are in it. It only <strong>adds</strong> channels — it never replaces or removes anything already on their device, and channels they already have are simply skipped. If adding would take someone past the 25-channel limit, NoSuggest adds as many as it can and tells them how many were skipped.<br><br>A pack only carries channel names and IDs — nothing personal, no saved videos, no account data of any kind.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)">
@@ -1119,6 +1162,40 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
       <div class="em-actions">
         <button class="em-btn-copy" onclick="copyExportCodeAgain()">Copy again</button>
         <button class="em-btn-close" onclick="closeExportModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Channel Pack: created-link modal -->
+  <div id="pack-modal-backdrop">
+    <div id="pack-modal">
+      <div class="em-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <div class="em-title">Pack link ready</div>
+      <div class="em-body" id="pack-modal-body">Your channel list has been turned into a link. It's been copied to your clipboard.</div>
+      <div class="em-code" id="pack-modal-code"></div>
+      <div class="em-hint">Share it in Google Classroom, WhatsApp, or email. Anyone who opens it can add these channels — it never overwrites what they already have.</div>
+      <div class="em-actions">
+        <button class="pack-btn-primary" onclick="copyPackCodeAgain()">Copy again</button>
+        <button class="pack-btn-secondary" onclick="closePackModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Channel Pack: incoming pack confirm modal -->
+  <div id="pack-confirm-backdrop">
+    <div id="pack-confirm-modal">
+      <div class="em-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <div class="em-title" id="pack-confirm-title">Someone shared a channel pack</div>
+      <div class="em-body" id="pack-confirm-body"></div>
+      <div class="pack-channel-list" id="pack-confirm-list"></div>
+      <div class="pack-note" id="pack-confirm-note" style="display:none"></div>
+      <div class="em-actions">
+        <button class="pack-btn-primary" id="pack-confirm-add-btn" onclick="confirmAddPack()">Add channels</button>
+        <button class="pack-btn-secondary" onclick="cancelIncomingPack()">Not now</button>
       </div>
     </div>
   </div>
@@ -2608,8 +2685,182 @@ function doImportBackup(){
 }
 
 /* ═══════════════════════════════════════════
-   BOOT
+   CHANNEL PACK : shareable link, channels-only, merge-only
+   Distinct from Backup & Restore (which is full replace).
+   A Pack never touches saved videos and never overwrites
+   existing channels — it only adds channels not already present,
+   up to the MAX_CHANNELS device limit.
 ═══════════════════════════════════════════ */
+const PACK_MAX_CHANNELS = 40; // cap on how many channels one pack link can carry
+let _packCode = '';
+let _pendingPack = null; // { toAdd:[{id,name}], alreadyHave:number, willSkip:number }
+
+function toUrlSafeB64(str){
+  return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function fromUrlSafeB64(str){
+  let b64 = str.replace(/-/g,'+').replace(/_/g,'/');
+  while(b64.length % 4) b64 += '=';
+  return decodeURIComponent(escape(atob(b64)));
+}
+
+function doCreatePack(){
+  try{
+    const channels = STORE.channels;
+    if(!channels.length){
+      toast('Add some channels first, then create a pack.');
+      return;
+    }
+    const trimmed = channels.slice(0, PACK_MAX_CHANNELS);
+    const payload = { v:1, c: trimmed.map(ch => [ch.id, ch.name]) };
+    _packCode = toUrlSafeB64(JSON.stringify(payload));
+    const url  = location.origin + location.pathname + '?pack=' + _packCode;
+
+    const bodyEl = document.getElementById('pack-modal-body');
+    bodyEl.textContent = trimmed.length < channels.length
+      ? `Your first ${PACK_MAX_CHANNELS} channels have been turned into a link (packs are capped at ${PACK_MAX_CHANNELS}). It's been copied to your clipboard.`
+      : `Your ${trimmed.length} channel${trimmed.length===1?'':'s'} ${trimmed.length===1?'has':'have'} been turned into a link. It's been copied to your clipboard.`;
+
+    document.getElementById('pack-modal-code').textContent = url;
+    document.getElementById('pack-modal-backdrop').classList.add('show');
+    copyToClipboard(url);
+  } catch(e){
+    toast('Could not create pack. Try again.');
+  }
+}
+
+function copyPackCodeAgain(){
+  copyToClipboard(document.getElementById('pack-modal-code').textContent);
+  const btn = document.querySelector('#pack-modal .pack-btn-primary');
+  if(btn){ btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = 'Copy again'; }, 1800); }
+}
+
+function closePackModal(){
+  document.getElementById('pack-modal-backdrop').classList.remove('show');
+}
+
+function parsePackCode(code){
+  let payload;
+  try{
+    payload = JSON.parse(fromUrlSafeB64(code));
+  } catch(e){
+    return { ok:false, error: "That doesn't look like a valid pack code." };
+  }
+  if(!payload || payload.v !== 1 || !Array.isArray(payload.c)){
+    return { ok:false, error: 'Pack code is not valid or is from an incompatible version.' };
+  }
+  if(payload.c.length > PACK_MAX_CHANNELS){
+    return { ok:false, error: 'Pack code appears corrupt (too many entries).' };
+  }
+  const channels = payload.c
+    .filter(pair => Array.isArray(pair) && typeof pair[0] === 'string' && pair[0].trim())
+    .map(pair => ({ id: pair[0].trim(), name: (pair[1] || pair[0]).toString().trim() }));
+  if(!channels.length){
+    return { ok:false, error: 'This pack link has no channels in it.' };
+  }
+  return { ok:true, channels };
+}
+
+/* ── Shown when a pack link is opened, or a code is pasted ── */
+function openPackConfirm(incomingChannels){
+  const existing   = STORE.channels;
+  const existingIds = new Set(existing.map(c => c.id));
+  const newOnes    = incomingChannels.filter(c => !existingIds.has(c.id));
+  const alreadyHave = incomingChannels.length - newOnes.length;
+
+  const room   = Math.max(0, MAX_CHANNELS - existing.length);
+  const toAdd  = newOnes.slice(0, room);
+  const willSkip = newOnes.length - toAdd.length;
+
+  _pendingPack = { toAdd, alreadyHave, willSkip };
+
+  document.getElementById('pack-confirm-title').textContent =
+    toAdd.length ? 'Someone shared a channel pack' : 'Nothing new to add';
+
+  document.getElementById('pack-confirm-body').textContent =
+    toAdd.length
+      ? `This adds ${toAdd.length} channel${toAdd.length===1?'':'s'} to your list. Your existing channels and saved videos are untouched.`
+      : alreadyHave
+        ? "You already have every channel in this pack."
+        : "This pack link doesn't contain anything new for you.";
+
+  const listEl = document.getElementById('pack-confirm-list');
+  listEl.innerHTML = toAdd.map(c => `<div class="pack-channel-item">${esc(c.name)}</div>`).join('');
+  listEl.style.display = toAdd.length ? 'flex' : 'none';
+
+  const noteEl = document.getElementById('pack-confirm-note');
+  const notes = [];
+  if(alreadyHave) notes.push(`${alreadyHave} channel${alreadyHave===1?'':'s'} in this pack are already in your list.`);
+  if(willSkip)     notes.push(`${willSkip} more couldn't be added — you're at the ${MAX_CHANNELS}-channel limit.`);
+  if(notes.length){
+    noteEl.textContent   = notes.join(' ');
+    noteEl.className     = 'pack-note' + (willSkip ? ' warn' : '');
+    noteEl.style.display = 'block';
+  } else {
+    noteEl.style.display = 'none';
+  }
+
+  const addBtn = document.getElementById('pack-confirm-add-btn');
+  addBtn.style.display = toAdd.length ? '' : 'none';
+
+  document.getElementById('pack-confirm-backdrop').classList.add('show');
+}
+
+function confirmAddPack(){
+  if(!_pendingPack || !_pendingPack.toAdd.length){ closePackConfirm(); return; }
+  const channels = STORE.channels;
+  _pendingPack.toAdd.forEach(c => {
+    channels.push({
+      id: c.id,
+      name: c.name,
+      avatar: `https://yt3.googleusercontent.com/ytc/${c.id}`,
+      subs: '',
+      handle: ''
+    });
+  });
+  STORE.channels = channels;
+  const count = _pendingPack.toAdd.length;
+  toast(`Added ${count} channel${count===1?'':'s'} ✓`);
+  closePackConfirm();
+  cleanPackUrlParam();
+  setTimeout(() => location.reload(), 700);
+}
+
+function cancelIncomingPack(){
+  closePackConfirm();
+  cleanPackUrlParam();
+}
+
+function closePackConfirm(){
+  document.getElementById('pack-confirm-backdrop').classList.remove('show');
+  _pendingPack = null;
+}
+
+function cleanPackUrlParam(){
+  const url = new URL(location.href);
+  if(url.searchParams.has('pack')){
+    url.searchParams.delete('pack');
+    history.replaceState(null, '', url.pathname + (url.search || ''));
+  }
+}
+
+/* Checked once at boot — if a ?pack= link was opened, show the confirm modal.
+   The URL param is stripped immediately on detection (not only after the
+   user decides), so a manual refresh mid-decision can't re-trigger this. */
+function checkForIncomingPack(){
+  const url  = new URL(location.href);
+  const code = url.searchParams.get('pack');
+  if(!code) return;
+  cleanPackUrlParam();
+  const result = parsePackCode(code);
+  if(!result.ok){
+    toast(result.error);
+    return;
+  }
+  openPackConfirm(result.channels);
+}
+
+
 window.addEventListener('load', () => {
   purgeExpiredResume();
   applyKidsMode();
@@ -2619,6 +2870,7 @@ window.addEventListener('load', () => {
   } else {
     showScreen('setup');
   }
+  checkForIncomingPack();
 });
 
 history.pushState(null, '', location.href);
