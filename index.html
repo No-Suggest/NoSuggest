@@ -2814,6 +2814,7 @@ async function confirmAddPack(){
     channels.push({ id: c.id, name: c.name, avatar: '', subs: '', handle: '' });
   });
   STORE.channels = channels;
+  STORE.hasLaunched = true;
   const count = toAdd.length;
   toast(`Added ${count} channel${count===1?'':'s'} ✓`);
   closePackConfirm();
