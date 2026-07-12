@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Accessibility Statement - NoSuggest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#faf8f4;
+  --surface:#ffffff;
+  --ink:#1a1814;
+  --muted:#6b6860;
+  --faint:#c8c4bc;
+  --accent:#2d5a27;
+  --border:#e8e4dc;
+  --radius:12px;
+}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Jost',sans-serif;
+  font-size:16px;
+  line-height:1.8;
+  min-height:100vh;
+}
+header{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:1.5rem 2rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.logo{
+  font-family:'Lora',serif;
+  font-size:1.4rem;
+  font-weight:600;
+  color:var(--ink);
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.logo-dot{
+  width:10px;height:10px;
+  background:var(--accent);
+  border-radius:50%;
+}
+.header-nav a{
+  font-size:13px;
+  color:var(--muted);
+  text-decoration:none;
+  margin-left:1.5rem;
+}
+.header-nav a:hover{color:var(--ink);}
+.page-wrap{
+  max-width:720px;
+  margin:0 auto;
+  padding:4rem 2rem;
+}
+.page-label{
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:0.75rem;
+  font-family:'Jost',sans-serif;
+}
+h1{
+  font-family:'Lora',serif;
+  font-size:clamp(2rem,4vw,2.8rem);
+  font-weight:600;
+  line-height:1.2;
+  letter-spacing:-0.02em;
+  margin-bottom:0.5rem;
+}
+.last-updated{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:3rem;
+  padding-bottom:2rem;
+  border-bottom:1px solid var(--border);
+}
+.intro-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:var(--radius);
+  padding:1.25rem 1.5rem;
+  margin-bottom:2.5rem;
+  font-size:15px;
+  color:var(--muted);
+  line-height:1.7;
+}
+h2{
+  font-family:'Lora',serif;
+  font-size:1.3rem;
+  font-weight:600;
+  margin-top:2.5rem;
+  margin-bottom:0.75rem;
+  color:var(--ink);
+}
+p{
+  color:var(--muted);
+  margin-bottom:1rem;
+  font-size:15px;
+}
+ul{
+  color:var(--muted);
+  font-size:15px;
+  padding-left:1.5rem;
+  margin-bottom:1rem;
+}
+ul li{
+  margin-bottom:0.4rem;
+  line-height:1.7;
+}
+strong{color:var(--ink);}
+.highlight-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.25rem 1.5rem;
+  margin:1.5rem 0;
+}
+.highlight-box p{margin-bottom:0;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.contact-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+  margin-top:3rem;
+  text-align:center;
+}
+.contact-card h3{
+  font-family:'Lora',serif;
+  font-size:1.1rem;
+  margin-bottom:0.5rem;
+}
+.contact-card p{margin-bottom:0;font-size:14px;}
+footer{
+  border-top:1px solid var(--border);
+  padding:2rem;
+  text-align:center;
+  font-size:12px;
+  color:var(--faint);
+  margin-top:4rem;
+}
+footer a{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="https://nosuggest.com/">
+    <span class="logo-dot"></span>NoSuggest
+  </a>
+  <nav class="header-nav">
+    <a href="https://nosuggest.com/privacy">Privacy Policy</a>
+    <a href="https://nosuggest.com/terms">Terms of Service</a>
+    <a href="https://nosuggest.com/">App</a>
+  </nav>
+</header>
+
+<div class="page-wrap">
+  <div class="page-label">Accessibility</div>
+  <h1>Accessibility Statement</h1>
+  <div class="last-updated">Last updated: 12 July 2026</div>
+
+  <div class="intro-box">
+    <strong>Short version:</strong> NoSuggest is built to be usable by keyboard, screen reader, and touch —
+    every interactive element in the app can be reached and operated without a mouse. This page documents
+    where the app currently stands against WCAG 2.1, and what we're still working on. This is an honest,
+    ongoing account, not a claim of perfection.
+  </div>
+
+  <h2>1. Our Commitment</h2>
+  <p>NoSuggest aims to be usable by everyone, including people who navigate by keyboard alone, people using screen readers, and people with low vision or color blindness. Accessibility isn't a one-time checklist for us — we treat it as something to keep improving as the app grows, and we welcome feedback from anyone who runs into a barrier.</p>
+
+  <h2>2. Standard We Reference</h2>
+  <p>We reference the <strong>Web Content Accessibility Guidelines (WCAG) 2.1, Level AA</strong> as our benchmark. Below is an honest account of what's currently in place and what isn't yet.</p>
+
+  <h2>3. What NoSuggest Currently Supports</h2>
+  <ul>
+    <li><strong>Full keyboard operability.</strong> Every interactive element in the app — navigation, Settings options, FAQ items, video cards, channel search results, Create a Pack, Backup &amp; Restore — can be reached with the Tab key and activated with Enter or Space, not just by tapping or clicking.</li>
+    <li><strong>Visible keyboard focus.</strong> When navigating by keyboard, a clear focus outline shows exactly which element is active. It only appears for keyboard navigation, so it doesn't change the visual experience for touch or mouse use.</li>
+    <li><strong>Screen reader support.</strong> Interactive elements carry appropriate roles and accessible names so screen readers (VoiceOver, TalkBack, NVDA, JAWS, Narrator) correctly announce what they do, not just how they look.</li>
+    <li><strong>Labeled form fields.</strong> Search inputs carry accessible labels, so assistive technology can identify their purpose even though the visual design uses placeholder text.</li>
+    <li><strong>Color contrast.</strong> Primary text and interface text meet WCAG AA's minimum contrast ratio (4.5:1) against the app's background.</li>
+    <li><strong>Meaningful image text.</strong> Images either carry descriptive alt text or are marked purely decorative, so screen readers don't announce redundant or meaningless content.</li>
+    <li><strong>No motion or flashing content.</strong> NoSuggest has no autoplay, no auto-advancing carousels, and no flashing or strobing visual effects.</li>
+    <li><strong>Respects reduced-motion preferences.</strong> If your device's operating system has "reduce motion" turned on, NoSuggest's screen transitions and animations happen near-instantly instead of animating, so the app doesn't trigger discomfort for people with vestibular disorders.</li>
+    <li><strong>Announced status and error messages.</strong> Confirmations (like adding channels or copying a link) and error messages are announced automatically to screen readers as they appear, not just shown visually.</li>
+    <li><strong>Accessible modals and dialogs.</strong> When a dialog opens (Export Backup, Create a Pack, the install prompt, the Kids Mode PIN screen), keyboard focus moves into it and stays contained there until it's closed, then returns to where you were. Pressing Escape closes the active dialog from anywhere inside it.</li>
+    <li><strong>Landmark navigation.</strong> The app exposes a main content region, so screen reader users can jump directly to it rather than tabbing through everything from the top.</li>
+  </ul>
+
+  <h2>4. What We're Still Working On</h2>
+  <p>In the interest of transparency, here's what hasn't been addressed yet:</p>
+  <ul>
+    <li><strong>No formal third-party WCAG audit has been conducted.</strong> The items above reflect our own internal review, not an independent accessibility audit. We plan to pursue formal review as the app matures.</li>
+    <li><strong>No skip-navigation link yet.</strong> A "skip to content" shortcut for screen reader and keyboard users hasn't been added yet.</li>
+    <li>We haven't yet formally tested NoSuggest against screen magnification, browser zoom beyond 200%, or reflow at narrow viewport widths, though the app's layout is responsive by design.</li>
+  </ul>
+
+  <div class="highlight-box">
+    <p><strong>A note on video content:</strong> NoSuggest plays videos through YouTube's own official embedded player. Captions, transcripts, and audio description for any given video are controlled by YouTube's player and by each video's original creator — not by NoSuggest. We have no ability to add, edit, or guarantee captions on content we don't host.</p>
+  </div>
+
+  <h2>5. Feedback</h2>
+  <p>If you encounter an accessibility barrier while using NoSuggest, we want to know about it. Accessibility feedback directly shapes what we prioritize fixing next.</p>
+  <div class="contact-card">
+    <h3>Found an accessibility issue?</h3>
+    <p>Reach out at<br/>
+    <a href="https://nosuggest.com/contact" target="_blank">nosuggest.com/contact</a></p>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 NoSuggest &middot; <a href="https://nosuggest.com/">Home</a> &middot;
+  <a href="https://nosuggest.com/terms">Terms of Service</a> &middot;
+  <a href="https://nosuggest.com/privacy">Privacy Policy</a> &middot;
+  <a href="https://nosuggest.com/accessibility">Accessibility</a>
+</footer>
+
+</body>
+</html>
