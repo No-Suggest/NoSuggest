@@ -188,6 +188,17 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .video-thumb{flex-shrink:0;width:200px;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
 .video-thumb:active{transform:scale(0.97);}
 .video-thumb:hover{border-color:var(--border2);}
+/* This card combines overflow:hidden, border-radius, and a GPU compositing
+   layer (transform + will-change, used for smoother horizontal scrolling)
+   — that specific combination can make an inset box-shadow render only
+   partially (a known browser quirk). Reusing the border-color technique
+   already used for :hover sidesteps it entirely, since it's just
+   recoloring an existing border rather than painting a new layered shadow. */
+.video-thumb:focus-visible{
+  border-color: var(--accent);
+  box-shadow: none;
+  outline: none;
+}
 .thumb-img-wrap{position:relative;padding-bottom:56.25%;background:#111;}
 .thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);backface-visibility:hidden;}
 .thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(0,0,0,0.4);transition:opacity 0.15s;}
@@ -551,7 +562,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   <!-- SCREEN: FEED -->
   <div class="screen" id="screen-feed">
     <div class="feed-header">
-      <div class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 10 videos/channel</span></div>
+      <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 10 videos/channel</span></h2>
       <div class="feed-actions">
         <button class="icon-btn" id="feed-refresh-btn" title="Refresh">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
