@@ -180,6 +180,37 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .channel-section{padding:1.25rem 1.25rem 0.5rem;animation:fadeUp 0.35s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .channel-label{display:flex;align-items:center;gap:8px;margin-bottom:0.9rem;}
+
+/* Per-channel "skip" link for keyboard users. A channel can have 10
+   videos, each with its own bookmark button (20 tab stops) — this lets
+   someone jump straight past all of them to the next channel in one
+   Tab + Enter instead. Standard skip-link pattern: invisible and out of
+   the visual flow by default, only appears when it actually receives
+   keyboard focus, so it changes nothing for mouse/touch use. */
+.skip-channel-link{
+  position:absolute;
+  left:-9999px;
+  top:auto;
+  width:1px;height:1px;
+  overflow:hidden;
+  background:var(--accent);
+  color:var(--bg);
+  padding:0.5rem 0.9rem;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  z-index:10;
+}
+.skip-channel-link:focus{
+  position:static;
+  width:auto;height:auto;
+  overflow:visible;
+  display:inline-block;
+  margin-bottom:0.6rem;
+}
 .ch-avatar{width:28px;height:28px;background:var(--bg3);border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--border);}
 .ch-avatar img{width:100%;height:100%;object-fit:cover;}
 .ch-name{font-size:13px;font-weight:600;color:var(--text);letter-spacing:0.01em;}
@@ -1790,7 +1821,8 @@ function appendChannelToFeed(ch, videos, body){
     body.appendChild(div);
   }
   const html = `<div class="channel-section" id="feed-ch-${ch.id}">
-    <div class="channel-label">
+    <button type="button" class="skip-channel-link" onclick="skipChannelSection('${esc(ch.id)}')">Skip ${esc(ch.name)}'s videos, go to next channel</button>
+    <div class="channel-label" tabindex="-1">
       <div class="ch-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
       <span class="ch-name">${esc(ch.name)}</span>
 
@@ -1917,7 +1949,29 @@ function renderVideos(ch, videos){
   }).join('');
 }
 
+/* Moves keyboard focus from one channel section straight to the next
+   one's label, skipping past its entire row of video cards (and their
+   nested bookmark buttons) in a single Tab + Enter instead of ~20 Tab
+   presses. If this was the last channel, focus falls back to the
+   refresh button — a predictable, always-present landmark — rather
+   than silently going nowhere. */
+function skipChannelSection(fromChannelId){
+  const sections = Array.from(document.querySelectorAll('.channel-section'));
+  const idx = sections.findIndex(s => s.id === 'feed-ch-' + fromChannelId);
+  if(idx === -1) return;
+  const next = sections[idx + 1];
+  if(next){
+    const label = next.querySelector('.channel-label');
+    if(label) label.focus();
+  } else {
+    const refreshBtn = document.getElementById('feed-refresh-btn');
+    if(refreshBtn) refreshBtn.focus();
+  }
+}
+
 document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache(); location.reload(); };
+
+
 
 /* ═══════════════════════════════════════════
    VIDEO PLAYER
@@ -1974,7 +2028,10 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   updatePlayerSaveBtn(videoId);
   const overlay = document.getElementById('player-overlay');
   overlay.style.display = 'flex';
-  requestAnimationFrame(() => overlay.classList.add('open'));
+  requestAnimationFrame(() => {
+    overlay.classList.add('open');
+    a11yOpenModal(overlay, closePlayer);
+  });
 
   if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
   const wrap = document.querySelector('.player-video-wrap');
@@ -2088,8 +2145,8 @@ function closePlayer(){
   // Wait for 0.2s fade-out transition then fully hide to release iOS touch tracking
   setTimeout(() => { overlay.style.display = 'none'; }, 220);
   // Do NOT call initFeed() here — feed is already rendered
+  a11yCloseModal();
 }
-document.addEventListener('keydown', e => { if(e.key === 'Escape') closePlayer(); });
 
 /* ═══════════════════════════════════════════
    ORIENTATION LOCK : landscape on fullscreen
