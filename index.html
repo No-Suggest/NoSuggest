@@ -27,12 +27,45 @@ html{height:100%;overflow:hidden}
 :root{
   --bg:#0a0a0a; --bg2:#111111; --bg3:#1a1a1a;
   --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.15);
-  --text:#f0f0ee; --muted:#888884; --faint:#616160;
+  --text:#f0f0ee; --muted:#888884; --faint:#87877f;
   --accent:#e8ff5a; --accent2:#ff6b35; --danger:#ff4444;
   --radius:16px; --radius-sm:10px;
   --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
 }
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;height:100%;overflow:hidden;-webkit-font-smoothing:antialiased;}
+
+/* Visible keyboard-focus indicator for the div-based interactive rows
+   (Settings, FAQ, video cards, channel suggestions, Saved cards). Uses
+   :focus-visible so it only appears for keyboard/switch navigation, not
+   mouse or touch taps — it doesn't change how the app looks or feels
+   for normal use.
+   Drawn as an INSET box-shadow rather than an outward outline: several
+   containers (e.g. .settings-card) use overflow:hidden to clip their
+   rounded corners, which was cutting off an outward outline along the
+   edges of every row. An inset shadow is drawn inside the element's own
+   box, so it can never be clipped by a parent's overflow, regardless of
+   where the row sits inside its container. */
+[role="button"]:focus-visible,
+.settings-row-link:focus-visible{
+  box-shadow: inset 0 0 0 2px var(--accent);
+  outline: none;
+}
+
+/* Respect OS-level "reduce motion" setting. Screen transitions, modal
+   fades, the install-sheet pulse animation, and the loading spinner all
+   still function — they just happen near-instantly instead of animating,
+   which avoids triggering discomfort for people with vestibular
+   disorders. Standard, widely-supported media query (Safari 10.1+,
+   Chrome 74+, Firefox 63+); on browsers without support, nothing
+   changes — everything just animates as it does today. */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* ═══════════════════════════════════════
    APP SHELL
@@ -155,6 +188,17 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .video-thumb{flex-shrink:0;width:200px;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
 .video-thumb:active{transform:scale(0.97);}
 .video-thumb:hover{border-color:var(--border2);}
+/* This card combines overflow:hidden, border-radius, and a GPU compositing
+   layer (transform + will-change, used for smoother horizontal scrolling)
+   — that specific combination can make an inset box-shadow render only
+   partially (a known browser quirk). Reusing the border-color technique
+   already used for :hover sidesteps it entirely, since it's just
+   recoloring an existing border rather than painting a new layered shadow. */
+.video-thumb:focus-visible{
+  border-color: var(--accent);
+  box-shadow: none;
+  outline: none;
+}
 .thumb-img-wrap{position:relative;padding-bottom:56.25%;background:#111;}
 .thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);backface-visibility:hidden;}
 .thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(0,0,0,0.4);transition:opacity 0.15s;}
@@ -274,6 +318,12 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .badge-cell:not(.pending):hover{border-color:var(--border2);}
 .badge-cell.pending{opacity:0.45;cursor:default;}
 .badge-cell.pending::after{content:'Pending';position:absolute;bottom:5px;right:7px;font-size:9px;font-family:'DM Mono',monospace;color:var(--faint);letter-spacing:0.04em;}
+/* Sized specifically for the ISTE EdTech Index badge (800×902px, a tall
+   shield shape) — the default 44px image cap was designed for wide
+   horizontal logo badges and would shrink this one enough to make its
+   text unreadable. */
+.badge-cell-tall{min-height:220px;}
+.badge-cell-tall img{max-height:190px;}
 /* Text-only badge (no SVG available) */
 .badge-text{font-size:12px;font-weight:600;color:var(--text);font-family:'Outfit',sans-serif;letter-spacing:0.01em;text-align:center;line-height:1.4;}
 .badge-text span{display:block;font-size:10px;font-weight:500;color:var(--accent);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:0.04em;}
@@ -302,6 +352,16 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .settings-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
 .settings-row{display:flex;align-items:center;padding:0.9rem 1.1rem;gap:12px;border-bottom:1px solid var(--border);}
 .settings-row:last-child{border-bottom:none;}
+/* Match the card's own rounded corners on its first/last row — without
+   this, a focused first/last row's box-shadow (a sharp rectangle) gets
+   clipped by the card's rounded overflow:hidden mask right at the
+   corners, making the keyboard-focus highlight look cut off/incomplete
+   instead of a clean full box. */
+.settings-row:first-child{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);}
+.settings-row:last-child{border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius);}
+.settings-row-link{display:block;text-decoration:none;}
+.settings-row-link:first-child{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);}
+.settings-row-link:last-child{border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius);}
 .settings-row-icon{width:32px;height:32px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);}
 .settings-row-icon svg{width:16px;height:16px;}
 .settings-row-text{flex:1;}
@@ -316,6 +376,15 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .search-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
 .search-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:0.9rem;}
 .search-row{display:flex;gap:8px;align-items:center;}
+.search-trigger-btn{
+  flex-shrink:0;width:44px;height:44px;
+  background:var(--accent);color:var(--bg);
+  border:none;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.search-trigger-btn:active{opacity:0.85;}
+.search-trigger-btn svg{width:20px;height:20px;}
 .search-row .text-input{flex:1;font-size:16px;padding:0.7rem 0.9rem;}
 .search-go-btn{flex-shrink:0;height:42px;padding:0 1.1rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
 .search-go-btn:active{transform:scale(0.97);opacity:0.9;}
@@ -411,7 +480,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 </style>
 </head>
 <body>
-<div id="app">
+<div id="app" role="main">
 
   <!-- KIDS MODE BANNER -->
   <div class="kids-mode-banner" id="kids-banner">
@@ -499,7 +568,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   <!-- SCREEN: FEED -->
   <div class="screen" id="screen-feed">
     <div class="feed-header">
-      <div class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 10 videos/channel</span></div>
+      <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 10 videos/channel</span></h2>
       <div class="feed-actions">
         <button class="icon-btn" id="feed-refresh-btn" title="Refresh">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -542,10 +611,16 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 
         <!-- PRIMARY: Search by name -->
         <div class="field-label">Search by channel name</div>
-        <input class="text-input" id="channel-input" type="text"
-          placeholder="Channel Name or @handle"
-          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-        <div class="input-hint">Type a name or handle. Results appear automatically after you stop typing</div>
+        <div class="search-row">
+          <input class="text-input" id="channel-input" type="text"
+            placeholder="Channel Name or @handle"
+            aria-label="Search by channel name or handle"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+          <button class="search-trigger-btn" onclick="triggerChannelSearch()" aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          </button>
+        </div>
+        <div class="input-hint">Type a name or handle, then press Enter or tap Search</div>
 
         <div id="channel-suggestions" class="channel-suggestions"></div>
         <div id="channel-searching" class="searching-state" style="display:none">
@@ -564,7 +639,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
           </div>
         </div>
 
-        <div class="error-msg" id="add-error" style="margin-top:0.75rem"></div>
+        <div class="error-msg" id="add-error" role="alert" style="margin-top:0.75rem"></div>
         <button class="btn" id="add-btn" style="display:none">Add Channel</button>
 
         <!-- FALLBACK: Paste URL directly -->
@@ -572,7 +647,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         <div class="fallback-card">
           <p>Paste a YouTube channel URL directly, search sometimes misses niche or newly renamed channels.<br/>
           Examples: <code>youtube.com/@creator</code> or <code>youtube.com/channel/UCxxxxxxx</code></p>
-          <div class="error-msg" id="fallback-error" style="margin-top:0.5rem"></div>
+          <div class="error-msg" id="fallback-error" role="alert" style="margin-top:0.5rem"></div>
         </div>
 
       </div>
@@ -586,7 +661,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
       <div class="settings-section">
         <div class="settings-label">Family</div>
         <div class="settings-card">
-          <div class="settings-row" style="cursor:pointer" onclick="toggleKidsMode()">
+          <div class="settings-row" style="cursor:pointer" onclick="toggleKidsMode()" role="button" tabindex="0">
             <div class="settings-row-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
@@ -620,7 +695,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
               <div class="settings-row-sub"><strong style="color:var(--text)">Channels you add here stay on this device.</strong><br/>Your phone, laptop and your kids iPad can each have their own list.</div>
             </div>
           </div>
-          <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()">
+          <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()" role="button" tabindex="0">
             <div class="settings-row-icon" style="color:var(--accent)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
             </div>
@@ -630,7 +705,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Install ↓</div>
           </div>
-          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()" id="settings-share-row">
+          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()" id="settings-share-row" role="button" tabindex="0">
             <div class="settings-row-icon" style="color:var(--accent)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             </div>
@@ -640,7 +715,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
           </div>
-          <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener" style="text-decoration:none;display:block;" id="settings-support-row">
+          <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener" class="settings-row-link" id="settings-support-row">
           <div class="settings-row" style="cursor:pointer">
             <div class="settings-row-icon" style="color:#ff4444">
               <svg viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -658,7 +733,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
       <div class="settings-section" style="padding-top:0">
         <div class="settings-label">Backup &amp; Restore</div>
         <div class="settings-card">
-          <div class="settings-row" style="cursor:pointer" onclick="doExportBackup()">
+          <div class="settings-row" style="cursor:pointer" onclick="doExportBackup()" role="button" tabindex="0">
             <div class="settings-row-icon" style="color:var(--accent)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </div>
@@ -668,7 +743,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Copy ↗</div>
           </div>
-          <div class="settings-row" style="cursor:pointer" onclick="showImportPanel()">
+          <div class="settings-row" style="cursor:pointer" onclick="showImportPanel()" role="button" tabindex="0">
             <div class="settings-row-icon" style="color:var(--accent)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </div>
@@ -681,7 +756,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         </div>
         <!-- Import panel — hidden until triggered -->
         <div id="import-panel" style="display:none;margin-top:0.75rem">
-          <div id="import-paste-area" onclick="pasteFromClipboard()" style="width:100%;box-sizing:border-box;padding:0.85rem 1rem;background:var(--bg2);border:1.5px dashed var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;min-height:60px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div id="import-paste-area" onclick="pasteFromClipboard()" style="width:100%;box-sizing:border-box;padding:0.85rem 1rem;background:var(--bg2);border:1.5px dashed var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;min-height:60px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'" role="button" tabindex="0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
             <span id="import-paste-label">Tap to paste backup code from clipboard</span>
           </div>
@@ -698,7 +773,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
       <div class="settings-section" style="padding-top:0">
         <div class="settings-label">Channel Pack</div>
         <div class="settings-card">
-          <div class="settings-row" style="cursor:pointer" onclick="doCreatePack()">
+          <div class="settings-row" style="cursor:pointer" onclick="doCreatePack()" role="button" tabindex="0">
             <div class="settings-row-icon" style="color:var(--accent)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             </div>
@@ -713,7 +788,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
       <div class="settings-section" style="padding-top:0" id="settings-featured-section">
         <div class="settings-label">Featured On</div>
         <div class="settings-card">
-          <div class="settings-row" style="cursor:pointer" onclick="showScreen('featured')">
+          <div class="settings-row" style="cursor:pointer" onclick="showScreen('featured')" role="button" tabindex="0">
             <div class="settings-row-icon" style="color:var(--accent)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
@@ -723,7 +798,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">View →</div>
           </div>
-          <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
+          <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener" class="settings-row-link">
           <div class="settings-row" style="cursor:pointer">
             <div class="settings-row-icon" style="color:var(--text)">
               <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
@@ -743,7 +818,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         <div class="settings-label">FAQs</div>
         <div class="faq-list">
 
-          <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
             <div class="faq-q">
               <span>What is NoSuggest?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -751,7 +826,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             <div class="faq-a">NoSuggest is a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no auto-play, no trending feed, no sign-in required.<br><br>Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual.<br><br>NoSuggest itself will never show ads and will remain free forever. The only source of revenue is voluntary donations from users who wish to support the project.</div>
           </div>
 
-          <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
             <div class="faq-q">
               <span>How does Kids Mode work?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -759,7 +834,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             <div class="faq-a">Kids Mode limits NoSuggest to a safe, distraction-free experience for children. When enabled, the Search tab and Add Channels feature are hidden so kids can only watch videos from channels a parent has already approved.<br><br>To prevent accidental taps, the donation banner and donation link in Settings are also hidden — we don't want a child triggering an unintended donation on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.</div>
           </div>
 
-          <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
             <div class="faq-q">
               <span>How can teachers, schools and students use NoSuggest?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -767,7 +842,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             <div class="faq-a">NoSuggest is ready for classroom use without any new features or IT setup. A teacher adds only the YouTube channels relevant to their subject — educational channels, and save documentaries, lesson videos — and exports the entire setup as a backup code from Settings.<br><br>That code is shared with students via Google Classroom, WhatsApp, email, or any messaging platform. Students open nosuggest.com, go to Settings, tap Import, paste the code, and their feed instantly shows only the teacher-approved channels and saved videos.<br><br>No accounts, no logins, no data collected. The 6-digit PIN lock prevents students from modifying the channel list. Works on phones, tablets, Chromebooks, and laptops — no installation required.</div>
           </div>
 
-          <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
             <div class="faq-q">
               <span>How do I move my channels and saved videos to another device?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -775,7 +850,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             <div class="faq-a">Go to Settings and tap Export Backup. NoSuggest generates a backup code containing all your channels and saved videos. Copy that code and paste it into Settings → Import Backup on your new device. Everything transfers instantly.<br><br>There is no login or account by design — NoSuggest intentionally does not ask for your name, email, or any personal information. The export and import approach keeps your data entirely on your own devices.</div>
           </div>
 
-          <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
             <div class="faq-q">
               <span>What is Create a Pack?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -783,7 +858,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             <div class="faq-a">Create a Pack turns your current list of channels into a single shareable link — useful when a teacher, channel owner, or friend wants to hand someone a ready-made feed. Go to Settings → Create a Pack to generate the link, then share it however you like.<br><br>Anyone who opens the link sees exactly which channels are in it and can add them all with one tap. It only <strong>adds</strong> channels — it never replaces or removes anything already on their device, and channels they already have are simply skipped. If adding would take someone past the 25-channel limit, NoSuggest adds as many as it can and tells them how many were skipped.<br><br>A pack only carries channel names and IDs — nothing personal, no saved videos, no account data of any kind.</div>
           </div>
 
-          <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
             <div class="faq-q">
               <span>Tapping the YouTube logo opens YouTube with recommendations. How do I block it?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -791,7 +866,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             <div class="faq-a">This happens because the video plays inside the official YouTube player, which includes a YouTube logo and title link. NoSuggest cannot modify what is inside that player.<br><br>To prevent YouTube from opening on the device:<br><br><strong>iPhone (Safari &amp; Chrome):</strong><br>Settings → Screen Time → Content &amp; Privacy Restrictions → Content Restrictions → Web Content → Limit Adult Websites. Under Never Allow, tap Add Website and enter youtube.com. This applies across all browsers on the device.<br><br><strong>Android &amp; laptops:</strong><br>Install the BlockSite app, grant the required permissions, and add youtube.com to your block list.</div>
           </div>
 
-          <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
             <div class="faq-q">
               <span>Can I reorder channels so my favourite appears first?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -799,7 +874,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             <div class="faq-a">The feed intentionally does not follow a fixed channel order. When you open the app, NoSuggest fetches all your channels simultaneously rather than one by one — this is what makes the feed load so quickly. Videos appear as each channel responds, so the order varies slightly each time based on response speed.<br><br>A drag-to-reorder feature would not change this behaviour since feed order is determined by network response times, not by how channels are arranged in your list. The speed trade-off is intentional — it keeps the app fast on all devices and connections.</div>
           </div>
 
-          <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
             <div class="faq-q">
               <span>Is NoSuggest available on the App Store or Google Play?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -818,6 +893,8 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
             &nbsp;·&nbsp;
             <a href="https://nosuggest.com/terms" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Terms of Service</a>
             &nbsp;·&nbsp;
+            <a href="https://nosuggest.com/accessibility" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Accessibility</a>
+            &nbsp;·&nbsp;
             <a href="https://nosuggest.com/contact" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Contact</a>
           </p>
         </div>
@@ -832,7 +909,11 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
       <div class="search-row" id="search-input-row" style="display:none">
         <input class="text-input" id="search-input" type="search"
           placeholder="keyword or paste a YouTube URL"
+          aria-label="Search videos by keyword or paste a YouTube URL"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+        <button class="search-trigger-btn" onclick="triggerVideoSearch()" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
       </div>
     </div>
     <div class="screen-body" id="search-body">
@@ -871,7 +952,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
           <div class="spin"></div>
           <p style="margin-top:0.75rem;font-size:13px;color:var(--muted)">Searching YouTube…</p>
         </div>
-        <div id="search-error" class="error-msg" style="margin:1.5rem 1.25rem;display:none"></div>
+        <div id="search-error" class="error-msg" role="alert" style="margin:1.5rem 1.25rem;display:none"></div>
       </div>
     </div>
   </div>
@@ -902,6 +983,13 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
     </div>
     <div class="screen-body">
       <div class="featured-grid">
+
+        <!-- ISTE EdTech Index -->
+        <div class="badge-cell badge-cell-tall">
+          <a href="https://edtechindex.org/product/ultid/PE8E-1F91-D7CA-4DB3-B5/" target="_blank" rel="noopener" aria-label="ISTE EdTech Index">
+            <img src="https://www.nosuggest.com/EdTech_Badge_FindUs_800w.png" alt="NoSuggest listed on the ISTE EdTech Index" loading="lazy"/>
+          </a>
+        </div>
 
         <!-- 1. Hacker News -->
         <div class="badge-cell">
@@ -1200,7 +1288,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
     </div>
   </div>
 
-  <div id="toast"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
 </div>
 
 <script>
@@ -1290,11 +1378,15 @@ function dismissNavStrip(e){
 /* ── iOS bottom sheet ── */
 function openIosSheet(){
   document.getElementById('ios-sheet-backdrop').classList.add('show');
-  requestAnimationFrame(() => document.getElementById('ios-sheet').classList.add('show'));
+  requestAnimationFrame(() => {
+    document.getElementById('ios-sheet').classList.add('show');
+    a11yOpenModal(document.getElementById('ios-sheet'), closeIosSheet);
+  });
 }
 function closeIosSheet(){
   document.getElementById('ios-sheet').classList.remove('show');
   document.getElementById('ios-sheet-backdrop').classList.remove('show');
+  a11yCloseModal();
 }
 
 /* ── iOS detection ── */
@@ -1466,14 +1558,30 @@ function extractChannelIdFromUrl(input){
    NAVIGATION
 ═══════════════════════════════════════════ */
 function showScreen(name, opts){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    /* inert removes an entire inactive screen's content from keyboard
+       tab order and from screen readers in one step — without it,
+       every inactive screen's buttons/links/inputs stayed reachable by
+       Tab even though they were invisible (only opacity/pointer-events
+       were used to hide them), which meant Tab could jump into a
+       completely different, invisible screen instead of continuing
+       through the one actually on-screen.
+       Progressive enhancement: supported in all current Chrome/Edge,
+       Safari 15.4+, and Firefox 112+. On any older browser without
+       support, this attribute is simply ignored — behavior falls back
+       to exactly how it worked before this fix, never worse. */
+    s.setAttribute('inert', '');
+  });
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
   if(name !== 'setup' && name !== 'add' && name !== 'featured'){
     localStorage.setItem('ns_active_tab', name);
   }
 
-  document.getElementById('screen-' + name).classList.add('active');
+  const activeScreenEl = document.getElementById('screen-' + name);
+  activeScreenEl.classList.add('active');
+  activeScreenEl.removeAttribute('inert');
   currentScreen = name;
 
   const nav = document.getElementById('main-nav');
@@ -1489,6 +1597,17 @@ function showScreen(name, opts){
   if(name === 'search')   initSearch();
   if(name === 'saved')    initSaved();
   // 'featured' needs no init — static content
+
+  /* Move keyboard focus into the newly active screen so the very next
+     Tab press continues naturally inside it, instead of requiring a
+     manual click first. Focusing the screen's own heading (rather than
+     just repositioning focus silently) also makes a screen reader
+     announce which screen you've landed on — the standard pattern for
+     view changes in a single-page app. Falls back to the screen
+     container itself if a screen has no heading. */
+  const focusTarget = activeScreenEl.querySelector('h1, h2') || activeScreenEl;
+  if(!focusTarget.hasAttribute('tabindex')) focusTarget.setAttribute('tabindex', '-1');
+  focusTarget.focus({preventScroll: true});
 }
 
 function getStarted(){
@@ -1535,6 +1654,7 @@ function closePinOverlay(){
   updatePinDots();
   document.getElementById('pin-error').textContent = '';
   document.getElementById('pin-overlay').classList.remove('show');
+  a11yCloseModal();
 }
 function showPinOverlay(mode){
   pinBuffer = ''; pinMode = mode; updatePinDots();
@@ -1542,6 +1662,7 @@ function showPinOverlay(mode){
   document.getElementById('pin-title').textContent    = mode === 'set' ? 'Set Parental PIN' : 'Enter Parental PIN';
   document.getElementById('pin-subtitle').textContent = mode === 'set' ? 'Choose a 6-digit PIN to protect Kids Mode' : 'Enter your PIN to disable Kids Mode';
   document.getElementById('pin-overlay').classList.add('show');
+  a11yOpenModal(document.getElementById('pin-overlay'), pinCancel);
 }
 function toggleKidsMode(){
   if(STORE.kidsMode){
@@ -1778,7 +1899,7 @@ function renderVideos(ch, videos){
     VIDEO_DATA[v.id] = v;
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
     return `
-    <div class="video-thumb" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')">
+    <div class="video-thumb" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
       <div class="thumb-img-wrap">
         <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
@@ -2069,7 +2190,15 @@ function initAdd(){
   setTimeout(() => document.getElementById('channel-input').focus(), 300);
 }
 
-/* Primary search : debounced; URL paste → doFallbackAdd directly */
+/* Channel name/handle search is manual-trigger only (Enter key or the
+   Search button) — no auto-search while typing. This avoids firing a
+   backend search call on every keystroke, which previously meant slow
+   typists (or anyone who paused mid-word) could trigger several calls
+   per search, adding unnecessary load on the fallback tiers (Invidious)
+   and raising the chance of rate-limit blocking there.
+   URL paste is left as its own auto-resolving path below — pasting a
+   full channel URL is a single, deterministic action rather than a
+   repeated "search as you type" pattern, so it's not the same concern. */
 document.getElementById('channel-input').addEventListener('input', e => {
   clearTimeout(searchTimeout);
   const q = e.target.value.trim();
@@ -2081,7 +2210,7 @@ document.getElementById('channel-input').addEventListener('input', e => {
     document.getElementById('channel-suggestions').style.display = 'none';
     return;
   }
-  // URL paste → resolve directly via fallback logic
+  // URL paste → resolve directly via fallback logic (still automatic)
   if(extractChannelIdFromUrl(q)){
     document.getElementById('channel-suggestions').style.display = 'none';
     document.getElementById('channel-suggestions').innerHTML     = '';
@@ -2091,8 +2220,24 @@ document.getElementById('channel-input').addEventListener('input', e => {
     searchTimeout = setTimeout(() => doFallbackAdd(q), 600);
     return;
   }
-  searchTimeout = setTimeout(() => doChannelSearch(q), 500);
+  // Plain keyword typing no longer auto-searches — wait for Enter or the Search button
 });
+
+document.getElementById('channel-input').addEventListener('keydown', e => {
+  if(e.key === 'Enter') triggerChannelSearch();
+});
+
+function triggerChannelSearch(){
+  clearTimeout(searchTimeout);
+  const q = document.getElementById('channel-input').value.trim();
+  if(!q) return;
+  if(extractChannelIdFromUrl(q)){
+    doFallbackAdd(q);
+    return;
+  }
+  doChannelSearch(q);
+}
+
 
 async function doChannelSearch(query){
   const searching   = document.getElementById('channel-searching');
@@ -2124,7 +2269,7 @@ async function doChannelSearch(query){
     }
 
     suggestions.innerHTML = channels.map((ch, i) => `
-      <div class="channel-suggestion-item" onclick="selectSuggestion(${i})">
+      <div class="channel-suggestion-item" onclick="selectSuggestion(${i})" role="button" tabindex="0" aria-label="Add ${esc(ch.name)}">
         <div class="suggestion-avatar">
           <img src="${esc(ch.avatar)}" alt="${esc(ch.name)}" loading="lazy"
                onerror="this.style.display='none'"/>
@@ -2347,8 +2492,15 @@ function pickSearchMode(mode){
   setTimeout(() => document.getElementById('search-input').focus(), 300);
 }
 
+/* Keyword video search is manual-trigger only (Enter key or the Search
+   button) — no auto-search while typing. Same reasoning as channel
+   search: avoids firing a backend search call on every keystroke, which
+   previously meant the debounce still ran mid-typing even for people who
+   went on to press Enter anyway, doubling up calls unnecessarily.
+   Pasting a full YouTube URL is unchanged and still instant — that's a
+   direct video open, not a search API call, so there's no backend load
+   concern there and no reason to add friction to it. */
 document.getElementById('search-input').addEventListener('input', e => {
-  clearTimeout(searchVideoTimeout);
   const q = e.target.value.trim();
 
   if(!q){
@@ -2359,7 +2511,7 @@ document.getElementById('search-input').addEventListener('input', e => {
     return;
   }
 
-  // URL paste → play immediately, no debounce needed
+  // URL paste → play immediately (unchanged, not a search call)
   const videoId = extractYouTubeId(q);
   if(videoId){
     document.getElementById('search-results-wrap').style.display = 'none';
@@ -2369,23 +2521,24 @@ document.getElementById('search-input').addEventListener('input', e => {
 	document.getElementById('search-input').value = '';
     return;
   }
+  // Plain keyword typing no longer auto-searches — wait for Enter or the Search button
+});
 
-  // Keyword → debounced full results
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if(e.key === 'Enter') triggerVideoSearch();
+});
+
+function triggerVideoSearch(){
+  clearTimeout(searchVideoTimeout);
+  const q = document.getElementById('search-input').value.trim();
+  if(!q) return;
+  if(extractYouTubeId(q)) return; // URL paste already handled on input
   document.getElementById('search-loading').style.display      = 'block';
   document.getElementById('search-results-wrap').style.display = 'none';
   document.getElementById('search-error').style.display        = 'none';
   document.getElementById('search-empty').style.display        = 'none';
-
-  searchVideoTimeout = setTimeout(() => doYTSearch(q), 1000);
-});
-
-document.getElementById('search-input').addEventListener('keydown', e => {
-  if(e.key === 'Enter'){
-    clearTimeout(searchVideoTimeout);
-    const q = document.getElementById('search-input').value.trim();
-    if(q && !extractYouTubeId(q)) doYTSearch(q);
-  }
-});
+  doYTSearch(q);
+}
 
 document.getElementById('search-input').addEventListener('search', () => {
   if(!document.getElementById('search-input').value.trim()){
@@ -2396,6 +2549,7 @@ document.getElementById('search-input').addEventListener('search', () => {
     document.getElementById('search-empty').style.display        = 'block';
   }
 });
+
 
 async function doYTSearch(q){
   if(!q) q = document.getElementById('search-input').value.trim();
@@ -2434,7 +2588,7 @@ async function doYTSearch(q){
       VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, thumb: v.thumb, publishedAt: '' };
       const saved = isVideoSaved(v.id);
       return `
-      <div class="search-video-card" onclick="openPlayerFromSearch('${esc(v.id)}')">
+      <div class="search-video-card" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
         <div class="search-thumb-wrap">
           <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
           <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSaveById('${esc(v.id)}',this)">
@@ -2486,7 +2640,7 @@ function initSaved(){
     VIDEO_DATA[v.id] = v;
     return `
     <div class="saved-video-card" style="animation:fadeUp 0.3s ease ${i*30}ms both"
-         onclick="openPlayerFromSaved('${esc(v.id)}')">
+         onclick="openPlayerFromSaved('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
       <div class="saved-thumb-wrap">
         <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
       </div>
@@ -2542,6 +2696,65 @@ function initDonationBanner(){
 ═══════════════════════════════════════════ */
 let _exportCode = '';
 
+/* ═══════════════════════════════════════════
+   ACCESSIBILITY: shared modal focus management
+   Used by every modal/overlay (Export Backup, Create a Pack, incoming
+   Pack confirm, the iOS install sheet, and the Kids Mode PIN screen).
+   On open: focus moves into the modal and Tab is trapped inside it.
+   On close: focus returns to whatever triggered the modal, so keyboard
+   users don't lose their place. Escape closes the active modal.
+   This is plain DOM/focus-management code — no browser-specific APIs —
+   so it behaves identically on Android, iOS, and desktop. */
+let _a11yLastFocused = null;
+let _a11yModalEl     = null;
+let _a11yCloseFn     = null;
+
+function a11yFocusablesIn(container){
+  return Array.from(container.querySelectorAll(
+    'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])'
+  )).filter(el => el.offsetParent !== null); // visible only
+}
+
+function a11yOpenModal(modalEl, closeFn){
+  _a11yLastFocused = document.activeElement;
+  _a11yModalEl     = modalEl;
+  _a11yCloseFn     = closeFn;
+  const focusables = a11yFocusablesIn(modalEl);
+  if(focusables.length) focusables[0].focus();
+}
+
+function a11yCloseModal(){
+  _a11yModalEl = null;
+  _a11yCloseFn = null;
+  if(_a11yLastFocused && typeof _a11yLastFocused.focus === 'function'){
+    _a11yLastFocused.focus();
+  }
+  _a11yLastFocused = null;
+}
+
+document.addEventListener('keydown', (e) => {
+  if(!_a11yModalEl) return;
+  if(e.key === 'Escape'){
+    e.preventDefault();
+    if(_a11yCloseFn) _a11yCloseFn();
+    return;
+  }
+  if(e.key === 'Tab'){
+    const focusables = a11yFocusablesIn(_a11yModalEl);
+    if(!focusables.length) return;
+    const first = focusables[0];
+    const last  = focusables[focusables.length - 1];
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus();
+    }
+  }
+});
+
+
 function doExportBackup(){
   try{
     const payload = {
@@ -2554,6 +2767,7 @@ function doExportBackup(){
     document.getElementById('export-modal-backdrop').classList.add('show');
     /* Also attempt clipboard copy immediately so it's ready */
     copyToClipboard(_exportCode);
+    a11yOpenModal(document.getElementById('export-modal'), closeExportModal);
   } catch(e){
     toast('Export failed. Try again.');
   }
@@ -2587,6 +2801,7 @@ function copyExportCodeAgain(){
 
 function closeExportModal(){
   document.getElementById('export-modal-backdrop').classList.remove('show');
+  a11yCloseModal();
 }
 
 function showImportPanel(){
@@ -2724,6 +2939,7 @@ function doCreatePack(){
     document.getElementById('pack-modal-code').textContent = url;
     document.getElementById('pack-modal-backdrop').classList.add('show');
     copyToClipboard(url);
+    a11yOpenModal(document.getElementById('pack-modal'), closePackModal);
   } catch(e){
     toast('Could not create pack. Try again.');
   }
@@ -2737,6 +2953,7 @@ function copyPackCodeAgain(){
 
 function closePackModal(){
   document.getElementById('pack-modal-backdrop').classList.remove('show');
+  a11yCloseModal();
 }
 
 function parsePackCode(code){
@@ -2804,6 +3021,7 @@ function openPackConfirm(incomingChannels){
   addBtn.style.display = toAdd.length ? '' : 'none';
 
   document.getElementById('pack-confirm-backdrop').classList.add('show');
+  a11yOpenModal(document.getElementById('pack-confirm-modal'), cancelIncomingPack);
 }
 
 async function confirmAddPack(){
@@ -2876,6 +3094,7 @@ function cancelIncomingPack(){
 function closePackConfirm(){
   document.getElementById('pack-confirm-backdrop').classList.remove('show');
   _pendingPack = null;
+  a11yCloseModal();
 }
 
 function cleanPackUrlParam(){
@@ -2902,6 +3121,23 @@ function checkForIncomingPack(){
   openPackConfirm(result.channels);
 }
 
+
+/* ═══════════════════════════════════════════
+   ACCESSIBILITY: keyboard support for role="button" elements
+   Real <button> elements already handle Enter/Space natively — this
+   only covers the div-based interactive rows (Settings, FAQ, video
+   cards, channel suggestions) that carry an explicit role="button" +
+   tabindex="0" but have no native key handling of their own. One
+   delegated listener covers all of them, present and future, without
+   needing an onkeydown on every individual element. */
+document.addEventListener('keydown', (e) => {
+  if(e.key !== 'Enter' && e.key !== ' ') return;
+  const target = e.target;
+  if(target && target.getAttribute && target.getAttribute('role') === 'button'){
+    e.preventDefault(); // stop Space from scrolling the page
+    target.click();
+  }
+});
 
 window.addEventListener('load', () => {
   purgeExpiredResume();
