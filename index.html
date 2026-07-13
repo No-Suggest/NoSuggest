@@ -862,7 +862,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
               <span>How does Kids Mode work?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">Kids Mode limits NoSuggest to safe, distraction-free experience for children. When enabled, the Search tab and Add Channels feature are hidden so kids can only watch videos from channels a parent has already approved.<br><br>To prevent accidental taps, the donation banner and donation link in Settings are also hidden — we don't want a child triggering an unintended donation on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.</div>
+            <div class="faq-a">Kids Mode limits NoSuggest to a safe, distraction-free experience for children. When enabled, the Search tab and Add Channels feature are hidden so kids can only watch videos from channels a parent has already approved.<br><br>To prevent accidental taps, the donation banner and donation link in Settings are also hidden — we don't want a child triggering an unintended donation on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1961,8 +1961,13 @@ function skipChannelSection(fromChannelId){
   if(idx === -1) return;
   const next = sections[idx + 1];
   if(next){
-    const label = next.querySelector('.channel-label');
-    if(label) label.focus();
+    /* Focus the NEXT channel's own skip button, not its label — landing
+       on the label instead sits past that channel's skip button in tab
+       order, so a second Tab would go straight into its videos, making
+       the chain break after one hop. Focusing its skip button lets
+       someone chain Enter, Enter, Enter through several channels. */
+    const nextSkip = next.querySelector('.skip-channel-link');
+    if(nextSkip) nextSkip.focus();
   } else {
     const refreshBtn = document.getElementById('feed-refresh-btn');
     if(refreshBtn) refreshBtn.focus();
@@ -2056,6 +2061,18 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
           if(startSeconds > 0){
             toast('Resuming from ' + formatSeconds(startSeconds), 3500);
           }
+          /* Exclude the iframe from Tab order entirely. Once focus moves
+             into YouTube's own cross-origin iframe content, keydown
+             events happen inside youtube.com's document — invisible to
+             our parent-page Tab trap, so Tab could wander through
+             however many controls YouTube's own player exposes before
+             control returns to this page. Setting tabindex=-1 on the
+             iframe element keeps Tab moving only between our own
+             close/save buttons, as intended. */
+          try{
+            const iframeEl = ytPlayer.getIframe();
+            if(iframeEl) iframeEl.tabIndex = -1;
+          } catch(e){}
         },
         onStateChange: e => {
           if(e.data === YT.PlayerState.ENDED){
