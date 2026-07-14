@@ -171,7 +171,7 @@ footer a{color:var(--muted);}
 <div class="page-wrap">
   <div class="page-label">Accessibility</div>
   <h1>Accessibility Statement</h1>
-  <div class="last-updated">Last updated: 12 July 2026</div>
+  <div class="last-updated">Last updated: 14 July 2026</div>
 
   <div class="intro-box">
     <strong>Short version:</strong> NoSuggest is built to be usable by keyboard, screen reader, and touch —
@@ -197,7 +197,9 @@ footer a{color:var(--muted);}
     <li><strong>No motion or flashing content.</strong> NoSuggest has no autoplay, no auto-advancing carousels, and no flashing or strobing visual effects.</li>
     <li><strong>Respects reduced-motion preferences.</strong> If your device's operating system has "reduce motion" turned on, NoSuggest's screen transitions and animations happen near-instantly instead of animating, so the app doesn't trigger discomfort for people with vestibular disorders.</li>
     <li><strong>Announced status and error messages.</strong> Confirmations (like adding channels or copying a link) and error messages are announced automatically to screen readers as they appear, not just shown visually.</li>
-    <li><strong>Accessible modals and dialogs.</strong> When a dialog opens (Export Backup, Create a Pack, the install prompt, the Kids Mode PIN screen), keyboard focus moves into it and stays contained there until it's closed, then returns to where you were. Pressing Escape closes the active dialog from anywhere inside it.</li>
+    <li><strong>Accessible modals, dialogs, and the video player.</strong> When a dialog opens (Export Backup, Create a Pack, the install prompt, the Kids Mode PIN screen) or a video starts playing, keyboard focus moves into it and stays contained there until it's closed, then returns to where you were. Pressing Escape closes the active dialog or player from anywhere inside it.</li>
+    <li><strong>Skip-channel links on the Feed.</strong> A channel can have up to 10 videos, each with its own bookmark button — that's a lot of Tab presses to get past one channel you're not interested in. Each channel section has a "Skip [channel]'s videos" shortcut, hidden until it receives keyboard focus, that jumps straight to the next channel. Several can be chained in a row to skip past multiple channels quickly.</li>
+    <li><strong>Skip to main content.</strong> The very first thing a keyboard user reaches on any page load is a "Skip to main content" shortcut, which moves focus straight to whatever screen is currently showing — bypassing anything that would otherwise come first.</li>
     <li><strong>Landmark navigation.</strong> The app exposes a main content region, so screen reader users can jump directly to it rather than tabbing through everything from the top.</li>
   </ul>
 
@@ -205,7 +207,6 @@ footer a{color:var(--muted);}
   <p>In the interest of transparency, here's what hasn't been addressed yet:</p>
   <ul>
     <li><strong>No formal third-party WCAG audit has been conducted.</strong> The items above reflect our own internal review, not an independent accessibility audit. We plan to pursue formal review as the app matures.</li>
-    <li><strong>No skip-navigation link yet.</strong> A "skip to content" shortcut for screen reader and keyboard users hasn't been added yet.</li>
     <li>We haven't yet formally tested NoSuggest against screen magnification, browser zoom beyond 200%, or reflow at narrow viewport widths, though the app's layout is responsive by design.</li>
   </ul>
 
