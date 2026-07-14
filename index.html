@@ -23,7 +23,10 @@
    RESET & ROOT
 ═══════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{height:100%;overflow:hidden}
+html{height:100%;overflow:hidden;background:var(--bg);}
+/* ↑ iOS PWA: html background fills the physical canvas (incl. safe-area zones)
+   so any gap between the layout viewport and the physical screen bottom shows
+   the app's own dark colour rather than the system UI background. */
 :root{
   --bg:#0a0a0a; --bg2:#111111; --bg3:#1a1a1a;
   --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.15);
@@ -66,11 +69,25 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
     scroll-behavior: auto !important;
   }
 }
+/* Suppress focus ring on headings/containers that are focused
+   programmatically (via tabindex="-1") for screen-reader announcements.
+   These elements are never reachable by keyboard Tab, so hiding the
+   outline here doesn't remove any visible affordance for keyboard users.
+   Elements with a natural or positive tabindex are unaffected. */
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible{outline:none;box-shadow:none;}
 
 /* ═══════════════════════════════════════
    APP SHELL
 ═══════════════════════════════════════ */
-#app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+/* iOS PWA fix — overflow:clip clips content without creating a stacking context
+   or a new containing block, so position:fixed children (nav, strips, overlays)
+   are always positioned relative to the true viewport rather than #app.
+   overflow:hidden can cause iOS WebKit to reposition fixed children relative to
+   the overflow container instead of the viewport in standalone PWA mode.
+   Falls back to overflow:hidden on browsers that don't support clip (iOS <15.4). */
+@supports(overflow:clip){#app{overflow:clip;}}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transform:translate3d(0,12px,0);transition:opacity 0.25s ease,transform 0.25s ease;backface-visibility:hidden;will-change:transform;}
 .screen.active{opacity:1;pointer-events:auto;transform:translate3d(0,0,0);}
 
@@ -108,6 +125,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
    NAV BAR
 ═══════════════════════════════════════ */
 .nav{position:fixed;bottom:0;left:0;right:0;height:calc(64px + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:100;}
+
 .nav-btn{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;color:#fff;transition:color 0.15s;padding-bottom:4px;}
 .nav-btn.active{color:var(--accent);}
 .nav-btn svg{width:20px;height:20px;}
@@ -590,6 +608,8 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:underline">Privacy Policy</a>
         &nbsp;·&nbsp;
         <a href="https://nosuggest.com/terms" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:underline">Terms of Service</a>
+        &nbsp;·&nbsp;
+        <a href="https://nosuggest.com/accessibility" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:underline">Accessibility</a>
         &nbsp;·&nbsp;
         <a href="https://nosuggest.com/contact" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:underline">Contact</a>
       </p>
