@@ -83,3 +83,7 @@ You may not redistribute, rebrand, or redeploy this application commercially or 
 NoSuggest is free and always will be. It is supported entirely by voluntary contributions from users who find it valuable.
 
 If it is useful to you, [please consider supporting](https://donate.stripe.com/14A9AS1zneyudtH0eYak000).
+
+---
+
+[![NoSuggest profile views](https://u8views.com/api/v1/github/profiles/280896067/views/day-week-month-total-count.svg)](https://u8views.com/github/No-Suggest)
