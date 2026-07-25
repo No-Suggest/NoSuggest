@@ -138,7 +138,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-install-strip span{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.02em;}
 #nav-install-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 
-/* ── Donation banner (every 10th session) ── */
+/* ── Share banner (repurposed from donate strip, every 5th session) ── */
 #nav-donate-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:#1a0a00;border-top:1px solid rgba(255,107,53,0.6);cursor:pointer;text-decoration:none;}
 #nav-donate-strip.show{display:flex;}
 #nav-donate-strip span{font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.02em;}
@@ -1249,10 +1249,10 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
     <button class="strip-dismiss" onclick="dismissNavStrip(event)" aria-label="Dismiss">×</button>
   </div>
 
-  <!-- NAV DONATE STRIP — shown every 10th session -->
-  <a id="nav-donate-strip" href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="0"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-    <span>NoSuggest will always be free!! <b>Tap here</b> if you like to support it.</span>
+  <!-- NAV SHARE STRIP (repurposed from donate strip) — shown every 5th session. Same #nav-donate-strip id kept intentionally so it still hides in Kids Mode. -->
+  <a id="nav-donate-strip" href="#" onclick="event.preventDefault(); shareNoSuggest();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    <span>Know someone stuck in YouTube's feed? <b>Send them the way out.</b></span>
     <button class="strip-dismiss" id="donate-strip-dismiss" aria-label="Dismiss">×</button>
   </a>
 
@@ -1444,14 +1444,14 @@ function triggerInstallFromSettings(){
 function shareNoSuggest(){
   const shareData = {
     title: 'NoSuggest',
-    text: 'Watch YouTube without the algorithm. No recommendations, no Shorts loop, no doom scroll — just the channels you choose.',
+    text: "YouTube's algorithm decides what you watch. NoSuggest lets you decide instead. No recommendations, no Shorts, no doom-scroll, just your channels.",
     url: 'https://www.nosuggest.com'
   };
   if(navigator.share){
     navigator.share(shareData).catch(() => {});
   } else {
     // Fallback for desktop — copy to clipboard
-    navigator.clipboard.writeText('Watch YouTube without the algorithm — ' + shareData.url)
+    navigator.clipboard.writeText(shareData.text + ' ' + shareData.url)
       .then(() => alert('Link copied to clipboard!'))
       .catch(() => {});
   }
@@ -1802,7 +1802,7 @@ async function fetchVideosRSS(channelId, handle) {
     ? `${PROXY}/rss?channel=${channelId}&handle=${handleParam}`
     : `${PROXY}/rss?channel=${channelId}`;
   const controller = new AbortController();
-  const timer      = setTimeout(() => controller.abort(), 15000);
+  const timer      = setTimeout(() => controller.abort(), 45000);
 
   let res;
   try {
@@ -2808,9 +2808,11 @@ function removeSaved(id){
 }
 
 /* ═══════════════════════════════════════════
-   DONATION BANNER : show on every 10th session
+   SHARE BANNER : repurposed from donate strip, shown on every 5th session
+   (DOM id #nav-donate-strip and class .show-donate-strip kept as-is so
+   Kids Mode's suppression list still hides it — see kidsHide array)
 ═══════════════════════════════════════════ */
-function initDonationBanner(){
+function initShareBanner(){
   const count = STORE.sessionCount + 1;
   STORE.sessionCount = count;
 
@@ -3287,7 +3289,7 @@ document.addEventListener('keydown', (e) => {
 window.addEventListener('load', () => {
   purgeExpiredResume();
   applyKidsMode();
-  initDonationBanner();
+  initShareBanner();
   if(STORE.hasLaunched){
     showScreen(localStorage.getItem('ns_active_tab') || 'feed');
   } else {
