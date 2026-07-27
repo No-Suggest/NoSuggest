@@ -46,6 +46,86 @@
   "description": "A free, privacy-first PWA that removes YouTube's algorithmic recommendations, Shorts, autoplay, and sign-in requirements."
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is NoSuggest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "NoSuggest is a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no auto-play, no trending feed, no sign-in required. Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual. NoSuggest itself will never show ads and will remain free forever. The only source of revenue is voluntary donations from users who wish to support the project."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Kids Mode work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kids Mode limits NoSuggest to a safe, distraction-free experience for children. When enabled, the Search tab and Add Channels feature are hidden so kids can only watch videos from channels a parent has already approved. To prevent accidental taps, the donation banner and donation link in Settings are also hidden — we don't want a child triggering an unintended donation on a parent's device. A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can teachers, schools and students use NoSuggest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "NoSuggest is ready for classroom use without any new features or IT setup. A teacher adds only the YouTube channels relevant to their subject — educational channels, and save documentaries, lesson videos — and exports the entire setup as a backup code from Settings. That code is shared with students via Google Classroom, WhatsApp, email, or any messaging platform. Students open nosuggest.com, go to Settings, tap Import, paste the code, and their feed instantly shows only the teacher-approved channels and saved videos. No accounts, no logins, no data collected. The 6-digit PIN lock prevents students from modifying the channel list. Works on phones, tablets, Chromebooks, and laptops — no installation required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I move my channels and saved videos to another device?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Go to Settings and tap Export Backup. NoSuggest generates a backup code containing all your channels and saved videos. Copy that code and paste it into Settings → Import Backup on your new device. Everything transfers instantly. There is no login or account by design — NoSuggest intentionally does not ask for your name, email, or any personal information. The export and import approach keeps your data entirely on your own devices."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is Create a Pack?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Create a Pack turns your current list of channels into a single shareable link — useful when a teacher, channel owner, or friend wants to hand someone a ready-made feed. Go to Settings → Create a Pack to generate the link, then share it however you like. Anyone who opens the link sees exactly which channels are in it and can add them all with one tap. It only adds channels — it never replaces or removes anything already on their device, and channels they already have are simply skipped. If adding would take someone past the 25-channel limit, NoSuggest adds as many as it can and tells them how many were skipped. A pack only carries channel names and IDs — nothing personal, no saved videos, no account data of any kind."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Tapping the YouTube logo opens YouTube with recommendations. How do I block it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This happens because the video plays inside the official YouTube player, which includes a YouTube logo and title link. NoSuggest cannot modify what is inside that player. To prevent YouTube from opening on the device: iPhone (Safari & Chrome): Settings → Screen Time → Content & Privacy Restrictions → Content Restrictions → Web Content → Limit Adult Websites. Under Never Allow, tap Add Website and enter youtube.com. This applies across all browsers on the device. Android & laptops: Install the BlockSite app, grant the required permissions, and add youtube.com to your block list."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I reorder channels so my favourite appears first?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The feed intentionally does not follow a fixed channel order. When you open the app, NoSuggest fetches all your channels simultaneously rather than one by one — this is what makes the feed load so quickly. Videos appear as each channel responds, so the order varies slightly each time based on response speed. A drag-to-reorder feature would not change this behaviour since feed order is determined by network response times, not by how channels are arranged in your list. The speed trade-off is intentional — it keeps the app fast on all devices and connections."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is NoSuggest available on the App Store or Google Play?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "NoSuggest is not listed on the App Store or Google Play Store. It is a Progressive Web App (PWA), which means it installs directly from the browser with no app store needed. iPhone / iPad: Open nosuggest.com in Safari → tap the Share button → Add to Home Screen. Android: Open nosuggest.com in Chrome → tap Install App. It will appear and behave like a native app on your home screen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a free app to watch YouTube without recommendations?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. NoSuggest is completely free, with no ads and no premium tier, and works on iPhone, iPad, Android, and desktop through any browser. It's a Progressive Web App rather than an App Store or Play Store download, so there's nothing to install from a store — just add it to your home screen and it behaves like a native app. See \"Is NoSuggest available on the App Store or Google Play?\" above for exact install steps on each device."
+      }
+    }
+  ]
+}
+</script>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="apple-touch-icon" href="/nosuggest-logo-v2-512.png"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
@@ -997,6 +1077,14 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
             <div class="faq-a">NoSuggest is not listed on the App Store or Google Play Store. It is a Progressive Web App (PWA), which means it installs directly from the browser with no app store needed.<br><br><strong>iPhone / iPad:</strong> Open nosuggest.com in Safari → tap the Share button → Add to Home Screen.<br><br><strong>Android:</strong> Open nosuggest.com in Chrome → tap Install App.<br><br>It will appear and behave like a native app on your home screen.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
+            <div class="faq-q">
+              <span>Is there a free app to watch YouTube without recommendations?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">Yes. NoSuggest is completely free, with no ads and no premium tier, and works on iPhone, iPad, Android, and desktop through any browser. It's a Progressive Web App rather than an App Store or Play Store download, so there's nothing to install from a store — just add it to your home screen and it behaves like a native app. See "Is NoSuggest available on the App Store or Google Play?" above for exact install steps on each device.</div>
           </div>
 
         </div>
