@@ -1711,6 +1711,56 @@ function purgeExpiredResume(){
    UTILS
 ═══════════════════════════════════════════ */
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;').trim();
+const YOUTUBE_CHANNEL_ID_RE = /^UC[A-Za-z0-9_-]{22}$/;
+const YOUTUBE_VIDEO_ID_RE   = /^[A-Za-z0-9_-]{11}$/;
+
+function boundedImportedText(value, maxLength, fallback=''){
+  if(typeof value !== 'string') return fallback;
+  const text = value.trim();
+  return text ? text.slice(0, maxLength) : fallback;
+}
+
+function importedHttpsUrl(value){
+  if(typeof value !== 'string' || value.length > 2048) return '';
+  try{
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.href : '';
+  } catch(e){
+    return '';
+  }
+}
+
+function normalizeImportedChannel(channel){
+  if(!channel || typeof channel !== 'object' || Array.isArray(channel)) return null;
+  const id = boundedImportedText(channel.id, 24);
+  if(!YOUTUBE_CHANNEL_ID_RE.test(id)) return null;
+  return {
+    id,
+    name:   boundedImportedText(channel.name, 120, id),
+    avatar: importedHttpsUrl(channel.avatar),
+    subs:   boundedImportedText(channel.subs, 80),
+    handle: boundedImportedText(channel.handle, 120)
+  };
+}
+
+function normalizeImportedVideo(video){
+  if(!video || typeof video !== 'object' || Array.isArray(video)) return null;
+  const id = boundedImportedText(video.id, 11);
+  if(!YOUTUBE_VIDEO_ID_RE.test(id)) return null;
+  const savedAtDate = new Date(video.savedAt);
+  return {
+    id,
+    title:       boundedImportedText(video.title, 300, 'Untitled video'),
+    channelName: boundedImportedText(video.channelName, 120),
+    publishedAt: boundedImportedText(video.publishedAt, 80),
+    thumb:       importedHttpsUrl(video.thumb),
+    savedAt:     Number.isNaN(savedAtDate.getTime()) ? new Date().toISOString() : savedAtDate.toISOString()
+  };
+}
+
+function hasDuplicateIds(items){
+  return new Set(items.map(item => item.id)).size !== items.length;
+}
 
 function toast(msg, dur=2200){
   const t = document.getElementById('toast');
@@ -3158,13 +3208,22 @@ function doImportBackup(){
     return;
   }
 
-  const chCount = payload.channels.length;
-  const svCount = payload.savedVideos.length;
+  const channels    = payload.channels.map(normalizeImportedChannel);
+  const savedVideos = payload.savedVideos.map(normalizeImportedVideo);
+  if(channels.some(channel => !channel) || savedVideos.some(video => !video) ||
+     hasDuplicateIds(channels) || hasDuplicateIds(savedVideos)){
+    errEl.textContent   = 'Backup contains invalid or duplicate channel/video data. Please export a fresh backup.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const chCount = channels.length;
+  const svCount = savedVideos.length;
   const msg = 'This will replace ALL current data with:\n\u2022 ' + chCount + ' channel' + (chCount === 1 ? '' : 's') + '\n\u2022 ' + svCount + ' saved video' + (svCount === 1 ? '' : 's') + '\n\nContinue?';
   if(!confirm(msg)) return;
 
-  STORE.channels    = payload.channels;
-  STORE.savedVideos = payload.savedVideos;
+  STORE.channels    = channels;
+  STORE.savedVideos = savedVideos;
   toast('Restored successfully ✓');
   setTimeout(() => location.reload(), 800);
 }
@@ -3239,9 +3298,16 @@ function parsePackCode(code){
   if(payload.c.length > PACK_MAX_CHANNELS){
     return { ok:false, error: 'Pack code appears corrupt (too many entries).' };
   }
-  const channels = payload.c
-    .filter(pair => Array.isArray(pair) && typeof pair[0] === 'string' && pair[0].trim())
-    .map(pair => ({ id: pair[0].trim(), name: (pair[1] || pair[0]).toString().trim() }));
+  const channels = payload.c.map(pair => {
+    if(!Array.isArray(pair) || pair.length < 1 || typeof pair[0] !== 'string') return null;
+    return normalizeImportedChannel({
+      id: pair[0],
+      name: typeof pair[1] === 'string' ? pair[1] : pair[0]
+    });
+  });
+  if(channels.some(channel => !channel) || hasDuplicateIds(channels)){
+    return { ok:false, error: 'This pack contains invalid or duplicate channel data.' };
+  }
   if(!channels.length){
     return { ok:false, error: 'This pack link has no channels in it.' };
   }
