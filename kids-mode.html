@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kids Mode — Watch YouTube With No Recommendations, Shorts, or Autoplay | NoSuggest</title>
+<meta name="description" content="NoSuggest's free Kids Mode locks your child into only the YouTube channels you approve — no Shorts, no recommendations, no autoplay, no account, no data collection. PIN-protected and free forever."/>
+<link rel="canonical" href="https://www.nosuggest.com/kids-mode"/>
+
+<!-- Open Graph -->
+<meta property="og:title" content="Kids Mode — Watch YouTube With No Recommendations, Shorts, or Autoplay"/>
+<meta property="og:description" content="A free, PIN-locked YouTube mode for kids. Only the channels you approve — no Shorts, no autoplay, no recommendations, no data collected, ever."/>
+<meta property="og:url" content="https://www.nosuggest.com/kids-mode"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="NoSuggest"/>
+<meta property="og:image" content="https://www.nosuggest.com/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Kids Mode — Watch YouTube With No Recommendations, Shorts, or Autoplay"/>
+<meta name="twitter:description" content="A free, PIN-locked YouTube mode for kids. Only the channels you approve — no Shorts, no autoplay, no recommendations, no data collected, ever."/>
+<meta name="twitter:image" content="https://www.nosuggest.com/og-image.png"/>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,600;0,800;1,600&family=DM+Mono:wght@400;500&display=swap"/>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0a0a;
+  --bg2:#111111;
+  --bg3:#1a1a1a;
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.15);
+  --text:#f0f0ee;
+  --muted:#888884;
+  --faint:#444442;
+  --accent:#e8ff5a;
+  --accent2:#ff6b35;
+  --yes:#4ade80;
+  --no:#ff4444;
+  --partial:#f59e0b;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1.5rem;}
+.nav-inner{max-width:1100px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo svg{width:28px;height:28px;}
+.nav-logo span{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-0.02em;}
+.nav-cta{background:var(--accent);color:#0a0a0a;font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;letter-spacing:0.02em;transition:opacity 0.15s;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── HERO ── */
+.hero{padding:5rem 1.5rem 3rem;text-align:center;max-width:760px;margin:0 auto;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(232,255,90,0.08);border:1px solid rgba(232,255,90,0.2);border-radius:99px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.5rem;}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;margin-bottom:1.25rem;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero p{font-size:clamp(1rem,2vw,1.15rem);color:var(--muted);max-width:560px;margin:0 auto 2rem;line-height:1.7;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#0a0a0a;font-weight:700;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;transition:opacity 0.15s;}
+.hero-cta:hover{opacity:0.88;}
+
+/* ── SECTION ── */
+.section{padding:4rem 1.5rem;max-width:1100px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:1rem;line-height:1.2;}
+.section-sub{color:var(--muted);font-size:1rem;max-width:560px;line-height:1.7;margin-bottom:2.5rem;}
+
+/* ── COMPARISON TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--border);scrollbar-width:thin;scrollbar-color:var(--accent) var(--bg2);}
+.table-wrap::-webkit-scrollbar{height:8px;}
+.table-wrap::-webkit-scrollbar-track{background:var(--bg2);}
+.table-wrap::-webkit-scrollbar-thumb{background:rgba(232,255,90,0.35);border-radius:99px;}
+.table-wrap::-webkit-scrollbar-thumb:hover{background:rgba(232,255,90,0.55);}
+table{width:100%;border-collapse:collapse;min-width:640px;}
+thead tr{background:var(--bg2);}
+th{padding:1rem 1.25rem;text-align:left;font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+th:first-child{color:var(--text);}
+th.ns-col{color:var(--accent);background:rgba(232,255,90,0.04);}
+td{padding:0.9rem 1.25rem;font-size:14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+td:first-child{font-weight:500;color:var(--text);font-size:13px;}
+td.ns-col{background:rgba(232,255,90,0.03);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+tr:hover td.ns-col{background:rgba(232,255,90,0.05);}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+.badge-yes{background:rgba(74,222,128,0.12);color:var(--yes);}
+.badge-no{background:rgba(255,68,68,0.12);color:var(--no);}
+.badge-partial{background:rgba(245,158,11,0.12);color:var(--partial);}
+.badge-neutral{background:rgba(255,255,255,0.06);color:var(--muted);}
+.badge svg{width:11px;height:11px;flex-shrink:0;}
+
+/* ── FEATURE CARDS ── */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:2rem;}
+.feature-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+.feature-card-icon{width:40px;height:40px;background:rgba(232,255,90,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;}
+.feature-card-icon svg{width:20px;height:20px;color:var(--accent);}
+.feature-card h3{font-size:15px;font-weight:600;margin-bottom:0.4rem;}
+.feature-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ── FAQ ── */
+.faq-list{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.faq-item{background:var(--bg2);}
+.faq-question{width:100%;background:none;border:none;color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;padding:1.25rem 1.5rem;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:background 0.15s;}
+.faq-question:hover{background:var(--bg3);}
+.faq-question svg{flex-shrink:0;width:16px;height:16px;color:var(--muted);transition:transform 0.25s;}
+.faq-item.open .faq-question svg{transform:rotate(180deg);}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.3s ease;}
+.faq-item.open .faq-answer{max-height:300px;}
+.faq-answer-inner{padding:0 1.5rem 1.25rem;font-size:14px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);}
+.faq-answer-inner a{color:var(--accent);text-decoration:none;}
+
+/* ── FINAL CTA ── */
+.cta-block{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:3rem 2rem;text-align:center;margin:2rem 0;}
+.cta-block h2{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:0.75rem;}
+.cta-block h2 em{font-style:italic;color:var(--accent);}
+.cta-block p{color:var(--muted);font-size:1rem;margin-bottom:1.75rem;max-width:480px;margin-left:auto;margin-right:auto;}
+.cta-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--accent);color:#0a0a0a;font-weight:700;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-ghost{background:transparent;color:var(--text);font-weight:600;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;border:1px solid var(--border2);transition:border-color 0.15s;}
+.btn-ghost:hover{border-color:var(--accent);}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;}
+footer p{font-size:13px;color:var(--faint);}
+footer a{color:var(--muted);text-decoration:none;font-size:13px;}
+footer a:hover{color:var(--accent);}
+
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid var(--border);max-width:1100px;margin:0 auto;}
+
+/* ── SCHEMA ── */
+@media(max-width:640px){
+  .hero{padding:3rem 1.25rem 2rem;}
+  .section{padding:3rem 1.25rem;}
+  .cta-block{padding:2rem 1.25rem;}
+  .footer-inner{flex-direction:column;gap:0.5rem;}
+}
+</style>
+
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "NoSuggest Kids Mode — YouTube Without Recommendations, Shorts, or Autoplay",
+  "description": "NoSuggest's free Kids Mode locks children into only the YouTube channels a parent has approved, with no Shorts, no recommendations, no autoplay, no account, and no data collection.",
+  "url": "https://www.nosuggest.com/kids-mode"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does YouTube Kids let you turn off Shorts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Even in YouTube Kids' strictest setting, Approved Content Only, there is no toggle to disable or hide Shorts. Shorts still appear regardless of which content mode is selected."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is NoSuggest safe for kids to use unsupervised?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kids Mode hides the Search tab and Add Channel feature, so a child can only watch videos from channels a parent already approved. A 6-digit PIN, set fresh by the parent each time, is required to turn Kids Mode on or off, so a child cannot change these restrictions or exit Kids Mode on their own."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does NoSuggest collect any data about my child?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. NoSuggest requires no account and no sign-up, and the list of approved channels is stored locally on the device rather than on a server. Nothing about a child's viewing is collected, tracked, or transmitted anywhere."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can my child accidentally leave Kids Mode or make a purchase?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kids Mode requires a parent-set 6-digit PIN to disable, so a child cannot turn it off by accident. The donation banner and donation link are also hidden while Kids Mode is active, so there's no risk of a child accidentally triggering a payment on a parent's device."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to download NoSuggest from the App Store or Google Play?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. NoSuggest is a Progressive Web App, so there's nothing to download from a store. Open nosuggest.com in any browser and use it directly, or optionally add it to your home screen — on iPhone via Safari's Share icon then Add to Home Screen, or on Android via Chrome's menu then Add to Home screen. Either way, it works exactly the same."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is NoSuggest's Kids Mode free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. NoSuggest is completely free, including Kids Mode, with no ads and no premium tier. It is free for everyone, permanently."
+      }
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://www.nosuggest.com">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <rect width="512" height="512" rx="80" fill="#0a0a0a"/>
+        <rect x="130" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <rect x="324" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <polygon points="130,148 188,148 382,364 324,364" fill="#e8ff5a"/>
+      </svg>
+      <span>NoSuggest</span>
+    </a>
+    <a class="nav-cta" href="https://www.nosuggest.com">Open NoSuggest →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+    For Parents
+  </div>
+  <h1>YouTube Your Kid Will Love<br/><em>Without the Algorithm</em></h1>
+  <p>Even YouTube Kids' strictest setting still shows Shorts and autoplay. NoSuggest's free Kids Mode locks your child into only the channels you've approved — nothing else, ever.</p>
+  <a class="hero-cta" href="https://www.nosuggest.com">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Set Up Kids Mode — It's Free
+  </a>
+</div>
+
+<hr class="divider"/>
+
+<!-- THE PROBLEM -->
+<div class="section">
+  <div class="section-label">The Problem</div>
+  <h2 class="section-title">"Approved Content Only" Isn't as Locked Down as It Sounds</h2>
+  <p class="section-sub">YouTube Kids' strongest setting still has real gaps parents run into.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      </div>
+      <h3>Shorts still show up</h3>
+      <p>Even with Approved Content Only turned on, YouTube Kids has no setting to disable or hide Shorts. The rapid, endless-scroll format stays active regardless of which content mode is selected.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      </div>
+      <h3>Autoplay keeps going</h3>
+      <p>Once one video ends, the next one starts automatically unless a parent manually stops it — easy to miss when a young child is holding the device.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l16 16M4 20L20 4"/></svg>
+      </div>
+      <h3>One toggle away from the algorithm</h3>
+      <p>Turning off Approved Content Only — one tap in Settings — reopens the full recommendation engine. Nothing stops a child from tapping it.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+  <div class="section-label">The Fix</div>
+  <h2 class="section-title">How NoSuggest's Kids Mode Works</h2>
+  <p class="section-sub">A separate, PIN-locked mode built specifically for handing the device to a child.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <h3>Only channels you approved</h3>
+      <p>Your child sees the latest videos from the channels you've added — nothing else. No recommended videos, no "Up Next," no autoplay.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+      <h3>Search and Add Channel hidden</h3>
+      <p>When Kids Mode is on, the Search tab and Add Channel screen disappear from the interface entirely. There's nothing for a child to discover beyond what you've already picked.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <h3>6-digit PIN, set by you</h3>
+      <p>Turning Kids Mode on or off requires a PIN you set at that moment. A child can't disable it, and can't switch back to the full app on their own.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      </div>
+      <h3>No accidental donations</h3>
+      <p>The donation banner and Settings donation link are hidden while Kids Mode is active, so a stray tap can't trigger a payment on your device.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>
+      </div>
+      <h3>No account, no data collected</h3>
+      <p>There's no login and nothing about your child's viewing is sent anywhere. Approved channels are stored locally, on your device only.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <h3>Real YouTube player</h3>
+      <p>Videos still play through YouTube's official embedded player, so the creators your kid watches get their views and ad revenue exactly as normal.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- PWA INSTALL -->
+<div class="section">
+  <div class="section-label">Optional</div>
+  <h2 class="section-title">Installing NoSuggest on Your Phone</h2>
+  <p class="section-sub">NoSuggest isn't in the App Store or Google Play — it's a Progressive Web App, so it installs straight from your browser in a few taps and behaves just like a normal app once it's on the home screen.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      </div>
+      <h3>On iPhone or iPad (Safari)</h3>
+      <p>Open nosuggest.com in Safari. Tap the Share icon (the square with an arrow pointing up) in the toolbar. Scroll down and tap "Add to Home Screen," then tap "Add" in the top corner. An icon now sits on your home screen like any other app.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      </div>
+      <h3>On Android (Chrome)</h3>
+      <p>Open nosuggest.com in Chrome. Tap the three-dot menu in the top-right corner. Tap "Add to Home screen" or "Install app," then confirm. NoSuggest is added as its own icon, separate from your browser.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>
+      </div>
+      <h3>On desktop (Chrome or Edge)</h3>
+      <p>Open nosuggest.com. Look for the install icon in the address bar (a small monitor with a down arrow), or open the browser menu and choose "Install NoSuggest." It opens afterward in its own window, without browser tabs or address bar.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- SETUP STEPS -->
+<div class="section">
+  <div class="section-label">Setup</div>
+  <h2 class="section-title">Turning On Kids Mode Takes About a Minute</h2>
+  <p class="section-sub">No app store, no download required. Works in any browser on any device — installing to your home screen above is optional, for convenience.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">1</span></div>
+      <h3>Open NoSuggest</h3>
+      <p>Visit nosuggest.com in any browser — desktop, iPhone, iPad, or Android. Nothing to install from an app store.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">2</span></div>
+      <h3>Add the channels you approve</h3>
+      <p>Search once, as the parent, and add each channel you're comfortable with your child watching.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">3</span></div>
+      <h3>Turn on Kids Mode</h3>
+      <p>Go to Settings → Kids Mode, and set a 6-digit PIN. This is the same PIN you'll use later to turn it back off.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">4</span></div>
+      <h3>Hand over the device</h3>
+      <p>Your child sees only approved channels — no Search, no Shorts, no autoplay, no recommendations, no way out without the PIN.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- FAQ -->
+<div class="section">
+  <div class="section-label">Common Questions</div>
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <p class="section-sub">What parents ask before setting up Kids Mode.</p>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Does YouTube Kids let you turn off Shorts?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">No. Even in YouTube Kids' strictest setting, Approved Content Only, there is no toggle to disable or hide Shorts. Shorts still appear regardless of which content mode is selected.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is NoSuggest safe for kids to use unsupervised?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Kids Mode hides the Search tab and Add Channel feature, so a child can only watch videos from channels a parent already approved. A 6-digit PIN, set fresh by the parent each time, is required to turn Kids Mode on or off, so a child cannot change these restrictions or exit Kids Mode on their own.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Does NoSuggest collect any data about my child?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">No. NoSuggest requires no account and no sign-up, and the list of approved channels is stored locally on the device rather than on a server. Nothing about a child's viewing is collected, tracked, or transmitted anywhere.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Can my child accidentally leave Kids Mode or make a purchase?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Kids Mode requires a parent-set 6-digit PIN to disable, so a child cannot turn it off by accident. The donation banner and donation link are also hidden while Kids Mode is active, so there's no risk of a child accidentally triggering a payment on a parent's device.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Do I need to download NoSuggest from the App Store or Google Play?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">No. NoSuggest is a Progressive Web App, so there's nothing to download from a store. Open nosuggest.com in any browser and use it directly, or optionally add it to your home screen — on iPhone via Safari's Share icon → "Add to Home Screen," or on Android via Chrome's menu → "Add to Home screen." Either way, it works exactly the same.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is NoSuggest's Kids Mode free?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Yes. NoSuggest is completely free, including Kids Mode, with no ads and no premium tier. It is free for everyone, permanently.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- FINAL CTA -->
+<div class="section">
+  <div class="cta-block">
+    <h2>Give them YouTube<br/><em>without the algorithm</em></h2>
+    <p>No account. No install. No data collected. Just the channels you approved, and a PIN only you know.</p>
+    <div class="cta-buttons">
+      <a class="btn-primary" href="https://www.nosuggest.com">Set Up Kids Mode →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+    <p>© 2026 NoSuggest. A quiet act of resistance.</p>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <a href="https://www.nosuggest.com">Home</a>
+      <a href="https://www.nosuggest.com/compare">Compare</a>
+      <a href="https://www.nosuggest.com/kids-mode">Kids Mode</a>
+      <a href="https://www.nosuggest.com/privacy">Privacy</a>
+      <a href="https://www.nosuggest.com/terms">Terms</a>
+      <a href="https://www.nosuggest.com/contact">Contact</a>
+      <a href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener">Support</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(btn){
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+</script>
+
+</body>
+</html>
