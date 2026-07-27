@@ -23,6 +23,11 @@
     <loc>https://www.nosuggest.com/terms</loc>
     <priority>0.5</priority>
   </url>
+  <!-- Accessibility Statement -->
+  <url>
+    <loc>https://www.nosuggest.com/accessibility</loc>
+    <priority>0.5</priority>
+  </url>
   <!-- Contact -->
   <url>
     <loc>https://www.nosuggest.com/contact</loc>
