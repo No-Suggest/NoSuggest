@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>NoSuggest vs YouTube vs PocketTube vs FreeTube — Which is Best for Distraction-Free Watching?</title>
-<meta name="description" content="Compare NoSuggest with YouTube Subscriptions, PocketTube, FreeTube and more. See which app lets you watch YouTube without recommendations, autoplay, Shorts and algorithm-driven distraction."/>
+<meta name="description" content="Compare NoSuggest with YouTube Subscriptions, PocketTube, FreeTube, Invidious, Unhook and NewPipe. See which app lets you watch YouTube without recommendations, autoplay, Shorts and algorithm-driven distraction."/>
 <meta name="keywords" content="NoSuggest vs YouTube, YouTube without recommendations, no algorithm YouTube, PocketTube alternative, FreeTube alternative, distraction free YouTube, YouTube subscription manager"/>
 <meta property="og:title" content="NoSuggest vs YouTube — Watch Without the Algorithm"/>
 <meta property="og:description" content="The only YouTube experience with zero recommendations, zero autoplay, zero Shorts. Compare NoSuggest with every alternative."/>
@@ -16,7 +16,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,600;0,800;1,600&family=DM+Mono:wght@400;500&display=swap"/>
-
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -62,7 +61,11 @@ nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-fi
 .section-sub{color:var(--muted);font-size:1rem;max-width:560px;line-height:1.7;margin-bottom:2.5rem;}
 
 /* ── COMPARISON TABLE ── */
-.table-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--border);}
+.table-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--border);scrollbar-width:thin;scrollbar-color:var(--accent) var(--bg2);}
+.table-wrap::-webkit-scrollbar{height:8px;}
+.table-wrap::-webkit-scrollbar-track{background:var(--bg2);}
+.table-wrap::-webkit-scrollbar-thumb{background:rgba(232,255,90,0.35);border-radius:99px;}
+.table-wrap::-webkit-scrollbar-thumb:hover{background:rgba(232,255,90,0.55);}
 table{width:100%;border-collapse:collapse;min-width:640px;}
 thead tr{background:var(--bg2);}
 th{padding:1rem 1.25rem;text-align:left;font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
@@ -78,6 +81,7 @@ tr:hover td.ns-col{background:rgba(232,255,90,0.05);}
 .badge-yes{background:rgba(74,222,128,0.12);color:var(--yes);}
 .badge-no{background:rgba(255,68,68,0.12);color:var(--no);}
 .badge-partial{background:rgba(245,158,11,0.12);color:var(--partial);}
+.badge-neutral{background:rgba(255,255,255,0.06);color:var(--muted);}
 .badge svg{width:11px;height:11px;flex-shrink:0;}
 
 /* ── FEATURE CARDS ── */
@@ -136,7 +140,7 @@ footer a:hover{color:var(--accent);}
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "NoSuggest vs YouTube vs PocketTube — Comparison",
-  "description": "Compare NoSuggest with YouTube Subscriptions, PocketTube, FreeTube and other YouTube alternatives. Find the best distraction-free YouTube experience.",
+  "description": "Compare NoSuggest with YouTube Subscriptions, PocketTube, FreeTube, Invidious, Unhook, NewPipe and other YouTube alternatives. Find the best distraction-free YouTube experience.",
   "url": "https://www.nosuggest.com/compare",
   "mainEntity": {
     "@type": "Table",
@@ -245,120 +249,140 @@ footer a:hover{color:var(--accent);}
           <th>PocketTube</th>
           <th>FreeTube</th>
           <th>Invidious</th>
+          <th>Unhook</th>
+          <th>NewPipe</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>Recommendations / suggested videos</td>
-          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
-          <td><span class="badge badge-yes">Everywhere</span></td>
-          <td><span class="badge badge-yes">Yes</span></td>
-          <td><span class="badge badge-no">None</span></td>
-          <td><span class="badge badge-no">None</span></td>
+          <td class="ns-col"><span class="badge badge-yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
+          <td><span class="badge badge-no">Everywhere</span></td>
+          <td><span class="badge badge-no">Yes</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-partial">Trending only</span></td>
         </tr>
         <tr>
           <td>Autoplay next video</td>
-          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>No</span></td>
-          <td><span class="badge badge-yes">Yes</span></td>
-          <td><span class="badge badge-yes">Yes</span></td>
-          <td><span class="badge badge-no">No</span></td>
-          <td><span class="badge badge-no">No</span></td>
+          <td class="ns-col"><span class="badge badge-yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>No</span></td>
+          <td><span class="badge badge-no">Yes</span></td>
+          <td><span class="badge badge-no">Yes</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-partial">Optional toggle</span></td>
+          <td><span class="badge badge-partial">Optional toggle</span></td>
         </tr>
         <tr>
           <td>YouTube Shorts</td>
-          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Blocked</span></td>
-          <td><span class="badge badge-yes">Everywhere</span></td>
-          <td><span class="badge badge-yes">Shown</span></td>
-          <td><span class="badge badge-no">Blocked</span></td>
-          <td><span class="badge badge-no">Blocked</span></td>
+          <td class="ns-col"><span class="badge badge-yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Blocked</span></td>
+          <td><span class="badge badge-no">Everywhere</span></td>
+          <td><span class="badge badge-no">Shown</span></td>
+          <td><span class="badge badge-yes">Blocked</span></td>
+          <td><span class="badge badge-yes">Blocked</span></td>
+          <td><span class="badge badge-yes">Blocked</span></td>
+          <td><span class="badge badge-yes">Not supported</span></td>
         </tr>
         <tr>
           <td>Account / login required</td>
-          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
-          <td><span class="badge badge-yes">Google account</span></td>
-          <td><span class="badge badge-yes">Google account</span></td>
-          <td><span class="badge badge-no">None</span></td>
-          <td><span class="badge badge-no">None</span></td>
+          <td class="ns-col"><span class="badge badge-yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
+          <td><span class="badge badge-no">Google account</span></td>
+          <td><span class="badge badge-no">Google account</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
         </tr>
         <tr>
           <td>Data collection / tracking</td>
-          <td class="ns-col"><span class="badge badge-no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
-          <td><span class="badge badge-yes">Extensive</span></td>
+          <td class="ns-col"><span class="badge badge-yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>None</span></td>
+          <td><span class="badge badge-no">Extensive</span></td>
           <td><span class="badge badge-partial">Some</span></td>
-          <td><span class="badge badge-no">None</span></td>
-          <td><span class="badge badge-no">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
+          <td><span class="badge badge-yes">None</span></td>
         </tr>
         <tr>
           <td>Works in browser (no install)</td>
-          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td class="ns-col"><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
           <td><span class="badge badge-partial">Extension needed</span></td>
-          <td><span class="badge badge-yes">Desktop app only</span></td>
+          <td><span class="badge badge-no">Desktop app only</span></td>
           <td><span class="badge badge-partial">Self-host needed</span></td>
+          <td><span class="badge badge-partial">Extension needed</span></td>
+          <td><span class="badge badge-no">Android app only</span></td>
         </tr>
         <tr>
           <td>Works on mobile</td>
-          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes — PWA</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td class="ns-col"><span class="badge badge-yes">Yes — PWA</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
           <td><span class="badge badge-partial">Limited</span></td>
-          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
           <td><span class="badge badge-partial">Browser only</span></td>
+          <td><span class="badge badge-partial">Firefox Android only</span></td>
+          <td><span class="badge badge-partial">Android only</span></td>
         </tr>
         <tr>
           <td>Installs as home screen app (PWA)</td>
-          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-yes">App only</span></td>
-          <td><span class="badge badge-yes">No</span></td>
-          <td><span class="badge badge-yes">No</span></td>
-          <td><span class="badge badge-yes">No</span></td>
+          <td class="ns-col"><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-partial">App only</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
         </tr>
         <tr>
           <td>Kids mode / safe viewing</td>
-          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes — PIN locked</span></td>
+          <td class="ns-col"><span class="badge badge-yes">Yes — PIN locked</span></td>
           <td><span class="badge badge-partial">YouTube Kids only</span></td>
-          <td><span class="badge badge-yes">No</span></td>
-          <td><span class="badge badge-yes">No</span></td>
-          <td><span class="badge badge-yes">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
+          <td><span class="badge badge-no">No</span></td>
         </tr>
         <tr>
           <td>Official YouTube player (ads, quality)</td>
-          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-yes">No — invidious</span></td>
-          <td><span class="badge badge-yes">No — self-hosted</span></td>
+          <td class="ns-col"><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-no">No — own player</span></td>
+          <td><span class="badge badge-no">No — self-hosted</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-no">No — own player</span></td>
         </tr>
         <tr>
           <td>Save videos for later</td>
-          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td class="ns-col"><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
           <td><span class="badge badge-partial">Depends on instance</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes — bookmarks</span></td>
         </tr>
         <tr>
           <td>Search YouTube videos</td>
-          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td class="ns-col"><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
+          <td><span class="badge badge-yes">Yes</span></td>
         </tr>
         <tr>
           <td>Free to use</td>
-          <td class="ns-col"><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Always free</span></td>
+          <td class="ns-col"><span class="badge badge-yes">Always free</span></td>
           <td><span class="badge badge-partial">Free / Premium</span></td>
           <td><span class="badge badge-partial">Free / Pro tier</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Free</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Free</span></td>
-        </tr>
-        <tr>
-          <td>Open source</td>
-          <td class="ns-col"><span class="badge badge-yes">No</span></td>
-          <td><span class="badge badge-yes">No</span></td>
-          <td><span class="badge badge-yes">No</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
-          <td><span class="badge badge-no" style="background:rgba(74,222,128,0.12);color:var(--yes);">Yes</span></td>
+          <td><span class="badge badge-yes">Free</span></td>
+          <td><span class="badge badge-yes">Free</span></td>
+          <td><span class="badge badge-yes">Free</span></td>
+          <td><span class="badge badge-yes">Free</span></td>
         </tr>
       </tbody>
     </table>
@@ -449,6 +473,16 @@ footer a:hover{color:var(--accent);}
       <p style="font-size:14px;color:var(--muted);line-height:1.7;">Invidious is an open-source YouTube front-end focused on privacy — no tracking, no JavaScript from Google. The catch: it requires finding a working public instance (many are slow or down), or self-hosting your own server. Video quality and reliability vary. NoSuggest works instantly at nosuggest.com with no setup, and uses YouTube's own player so reliability is never an issue.</p>
     </div>
 
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:0.5rem;">NoSuggest vs Unhook</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">Unhook is a well-regarded free browser extension that hides recommendations, Shorts, and comments directly on youtube.com. Since it modifies YouTube's own site, it keeps the official player, search, and your existing account intact — but it only works where extensions run: Chrome, Firefox, and Edge on desktop, plus Firefox for Android. It doesn't work in Safari, on iPhone, or inside the native YouTube app. NoSuggest takes a different approach — a standalone PWA that works identically on any device, needs no browser extension or account, and adds a Kids Mode with a PIN lock that Unhook doesn't offer.</p>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:0.5rem;">NoSuggest vs NewPipe</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">NewPipe is a genuinely excellent open-source Android app — no ads at all, background playback, downloads, and no Google account needed. If you're on Android and want an ad-free player, it's worth trying. The trade-offs: it's Android-only (no iPhone, no desktop), still shows a Trending tab of popular videos, and plays through its own player rather than YouTube's official one, so creator ad revenue and analytics aren't recorded the normal way. NoSuggest works the same on any device via any browser, plays through YouTube's official player so creators are credited normally, and doesn't show a trending feed of any kind — just the channels you picked, in order.</p>
+    </div>
+
   </div>
 </div>
 
@@ -504,6 +538,24 @@ footer a:hover{color:var(--accent);}
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">Yes — NoSuggest has a built-in Kids Mode. You add only the channels suitable for your children, enable Kids Mode with a PIN, and the app is locked to those channels. No Shorts, no recommendations, no way to browse outside the approved channels without the PIN.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is NoSuggest better than Unhook?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">"Better" depends on what you want. Unhook is a solid free extension for hiding distractions on youtube.com itself, but it only works on Chrome, Firefox, or Edge desktop, plus Firefox for Android — not Safari, not iPhone, not the native YouTube app. NoSuggest is a separate app rather than an extension, so it works the same way on any phone, tablet, or computer with no install and no extension permissions, and adds features like Kids Mode that Unhook doesn't have.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How is NoSuggest different from NewPipe?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">NewPipe is an Android-only open-source app with its own player, which means no ads but also no official YouTube analytics for creators, and it still shows a Trending tab. NoSuggest works on any device through a browser, uses YouTube's real player so creators get credited normally, and shows only your chosen channels with no trending or suggested content at all.</div>
       </div>
     </div>
   </div>
