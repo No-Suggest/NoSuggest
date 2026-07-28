@@ -1957,7 +1957,7 @@ function applyKidsMode(){
 }
 
 /* ═══════════════════════════════════════════
-   RSS FEED : zero quota, no auth
+   VIDEO FEED
 ═══════════════════════════════════════════ */
 
 /* Resolve the best available handle for a channel object.
@@ -2509,15 +2509,6 @@ function initAdd(){
   setTimeout(() => document.getElementById('channel-input').focus(), 300);
 }
 
-/* Channel name/handle search is manual-trigger only (Enter key or the
-   Search button) — no auto-search while typing. This avoids firing a
-   backend search call on every keystroke, which previously meant slow
-   typists (or anyone who paused mid-word) could trigger several calls
-   per search, adding unnecessary load on the fallback tiers (Invidious)
-   and raising the chance of rate-limit blocking there.
-   URL paste is left as its own auto-resolving path below — pasting a
-   full channel URL is a single, deterministic action rather than a
-   repeated "search as you type" pattern, so it's not the same concern. */
 document.getElementById('channel-input').addEventListener('input', e => {
   clearTimeout(searchTimeout);
   const q = e.target.value.trim();
@@ -3364,22 +3355,9 @@ async function confirmAddPack(){
   location.reload();
 }
 
-/* A pack link only carries {id, name} to keep it compact — no avatar data.
-   Once channels are merged in, look up each one's real photo via the same
-   channel-search endpoint the normal Add Channel flow uses, matching strictly
-   by channel ID so a name collision never assigns the wrong photo. Failures
-   are isolated per-channel and non-fatal — a channel simply keeps no avatar
-   rather than a broken/guessed image.
-
-   Timeout is set well above observed worst-case backend latency: the
-   /channels endpoint can fall back through multiple lookup tiers (InnerTube
-   -> Invidious) when the primary tier is slow, and that fallback alone has
-   been observed taking ~7.5s. Requests are also batched rather than all
-   fired at once, since a burst of simultaneous cold searches increases
-   backend load and can push more lookups into the slow fallback path. */
 async function resolvePackAvatars(toAdd){
   const BATCH_SIZE     = 5;
-  const LOOKUP_TIMEOUT = 15000; // comfortably above the ~7.5s observed fallback-tier latency
+  const LOOKUP_TIMEOUT = 15000; // comfortably above worst observed backend latency
 
   async function lookupOne(c){
     try{
