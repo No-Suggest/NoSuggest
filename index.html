@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>	
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -131,8 +131,9 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap"/>
-<script src="https://www.youtube.com/iframe_api"></script>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap"/></noscript>
+<script async src="https://www.youtube.com/iframe_api"></script>
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "13373b3fce114bcc9f4126115c9932ea"}'></script>
 <style>
 /* ═══════════════════════════════════════
@@ -1342,7 +1343,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   </div>
 
   <!-- BOTTOM NAV -->
-  <nav class="nav" id="main-nav">
+  <nav class="nav" id="main-nav" aria-label="Main navigation">
     <button class="nav-btn active" id="nav-feed" onclick="showScreen('feed')">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
       <span>Feed</span>
