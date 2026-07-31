@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NoSuggest for Creators — A Calmer Way to Watch, Worth Sharing | NoSuggest</title>
+<meta name="description" content="A guide for YouTube creators and influencers: what NoSuggest is, why we're asking creators to help spread a distraction-free way to watch, and how Create a Pack lets you bundle your channels and collaborators into one shareable link."/>
+<link rel="canonical" href="https://www.nosuggest.com/creators"/>
+
+<!-- Open Graph -->
+<meta property="og:title" content="NoSuggest for Creators — A Calmer Way to Watch, Worth Sharing"/>
+<meta property="og:description" content="Why we're asking creators to help spread a distraction-free way to watch YouTube, and how Create a Pack bundles your channels and collaborators into one link."/>
+<meta property="og:url" content="https://www.nosuggest.com/creators"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="NoSuggest"/>
+<meta property="og:image" content="https://www.nosuggest.com/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="NoSuggest for Creators — A Calmer Way to Watch, Worth Sharing"/>
+<meta name="twitter:description" content="Why we're asking creators to help spread a distraction-free way to watch YouTube, and how Create a Pack bundles your channels and collaborators into one link."/>
+<meta name="twitter:image" content="https://www.nosuggest.com/og-image.png"/>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,600;0,800;1,600&family=DM+Mono:wght@400;500&display=swap"/>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0a0a;
+  --bg2:#111111;
+  --bg3:#1a1a1a;
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.15);
+  --text:#f0f0ee;
+  --muted:#888884;
+  --faint:#444442;
+  --accent:#e8ff5a;
+  --accent2:#ff6b35;
+  --yes:#4ade80;
+  --no:#ff4444;
+  --partial:#f59e0b;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1.5rem;}
+.nav-inner{max-width:1100px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo svg{width:28px;height:28px;}
+.nav-logo span{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-0.02em;}
+.nav-cta{background:var(--accent);color:#0a0a0a;font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;letter-spacing:0.02em;transition:opacity 0.15s;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── HERO ── */
+.hero{padding:5rem 1.5rem 3rem;text-align:center;max-width:760px;margin:0 auto;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(232,255,90,0.08);border:1px solid rgba(232,255,90,0.2);border-radius:99px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.5rem;}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;margin-bottom:1.25rem;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero p{font-size:clamp(1rem,2vw,1.15rem);color:var(--muted);max-width:560px;margin:0 auto 2rem;line-height:1.7;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#0a0a0a;font-weight:700;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;transition:opacity 0.15s;}
+.hero-cta:hover{opacity:0.88;}
+
+/* ── SECTION ── */
+.section{padding:4rem 1.5rem;max-width:1100px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:1rem;line-height:1.2;}
+.section-sub{color:var(--muted);font-size:1rem;max-width:640px;line-height:1.7;margin-bottom:2.5rem;}
+
+/* ── FEATURE CARDS ── */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:2rem;}
+.feature-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+.feature-card-icon{width:40px;height:40px;background:rgba(232,255,90,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;}
+.feature-card-icon svg{width:20px;height:20px;color:var(--accent);}
+.feature-card h3{font-size:15px;font-weight:600;margin-bottom:0.4rem;}
+.feature-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ── FAQ ── */
+.faq-list{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.faq-item{background:var(--bg2);}
+.faq-question{width:100%;background:none;border:none;color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;padding:1.25rem 1.5rem;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:background 0.15s;}
+.faq-question:hover{background:var(--bg3);}
+.faq-question svg{flex-shrink:0;width:16px;height:16px;color:var(--muted);transition:transform 0.25s;}
+.faq-item.open .faq-question svg{transform:rotate(180deg);}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.3s ease;}
+.faq-item.open .faq-answer{max-height:320px;}
+.faq-answer-inner{padding:0 1.5rem 1.25rem;font-size:14px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);}
+.faq-answer-inner a{color:var(--accent);text-decoration:none;}
+
+/* ── FINAL CTA ── */
+.cta-block{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:3rem 2rem;text-align:center;margin:2rem 0;}
+.cta-block h2{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:0.75rem;}
+.cta-block h2 em{font-style:italic;color:var(--accent);}
+.cta-block p{color:var(--muted);font-size:1rem;margin-bottom:1.75rem;max-width:480px;margin-left:auto;margin-right:auto;}
+.cta-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--accent);color:#0a0a0a;font-weight:700;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-ghost{background:transparent;color:var(--text);font-weight:600;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;border:1px solid var(--border2);transition:border-color 0.15s;}
+.btn-ghost:hover{border-color:var(--accent);}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2rem;max-width:1100px;margin:0 auto;text-align:left;padding-bottom:2.5rem;}
+.footer-col-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.9rem;}
+.footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:0.65rem;transition:color 0.15s;}
+.footer-col a:hover{color:var(--accent);}
+.footer-bottom{max-width:1100px;margin:0 auto;padding-top:1.5rem;border-top:1px solid var(--border);text-align:center;}
+.footer-bottom p{font-size:13px;color:var(--faint);}
+
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid var(--border);max-width:1100px;margin:0 auto;}
+
+/* ── STEP NOTE ── */
+.step-note{background:rgba(232,255,90,0.04);border:1px solid rgba(232,255,90,0.15);border-radius:12px;padding:1rem 1.25rem;font-size:13px;color:var(--muted);margin-top:1.5rem;line-height:1.6;}
+.step-note strong{color:var(--text);}
+
+/* ── STAT ROW ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:2rem;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;text-align:center;}
+.stat-card .stat-num{font-family:'Fraunces',serif;font-weight:800;font-size:1.75rem;color:var(--accent);margin-bottom:0.35rem;}
+.stat-card .stat-label{font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+@media(max-width:640px){
+  .hero{padding:3rem 1.25rem 2rem;}
+  .section{padding:3rem 1.25rem;}
+  .cta-block{padding:2rem 1.25rem;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:1.75rem;}
+}
+</style>
+
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "NoSuggest for Creators",
+  "description": "A guide for YouTube creators and influencers on why NoSuggest is asking for their help spreading a distraction-free way to watch, and how Create a Pack lets them bundle their own channels and collaborators into one shareable link.",
+  "url": "https://www.nosuggest.com/creators"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Will my views and watch time still count if someone watches through NoSuggest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Videos play inside the official YouTube player, so every view, minute of watch time, and ad impression is counted and paid out exactly as it would be on youtube.com or the YouTube app. NoSuggest does not download, rehost, or modify your video in any way — it only changes what a viewer sees around it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is Create a Pack, for a creator?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Create a Pack turns a list of channels into one shareable link. A creator can add their own channel plus any collaborators, co-hosts, or related creators, then share that single link in a video description, community post, or bio. Anyone who opens it can add every channel in the pack to their NoSuggest feed with one tap. It only adds channels — it never removes or replaces anything a viewer already has, and channels they already follow are simply skipped."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does promoting NoSuggest help pull viewers away from other creators?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not by design. NoSuggest removes YouTube's algorithmic recommendations, autoplay, and Shorts feed for anyone using it, so a viewer only ever sees the channels they've chosen to follow rather than whatever YouTube would have suggested next. If a creator's pack includes their own channel and their collaborators, those are simply among the channels available in that viewer's feed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a limit to how many channels can go in a pack?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A device can hold up to 25 channels total. If adding a pack would push a viewer past that limit, NoSuggest adds as many channels as it can and tells them how many were skipped, rather than failing outright."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a Create a Pack link cost anything or require an account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. NoSuggest is free with no premium tier, and generating a pack link requires no account or sign-up, either for the creator making it or the viewer using it. A pack only carries channel names and IDs — nothing personal, no saved videos, no account data of any kind."
+      }
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://www.nosuggest.com">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <rect width="512" height="512" rx="80" fill="#0a0a0a"/>
+        <rect x="130" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <rect x="324" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <polygon points="130,148 188,148 382,364 324,364" fill="#e8ff5a"/>
+      </svg>
+      <span>NoSuggest</span>
+    </a>
+    <a class="nav-cta" href="https://www.nosuggest.com">Open NoSuggest →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    For Creators &amp; Influencers
+  </div>
+  <h1>A Calmer Way to Watch<br/><em>You'd Be Proud to Share</em></h1>
+  <p>NoSuggest strips YouTube down to just the channels someone chooses. We built it to give viewers, especially younger ones, a break from the algorithm — and we think creators are well placed to help spread it.</p>
+  <a class="hero-cta" href="https://www.nosuggest.com">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Try NoSuggest — It's Free
+  </a>
+</div>
+
+<hr class="divider"/>
+
+<!-- WHAT IS NOSUGGEST -->
+<div class="section">
+  <div class="section-label">The Basics</div>
+  <h2 class="section-title">What Is NoSuggest?</h2>
+  <p class="section-sub">NoSuggest is a free, privacy-first way to watch YouTube. A viewer chooses which channels to follow, and NoSuggest shows only their latest videos — nothing recommended, nothing trending, no Shorts, no autoplay, no sign-in.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <h3>Every video, unchanged</h3>
+      <p>Videos still play in YouTube's own official player. NoSuggest doesn't download, rehost, or alter anything — it only removes the clutter YouTube usually builds around a video.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <h3>A feed made only of channels a viewer chose</h3>
+      <p>No sidebar of competing suggestions, no "Up Next" queue picking the next video — just the channels someone actually decided to follow.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>
+      </div>
+      <h3>Free, with nothing to sell</h3>
+      <p>No ads of its own, no premium tier, no personal data collected. It runs on voluntary donations, which is also why we're asking creators for help rather than paying for ads.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- WHY WE'RE ASKING -->
+<div class="section">
+  <div class="section-label">Why We're Asking</div>
+  <h2 class="section-title">Why We're Reaching Out to Creators First</h2>
+  <p class="section-sub">Doomscrolling and algorithm-driven "brain rot" viewing aren't just a parenting complaint anymore — plenty of creators, educators, and viewers themselves have raised the same concern: an endless Shorts feed and autoplay chain can turn a five-minute video into an hour nobody chose. NoSuggest removes the specific mechanics that cause that. We don't have an ad budget or a growth team, so we're asking the people who already have an audience's trust — creators — to consider sharing it, especially with anyone whose viewers include kids or teens.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      </div>
+      <h3>No Shorts feed</h3>
+      <p>The tab that turns "one quick video" into forty-five minutes of unrelated scrolling simply isn't part of NoSuggest.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      </div>
+      <h3>No autoplay chain</h3>
+      <p>When a video ends, nothing starts on its own. Watching stays a series of choices instead of something that happens passively.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>
+      </div>
+      <h3>A gentler default for younger viewers</h3>
+      <p>Paired with NoSuggest's Kids Mode, a parent can hand over a device that only ever shows an approved list of channels — nothing more.</p>
+    </div>
+  </div>
+
+  <p style="color:var(--muted);font-size:14px;margin-top:2rem;max-width:640px;line-height:1.7;">This is the part we'd ask you to share even if it did nothing for your own numbers. What comes next is honestly how it also happens to work in your favor — we just didn't want to lead with that.</p>
+</div>
+
+<hr class="divider"/>
+
+<!-- WHAT IT MEANS FOR YOU -->
+<div class="section">
+  <div class="section-label">What This Also Means for You</div>
+  <h2 class="section-title">It Doesn't Cost You Anything, and It May Help</h2>
+  <p class="section-sub">This is usually the first question creators ask, so it's worth being precise about it.</p>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Views and watch time counted normally, same as youtube.com</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Ad impressions and revenue paid out as usual — YouTube ads are not blocked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Video downloads, re-hosting, or modification — always the official player</div>
+    </div>
+  </div>
+
+  <p style="color:var(--muted);font-size:14px;margin-top:2rem;max-width:640px;line-height:1.7;">What's different is what happens after a video ends. On YouTube, that's usually when autoplay or a Shorts scroll takes over and a viewer's attention drifts somewhere unrelated to what they came for. In NoSuggest, a viewer only sees the channels they've chosen to follow — so if someone follows you (and anyone you collaborate with) through NoSuggest, their next watch is more likely to actually be one of you, simply because that's what's there. It's less about holding attention and more about there being fewer places for it to accidentally go.</p>
+</div>
+
+<hr class="divider"/>
+
+<!-- CREATE A PACK FOR CREATORS -->
+<div class="section">
+  <div class="section-label">The Tool For This</div>
+  <h2 class="section-title">Create a Pack: Share Your Channels in One Link</h2>
+  <p class="section-sub">Create a Pack turns a list of channels into a single shareable link. For a creator, that list doesn't have to be just your own channel.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">1</span></div>
+      <h3>Just your channel</h3>
+      <p>The simplest pack — one link that adds your channel to a fan's feed, so it's there every time they open NoSuggest.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">2</span></div>
+      <h3>Your channel plus collaborators</h3>
+      <p>Add every channel you co-host, guest on, or regularly work with. One link introduces a fan to your whole circle at once — good for everyone in it.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">3</span></div>
+      <h3>Your channel plus creators you rate</h3>
+      <p>Include channels you genuinely respect or want to point people toward — a recommendation list you curated, not one an algorithm assembled.</p>
+    </div>
+  </div>
+
+  <div class="step-note"><strong>How it behaves:</strong> a pack only ever adds channels to a viewer's feed — it never removes or replaces what they already follow, and any channel they already have is simply skipped.</div>
+</div>
+
+<hr class="divider"/>
+
+<!-- STEP BY STEP -->
+<div class="section">
+  <div class="section-label">Step-by-Step</div>
+  <h2 class="section-title">Building and Sharing Your Pack</h2>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">1</span></div>
+      <h3>Open NoSuggest and add channels</h3>
+      <p>Search for and add your own channel, then any collaborators or related creators you want to include.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">2</span></div>
+      <h3>Go to Settings → Create a Pack</h3>
+      <p>NoSuggest turns your current channel list into a single link, ready to share however you like.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">3</span></div>
+      <h3>Share it wherever feels natural</h3>
+      <p>A video description, pinned comment, community post, or link-in-bio — wherever you'd normally point people.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">4</span></div>
+      <h3>Fans add it with one tap</h3>
+      <p>They see exactly which channels are in the pack before adding. Anything they already follow is skipped automatically — no duplicates, nothing overwritten.</p>
+    </div>
+  </div>
+
+  <div class="step-note"><strong>Good to know:</strong> a pack link carries only channel names and IDs — nothing personal, no saved videos, no account data. It also never overwrites a viewer's existing feed; it only adds to it. Devices hold up to 25 channels, and if a pack would push someone past that, NoSuggest adds as many as it can and reports how many were skipped.</div>
+</div>
+
+<hr class="divider"/>
+
+<!-- FAQ -->
+<div class="section">
+  <div class="section-label">Common Questions</div>
+  <h2 class="section-title">Frequently Asked Questions</h2>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Will my views and watch time still count if someone watches through NoSuggest?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Yes. Videos play inside the official YouTube player, so every view, minute of watch time, and ad impression is counted and paid out exactly as it would be on youtube.com or the YouTube app.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What exactly is Create a Pack, for a creator?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">A single shareable link built from your current channel list — your own channel, plus any collaborators or related creators you add. Anyone who opens it can add every channel in one tap. It only adds channels; it never removes or replaces anything a viewer already has.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is this about keeping viewers away from other creators?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">No — a viewer can add as many channels as they want, from any creator, at any time. NoSuggest just removes recommendations, autoplay, and Shorts for whoever's using it, so their feed only ever shows channels they chose to follow, instead of whatever YouTube would have suggested next.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is there a limit to how many channels can go in a pack?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">A device can hold up to 25 channels total. If your pack would push a viewer past that, NoSuggest adds as many as it can and tells them how many were skipped, rather than failing outright.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Does making or using a pack link cost anything or need an account?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">No. NoSuggest is free with no premium tier, and creating or using a pack link requires no account or sign-up on either end. A pack only carries channel names and IDs — nothing personal.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- FINAL CTA -->
+<div class="section">
+  <div class="cta-block">
+    <h2>Worth a Mention<br/><em>In Your Next Video?</em></h2>
+    <p>Build your pack, drop it in a description or pinned comment, and give your audience a calmer way to watch — one that also happens to work in your favor.</p>
+    <div class="cta-buttons">
+      <a class="btn-primary" href="https://www.nosuggest.com">Build Your Pack →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-col-title">Guides</div>
+      <a href="https://www.nosuggest.com/compare">How NoSuggest Compares</a>
+      <a href="https://www.nosuggest.com/kids-mode">How to Set Up Kids Mode</a>
+      <a href="https://www.nosuggest.com/classroom">Use NoSuggest in the Classroom</a>
+      <a href="https://www.nosuggest.com/creators">For Creators &amp; Influencers</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Statements</div>
+      <a href="https://www.nosuggest.com/accessibility">Accessibility</a>
+      <a href="https://www.nosuggest.com/privacy">Privacy</a>
+      <a href="https://www.nosuggest.com/terms">Terms</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Get in Touch</div>
+      <a href="https://www.nosuggest.com/contact">Contact</a>
+      <a href="https://www.linkedin.com/company/nosuggest" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://mastodon.social/@varun_m" target="_blank" rel="noopener me">Mastodon</a>
+      <a href="https://bsky.app/profile/nosuggest.com" target="_blank" rel="noopener">Bluesky</a>
+      <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener">Star on GitHub</a>
+      <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener">Support NoSuggest</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 NoSuggest. A quiet act of resistance.</p>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(btn){
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+</script>
+
+</body>
+</html>

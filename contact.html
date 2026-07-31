@@ -3,250 +3,157 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Contact — NoSuggest</title>
+<title>Contact | NoSuggest</title>
+<meta name="description" content="Have a question, found a bug, or just want to say hello? Get in touch with the NoSuggest team."/>
+<link rel="canonical" href="https://www.nosuggest.com/contact"/>
+<!-- Open Graph -->
+<meta property="og:title" content="Contact | NoSuggest"/>
+<meta property="og:description" content="Have a question, found a bug, or just want to say hello? Get in touch with the NoSuggest team."/>
+<meta property="og:url" content="https://www.nosuggest.com/contact"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="NoSuggest"/>
+<meta property="og:image" content="https://www.nosuggest.com/og-image.png"/>
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Contact | NoSuggest"/>
+<meta name="twitter:description" content="Have a question, found a bug, or just want to say hello? Get in touch with the NoSuggest team."/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
-<link rel="canonical" href="https://www.nosuggest.com/contact" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,600;0,800;1,600&family=DM+Mono:wght@400;500&display=swap"/>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#faf8f4;
-  --surface:#ffffff;
-  --ink:#1a1814;
-  --muted:#6b6860;
-  --faint:#c8c4bc;
-  --accent:#2d5a27;
-  --border:#e8e4dc;
-  --radius:12px;
-  --danger:#c0392b;
-  --success:#2d5a27;
+  --bg:#0a0a0a;
+  --bg2:#111111;
+  --bg3:#1a1a1a;
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.15);
+  --text:#f0f0ee;
+  --muted:#888884;
+  --faint:#444442;
+  --accent:#e8ff5a;
+  --accent2:#ff6b35;
+  --danger:#ff4444;
+  --success:#4ade80;
 }
-body{
-  background:var(--bg);
-  color:var(--ink);
-  font-family:'Jost',sans-serif;
-  font-size:16px;
-  line-height:1.8;
-  min-height:100vh;
-}
-header{
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  padding:1.5rem 2rem;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-.logo{
-  font-family:'Lora',serif;
-  font-size:1.4rem;
-  font-weight:600;
-  color:var(--ink);
-  text-decoration:none;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.logo-dot{
-  width:10px;height:10px;
-  background:var(--accent);
-  border-radius:50%;
-}
-.header-nav a{
-  font-size:13px;
-  color:var(--muted);
-  text-decoration:none;
-  margin-left:1.5rem;
-}
-.header-nav a:hover{color:var(--ink);}
-
-.page-wrap{
-  max-width:720px;
-  margin:0 auto;
-  padding:4rem 2rem;
-}
-
-.page-label{
-  font-size:11px;
-  font-weight:500;
-  letter-spacing:0.15em;
-  text-transform:uppercase;
-  color:var(--accent);
-  margin-bottom:0.75rem;
-  font-family:'Jost',sans-serif;
-}
-
-h1{
-  font-family:'Lora',serif;
-  font-size:clamp(2rem,4vw,2.8rem);
-  font-weight:600;
-  line-height:1.2;
-  letter-spacing:-0.02em;
-  margin-bottom:0.5rem;
-}
-
-.subtitle{
-  font-size:15px;
-  color:var(--muted);
-  margin-bottom:3rem;
-  padding-bottom:2rem;
-  border-bottom:1px solid var(--border);
-  line-height:1.7;
-}
-
-.form-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:2rem;
-}
-
-.form-row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:1.25rem;
-}
-
-@media(max-width:560px){
-  .form-row{grid-template-columns:1fr;}
-}
-
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:0.4rem;
-  margin-bottom:1.25rem;
-}
-
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1.5rem;}
+.nav-inner{max-width:1100px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo svg{width:28px;height:28px;}
+.nav-logo span{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-0.02em;}
+.nav-cta{background:var(--accent);color:#0a0a0a;font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;letter-spacing:0.02em;transition:opacity 0.15s;}
+.nav-cta:hover{opacity:0.85;}
+/* ── PAGE HERO ── */
+.page-hero{padding:4rem 1.5rem 2.5rem;max-width:760px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;}
+.page-hero h1{font-family:'Fraunces',serif;font-size:clamp(2rem,4vw,2.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;margin-bottom:0.6rem;}
+.subtitle{font-size:15px;color:var(--muted);margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border);line-height:1.7;}
+/* ── CONTENT ── */
+.content-wrap{max-width:760px;margin:0 auto;padding:0 1.5rem 4rem;}
+/* ── FORM CARD ── */
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:2rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+@media(max-width:560px){.form-row{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1.25rem;}
 .field:last-child{margin-bottom:0;}
-
-label{
-  font-size:12px;
-  font-weight:500;
-  letter-spacing:0.05em;
-  text-transform:uppercase;
-  color:var(--ink);
-}
-
-input, textarea{
-  background:var(--bg);
+label{font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);}
+input,textarea{
+  background:var(--bg3);
   border:1px solid var(--border);
   border-radius:8px;
   padding:0.75rem 1rem;
   font-size:15px;
-  font-family:'Jost',sans-serif;
-  color:var(--ink);
+  font-family:'Outfit',sans-serif;
+  color:var(--text);
   width:100%;
-  transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:border-color 0.15s ease,box-shadow 0.15s ease;
   outline:none;
   -webkit-appearance:none;
 }
-
-input:focus, textarea:focus{
+input:focus,textarea:focus{
   border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(45,90,39,0.08);
+  box-shadow:0 0 0 3px rgba(232,255,90,0.08);
 }
-
-input::placeholder, textarea::placeholder{
-  color:var(--faint);
-}
-
-textarea{
-  resize:vertical;
-  min-height:140px;
-  line-height:1.6;
-}
-
+input::placeholder,textarea::placeholder{color:var(--faint);}
+textarea{resize:vertical;min-height:140px;line-height:1.6;}
 .submit-btn{
   margin-top:1.5rem;
   width:100%;
   background:var(--accent);
-  color:#fff;
+  color:#0a0a0a;
   border:none;
   border-radius:8px;
   padding:0.9rem 1.5rem;
   font-size:15px;
-  font-weight:500;
-  font-family:'Jost',sans-serif;
+  font-weight:700;
+  font-family:'Outfit',sans-serif;
   cursor:pointer;
-  transition:opacity 0.15s ease, transform 0.1s ease;
+  transition:opacity 0.15s ease,transform 0.1s ease;
   display:flex;
   align-items:center;
   justify-content:center;
   gap:8px;
 }
-
 .submit-btn:hover{opacity:0.88;}
 .submit-btn:active{transform:scale(0.99);}
 .submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
-
 /* Spinner */
-.spinner{
-  width:16px;height:16px;
-  border:2px solid rgba(255,255,255,0.3);
-  border-top-color:#fff;
-  border-radius:50%;
-  animation:spin 0.7s linear infinite;
-  display:none;
-}
+.spinner{width:16px;height:16px;border:2px solid rgba(10,10,10,0.3);border-top-color:#0a0a0a;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
 /* Status messages */
-.status{
-  margin-top:1.25rem;
-  padding:1rem 1.25rem;
-  border-radius:8px;
-  font-size:14px;
-  line-height:1.6;
-  display:none;
-}
-.status.success{
-  background:#f0f7ee;
-  border:1px solid #b8d9b2;
-  color:var(--success);
-}
-.status.error{
-  background:#fdf2f2;
-  border:1px solid #e8b4b4;
-  color:var(--danger);
-}
-
+.status{margin-top:1.25rem;padding:1rem 1.25rem;border-radius:8px;font-size:14px;line-height:1.6;display:none;}
+.status.success{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);color:var(--success);}
+.status.error{background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.25);color:var(--danger);}
 a{color:var(--accent);text-decoration:none;}
 a:hover{text-decoration:underline;}
-
-strong{color:var(--ink);}
-
-footer{
-  border-top:1px solid var(--border);
-  padding:2rem;
-  text-align:center;
-  font-size:12px;
-  color:var(--faint);
-  margin-top:4rem;
+strong{color:var(--text);}
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid var(--border);max-width:1100px;margin:0 auto;}
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2rem;max-width:1100px;margin:0 auto;text-align:left;padding-bottom:2.5rem;}
+.footer-col-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.9rem;}
+.footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:0.65rem;transition:color 0.15s;}
+.footer-col a:hover{color:var(--accent);}
+.footer-bottom{max-width:1100px;margin:0 auto;padding-top:1.5rem;border-top:1px solid var(--border);text-align:center;}
+.footer-bottom p{font-size:13px;color:var(--faint);}
+@media(max-width:640px){
+  .page-hero{padding:3rem 1.25rem 2rem;}
+  .content-wrap{padding:0 1.25rem 3rem;}
+  .form-card{padding:1.5rem;}
 }
-footer a{color:var(--muted);}
 </style>
 </head>
 <body>
-
-<header>
-  <a class="logo" href="https://nosuggest.com/">
-    <span class="logo-dot"></span>NoSuggest
-  </a>
-  <nav class="header-nav">
-    <a href="https://nosuggest.com/privacy">Privacy Policy</a>
-    <a href="https://nosuggest.com/terms">Terms of Service</a>
-    <a href="https://nosuggest.com/">App</a>
-  </nav>
-</header>
-
-<div class="page-wrap">
-  <div class="page-label">Get in touch</div>
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://www.nosuggest.com">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <rect width="512" height="512" rx="80" fill="#0a0a0a"/>
+        <rect x="130" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <rect x="324" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <polygon points="130,148 188,148 382,364 324,364" fill="#e8ff5a"/>
+      </svg>
+      <span>NoSuggest</span>
+    </a>
+    <a class="nav-cta" href="https://www.nosuggest.com">Open NoSuggest →</a>
+  </div>
+</nav>
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="section-label">Get in Touch</div>
   <h1>Contact</h1>
   <p class="subtitle">
     Have a question, found a bug, or just want to say hello? Send a message and we'll get back to you.
   </p>
-
+</div>
+<!-- CONTENT -->
+<div class="content-wrap">
   <div class="form-card">
     <div class="form-row">
       <div class="field">
@@ -258,17 +165,14 @@ footer a{color:var(--muted);}
         <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email"/>
       </div>
     </div>
-
     <div class="field">
       <label for="message">Message</label>
       <textarea id="message" name="message" placeholder="What's on your mind?" required></textarea>
     </div>
-
     <button class="submit-btn" id="submit-btn" onclick="submitForm()">
       <span id="btn-label">Send Message</span>
       <div class="spinner" id="spinner"></div>
     </button>
-
     <div class="status success" id="status-success">
       ✓ &nbsp;Message sent! We'll get back to you as soon as possible.
     </div>
@@ -277,48 +181,65 @@ footer a{color:var(--muted);}
     </div>
   </div>
 </div>
-
+<hr class="divider"/>
+<!-- FOOTER -->
 <footer>
-  © 2026 NoSuggest · <a href="https://nosuggest.com/">Home</a> ·
-  <a href="https://nosuggest.com/terms">Terms of Service</a> ·
-  <a href="https://nosuggest.com/privacy">Privacy Policy</a> &middot;
-  <a href="https://nosuggest.com/accessibility">Accessibility</a>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-col-title">Guides</div>
+      <a href="https://www.nosuggest.com/compare">How NoSuggest Compares</a>
+      <a href="https://www.nosuggest.com/kids-mode">How to Set Up Kids Mode</a>
+      <a href="https://www.nosuggest.com/classroom">Use NoSuggest in the Classroom</a>
+      <a href="https://www.nosuggest.com/creators">For Creators &amp; Influencers</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Statements</div>
+      <a href="https://www.nosuggest.com/accessibility">Accessibility</a>
+      <a href="https://www.nosuggest.com/privacy">Privacy</a>
+      <a href="https://www.nosuggest.com/terms">Terms</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Get in Touch</div>
+      <a href="https://www.nosuggest.com/contact">Contact</a>
+      <a href="https://www.linkedin.com/company/nosuggest" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://mastodon.social/@varun_m" target="_blank" rel="noopener me">Mastodon</a>
+      <a href="https://bsky.app/profile/nosuggest.com" target="_blank" rel="noopener">Bluesky</a>
+      <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener">Star on GitHub</a>
+      <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener">Support NoSuggest</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 NoSuggest. A quiet act of resistance.</p>
+  </div>
 </footer>
-
 <script>
 async function submitForm(){
   const name    = document.getElementById('name').value.trim();
   const email   = document.getElementById('email').value.trim();
   const message = document.getElementById('message').value.trim();
-
   const successEl = document.getElementById('status-success');
   const errorEl   = document.getElementById('status-error');
   const btn       = document.getElementById('submit-btn');
   const spinner   = document.getElementById('spinner');
   const btnLabel  = document.getElementById('btn-label');
-
   // Reset status
   successEl.style.display = 'none';
   errorEl.style.display   = 'none';
-
   // Basic validation
   if(!name || !email || !message){
     errorEl.textContent = 'Please fill in your name, email, and message.';
     errorEl.style.display = 'block';
     return;
   }
-
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
     errorEl.textContent = 'Please enter a valid email address.';
     errorEl.style.display = 'block';
     return;
   }
-
   // Loading state
-  btn.disabled       = true;
+  btn.disabled          = true;
   spinner.style.display = 'block';
   btnLabel.textContent  = 'Sending…';
-
   try{
     const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -331,9 +252,7 @@ async function submitForm(){
         subject: 'NoSuggest Contact Form',
       }),
     });
-
     const data = await res.json();
-
     if(data.success){
       successEl.style.display = 'block';
       // Clear form
@@ -348,12 +267,10 @@ async function submitForm(){
     errorEl.textContent = 'Could not send message. Check your connection and try again.';
     errorEl.style.display = 'block';
   }
-
   btn.disabled          = false;
   spinner.style.display = 'none';
   btnLabel.textContent  = 'Send Message';
 }
-
 // Allow Enter in inputs to submit (but not textarea — users need newlines there)
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('keydown', e => {
@@ -361,6 +278,5 @@ document.querySelectorAll('input').forEach(input => {
   });
 });
 </script>
-
 </body>
 </html>

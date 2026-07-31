@@ -498,30 +498,6 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .player-embed-blocked.show{display:flex;}
 .player-embed-blocked p{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px;}
 .player-embed-blocked a{display:inline-block;padding:0.65rem 1.4rem;background:var(--accent);color:var(--bg);border-radius:var(--radius-sm);font-size:14px;font-weight:600;text-decoration:none;}
-/* ═══════════════════════════════════════
-   SCREEN: FEATURED ON
-═══════════════════════════════════════ */
-.featured-header{padding:calc(var(--safe-top) + 1rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;}
-.featured-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;flex:1;}
-.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;padding:1.5rem 1.25rem;}
-@media(max-width:400px){.featured-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:1rem;}}
-@media(min-width:768px){.featured-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:2rem;}}
-.badge-cell{display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 10px;min-height:68px;transition:border-color 0.15s,opacity 0.15s;position:relative;overflow:hidden;}
-.badge-cell a{display:flex;align-items:center;justify-content:center;width:100%;height:100%;text-decoration:none;color:inherit;}
-.badge-cell a:visited,.badge-cell a:hover,.badge-cell a:active{color:inherit;text-decoration:none;}
-.badge-cell img{max-width:100%;max-height:44px;object-fit:contain;display:block;border-radius:4px;}
-.badge-cell:not(.pending):hover{border-color:var(--border2);}
-.badge-cell.pending{opacity:0.45;cursor:default;}
-.badge-cell.pending::after{content:'Pending';position:absolute;bottom:5px;right:7px;font-size:9px;font-family:'DM Mono',monospace;color:var(--faint);letter-spacing:0.04em;}
-/* Sized specifically for the ISTE EdTech Index badge (800×902px, a tall
-   shield shape) — the default 44px image cap was designed for wide
-   horizontal logo badges and would shrink this one enough to make its
-   text unreadable. */
-.badge-cell-tall{min-height:220px;}
-.badge-cell-tall img{max-height:190px;}
-/* Text-only badge (no SVG available) */
-.badge-text{font-size:12px;font-weight:600;color:var(--text);font-family:'Outfit',sans-serif;letter-spacing:0.01em;text-align:center;line-height:1.4;}
-.badge-text span{display:block;font-size:10px;font-weight:500;color:var(--accent);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:0.04em;}
 
 /* ═══════════════════════════════════════
    FAQ
@@ -557,6 +533,16 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .settings-row-link{display:block;text-decoration:none;}
 .settings-row-link:first-child{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);}
 .settings-row-link:last-child{border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius);}
+
+/* ── Site footer (matches kids-mode / classroom / creators pages) ── */
+.site-footer{padding:2rem 1.25rem 1.25rem;border-top:1px solid var(--border);margin-top:0.5rem;}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.75rem;text-align:left;padding-bottom:1.75rem;}
+.footer-col-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;}
+.footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:0.6rem;transition:color 0.15s;}
+.footer-col a:hover{color:var(--accent);}
+.footer-bottom{padding-top:1.25rem;border-top:1px solid var(--border);text-align:center;}
+.footer-bottom p{font-size:12px;color:var(--faint);}
+@media(max-width:420px){.footer-grid{grid-template-columns:1fr 1fr;gap:1.5rem;}}
 .settings-row-icon{width:32px;height:32px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);}
 .settings-row-icon svg{width:16px;height:16px;}
 .settings-row-text{flex:1;}
@@ -873,62 +859,6 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
       </div>
 
       <div class="settings-section" style="padding-top:0">
-        <div class="settings-label">About</div>
-        <div class="settings-card">
-          <div class="settings-row">
-            <div class="settings-row-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">NoSuggest</div>
-              <div class="settings-row-sub">A quiet act of resistance. Add only the channels you choose, watch what you came for, and close it. No algorithm deciding what's next. No recommendations. No Shorts loop. No doom scroll. Just the videos you wanted.</div>
-            </div>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">Per device</div>
-              <div class="settings-row-sub"><strong style="color:var(--text)">Channels you add here stay on this device.</strong><br/>Your phone, laptop and your kids iPad can each have their own list.</div>
-            </div>
-          </div>
-          <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()" role="button" tabindex="0">
-            <div class="settings-row-icon" style="color:var(--accent)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">Install NoSuggest</div>
-              <div class="settings-row-sub">Add to your home screen for the full app experience</div>
-            </div>
-            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Install ↓</div>
-          </div>
-          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()" id="settings-share-row" role="button" tabindex="0">
-            <div class="settings-row-icon" style="color:var(--accent)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">Share NoSuggest</div>
-              <div class="settings-row-sub">Know someone tired of the algorithm? Share NoSuggest with them.</div>
-            </div>
-            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
-          </div>
-          <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener" class="settings-row-link" id="settings-support-row">
-          <div class="settings-row" style="cursor:pointer">
-            <div class="settings-row-icon" style="color:#ff4444">
-              <svg viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">Support NoSuggest</div>
-              <div class="settings-row-sub">NoSuggest is free and always will be. If it's useful, a voluntary contribution helps keep it running.</div>
-            </div>
-            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Fund ↗</div>
-          </div>
-          </a>
-        </div>
-      </div>
-
-      <div class="settings-section" style="padding-top:0">
         <div class="settings-label">Backup &amp; Restore</div>
         <div class="settings-card">
           <div class="settings-row" style="cursor:pointer" onclick="doExportBackup()" role="button" tabindex="0">
@@ -983,29 +913,57 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
           </div>
         </div>
       </div>
-      <div class="settings-section" style="padding-top:0" id="settings-featured-section">
-        <div class="settings-label">Featured On</div>
+      <div class="settings-section" style="padding-top:0">
+        <div class="settings-label">About</div>
         <div class="settings-card">
-          <div class="settings-row" style="cursor:pointer" onclick="showScreen('featured')" role="button" tabindex="0">
-            <div class="settings-row-icon" style="color:var(--accent)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <div class="settings-row">
+            <div class="settings-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
             </div>
             <div class="settings-row-text">
-              <div class="settings-row-label">View All Listings</div>
-              <div class="settings-row-sub">Platforms and directories that feature NoSuggest</div>
+              <div class="settings-row-label">NoSuggest</div>
+              <div class="settings-row-sub">A quiet act of resistance. Add only the channels you choose, watch what you came for, and close it. No algorithm deciding what's next. No recommendations. No Shorts loop. No doom scroll. Just the videos you wanted.</div>
             </div>
-            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">View →</div>
           </div>
-          <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener" class="settings-row-link">
-          <div class="settings-row" style="cursor:pointer">
-            <div class="settings-row-icon" style="color:var(--text)">
-              <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <div class="settings-row">
+            <div class="settings-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
             </div>
             <div class="settings-row-text">
-              <div class="settings-row-label">Star on GitHub</div>
-              <div class="settings-row-sub">Open source at github.com/No-Suggest/NoSuggest</div>
+              <div class="settings-row-label">Per device</div>
+              <div class="settings-row-sub"><strong style="color:var(--text)">Channels you add here stay on this device.</strong><br/>Your phone, laptop and your kids iPad can each have their own list.</div>
             </div>
-            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Star ↗</div>
+          </div>
+          <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()" role="button" tabindex="0">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Install NoSuggest</div>
+              <div class="settings-row-sub">Add to your home screen for the full app experience</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Install ↓</div>
+          </div>
+          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()" id="settings-share-row" role="button" tabindex="0">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Share NoSuggest</div>
+              <div class="settings-row-sub">Know someone tired of the algorithm? Share NoSuggest with them.</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
+          </div>
+          <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener" class="settings-row-link" id="settings-support-row">
+          <div class="settings-row" style="cursor:pointer">
+            <div class="settings-row-icon" style="color:#ff4444">
+              <svg viewBox="0 0 24 24" fill="#ff4444" stroke="#ff4444" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Support NoSuggest</div>
+              <div class="settings-row-sub">NoSuggest is free and always will be. If it's useful, a voluntary contribution helps keep it running.</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Fund ↗</div>
           </div>
           </a>
         </div>
@@ -1091,18 +1049,34 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         </div>
       </div>
 
-      <!-- ── Privacy / Terms / Contact footer ── -->
-      <div class="settings-section" style="padding-top:0">
-        <div style="text-align:center;padding:0.75rem 1rem 1rem;border-top:1px solid var(--border)">
-          <p style="font-size:11px;color:var(--muted);line-height:2.2">
-            <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Privacy Policy</a>
-            &nbsp;·&nbsp;
-            <a href="https://nosuggest.com/terms" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Terms of Service</a>
-            &nbsp;·&nbsp;
-            <a href="https://nosuggest.com/accessibility" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Accessibility</a>
-            &nbsp;·&nbsp;
-            <a href="https://nosuggest.com/contact" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Contact</a>
-          </p>
+      <!-- ── Site footer (matches kids-mode / classroom / creators pages) ── -->
+      <div class="site-footer">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <div class="footer-col-title">Guides</div>
+            <a href="https://www.nosuggest.com/compare" target="_blank" rel="noopener">How NoSuggest Compares</a>
+            <a href="https://www.nosuggest.com/kids-mode" target="_blank" rel="noopener">How to Set Up Kids Mode</a>
+            <a href="https://www.nosuggest.com/classroom" target="_blank" rel="noopener">Use NoSuggest in the Classroom</a>
+            <a href="https://www.nosuggest.com/creators" target="_blank" rel="noopener">For Creators &amp; Influencers</a>
+          </div>
+          <div class="footer-col">
+            <div class="footer-col-title">Statements</div>
+            <a href="https://nosuggest.com/accessibility" target="_blank" rel="noopener">Accessibility</a>
+            <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener">Privacy</a>
+            <a href="https://nosuggest.com/terms" target="_blank" rel="noopener">Terms</a>
+          </div>
+          <div class="footer-col">
+            <div class="footer-col-title">Get in Touch</div>
+            <a href="https://nosuggest.com/contact" target="_blank" rel="noopener">Contact</a>
+            <a href="https://www.linkedin.com/company/nosuggest" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://mastodon.social/@varun_m" target="_blank" rel="noopener me">Mastodon</a>
+            <a href="https://bsky.app/profile/nosuggest.com" target="_blank" rel="noopener">Bluesky</a>
+            <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener">Star on GitHub</a>
+            <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener">Support NoSuggest</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 NoSuggest. A quiet act of resistance.</p>
         </div>
       </div>
     </div>
@@ -1176,169 +1150,6 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
         <p>Tap the bookmark icon on any video<br/>to save it for later.</p>
       </div>
       <div id="saved-list"></div>
-    </div>
-  </div>
-
-  <!-- SCREEN: FEATURED ON -->
-  <div class="screen" id="screen-featured">
-    <div class="featured-header">
-      <button class="back-btn" onclick="showScreen('settings')" aria-label="Back to Settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      </button>
-      <h2>Featured On</h2>
-    </div>
-    <div class="screen-body">
-      <div class="featured-grid">
-
-        <!-- ISTE EdTech Index -->
-        <div class="badge-cell badge-cell-tall">
-          <a href="https://edtechindex.org/product/ultid/PE8E-1F91-D7CA-4DB3-B5/" target="_blank" rel="noopener" aria-label="ISTE EdTech Index">
-            <img src="https://www.nosuggest.com/EdTech_Badge_FindUs_800w.png" alt="NoSuggest listed on the ISTE EdTech Index" loading="lazy"/>
-          </a>
-        </div>
-
-        <!-- 1. Hacker News -->
-        <div class="badge-cell">
-          <a href="https://news.ycombinator.com/item?id=48390175" target="_blank" rel="noopener" aria-label="Hacker News">
-            <div class="badge-text">Hacker News<span>Listed</span></div>
-          </a>
-        </div>
-
-        <!-- 2. AlternativeTo -->
-        <div class="badge-cell">
-          <a href="https://alternativeto.net/software/nosuggest/" target="_blank" rel="noopener" aria-label="AlternativeTo">
-            <div class="badge-text">AlternativeTo<span>Listed</span></div>
-          </a>
-        </div>
-
-        <!-- 3. Indie Hackers -->
-        <div class="badge-cell">
-          <a href="https://www.indiehackers.com/product/nosuggest" target="_blank" rel="noopener" aria-label="Indie Hackers">
-            <div class="badge-text">Indie Hackers<span>Product</span></div>
-          </a>
-        </div>
-
-        <!-- 4. Product Hunt -->
-        <div class="badge-cell">
-          <a href="https://www.producthunt.com/products/nosuggest" target="_blank" rel="noopener" aria-label="Product Hunt">
-            <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=nosuggest&theme=dark" alt="NoSuggest on Product Hunt" loading="lazy"/>
-          </a>
-        </div>
-
-        <!-- 5. Smol Launch -->
-        <div class="badge-cell">
-          <a href="https://smollaunch.com/products/nosuggest" target="_blank" rel="noopener" aria-label="Smol Launch">
-            <img src="https://smollaunch.com/badges/featured-dark.svg" alt="Featured on Smol Launch" loading="lazy"/>
-          </a>
-        </div>
-
-        <!-- 6. Findly Tools -->
-        <div class="badge-cell">
-          <a href="https://findly.tools/nosuggest" target="_blank" rel="noopener" aria-label="Findly Tools">
-            <img src="https://findly.tools/badges/findly-tools-badge-dark.svg" alt="Featured on Findly Tools" loading="lazy"/>
-          </a>
-        </div>
-
-        <!-- 7. Turbo0 -->
-        <div class="badge-cell">
-          <a href="https://turbo0.com/item/nosuggest" target="_blank" rel="noopener noreferrer" aria-label="Turbo0">
-            <img src="https://img.turbo0.com/badge-listed-dark.svg" alt="Listed on Turbo0" loading="lazy"/>
-          </a>
-        </div>
-
-        <!-- 8. SaaSHub -->
-        <div class="badge-cell">
-          <a href="https://www.saashub.com/nosuggest" target="_blank" rel="noopener" aria-label="SaaSHub">
-            <div class="badge-text">SaaSHub<span>Listed</span></div>
-          </a>
-        </div>
-
-        <!-- 9. SourceForge -->
-        <div class="badge-cell">
-          <a href="https://sourceforge.net/projects/nosuggest" target="_blank" rel="noopener" aria-label="SourceForge">
-            <div class="badge-text">SourceForge<span>Open Source</span></div>
-          </a>
-        </div>
-
-        <!-- 10. MicroLaunch -->
-        <div class="badge-cell">
-          <a href="https://microlaunch.net/p/nosuggest" target="_blank" rel="noopener" aria-label="MicroLaunch">
-            <div class="badge-text">MicroLaunch<span>Product</span></div>
-          </a>
-        </div>
-
-        <!-- 11. dev.to article -->
-        <div class="badge-cell">
-          <a href="https://dev.to/vj_2_108/tired-of-the-youtube-doomscroll-meet-nosuggest-a-quiet-act-of-resistance-5a2d" target="_blank" rel="noopener" aria-label="dev.to">
-            <div class="badge-text">dev.to<span>Article</span></div>
-          </a>
-        </div>
-
-        <!-- 12. DevDigest -->
-        <div class="badge-cell">
-          <a href="https://devdigest.org/articles/nosuggest-a-youtube-frontend-that-kills-the-algorithm" target="_blank" rel="noopener" aria-label="DevDigest">
-            <div class="badge-text">DevDigest<span>Feature</span></div>
-          </a>
-        </div>
-
-        <!-- 13. Peerlist article -->
-        <div class="badge-cell">
-          <a href="https://peerlist.io/hebbarvarunm/articles/nosuggest-watch-youtube-distraction-free" target="_blank" rel="noopener" aria-label="Peerlist Article">
-            <div class="badge-text">Peerlist<span>Article</span></div>
-          </a>
-        </div>
-
-        <!-- 14. StackShare -->
-        <div class="badge-cell">
-          <a href="https://stackshare.io/posts/1sz8rrbguy" target="_blank" rel="noopener" aria-label="StackShare">
-            <div class="badge-text">StackShare<span>Post</span></div>
-          </a>
-        </div>
-
-        <!-- 15. Peerlist (project) -->
-        <div class="badge-cell">
-          <a href="https://peerlist.io/hebbarvarunm/project/nosuggest" target="_blank" rel="noopener" aria-label="Peerlist Project">
-            <div class="badge-text">Peerlist<span>Project</span></div>
-          </a>
-        </div>
-
-        <!-- 16. Side Projectors -->
-        <div class="badge-cell">
-          <a href="https://www.sideprojectors.com/project/82109/nosuggest" target="_blank" rel="noopener" aria-label="Side Projectors">
-            <div class="badge-text">Side Projectors<span>Listed</span></div>
-          </a>
-        </div>
-
-        <!-- 17. Startupa.ge -->
-        <div class="badge-cell">
-          <a href="https://startupa.ge/startups/nosuggest" target="_blank" rel="noopener" aria-label="Startupa.ge">
-            <div class="badge-text">Startupa.ge<span>Startup</span></div>
-          </a>
-        </div>
-
-        <!-- 18. Peerlist post -->
-        <div class="badge-cell">
-          <a href="https://peerlist.io/scroll/post/ACTH6A7PRD89DDMLKF9AGERPMNMNR6" target="_blank" rel="noopener" aria-label="Peerlist Post">
-            <div class="badge-text">Peerlist Post<span>Community</span></div>
-          </a>
-        </div>
-
-        <!-- 19. OpenAlternative — pending -->
-        <div class="badge-cell pending" aria-label="OpenAlternative — pending approval">
-          <div class="badge-text">OpenAlternative<span>Approval pending</span></div>
-        </div>
-
-        <!-- 20. MicroLaunch Blog — pending -->
-        <div class="badge-cell pending" aria-label="MicroLaunch Blog — pending approval">
-          <div class="badge-text">MicroLaunch Blog<span>Approval pending</span></div>
-        </div>
-
-        <!-- 21. Pitchwall — pending -->
-        <div class="badge-cell pending" aria-label="Pitchwall — pending approval">
-          <div class="badge-text">Pitchwall<span>Approval pending</span></div>
-        </div>
-
-      </div>
     </div>
   </div>
 
@@ -1838,7 +1649,7 @@ function showScreen(name, opts){
   });
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-  if(name !== 'setup' && name !== 'add' && name !== 'featured'){
+  if(name !== 'setup' && name !== 'add'){
     localStorage.setItem('ns_active_tab', name);
   }
 
@@ -1859,7 +1670,6 @@ function showScreen(name, opts){
   if(name === 'add')      initAdd();
   if(name === 'search')   initSearch();
   if(name === 'saved')    initSaved();
-  // 'featured' needs no init — static content
 
   /* Move keyboard focus into the newly active screen so the very next
      Tab press continues naturally inside it, instead of requiring a
@@ -1942,7 +1752,7 @@ function applyKidsMode(){
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
   // Hide elements kids shouldn't see or accidentally tap
-  const kidsHide = ['settings-share-row','settings-support-row','settings-featured-section','nav-donate-strip'];
+  const kidsHide = ['settings-share-row','settings-support-row','nav-donate-strip'];
   kidsHide.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = on ? 'none' : '';
@@ -3457,7 +3267,6 @@ window.addEventListener('popstate', () => {
   const overlay = document.getElementById('player-overlay');
   if(overlay.classList.contains('open')){ closePlayer(); }
   else if(currentScreen === 'add'){ showScreen('channels'); }
-  else if(currentScreen === 'featured'){ showScreen('settings'); }
   else{ history.pushState(null, '', location.href); }
 });
 
