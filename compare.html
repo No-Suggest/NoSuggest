@@ -116,11 +116,13 @@ tr:hover td.ns-col{background:rgba(232,255,90,0.05);}
 .btn-ghost:hover{border-color:var(--accent);}
 
 /* ── FOOTER ── */
-footer{border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;}
-.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;}
-footer p{font-size:13px;color:var(--faint);}
-footer a{color:var(--muted);text-decoration:none;font-size:13px;}
-footer a:hover{color:var(--accent);}
+footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2rem;max-width:1100px;margin:0 auto;text-align:left;padding-bottom:2.5rem;}
+.footer-col-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.9rem;}
+.footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:0.65rem;transition:color 0.15s;}
+.footer-col a:hover{color:var(--accent);}
+.footer-bottom{max-width:1100px;margin:0 auto;padding-top:1.5rem;border-top:1px solid var(--border);text-align:center;}
+.footer-bottom p{font-size:13px;color:var(--faint);}
 
 /* ── DIVIDER ── */
 .divider{border:none;border-top:1px solid var(--border);max-width:1100px;margin:0 auto;}
@@ -576,16 +578,32 @@ footer a:hover{color:var(--accent);}
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-inner" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
-    <p>© 2026 NoSuggest. A quiet act of resistance.</p>
-    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
-      <a href="https://www.nosuggest.com">Home</a>
-      <a href="https://www.nosuggest.com/compare">Compare</a>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-col-title">Guides</div>
+      <a href="https://www.nosuggest.com/compare">How NoSuggest Compares</a>
+      <a href="https://www.nosuggest.com/kids-mode">How to Set Up Kids Mode</a>
+      <a href="https://www.nosuggest.com/classroom">Use NoSuggest in the Classroom</a>
+      <a href="https://www.nosuggest.com/creators">For Creators &amp; Influencers</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Statements</div>
+      <a href="https://www.nosuggest.com/accessibility">Accessibility</a>
       <a href="https://www.nosuggest.com/privacy">Privacy</a>
       <a href="https://www.nosuggest.com/terms">Terms</a>
-      <a href="https://www.nosuggest.com/contact">Contact</a>
-      <a href="https://ko-fi.com/nosuggest" target="_blank" rel="noopener">Support</a>
     </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Get in Touch</div>
+      <a href="https://www.nosuggest.com/contact">Contact</a>
+      <a href="https://www.linkedin.com/company/nosuggest" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://mastodon.social/@varun_m" target="_blank" rel="noopener me">Mastodon</a>
+      <a href="https://bsky.app/profile/nosuggest.com" target="_blank" rel="noopener">Bluesky</a>
+      <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener">Star on GitHub</a>
+      <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener">Support NoSuggest</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 NoSuggest. A quiet act of resistance.</p>
   </div>
 </footer>
 

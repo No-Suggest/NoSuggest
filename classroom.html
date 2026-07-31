@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NoSuggest in the Classroom — Set Up a Class Feed in Minutes | NoSuggest</title>
+<meta name="description" content="A teacher's guide to sharing a distraction-free YouTube feed with every student at once — no accounts, no app downloads, just the channels you chose."/>
+<link rel="canonical" href="https://www.nosuggest.com/classroom"/>
+<!-- Open Graph -->
+<meta property="og:title" content="NoSuggest in the Classroom — Set Up a Class Feed in Minutes"/>
+<meta property="og:description" content="Build your class's YouTube feed once, share it in seconds. No accounts, no app downloads, no recommendations, no Shorts."/>
+<meta property="og:url" content="https://www.nosuggest.com/classroom"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="NoSuggest"/>
+<meta property="og:image" content="https://www.nosuggest.com/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="NoSuggest in the Classroom — Set Up a Class Feed in Minutes"/>
+<meta name="twitter:description" content="Build your class's YouTube feed once, share it in seconds. No accounts, no app downloads, no recommendations, no Shorts."/>
+<meta name="twitter:image" content="https://www.nosuggest.com/og-image.png"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a0a0a'/%3E%3Crect x='130' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Crect x='324' y='148' width='58' height='216' rx='12' fill='%23e8ff5a'/%3E%3Cpolygon points='130,148 188,148 382,364 324,364' fill='%23e8ff5a'/%3E%3C/svg%3E" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,600;0,800;1,600&family=DM+Mono:wght@400;500&display=swap"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0a0a;
+  --bg2:#111111;
+  --bg3:#1a1a1a;
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.15);
+  --text:#f0f0ee;
+  --muted:#888884;
+  --faint:#444442;
+  --accent:#e8ff5a;
+  --accent2:#ff6b35;
+  --yes:#4ade80;
+  --no:#ff4444;
+  --partial:#f59e0b;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1.5rem;}
+.nav-inner{max-width:1100px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo svg{width:28px;height:28px;}
+.nav-logo span{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-0.02em;}
+.nav-cta{background:var(--accent);color:#0a0a0a;font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;letter-spacing:0.02em;transition:opacity 0.15s;}
+.nav-cta:hover{opacity:0.85;}
+/* ── HERO ── */
+.hero{padding:5rem 1.5rem 3rem;text-align:center;max-width:760px;margin:0 auto;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(232,255,90,0.08);border:1px solid rgba(232,255,90,0.2);border-radius:99px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.5rem;}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;margin-bottom:1.25rem;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero p{font-size:clamp(1rem,2vw,1.15rem);color:var(--muted);max-width:560px;margin:0 auto 2rem;line-height:1.7;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#0a0a0a;font-weight:700;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;transition:opacity 0.15s;}
+.hero-cta:hover{opacity:0.88;}
+/* ── SECTION ── */
+.section{padding:4rem 1.5rem;max-width:1100px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:1rem;line-height:1.2;}
+.section-sub{color:var(--muted);font-size:1rem;max-width:640px;line-height:1.7;margin-bottom:2.5rem;}
+/* ── FEATURE CARDS ── */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:2rem;}
+.feature-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+.feature-card-icon{width:40px;height:40px;background:rgba(232,255,90,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;}
+.feature-card-icon svg{width:20px;height:20px;color:var(--accent);}
+.feature-card h3{font-size:15px;font-weight:600;margin-bottom:0.4rem;}
+.feature-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+/* ── COMPARISON TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--border);scrollbar-width:thin;scrollbar-color:var(--accent) var(--bg2);}
+.table-wrap::-webkit-scrollbar{height:8px;}
+.table-wrap::-webkit-scrollbar-track{background:var(--bg2);}
+.table-wrap::-webkit-scrollbar-thumb{background:rgba(232,255,90,0.35);border-radius:99px;}
+.table-wrap::-webkit-scrollbar-thumb:hover{background:rgba(232,255,90,0.55);}
+table{width:100%;border-collapse:collapse;min-width:580px;}
+thead tr{background:var(--bg2);}
+th{padding:1rem 1.25rem;text-align:left;font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+th:first-child{color:var(--text);}
+th.ns-col{color:var(--accent);background:rgba(232,255,90,0.04);}
+td{padding:0.9rem 1.25rem;font-size:14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+td:first-child{font-weight:500;color:var(--text);font-size:13px;}
+td.ns-col{background:rgba(232,255,90,0.03);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+tr:hover td.ns-col{background:rgba(232,255,90,0.05);}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+.badge-yes{background:rgba(74,222,128,0.12);color:var(--yes);}
+.badge-no{background:rgba(255,68,68,0.12);color:var(--no);}
+/* ── FAQ ── */
+.faq-list{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.faq-item{background:var(--bg2);}
+.faq-question{width:100%;background:none;border:none;color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;padding:1.25rem 1.5rem;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:background 0.15s;}
+.faq-question:hover{background:var(--bg3);}
+.faq-question svg{flex-shrink:0;width:16px;height:16px;color:var(--muted);transition:transform 0.25s;}
+.faq-item.open .faq-question svg{transform:rotate(180deg);}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.3s ease;}
+.faq-item.open .faq-answer{max-height:300px;}
+.faq-answer-inner{padding:0 1.5rem 1.25rem;font-size:14px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);}
+/* ── FINAL CTA ── */
+.cta-block{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:3rem 2rem;text-align:center;margin:2rem 0;}
+.cta-block h2{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:0.75rem;}
+.cta-block h2 em{font-style:italic;color:var(--accent);}
+.cta-block p{color:var(--muted);font-size:1rem;margin-bottom:1.75rem;max-width:480px;margin-left:auto;margin-right:auto;}
+.cta-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--accent);color:#0a0a0a;font-weight:700;font-size:15px;padding:12px 28px;border-radius:12px;text-decoration:none;transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2rem;max-width:1100px;margin:0 auto;text-align:left;padding-bottom:2.5rem;}
+.footer-col-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.9rem;}
+.footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:0.65rem;transition:color 0.15s;}
+.footer-col a:hover{color:var(--accent);}
+.footer-bottom{max-width:1100px;margin:0 auto;padding-top:1.5rem;border-top:1px solid var(--border);text-align:center;}
+.footer-bottom p{font-size:13px;color:var(--faint);}
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid var(--border);max-width:1100px;margin:0 auto;}
+/* ── STEP NOTE ── */
+.step-note{background:rgba(232,255,90,0.04);border:1px solid rgba(232,255,90,0.15);border-radius:12px;padding:1rem 1.25rem;font-size:13px;color:var(--muted);margin-top:1.5rem;line-height:1.6;}
+.step-note strong{color:var(--text);}
+/* ── TWO-COL STEPS ── */
+.steps-two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;}
+.steps-col{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+.steps-col-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;}
+.step-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:1.1rem;}
+.step-row:last-child{margin-bottom:0;}
+.step-num{width:24px;height:24px;background:rgba(232,255,90,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;}
+.step-text strong{display:block;font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.step-text span{font-size:13px;color:var(--muted);line-height:1.5;}
+@media(max-width:700px){
+  .steps-two-col{grid-template-columns:1fr;}
+}
+@media(max-width:640px){
+  .hero{padding:3rem 1.25rem 2rem;}
+  .section{padding:3rem 1.25rem;}
+  .cta-block{padding:2rem 1.25rem;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:1.75rem;}
+}
+</style>
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "NoSuggest in the Classroom",
+  "description": "A teacher's guide to sharing a distraction-free YouTube feed with every student at once — no accounts, no app downloads, just the channels you chose.",
+  "url": "https://www.nosuggest.com/classroom"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between Export/Import and Create a Pack?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Export/Import fully replaces a device's channels and saved videos with whatever is in the backup code. Create a Pack only adds channels — it never removes or overwrites anything already on a device. Use Export/Import for first-time setup; use Create a Pack whenever you want to add channels mid-term without disturbing what's already there."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I stop students from changing the channel list?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Turn on Kids Mode in Settings and set a 6-digit PIN. This hides the Search tab and Add Channel screen so students can only watch from the approved list. They cannot add, remove, or exit without the PIN."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What devices does NoSuggest work on?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Any device with a browser — phones, tablets, Chromebooks, and laptops. NoSuggest is a Progressive Web App that works directly in the browser with nothing to install from an app store. No sign-up or account is required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a limit to how many channels a class feed can have?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, 25 channels per device. If a Create a Pack link would push a student past that limit, NoSuggest adds as many as it can and tells them how many were skipped, rather than failing outright."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a Create a Pack link expose anything private from the teacher's device?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A pack link only carries channel names and IDs — no saved videos, no account data, nothing personal. Students can see exactly which channels are in it before they tap Add."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://www.nosuggest.com">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <rect width="512" height="512" rx="80" fill="#0a0a0a"/>
+        <rect x="130" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <rect x="324" y="148" width="58" height="216" rx="12" fill="#e8ff5a"/>
+        <polygon points="130,148 188,148 382,364 324,364" fill="#e8ff5a"/>
+      </svg>
+      <span>NoSuggest</span>
+    </a>
+    <a class="nav-cta" href="https://www.nosuggest.com">Open NoSuggest →</a>
+  </div>
+</nav>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    For Teachers &amp; Students
+  </div>
+  <h1>One Channel List.<br/><em>Every Student's Device.</em></h1>
+  <p>Build your class's YouTube feed once — NoSuggest turns it into a code or a link that gives every student the exact same channels, with no algorithm, no Shorts, and no autoplay.</p>
+  <a class="hero-cta" href="https://www.nosuggest.com">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Try NoSuggest — It's Free
+  </a>
+</div>
+<hr class="divider"/>
+<!-- WHY YOUTUBE IS RISKY IN CLASS -->
+<div class="section">
+  <div class="section-label">The Problem</div>
+  <h2 class="section-title">Regular YouTube Is a Gamble in a Classroom</h2>
+  <p class="section-sub">Handing a student the YouTube app for one lesson video means accepting that the algorithm is also in the room — and it doesn't care about your subject.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      </div>
+      <h3>Autoplay doesn't stop when the lesson does</h3>
+      <p>A five-minute lesson clip becomes ten unrelated minutes the moment autoplay picks the next video. NoSuggest removes autoplay entirely — when a video ends, nothing starts on its own.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      </div>
+      <h3>Shorts are one tap away from anywhere</h3>
+      <p>The regular YouTube app keeps a Shorts tab sitting permanently next to every video. The moment attention drifts, it's there. In NoSuggest, the Shorts feed doesn't exist.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <h3>NoSuggest shows only what you added</h3>
+      <p>No recommendations, no trending feed, no search bar leading elsewhere. Students see exactly the channels you set up — nothing more — on any phone, tablet, Chromebook, or laptop, with no sign-up required.</p>
+    </div>
+  </div>
+</div>
+<hr class="divider"/>
+<!-- EXPORT/IMPORT vs CREATE A PACK -->
+<div class="section">
+  <div class="section-label">Before You Start — Important</div>
+  <h2 class="section-title">Two Ways to Share a Feed. Know the Difference.</h2>
+  <p class="section-sub">These two features look similar but do opposite things to whatever is already on a student's device. Using the wrong one mid-term can silently wipe saved videos.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>What you're doing</th>
+          <th class="ns-col">Export / Import</th>
+          <th class="ns-col">Create a Pack</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Effect on existing data</td>
+          <td class="ns-col"><span class="badge badge-no">Overwrites</span> — replaces all channels and saved videos</td>
+          <td class="ns-col"><span class="badge badge-yes">Appends only</span> — adds channels, touches nothing else</td>
+        </tr>
+        <tr>
+          <td>What's transferred</td>
+          <td class="ns-col">Channels <strong>and</strong> saved videos</td>
+          <td class="ns-col">Channels only — no saved videos, nothing personal</td>
+        </tr>
+        <tr>
+          <td>If a channel already exists on the device</td>
+          <td class="ns-col">Irrelevant — everything is replaced anyway</td>
+          <td class="ns-col">Skipped automatically, no duplicates</td>
+        </tr>
+        <tr>
+          <td>Best used for</td>
+          <td class="ns-col">First-time class setup at the start of a term</td>
+          <td class="ns-col">Adding new channels mid-term without disturbing anything</td>
+        </tr>
+        <tr>
+          <td>How students receive it</td>
+          <td class="ns-col">A text backup code, pasted into Import Data</td>
+          <td class="ns-col">A tappable link — one tap adds all channels</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="step-note"><strong>Simple rule:</strong> use Export / Import at the start of the term. Use Create a Pack for anything you add after that — it will never wipe a student's saved videos or channels they added themselves.</div>
+</div>
+<hr class="divider"/>
+<!-- SETUP: TEACHER + STUDENT SIDE BY SIDE -->
+<div class="section">
+  <div class="section-label">Step-by-Step</div>
+  <h2 class="section-title">Setting Up the Class Feed</h2>
+  <p class="section-sub">The teacher does steps 1–3 once, on their own device. Students do step 4 — it takes under a minute.</p>
+  <div class="steps-two-col">
+    <div class="steps-col">
+      <div class="steps-col-label">Teacher</div>
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Add your subject's channels</strong>
+          <span>Open NoSuggest and search for every educational channel, documentary source, or creator you want the class to see.</span>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Export a backup code</strong>
+          <span>Go to Settings → Export Data. NoSuggest generates a backup code and copies it to your clipboard.</span>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Share it wherever students look</strong>
+          <span>Paste the code into Google Classroom, email, a class WhatsApp group — anywhere students already check.</span>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <strong>Optional: lock it with Kids Mode</strong>
+          <span>Set a 6-digit PIN in Settings to hide the Search and Add Channel tabs — students can only watch from the approved list.</span>
+        </div>
+      </div>
+    </div>
+    <div class="steps-col">
+      <div class="steps-col-label">Student</div>
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Copy the code your teacher shared</strong>
+          <span>Copy the full backup code from Classroom, email, or chat.</span>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Open nosuggest.com — no sign-up needed</strong>
+          <span>Works in any browser on any device. Go to Settings → Backup &amp; Restore.</span>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Tap Import Data → paste → Restore</strong>
+          <span>Tap the paste area, confirm it looks right, then tap Restore. Your feed now matches the class.</span>
+        </div>
+      </div>
+      <div class="step-row" style="opacity:0.4;pointer-events:none;">
+        <div class="step-num" style="background:transparent;border:1px dashed var(--border);">—</div>
+        <div class="step-text">
+          <span style="font-size:13px;color:var(--accent);">That's it — no account, no download, nothing from an app store.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="step-note"><strong>Heads up for students:</strong> Import Data replaces all channels and saved videos already on your device. If you've saved your own videos and want to keep them, ask your teacher for a Create a Pack link instead — it only adds channels and leaves everything else untouched.</div>
+</div>
+<hr class="divider"/>
+<!-- ADDING MORE CHANNELS MID-TERM -->
+<div class="section">
+  <div class="section-label">Mid-Term Updates</div>
+  <h2 class="section-title">Adding New Channels Without Wiping Anything</h2>
+  <p class="section-sub">Week 6 and you want to add three documentary channels that weren't in the original setup? Create a Pack is exactly what this is for.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">1</span></div>
+      <h3>Add just the new channels</h3>
+      <p>On your device, add only the channels you want to introduce. Leave everything else alone.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">2</span></div>
+      <h3>Settings → Create a Pack</h3>
+      <p>NoSuggest turns your current channel list into a single shareable link and copies it to your clipboard.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">3</span></div>
+      <h3>Share the link the usual way</h3>
+      <p>Post it in Classroom or chat. Students tap the link, see which channels are in it, and tap once to add them.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><span style="color:var(--accent);font-family:'Fraunces',serif;font-weight:800;font-size:18px;">4</span></div>
+      <h3>Nothing else on their device changes</h3>
+      <p>Channels they already have are skipped automatically. Saved videos are untouched. No surprises.</p>
+    </div>
+  </div>
+  <div class="step-note"><strong>About the pack link:</strong> it carries channel names and IDs only — no saved videos, no personal data from your device. If adding would push a student past the 25-channel limit, NoSuggest adds as many as it can and reports how many were skipped.</div>
+</div>
+<hr class="divider"/>
+<!-- FAQ -->
+<div class="section">
+  <div class="section-label">Common Questions</div>
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How do I stop students from changing the channel list?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Turn on Kids Mode in Settings and set a 6-digit PIN. This hides the Search tab and the Add Channel screen, so students can only watch from the approved channel list. They cannot add, remove, or exit Kids Mode without the PIN.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What devices does this work on?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Any device with a browser — phones, tablets, Chromebooks, and laptops. NoSuggest is a Progressive Web App, meaning it runs directly in the browser with nothing to install from an app store. It works identically across iOS, Android, and desktop.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is there a limit to how many channels a class feed can have?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">25 channels per device. If a Create a Pack link would push a student past that limit, NoSuggest adds as many as it can and tells them how many were skipped — it never fails silently.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Does a Create a Pack link expose anything private from my device?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">No. A pack link carries only channel names and IDs. No saved videos, no account data, nothing personal is included. Students can see exactly which channels are in it before they tap Add.</div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Can students save videos or will they lose them during setup?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Students can bookmark videos to watch later using the save button on any video card. However, Import Data will overwrite any saved videos already on a device — so if a student has videos saved that they want to keep, use a Create a Pack link for the update instead, which never touches saved videos.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<hr class="divider"/>
+<!-- FINAL CTA -->
+<div class="section">
+  <div class="cta-block">
+    <h2>Build It Once.<br/><em>Share It With the Whole Class.</em></h2>
+    <p>No accounts, no downloads, no data collected from students — just the channels you approved, on every device.</p>
+    <div class="cta-buttons">
+      <a class="btn-primary" href="https://www.nosuggest.com">Set Up Your Class Feed →</a>
+    </div>
+  </div>
+</div>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-col-title">Guides</div>
+      <a href="https://www.nosuggest.com/compare">How NoSuggest Compares</a>
+      <a href="https://www.nosuggest.com/kids-mode">How to Set Up Kids Mode</a>
+      <a href="https://www.nosuggest.com/classroom">Use NoSuggest in the Classroom</a>
+      <a href="https://www.nosuggest.com/creators">For Creators &amp; Influencers</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Statements</div>
+      <a href="https://www.nosuggest.com/accessibility">Accessibility</a>
+      <a href="https://www.nosuggest.com/privacy">Privacy</a>
+      <a href="https://www.nosuggest.com/terms">Terms</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Get in Touch</div>
+      <a href="https://www.nosuggest.com/contact">Contact</a>
+      <a href="https://www.linkedin.com/company/nosuggest" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://mastodon.social/@varun_m" target="_blank" rel="noopener me">Mastodon</a>
+      <a href="https://bsky.app/profile/nosuggest.com" target="_blank" rel="noopener">Bluesky</a>
+      <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener">Star on GitHub</a>
+      <a href="https://donate.stripe.com/14A9AS1zneyudtH0eYak000" target="_blank" rel="noopener">Support NoSuggest</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 NoSuggest. A quiet act of resistance.</p>
+  </div>
+</footer>
+<script>
+function toggleFaq(btn){
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>
