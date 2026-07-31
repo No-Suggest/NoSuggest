@@ -254,11 +254,11 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-install-strip span{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.02em;}
 #nav-install-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 
-/* ── Share banner (repurposed from donate strip, every 5th session) ── */
-#nav-donate-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:#1a0a00;border-top:1px solid rgba(255,107,53,0.6);cursor:pointer;text-decoration:none;}
-#nav-donate-strip.show{display:flex;}
-#nav-donate-strip span{font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.02em;}
-#nav-donate-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
+/* ── Nav strips: share banner + LinkedIn banner, alternate every 5th session ── */
+#nav-donate-strip,#nav-linkedin-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:#1a0a00;border-top:1px solid rgba(255,107,53,0.6);cursor:pointer;text-decoration:none;}
+#nav-donate-strip.show,#nav-linkedin-strip.show{display:flex;}
+#nav-donate-strip span,#nav-linkedin-strip span{font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.02em;}
+#nav-donate-strip .strip-dismiss,#nav-linkedin-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 /* When donate banner shows, push install strip up further */
 body.show-donate-strip #nav-install-strip{bottom:calc(64px + var(--safe-bot) + 36px);}
 body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot));}
@@ -1185,11 +1185,18 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
     <button class="strip-dismiss" onclick="dismissNavStrip(event)" aria-label="Dismiss">×</button>
   </div>
 
-  <!-- NAV SHARE STRIP (repurposed from donate strip) — shown every 5th session. Same #nav-donate-strip id kept intentionally so it still hides in Kids Mode. -->
+  <!-- NAV SHARE STRIP (repurposed from donate strip) — alternates with LinkedIn strip every 5th session. Same #nav-donate-strip id kept intentionally so it still hides in Kids Mode. -->
   <a id="nav-donate-strip" href="#" onclick="event.preventDefault(); shareNoSuggest();">
     <svg viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
     <span>Doomscrolling is eating everyone from inside.<br><b>Please tap here to share NoSuggest.</b></span>
     <button class="strip-dismiss" id="donate-strip-dismiss" aria-label="Dismiss">×</button>
+  </a>
+
+  <!-- NAV LINKEDIN STRIP — alternates with share strip every 5th session. Same suppression treatment as nav-donate-strip for Kids Mode. -->
+  <a id="nav-linkedin-strip" href="https://www.linkedin.com/company/nosuggest" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="#ff6b35" width="14" height="14"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 .001-4.124 2.062 2.062 0 0 1-.001 4.124zM7.114 20.452H3.558V9h3.556v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    <span>Brain rot isn't a joke anymore. It's a business model.<br><b>Please follow us on LinkedIn, and help repost what we share.</b></span>
+    <button class="strip-dismiss" id="linkedin-strip-dismiss" aria-label="Dismiss">×</button>
   </a>
 
   <!-- iOS INSTALL BOTTOM SHEET -->
@@ -1753,7 +1760,7 @@ function applyKidsMode(){
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
   // Hide elements kids shouldn't see or accidentally tap
-  const kidsHide = ['settings-share-row','settings-support-row','nav-donate-strip'];
+  const kidsHide = ['settings-share-row','settings-support-row','nav-donate-strip','nav-linkedin-strip'];
   kidsHide.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = on ? 'none' : '';
@@ -2770,21 +2777,32 @@ function removeSaved(id){
 }
 
 /* ═══════════════════════════════════════════
-   SHARE BANNER : repurposed from donate strip, shown on every 5th session
-   (DOM id #nav-donate-strip and class .show-donate-strip kept as-is so
-   Kids Mode's suppression list still hides it — see kidsHide array)
+   SESSION BANNER : alternates between the share banner and the LinkedIn
+   banner every 5th session (5th → one, 10th → the other, 15th → back to
+   the first, and so on). Which one goes first is not hardcoded — it's
+   whichever wasn't shown last time, tracked via ns_last_banner.
+   (DOM ids #nav-donate-strip / #nav-linkedin-strip and class
+   .show-donate-strip kept as-is so Kids Mode's suppression list still
+   hides them — see kidsHide array)
 ═══════════════════════════════════════════ */
-function initShareBanner(){
+function initSessionBanner(){
   const count = STORE.sessionCount + 1;
   STORE.sessionCount = count;
 
   if(count % 5 !== 0) return;
 
-  const strip = document.getElementById('nav-donate-strip');
+  const last = localStorage.getItem('ns_last_banner');
+  const next = last === 'share' ? 'linkedin' : 'share';
+  localStorage.setItem('ns_last_banner', next);
+
+  const stripId   = next === 'share' ? 'nav-donate-strip'      : 'nav-linkedin-strip';
+  const dismissId = next === 'share' ? 'donate-strip-dismiss'  : 'linkedin-strip-dismiss';
+
+  const strip = document.getElementById(stripId);
   if(!strip) return;
 
-  // Wire up dismiss button without navigating to Stripe
-  const dismissBtn = document.getElementById('donate-strip-dismiss');
+  // Wire up dismiss button without triggering the banner's own action/navigation
+  const dismissBtn = document.getElementById(dismissId);
   if(dismissBtn){
     dismissBtn.addEventListener('click', e => {
       e.preventDefault();
@@ -3254,7 +3272,7 @@ document.addEventListener('keydown', (e) => {
 window.addEventListener('load', () => {
   purgeExpiredResume();
   applyKidsMode();
-  initShareBanner();
+  initSessionBanner();
   if(STORE.hasLaunched){
     showScreen(localStorage.getItem('ns_active_tab') || 'feed');
   } else {
