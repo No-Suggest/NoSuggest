@@ -104,7 +104,7 @@
       "name": "Tapping the YouTube logo opens YouTube with recommendations. How do I block it?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "This happens because the video plays inside the official YouTube player, which includes a YouTube logo and title link. NoSuggest cannot modify what is inside that player. To prevent YouTube from opening on the device: iPhone (Safari & Chrome): Settings → Screen Time → Content & Privacy Restrictions → Content Restrictions → Web Content → Limit Adult Websites. Under Never Allow, tap Add Website and enter youtube.com. This applies across all browsers on the device. Android & laptops: Install the BlockSite app, grant the required permissions, and add youtube.com to your block list."
+        "text": "This happens because the video plays inside the official YouTube player, which includes a YouTube logo and title link. NoSuggest cannot modify what is inside that player. To prevent YouTube from opening on the device: iPhone (Safari & Chrome): Settings → Screen Time → Content & Privacy Restrictions → Content Restrictions → Web Content → Limit Adult Websites. Under Never Allow, tap Add Website and enter youtube.com. This applies across all browsers on the device. Android: Delete the YouTube app and use Digital Wellbeing or Family Link to block youtube.com — both are free and built into Android, no extra apps or permissions needed. Laptops: Use your browser's built-in parental controls or your operating system's screen time tools to restrict youtube.com. No third-party software required."
       }
     },
     {
@@ -403,6 +403,14 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   border-color: var(--accent);
   box-shadow: none;
   outline: none;
+}
+/* New video indicator: 2px accent border for videos published < 24 h ago.
+   No box-shadow here on purpose: .video-thumb has overflow:hidden + border-radius
+   + a GPU compositing layer (transform/will-change), the same combination that
+   clips box-shadow on iOS Safari (see the :focus-visible comment above). Border
+   color/width only, same technique already used for hover/focus. */
+.video-thumb.is-new{
+  border: 2px solid var(--accent);
 }
 .thumb-img-wrap{position:relative;padding-bottom:56.25%;background:#111;}
 .thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);backface-visibility:hidden;}
@@ -1037,7 +1045,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
               <span>Tapping the YouTube logo opens YouTube with recommendations. How do I block it?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">This happens because the video plays inside the official YouTube player, which includes a YouTube logo and title link. NoSuggest cannot modify what is inside that player.<br><br>To prevent YouTube from opening on the device:<br><br><strong>iPhone (Safari &amp; Chrome):</strong><br>Settings → Screen Time → Content &amp; Privacy Restrictions → Content Restrictions → Web Content → Limit Adult Websites. Under Never Allow, tap Add Website and enter youtube.com. This applies across all browsers on the device.<br><br><strong>Android &amp; laptops:</strong><br>Install the BlockSite app, grant the required permissions, and add youtube.com to your block list.</div>
+            <div class="faq-a">This happens because the video plays inside the official YouTube player, which includes a YouTube logo and title link. NoSuggest cannot modify what is inside that player.<br><br>To prevent YouTube from opening on the device:<br><br><strong>iPhone (Safari &amp; Chrome):</strong><br>Settings → Screen Time → Content &amp; Privacy Restrictions → Content Restrictions → Web Content → Limit Adult Websites. Under Never Allow, tap Add Website and enter youtube.com. This applies across all browsers on the device.<br><br><strong>Android:</strong><br>Delete the YouTube app and use Digital Wellbeing or Family Link to block youtube.com — both are free and built into Android, no extra apps or permissions needed.<br><br><strong>Laptops:</strong><br>Use your browser's built-in parental controls or your operating system's screen time tools to restrict youtube.com. No third-party software required.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1625,6 +1633,24 @@ function toast(msg, dur=2200){
   setTimeout(() => t.classList.remove('show'), dur);
 }
 
+/* Returns true when a video was published within the last 24 hours.
+   Works for ISO date strings AND Worker relative strings like "15 hours ago".
+   Excludes day/week/month/year FIRST so "month" never trips the 'm' (minute) check. */
+function isNewVideo(publishedAt){
+  if(!publishedAt) return false;
+  const d = new Date(publishedAt);
+  if(!isNaN(d.getTime())){
+    const diffMs = Date.now() - d.getTime();
+    return diffMs >= 0 && diffMs < 86400000;          // guard against future/scheduled timestamps
+  }
+  const s = String(publishedAt).toLowerCase();
+  if(/day|week|month|year/.test(s)) return false;   // never < 24 h — catches "month" before 'm'
+  if(/\bnow\b/.test(s)) return true;                 // "just now"
+  const h = s.match(/(\d+)\s*h/);
+  if(h) return parseInt(h[1]) < 24;                  // "15 hours ago", "3h ago"
+  if(/\d+\s*m/.test(s)) return true;                 // "45 minutes ago", "5m ago"
+  return false;
+}
 function timeAgo(iso){
   if(!iso) return '';
   // New Worker returns relative strings like "3 hours ago", "1 day ago" : pass through directly
@@ -2016,8 +2042,9 @@ function renderVideos(ch, videos){
   el.innerHTML = videos.map(v => {
     VIDEO_DATA[v.id] = v;
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
+    const isNew    = isNewVideo(v.publishedAt);
     return `
-    <div class="video-thumb" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
+    <div class="video-thumb${isNew ? ' is-new' : ''}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
       <div class="thumb-img-wrap">
         <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
@@ -2025,7 +2052,7 @@ function renderVideos(ch, videos){
       <div class="thumb-info">
         <div class="thumb-title">${esc(v.title)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div class="thumb-meta">${timeAgo(v.publishedAt)}</div>
+          <div class="thumb-meta" style="${isNew ? 'color:var(--accent)' : ''}">${timeAgo(v.publishedAt)}</div>
           <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
             <svg width="12" height="12" viewBox="0 0 24 24" stroke-width="2" fill="${savedNow?'var(--accent)':'none'}" stroke="${savedNow?'var(--accent)':'var(--faint)'}"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
