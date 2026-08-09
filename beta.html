@@ -404,10 +404,10 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   box-shadow: none;
   outline: none;
 }
-/* New video indicator: neon border for videos published < 24 h ago */
+/* New video indicator: 2px neon border + glow for videos published < 24 h ago */
 .video-thumb.is-new{
-  border-color: var(--accent);
-  box-shadow: 0 0 8px rgba(232,255,90,0.28);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 10px rgba(232,255,90,0.30);
 }
 .thumb-img-wrap{position:relative;padding-bottom:56.25%;background:#111;}
 .thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);backface-visibility:hidden;}
@@ -1631,23 +1631,17 @@ function toast(msg, dur=2200){
 }
 
 /* Returns true when a video was published within the last 24 hours.
-   Works for both ISO date strings and the Worker's relative strings.
-   Strategy: reject day/week/month/year FIRST so the 'm' (minute) check
-   below can never accidentally fire on "month" or "months". */
+   Works for ISO date strings AND Worker relative strings like "15 hours ago".
+   Excludes day/week/month/year FIRST so "month" never trips the 'm' (minute) check. */
 function isNewVideo(publishedAt){
   if(!publishedAt) return false;
-  // ISO date string (e.g. "2025-01-15T10:30:00Z")
   const d = new Date(publishedAt);
   if(!isNaN(d.getTime())) return (Date.now() - d.getTime()) < 86400000;
-  // Relative string from Worker (e.g. "15 hours ago", "5 minutes ago", "1 day ago")
   const s = String(publishedAt).toLowerCase();
-  // Anything with day / week / month / year is never within 24 h
-  if(/day|week|month|year/.test(s)) return false;
-  // Hours: "X hours ago", "Xh ago" — new only when X < 24
+  if(/day|week|month|year/.test(s)) return false;   // never < 24 h — catches "month" before 'm'
   const h = s.match(/(\d+)\s*h/);
-  if(h) return parseInt(h[1]) < 24;
-  // Minutes: "X minutes ago", "X mins ago", "Xm ago" — always within 24 h
-  if(/\d+\s*m/.test(s)) return true;
+  if(h) return parseInt(h[1]) < 24;                  // "15 hours ago", "3h ago"
+  if(/\d+\s*m/.test(s)) return true;                 // "45 minutes ago", "5m ago"
   return false;
 }
 function timeAgo(iso){
@@ -2041,9 +2035,9 @@ function renderVideos(ch, videos){
   el.innerHTML = videos.map(v => {
     VIDEO_DATA[v.id] = v;
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
-    const newCls   = isNewVideo(v.publishedAt) ? ' is-new' : '';
+    const isNew    = isNewVideo(v.publishedAt);
     return `
-    <div class="video-thumb${newCls}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
+    <div class="video-thumb${isNew ? ' is-new' : ''}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
       <div class="thumb-img-wrap">
         <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
@@ -2051,7 +2045,7 @@ function renderVideos(ch, videos){
       <div class="thumb-info">
         <div class="thumb-title">${esc(v.title)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div class="thumb-meta">${timeAgo(v.publishedAt)}</div>
+          <div class="thumb-meta" style="${isNew ? 'color:var(--accent)' : ''}">${timeAgo(v.publishedAt)}</div>
           <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
             <svg width="12" height="12" viewBox="0 0 24 24" stroke-width="2" fill="${savedNow?'var(--accent)':'none'}" stroke="${savedNow?'var(--accent)':'var(--faint)'}"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
