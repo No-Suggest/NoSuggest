@@ -404,7 +404,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   box-shadow: none;
   outline: none;
 }
-/* ── New video indicator: neon border for videos < 24 h old ── */
+/* New video indicator: neon border for videos published < 24 h ago */
 .video-thumb.is-new{
   border-color: var(--accent);
   box-shadow: 0 0 8px rgba(232,255,90,0.28);
@@ -1630,20 +1630,25 @@ function toast(msg, dur=2200){
   setTimeout(() => t.classList.remove('show'), dur);
 }
 
-/* Returns true if the video was published within the last 24 hours.
-   publishedAt can be an ISO date string OR a relative string from the
-   Worker ("3 hours ago", "1 day ago", etc.) — both cases are handled. */
+/* Returns true when a video was published within the last 24 hours.
+   Works for both ISO date strings and the Worker's relative strings.
+   Strategy: reject day/week/month/year FIRST so the 'm' (minute) check
+   below can never accidentally fire on "month" or "months". */
 function isNewVideo(publishedAt){
   if(!publishedAt) return false;
-  // ISO date path
+  // ISO date string (e.g. "2025-01-15T10:30:00Z")
   const d = new Date(publishedAt);
   if(!isNaN(d.getTime())) return (Date.now() - d.getTime()) < 86400000;
-  // Relative string path: "45m ago", "3 hours ago", "1 day ago" …
+  // Relative string from Worker (e.g. "15 hours ago", "5 minutes ago", "1 day ago")
   const s = String(publishedAt).toLowerCase();
-  if(/\d+\s*(minute|min|m)\b/.test(s)) return true;        // minutes → always new
-  const hm = s.match(/(\d+)\s*(hour|hr|h)\b/);
-  if(hm) return parseInt(hm[1]) < 24;                       // hours → new if < 24
-  return false;                                              // days / dates → not new
+  // Anything with day / week / month / year is never within 24 h
+  if(/day|week|month|year/.test(s)) return false;
+  // Hours: "X hours ago", "Xh ago" — new only when X < 24
+  const h = s.match(/(\d+)\s*h/);
+  if(h) return parseInt(h[1]) < 24;
+  // Minutes: "X minutes ago", "X mins ago", "Xm ago" — always within 24 h
+  if(/\d+\s*m/.test(s)) return true;
+  return false;
 }
 function timeAgo(iso){
   if(!iso) return '';
