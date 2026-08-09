@@ -404,10 +404,13 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
   box-shadow: none;
   outline: none;
 }
-/* New video indicator: 2px neon border + glow for videos published < 24 h ago */
+/* New video indicator: 2px accent border for videos published < 24 h ago.
+   No box-shadow here on purpose: .video-thumb has overflow:hidden + border-radius
+   + a GPU compositing layer (transform/will-change), the same combination that
+   clips box-shadow on iOS Safari (see the :focus-visible comment above). Border
+   color/width only, same technique already used for hover/focus. */
 .video-thumb.is-new{
   border: 2px solid var(--accent);
-  box-shadow: 0 0 10px rgba(232,255,90,0.30);
 }
 .thumb-img-wrap{position:relative;padding-bottom:56.25%;background:#111;}
 .thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);backface-visibility:hidden;}
@@ -1636,9 +1639,13 @@ function toast(msg, dur=2200){
 function isNewVideo(publishedAt){
   if(!publishedAt) return false;
   const d = new Date(publishedAt);
-  if(!isNaN(d.getTime())) return (Date.now() - d.getTime()) < 86400000;
+  if(!isNaN(d.getTime())){
+    const diffMs = Date.now() - d.getTime();
+    return diffMs >= 0 && diffMs < 86400000;          // guard against future/scheduled timestamps
+  }
   const s = String(publishedAt).toLowerCase();
   if(/day|week|month|year/.test(s)) return false;   // never < 24 h — catches "month" before 'm'
+  if(/\bnow\b/.test(s)) return true;                 // "just now"
   const h = s.match(/(\d+)\s*h/);
   if(h) return parseInt(h[1]) < 24;                  // "15 hours ago", "3h ago"
   if(/\d+\s*m/.test(s)) return true;                 // "45 minutes ago", "5m ago"
