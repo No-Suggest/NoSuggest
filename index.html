@@ -676,6 +676,12 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .pack-channel-item::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;}
 .pack-note{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.5;}
 .pack-note.warn{color:#e8a53b;}
+/* ── Feed loading progress sentinel ── */
+#feed-loading-sentinel{display:flex;flex-direction:column;align-items:center;gap:12px;padding:2.5rem 1.25rem 3rem;text-align:center;}
+.feed-progress-text{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.02em;line-height:1.6;}
+.feed-progress-bar{width:100px;height:2px;background:var(--border);border-radius:1px;overflow:hidden;}
+@keyframes feed-progress-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.feed-progress-bar::after{content:'';display:block;height:100%;width:60%;background:var(--accent);border-radius:1px;animation:feed-progress-shimmer 1.4s ease-in-out infinite;}
 </style>
 </head>
 <body>
@@ -1992,7 +1998,31 @@ async function initFeed(newChannelId){
 
   // Track how many channels complete (success or fail) to detect all-failed case
   let completed = 0;
+  let loaded    = 0;   // channels that successfully returned videos
   const total   = channels.length;
+
+  // ── Loading sentinel — always shown (1 channel or many) until all finish ──
+  // For a single channel the feed body is otherwise a blank void for up to 9 s.
+  // For multi-channel it acts as a live progress counter at the bottom of the list.
+  const sentinel = document.createElement('div');
+  sentinel.id = 'feed-loading-sentinel';
+  sentinel.innerHTML =
+    `<div class="spin"></div>` +
+    (total > 1 ? `<div class="feed-progress-bar"></div>` : '') +
+    `<div class="feed-progress-text" id="feed-progress-text">` +
+      (total === 1 ? `Loading your channel…` : `Loading ${total} channels…`) +
+    `</div>`;
+  body.appendChild(sentinel);
+
+  function updateSentinelText(){
+    const textEl = document.getElementById('feed-progress-text');
+    if(!textEl) return;
+    const remaining = total - completed;
+    if(remaining <= 0) return;
+    textEl.textContent = loaded === 0
+      ? `Loading ${total} channel${total === 1 ? '' : 's'}…`
+      : `${loaded} ${loaded === 1 ? 'channel' : 'channels'} loaded · ${remaining} more to go…`;
+  }
 
   channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
@@ -2006,13 +2036,33 @@ async function initFeed(newChannelId){
           setCachedVideos(ch.id, videos);
         }
         if(feedGeneration !== myGen) return;
-        requestAnimationFrame(() => { appendChannelToFeed(ch, videos, body); });
+        loaded++;
+        requestAnimationFrame(() => {
+          appendChannelToFeed(ch, videos, body);
+          // Keep sentinel pinned at the very bottom as new channels arrive
+          const s = document.getElementById('feed-loading-sentinel');
+          if(s) body.appendChild(s);
+          updateSentinelText();
+        });
       } catch(e){
         console.warn(`[NoSuggest] ${ch.id} failed silently:`, e.message);
       } finally {
+        // Guard: if the user navigated away and back to Feed (or triggered
+        // another full reload) while this fetch was still in flight, this
+        // generation's body/sentinel have already been wiped by the newer
+        // initFeed() call. Without this check, a late-resolving stale fetch
+        // would grab the NEW generation's sentinel/body via the shared DOM
+        // id and corrupt its progress text, remove its sentinel early, or
+        // (worst case) wipe genuinely-loading content and show a false
+        // "Connection failure" state. Bail out — this generation's work no
+        // longer matters.
+        if(feedGeneration !== myGen) return;
         completed++;
         if(completed === total){
           requestAnimationFrame(() => {
+            // Remove sentinel — all channels have finished (success or fail)
+            const s = document.getElementById('feed-loading-sentinel');
+            if(s) s.remove();
             if(!body.querySelector('.channel-section')){
               body.innerHTML = '';
               body.appendChild(empty);
@@ -2021,6 +2071,9 @@ async function initFeed(newChannelId){
               empty.style.display = 'flex';
             }
           });
+        } else {
+          // A channel finished (even if it failed) — update the count
+          requestAnimationFrame(updateSentinelText);
         }
       }
     }, delay);
