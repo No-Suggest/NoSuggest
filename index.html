@@ -2150,7 +2150,7 @@ function renderVideos(ch, videos){
   const el = document.getElementById('videos-' + ch.id);
   if(!el) return;
   if(!videos.length){
-    el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No videos found for this channel</div>`;
+    el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No full-form latest videos found for this channel</div>`;
     return;
   }
   el.innerHTML = videos.map(v => {
