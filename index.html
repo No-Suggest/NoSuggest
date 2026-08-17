@@ -1550,12 +1550,13 @@ let feedGeneration = 0;
 // background) DOM is correct and avoids restarting work in progress.
 let feedEverInitialized = false;
 // AbortController for the most recent full-feed reload. Each channel's
-// retry chain (fetchVideosRSSWithRetry) can legitimately run for
-// several minutes worst-case, so if a full reload ever *does* need to
-// happen while a previous one is still in flight, this lets us cancel
-// the superseded reload's fetches outright instead of leaving them to
-// run to completion in the background for no benefit, silently
-// competing for connections with the reload that actually matters.
+// retry chain (fetchVideosRSSWithRetry) can legitimately run for a
+// couple of minutes worst-case (3 attempts, each up to the 45s RSS
+// timeout), so if a full reload ever *does* need to happen while a
+// previous one is still in flight, this lets us cancel the superseded
+// reload's fetches outright instead of leaving them to run to
+// completion in the background for no benefit, silently competing for
+// connections with the reload that actually matters.
 let feedAbortController = null;
 
 /* ═══════════════════════════════════════════
@@ -1741,6 +1742,71 @@ function extractChannelIdFromUrl(input){
   return null;
 }
 
+/* ── URL validation helpers ──────────────────────────────────────────
+   validateChannelUrl: checks that a pasted URL is a supported YouTube
+   channel URL. Rejects playlists, non-YouTube domains (t.co, bit.ly,
+   etc.), bare youtu.be links, and any URL that doesn't point to a
+   channel. Returns { ok:true } on success or { ok:false, msg } on failure.
+
+   validateVideoUrl: checks that a pasted URL in the video-search box
+   is a recognisable YouTube video URL. Rejects playlist-only URLs,
+   non-YouTube domains, and URLs with no extractable video ID.
+   Returns { ok:true } on success or { ok:false, msg } on failure. */
+function validateChannelUrl(input){
+  input = (input || '').trim();
+  if(!/^https?:\/\//i.test(input)){
+    return { ok:false, msg:'That doesn\'t look like a URL. Please paste the full YouTube channel link (starting with https://).' };
+  }
+  let hostname;
+  try{
+    hostname = new URL(input).hostname.replace(/^(www|m|music)\./, '');
+  } catch(e){
+    return { ok:false, msg:'Invalid URL. Please paste a valid YouTube channel link.' };
+  }
+  if(hostname !== 'youtube.com' && hostname !== 'youtu.be'){
+    return { ok:false, msg:'That URL is not from YouTube. Please paste a YouTube channel link (e.g. youtube.com/@creator).' };
+  }
+  if(hostname === 'youtu.be'){
+    return { ok:false, msg:'That\'s a YouTube video link, not a channel link. Paste a channel URL like youtube.com/@creator or youtube.com/channel/UCxxx instead.' };
+  }
+  const parsed = new URL(input);
+  const hasList  = parsed.searchParams.has('list');
+  const isChannel = /\/(channel\/UC[a-zA-Z0-9_-]{22}|@[^/?&\s]+|c\/[^/?&\s]+|user\/[^/?&\s]+)/.test(parsed.pathname);
+  if(hasList && !isChannel){
+    return { ok:false, msg:'That\'s a YouTube playlist link, not a channel link. Open the channel page and copy the URL from there (e.g. youtube.com/@creator).' };
+  }
+  if(!extractChannelIdFromUrl(input)){
+    return { ok:false, msg:'Could not recognise that as a YouTube channel URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx' };
+  }
+  return { ok:true };
+}
+
+function validateVideoUrl(input){
+  input = (input || '').trim();
+  if(!/^https?:\/\//i.test(input)){
+    return { ok:false, msg:'That doesn\'t look like a URL. Please paste a full YouTube video link (starting with https://).' };
+  }
+  let hostname;
+  try{
+    hostname = new URL(input).hostname.replace(/^(www|m|music)\./, '');
+  } catch(e){
+    return { ok:false, msg:'Invalid URL. Please paste a valid YouTube video link.' };
+  }
+  if(hostname !== 'youtube.com' && hostname !== 'youtu.be'){
+    return { ok:false, msg:'That URL is not from YouTube. Please paste a YouTube video link.' };
+  }
+  const parsed = new URL(input);
+  const hasList = parsed.searchParams.has('list');
+  const hasV    = parsed.searchParams.has('v');
+  if(hasList && !hasV && hostname === 'youtube.com' && parsed.pathname === '/playlist'){
+    return { ok:false, msg:'That\'s a YouTube playlist link, not a video link. Open a specific video and copy its URL instead.' };
+  }
+  if(!extractYouTubeId(input)){
+    return { ok:false, msg:'Could not find a video ID in that URL. Paste a direct YouTube video link (e.g. youtube.com/watch?v=... or youtu.be/...).' };
+  }
+  return { ok:true };
+}
+
 /* ═══════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════ */
@@ -1912,13 +1978,6 @@ async function fetchVideosRSS(channelId, handle, externalSignal) {
   const controller = new AbortController();
   const timer      = setTimeout(() => controller.abort(), 45000);
 
-  // externalSignal is the calling generation's abort signal (see
-  // initFeed). If that generation gets superseded mid-flight, cancel
-  // this in-flight request immediately instead of leaving it running
-  // toward the full 45s timeout (or the wave1/wave2 retry ladder above
-  // it) for a result nobody will use. Using addEventListener rather
-  // than AbortSignal.any() keeps this working on older Safari/WebView
-  // engines that don't yet support signal composition.
   let onExternalAbort;
   if (externalSignal) {
     if (externalSignal.aborted) controller.abort();
@@ -1958,43 +2017,22 @@ async function fetchVideosRSS(channelId, handle, externalSignal) {
 }
 
 async function fetchVideosRSSWithRetry(channelId, handle, externalSignal) {
-  const RETRY_DELAY  = 2000;  // gap between fast retries
-  const SLEEP_BEFORE_WAVE2 = 12000; // sleep after wave 1 fails
+  const RETRY_DELAY = 2000;  // gap between retries
   let lastError;
 
-  // Wave 1: 3 fast retries
   for (let attempt = 1; attempt <= 3; attempt++) {
     if (externalSignal && externalSignal.aborted) throw new Error('Superseded — feed reloaded');
     try {
       return await fetchVideosRSS(channelId, handle, externalSignal);
     } catch(e) {
       lastError = e;
-      console.warn(`[NoSuggest] ${channelId} wave1 attempt ${attempt} failed:`, e.message);
+      console.warn(`[NoSuggest] ${channelId} attempt ${attempt} failed:`, e.message);
       if (externalSignal && externalSignal.aborted) throw e;
       if (attempt < 3) await new Promise(r => setTimeout(r, RETRY_DELAY));
     }
   }
 
-  if (externalSignal && externalSignal.aborted) throw lastError;
-
-  // Wave 1 exhausted — sleep 12s then wave 2
-  console.warn(`[NoSuggest] ${channelId} sleeping ${SLEEP_BEFORE_WAVE2}ms before wave 2`);
-  await new Promise(r => setTimeout(r, SLEEP_BEFORE_WAVE2));
-
-  // Wave 2: 3 more retries
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    if (externalSignal && externalSignal.aborted) throw new Error('Superseded — feed reloaded');
-    try {
-      return await fetchVideosRSS(channelId, handle, externalSignal);
-    } catch(e) {
-      lastError = e;
-      console.warn(`[NoSuggest] ${channelId} wave2 attempt ${attempt} failed:`, e.message);
-      if (externalSignal && externalSignal.aborted) throw e;
-      if (attempt < 3) await new Promise(r => setTimeout(r, RETRY_DELAY));
-    }
-  }
-
-  console.error(`[NoSuggest] ${channelId} failed all 6 attempts`);
+  console.error(`[NoSuggest] ${channelId} failed all 3 attempts`);
   throw lastError;
 }
 
@@ -2067,12 +2105,6 @@ async function initFeed(newChannelId){
     return;
   }
 
-  // Full feed load — clear body, fire all channels in parallel.
-  // Cancel any previous full reload that's still in flight: each
-  // channel's retry chain can legitimately run for several minutes
-  // (see fetchVideosRSSWithRetry), so without this a superseded reload
-  // would keep making requests in the background purely to have the
-  // results thrown away, competing for connections with this reload.
   if(feedAbortController) feedAbortController.abort();
   const myAbortController = new AbortController();
   feedAbortController = myAbortController;
@@ -2084,10 +2116,6 @@ async function initFeed(newChannelId){
   let completed = 0;
   let loaded    = 0;   // channels that successfully returned videos
   const total   = channels.length;
-
-  // ── Loading sentinel — always shown (1 channel or many) until all finish ──
-  // For a single channel the feed body is otherwise a blank void for up to 9 s.
-  // For multi-channel it acts as a live progress counter at the bottom of the list.
   const sentinel = document.createElement('div');
   sentinel.id = 'feed-loading-sentinel';
   sentinel.innerHTML =
@@ -2538,8 +2566,19 @@ document.getElementById('channel-input').addEventListener('input', e => {
     document.getElementById('channel-suggestions').style.display = 'none';
     return;
   }
-  // URL paste → resolve directly via fallback logic (still automatic)
-  if(extractChannelIdFromUrl(q)){
+  // URL paste → validate first, then resolve via fallback logic
+  if(/^https?:\/\//i.test(q)){
+    const vResult = validateChannelUrl(q);
+    if(!vResult.ok){
+      document.getElementById('channel-suggestions').style.display = 'none';
+      document.getElementById('channel-suggestions').innerHTML     = '';
+      document.getElementById('channel-preview').classList.remove('show');
+      document.getElementById('add-btn').style.display   = 'none';
+      const errEl = document.getElementById('add-error');
+      errEl.textContent   = vResult.msg;
+      errEl.style.display = 'block';
+      return;
+    }
     document.getElementById('channel-suggestions').style.display = 'none';
     document.getElementById('channel-suggestions').innerHTML     = '';
     document.getElementById('channel-preview').classList.remove('show');
@@ -2559,7 +2598,14 @@ function triggerChannelSearch(){
   clearTimeout(searchTimeout);
   const q = document.getElementById('channel-input').value.trim();
   if(!q) return;
-  if(extractChannelIdFromUrl(q)){
+  if(/^https?:\/\//i.test(q)){
+    const vResult = validateChannelUrl(q);
+    if(!vResult.ok){
+      const errEl = document.getElementById('add-error');
+      errEl.textContent   = vResult.msg;
+      errEl.style.display = 'block';
+      return;
+    }
     doFallbackAdd(q);
     return;
   }
@@ -2866,15 +2912,27 @@ document.getElementById('search-input').addEventListener('input', e => {
     return;
   }
 
-  // URL paste → play immediately (unchanged, not a search call)
-  const videoId = extractYouTubeId(q);
-  if(videoId){
-    document.getElementById('search-results-wrap').style.display = 'none';
-    document.getElementById('search-error').style.display        = 'none';
-    document.getElementById('search-empty').style.display        = 'none';
-    openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
-	document.getElementById('search-input').value = '';
-    return;
+  // URL paste → validate then play immediately (not a search call)
+  if(/^https?:\/\//i.test(q)){
+    const vResult = validateVideoUrl(q);
+    if(!vResult.ok){
+      document.getElementById('search-results-wrap').style.display = 'none';
+      document.getElementById('search-loading').style.display      = 'none';
+      const errEl = document.getElementById('search-error');
+      errEl.textContent   = vResult.msg;
+      errEl.style.display = 'block';
+      document.getElementById('search-empty').style.display = 'none';
+      return;
+    }
+    const videoId = extractYouTubeId(q);
+    if(videoId){
+      document.getElementById('search-results-wrap').style.display = 'none';
+      document.getElementById('search-error').style.display        = 'none';
+      document.getElementById('search-empty').style.display        = 'none';
+      openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
+      document.getElementById('search-input').value = '';
+      return;
+    }
   }
   // Plain keyword typing no longer auto-searches — wait for Enter or the Search button
 });
@@ -2887,7 +2945,28 @@ function triggerVideoSearch(){
   clearTimeout(searchVideoTimeout);
   const q = document.getElementById('search-input').value.trim();
   if(!q) return;
-  if(extractYouTubeId(q)) return; // URL paste already handled on input
+  // If it looks like a URL, validate it first
+  if(/^https?:\/\//i.test(q)){
+    const vResult = validateVideoUrl(q);
+    if(!vResult.ok){
+      const errEl = document.getElementById('search-error');
+      errEl.textContent   = vResult.msg;
+      errEl.style.display = 'block';
+      document.getElementById('search-loading').style.display      = 'none';
+      document.getElementById('search-results-wrap').style.display = 'none';
+      document.getElementById('search-empty').style.display        = 'none';
+      return;
+    }
+    const videoId = extractYouTubeId(q);
+    if(videoId){
+      document.getElementById('search-results-wrap').style.display = 'none';
+      document.getElementById('search-error').style.display        = 'none';
+      document.getElementById('search-empty').style.display        = 'none';
+      openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
+      document.getElementById('search-input').value = '';
+      return;
+    }
+  }
   document.getElementById('search-loading').style.display      = 'block';
   document.getElementById('search-results-wrap').style.display = 'none';
   document.getElementById('search-error').style.display        = 'none';
