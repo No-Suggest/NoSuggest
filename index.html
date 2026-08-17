@@ -264,11 +264,14 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-install-strip span{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.02em;}
 #nav-install-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 
-/* ── Nav strips: share banner + LinkedIn banner, alternate every 5th session ── */
-#nav-donate-strip,#nav-linkedin-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:#1a0a00;border-top:1px solid rgba(255,107,53,0.6);cursor:pointer;text-decoration:none;}
-#nav-donate-strip.show,#nav-linkedin-strip.show{display:flex;}
-#nav-donate-strip span,#nav-linkedin-strip span{font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.02em;}
-#nav-donate-strip .strip-dismiss,#nav-linkedin-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
+/* ── Nav strips: share / LinkedIn / WhatsApp banners, rotate every 5th session ──
+   Background switched from the old #1a0a00+orange treatment to the same
+   accent-tinted glass style already used by #nav-install-strip, so all
+   nav strips read as one consistent family. ── */
+#nav-donate-strip,#nav-linkedin-strip,#nav-whatsapp-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:98;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:var(--accent);border-top:none;cursor:pointer;text-decoration:none;}
+#nav-donate-strip.show,#nav-linkedin-strip.show,#nav-whatsapp-strip.show{display:flex;}
+#nav-donate-strip span,#nav-linkedin-strip span,#nav-whatsapp-strip span{font-size:12px;font-weight:600;color:#0a0a0a;letter-spacing:0.02em;}
+#nav-donate-strip .strip-dismiss,#nav-linkedin-strip .strip-dismiss,#nav-whatsapp-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:#0a0a0a;font-size:16px;cursor:pointer;padding:0 2px;line-height:1;opacity:0.6;}
 /* When donate banner shows, push install strip up further */
 body.show-donate-strip #nav-install-strip{bottom:calc(64px + var(--safe-bot) + 36px);}
 body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot));}
@@ -471,7 +474,7 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 .preview-subs{font-size:12px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;}
 .preview-check{width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .preview-check svg{width:14px;height:14px;fill:var(--bg);}
-.searching-state{padding:1.5rem;text-align:center;color:var(--muted);font-size:13px;}
+.searching-state{padding:1.5rem;text-align:center;color:var(--muted);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:10px;}
 .channel-suggestions{margin-top:0.75rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;display:none;animation:fadeUp 0.2s ease;}
 .channel-suggestion-item{display:flex;align-items:center;gap:12px;padding:0.85rem 1rem;cursor:pointer;background:var(--bg2);border-bottom:1px solid var(--border);transition:background 0.15s;}
 .channel-suggestion-item:last-child{border-bottom:none;}
@@ -639,6 +642,15 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 ═══════════════════════════════════════ */
 .spin{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Engaging search spinner: two counter-rotating rings, used for channel/video
+   search loading states instead of the plain single-ring .spin above ── */
+.search-spinner{position:relative;width:36px;height:36px;margin:0 auto;}
+.search-spinner::before,.search-spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:2.5px solid transparent;}
+.search-spinner::before{border-top-color:var(--accent);border-right-color:var(--accent);animation:search-spin-cw 1s cubic-bezier(0.5,0,0.5,1) infinite;}
+.search-spinner::after{inset:7px;border-bottom-color:var(--accent2);border-left-color:var(--accent2);animation:search-spin-ccw 0.85s cubic-bezier(0.5,0,0.5,1) infinite;}
+@keyframes search-spin-cw{to{transform:rotate(360deg)}}
+@keyframes search-spin-ccw{to{transform:rotate(-360deg)}}
 #toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:0.6rem 1.2rem;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:300;white-space:nowrap;pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -832,8 +844,9 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
 
         <div id="channel-suggestions" class="channel-suggestions"></div>
         <div id="channel-searching" class="searching-state" style="display:none">
-          <div class="spin"></div>
-          <p style="margin-top:0.5rem">Searching...</p>
+          <div class="search-spinner"></div>
+          <div class="feed-progress-bar"></div>
+          <div class="feed-progress-text" id="channel-search-progress-text">Searching YouTube for channels…</div>
         </div>
 
         <div class="preview-card" id="channel-preview">
@@ -1178,8 +1191,9 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
           </div>
         </div>
         <div id="search-loading" style="display:none;text-align:center;padding:3rem 1rem">
-          <div class="spin"></div>
-          <p style="margin-top:0.75rem;font-size:13px;color:var(--muted)">Searching YouTube…</p>
+          <div class="search-spinner"></div>
+          <div class="feed-progress-bar" style="margin:12px auto 0"></div>
+          <div class="feed-progress-text" id="video-search-progress-text" style="margin-top:10px">Searching YouTube…</div>
         </div>
         <div id="search-error" class="error-msg" role="alert" style="margin:1.5rem 1.25rem;display:none"></div>
       </div>
@@ -1233,18 +1247,25 @@ body.show-donate-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot))
     <button class="strip-dismiss" onclick="dismissNavStrip(event)" aria-label="Dismiss">×</button>
   </div>
 
-  <!-- NAV SHARE STRIP (repurposed from donate strip) — alternates with LinkedIn strip every 5th session. Same #nav-donate-strip id kept intentionally so it still hides in Kids Mode. -->
+  <!-- NAV SHARE STRIP (repurposed from donate strip) — rotates with LinkedIn + WhatsApp strips, one per 5th session (15-session full cycle). Same #nav-donate-strip id kept intentionally so it still hides in Kids Mode. -->
   <a id="nav-donate-strip" href="#" onclick="event.preventDefault(); shareNoSuggest();">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
     <span>Doomscrolling is eating everyone from inside.<br><b>Please tap here to share NoSuggest.</b></span>
     <button class="strip-dismiss" id="donate-strip-dismiss" aria-label="Dismiss">×</button>
   </a>
 
-  <!-- NAV LINKEDIN STRIP — alternates with share strip every 5th session. Same suppression treatment as nav-donate-strip for Kids Mode. -->
+  <!-- NAV LINKEDIN STRIP — rotates with share + WhatsApp strips every 5th session. Same suppression treatment as nav-donate-strip for Kids Mode. -->
   <a id="nav-linkedin-strip" href="https://www.linkedin.com/company/nosuggest" target="_blank" rel="noopener">
-    <svg viewBox="0 0 24 24" fill="#ff6b35" width="14" height="14"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 .001-4.124 2.062 2.062 0 0 1-.001 4.124zM7.114 20.452H3.558V9h3.556v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    <svg viewBox="0 0 24 24" fill="#0a0a0a" width="14" height="14"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 .001-4.124 2.062 2.062 0 0 1-.001 4.124zM7.114 20.452H3.558V9h3.556v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
     <span>Brain rot isn't a joke anymore. It's a business model.<br><b>Please follow us on LinkedIn, and help repost what we share.</b></span>
     <button class="strip-dismiss" id="linkedin-strip-dismiss" aria-label="Dismiss">×</button>
+  </a>
+
+  <!-- NAV WHATSAPP STRIP — rotates with share + LinkedIn strips every 5th session. Uses native share sheet (navigator.share) so Android exposes WhatsApp groups, status and contacts. Same suppression treatment as nav-donate-strip for Kids Mode. -->
+  <a id="nav-whatsapp-strip" href="#" onclick="event.preventDefault();shareNoSuggest();">
+    <svg viewBox="0 0 24 24" fill="#0a0a0a" width="14" height="14"><path d="M12 2C6.48 2 2 6.13 2 11.23c0 1.94.66 3.75 1.8 5.27L2.5 21.5l5.2-1.36c1.36.62 2.87.97 4.3.97 5.52 0 10-4.13 10-9.23S17.52 2 12 2z" opacity="0.25"/><path d="M16.6 13.9c-.25-.13-1.47-.72-1.7-.8-.23-.08-.4-.13-.56.13-.17.25-.65.8-.8.97-.15.17-.3.19-.55.06-.25-.13-1.06-.39-2.02-1.24-.75-.66-1.25-1.48-1.4-1.73-.15-.25-.02-.38.11-.51.11-.11.25-.29.37-.44.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.77-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.08s.89 2.41 1.01 2.58c.13.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.29z"/></svg>
+    <span>YouTube can be useful. The algorithm isn't.<br><b>Share NoSuggest with someone trying to stay focused.</b></span>
+    <button class="strip-dismiss" id="whatsapp-strip-dismiss" aria-label="Dismiss">×</button>
   </a>
 
   <!-- iOS INSTALL BOTTOM SHEET -->
@@ -1855,7 +1876,7 @@ function applyKidsMode(){
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
   // Hide elements kids shouldn't see or accidentally tap
-  const kidsHide = ['settings-share-row','settings-support-row','nav-donate-strip','nav-linkedin-strip'];
+  const kidsHide = ['settings-share-row','settings-support-row','nav-donate-strip','nav-linkedin-strip','nav-whatsapp-strip'];
   kidsHide.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = on ? 'none' : '';
@@ -2546,6 +2567,39 @@ function triggerChannelSearch(){
 }
 
 
+/* ── Rotating loading messages: cycles the text under the search spinner
+   so a multi-second wait (the backend's tier fallback + retry cascade
+   can take a few seconds) feels active instead of stuck. Shared across
+   channel search and video search since only one of them is ever
+   in-flight at a time. ── */
+let _loadingMsgInterval = null;
+const CHANNEL_SEARCH_MESSAGES = [
+  'Searching YouTube for channels…',
+  'Checking names and handles…',
+  'Matching against creators…',
+  'Almost there…'
+];
+const VIDEO_SEARCH_MESSAGES = [
+  'Searching YouTube…',
+  'Sorting through results…',
+  'Filtering out the noise…',
+  'Almost done…'
+];
+function startLoadingMessages(elId, messages, intervalMs = 1600){
+  stopLoadingMessages();
+  const el = document.getElementById(elId);
+  if(!el) return;
+  let i = 0;
+  el.textContent = messages[0];
+  _loadingMsgInterval = setInterval(() => {
+    i = (i + 1) % messages.length;
+    el.textContent = messages[i];
+  }, intervalMs);
+}
+function stopLoadingMessages(){
+  if(_loadingMsgInterval){ clearInterval(_loadingMsgInterval); _loadingMsgInterval = null; }
+}
+
 async function doChannelSearch(query){
   const searching   = document.getElementById('channel-searching');
   const preview     = document.getElementById('channel-preview');
@@ -2554,6 +2608,7 @@ async function doChannelSearch(query){
   const suggestions = document.getElementById('channel-suggestions');
 
   searching.style.display   = 'block';
+  startLoadingMessages('channel-search-progress-text', CHANNEL_SEARCH_MESSAGES);
   preview.classList.remove('show');
   errEl.style.display       = 'none';
   addBtn.style.display      = 'none';
@@ -2564,6 +2619,7 @@ async function doChannelSearch(query){
     const res      = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`);
     const channels = await res.json();
     searching.style.display = 'none';
+    stopLoadingMessages();
 
     // Discard stale response if user has typed something different
     const currentQ = document.getElementById('channel-input').value.trim();
@@ -2592,6 +2648,7 @@ async function doChannelSearch(query){
 
   } catch(err){
     searching.style.display = 'none';
+    stopLoadingMessages();
     errEl.textContent  = 'Search failed. Check your connection or paste the channel URL directly in this box.';
     errEl.style.display = 'block';
     foundChannel = null;
@@ -2664,6 +2721,7 @@ async function doFallbackAdd(inputVal){
   }
 
   searching.style.display = 'block';
+  startLoadingMessages('channel-search-progress-text', CHANNEL_SEARCH_MESSAGES);
 
   try{
     let channelId   = '';
@@ -2690,6 +2748,7 @@ async function doFallbackAdd(inputVal){
     }
 
     searching.style.display = 'none';
+    stopLoadingMessages();
 
     if(STORE.channels.some(c => c.id === channelId)){
       toast('Already in your list');
@@ -2708,6 +2767,7 @@ async function doFallbackAdd(inputVal){
 
   } catch(err){
     searching.style.display = 'none';
+    stopLoadingMessages();
     errEl.textContent   = err.message || 'Could not add channel. Check the URL and try again.';
     errEl.style.display = 'block';
   }
@@ -2767,6 +2827,7 @@ function initSearch(){
   document.getElementById('search-video-pane').style.display  = 'none';
   document.getElementById('search-results-wrap').style.display = 'none';
   document.getElementById('search-loading').style.display     = 'none';
+  stopLoadingMessages();
   document.getElementById('search-error').style.display       = 'none';
   document.getElementById('search-empty').style.display       = 'block';
   document.getElementById('search-input').value = '';
@@ -2799,6 +2860,7 @@ document.getElementById('search-input').addEventListener('input', e => {
   if(!q){
     document.getElementById('search-results-wrap').style.display = 'none';
     document.getElementById('search-loading').style.display      = 'none';
+    stopLoadingMessages();
     document.getElementById('search-error').style.display        = 'none';
     document.getElementById('search-empty').style.display        = 'block';
     return;
@@ -2838,6 +2900,7 @@ document.getElementById('search-input').addEventListener('search', () => {
     clearTimeout(searchVideoTimeout);
     document.getElementById('search-results-wrap').style.display = 'none';
     document.getElementById('search-loading').style.display      = 'none';
+    stopLoadingMessages();
     document.getElementById('search-error').style.display        = 'none';
     document.getElementById('search-empty').style.display        = 'block';
   }
@@ -2855,6 +2918,7 @@ async function doYTSearch(q){
   const empty       = document.getElementById('search-empty');
 
   loading.style.display     = 'block';
+  startLoadingMessages('video-search-progress-text', VIDEO_SEARCH_MESSAGES);
   resultsWrap.style.display = 'none';
   errEl.style.display       = 'none';
   empty.style.display       = 'none';
@@ -2864,6 +2928,7 @@ async function doYTSearch(q){
     const videos = await res.json();
 
     loading.style.display = 'none';
+    stopLoadingMessages();
 
     // Discard stale response if user has typed something different
     const currentQ = document.getElementById('search-input').value.trim();
@@ -2902,6 +2967,7 @@ async function doYTSearch(q){
 
   } catch(err){
     loading.style.display = 'none';
+    stopLoadingMessages();
     errEl.textContent     = 'Search failed. Check your connection.';
     errEl.style.display   = 'block';
   }
@@ -2956,14 +3022,23 @@ function removeSaved(id){
 }
 
 /* ═══════════════════════════════════════════
-   SESSION BANNER : alternates between the share banner and the LinkedIn
-   banner every 5th session (5th → one, 10th → the other, 15th → back to
-   the first, and so on). Which one goes first is not hardcoded — it's
-   whichever wasn't shown last time, tracked via ns_last_banner.
-   (DOM ids #nav-donate-strip / #nav-linkedin-strip and class
-   .show-donate-strip kept as-is so Kids Mode's suppression list still
-   hides them — see kidsHide array)
+   SESSION BANNER : rotates between the share, LinkedIn, and WhatsApp
+   banners, one per 5th session (5th → one, 10th → the next, 15th → the
+   third, 20th → back to the first, so each individual banner appears
+   once every 15 sessions). The rotation is a strict round-robin through
+   BANNER_ORDER (not random) — same predictability the original 2-banner
+   alternation had, just extended to 3.
+   (DOM ids #nav-donate-strip / #nav-linkedin-strip / #nav-whatsapp-strip
+   and class .show-donate-strip kept as-is so Kids Mode's suppression
+   list still hides them — see kidsHide array)
 ═══════════════════════════════════════════ */
+const BANNER_ORDER = ['share', 'linkedin', 'whatsapp'];
+const BANNER_STRIPS = {
+  share:    { stripId: 'nav-donate-strip',   dismissId: 'donate-strip-dismiss' },
+  linkedin: { stripId: 'nav-linkedin-strip',  dismissId: 'linkedin-strip-dismiss' },
+  whatsapp: { stripId: 'nav-whatsapp-strip',  dismissId: 'whatsapp-strip-dismiss' },
+};
+
 function initSessionBanner(){
   const count = STORE.sessionCount + 1;
   STORE.sessionCount = count;
@@ -2971,24 +3046,28 @@ function initSessionBanner(){
   if(count % 5 !== 0) return;
 
   const last = localStorage.getItem('ns_last_banner');
-  const next = last === 'share' ? 'linkedin' : 'share';
+  // indexOf(null) is -1, so (-1+1) % 3 === 0 → 'share' on the very first
+  // rotation, matching the original fallback behavior.
+  const lastIndex = BANNER_ORDER.indexOf(last);
+  const next = BANNER_ORDER[(lastIndex + 1) % BANNER_ORDER.length];
   localStorage.setItem('ns_last_banner', next);
 
-  const stripId   = next === 'share' ? 'nav-donate-strip'      : 'nav-linkedin-strip';
-  const dismissId = next === 'share' ? 'donate-strip-dismiss'  : 'linkedin-strip-dismiss';
+  const { stripId, dismissId } = BANNER_STRIPS[next];
 
   const strip = document.getElementById(stripId);
   if(!strip) return;
 
-  // Wire up dismiss button without triggering the banner's own action/navigation
+  // Wire up dismiss button without triggering the banner's own action/navigation.
+  // Use onclick (not addEventListener) to prevent listener stacking if
+  // initSessionBanner() were ever called more than once per page load.
   const dismissBtn = document.getElementById(dismissId);
   if(dismissBtn){
-    dismissBtn.addEventListener('click', e => {
+    dismissBtn.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
       strip.classList.remove('show');
       document.body.classList.remove('show-donate-strip');
-    });
+    };
   }
 
   strip.classList.add('show');
