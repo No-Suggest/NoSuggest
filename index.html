@@ -2110,7 +2110,7 @@ async function initFeed(newChannelId){
 
   channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
-    const SESSION_WARMUP = 700;
+    const SESSION_WARMUP = 1500;
     const jitter = Math.floor(Math.random() * 250);
     const delay = i === 0? jitter: SESSION_WARMUP + (i - 1) * (cached ? 100 : 500) + jitter;
     setTimeout(async () => {
