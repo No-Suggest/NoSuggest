@@ -23,6 +23,16 @@
     <loc>https://www.nosuggest.com/classroom</loc>
     <priority>0.5</priority>
   </url>
+  <!-- Students guide -->
+  <url>
+    <loc>https://www.nosuggest.com/study</loc>
+    <priority>0.5</priority>
+  </url>
+  <!-- Productivity guide -->
+  <url>
+    <loc>https://www.nosuggest.com/productivity</loc>
+    <priority>0.5</priority>
+  </url>
   <!-- Creators & influencers guide -->
   <url>
     <loc>https://www.nosuggest.com/creators</loc>
