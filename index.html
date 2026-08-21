@@ -1705,7 +1705,7 @@ function timeAgo(iso){
   if(s < 3600)   return Math.floor(s/60) + 'm ago';
   if(s < 86400)  return Math.floor(s/3600) + 'h ago';
   if(s < 604800) return Math.floor(s/86400) + 'd ago';
-  return new Date(iso).toLocaleDateString('en-AU', {day:'numeric', month:'short'});
+  return new Date(iso).toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
 }
 
 function formatViews(n){
@@ -3042,7 +3042,7 @@ async function doYTSearch(q){
         <div class="search-card-info">
           <div class="search-card-title">${esc(v.title)}</div>
           <div>
-            <div class="search-card-meta">${esc(v.channel)}${timeStr ? ` · ${esc(timeStr)}` : ''}</div>
+            <div class="search-card-meta">${esc(v.channel)}${timeStr ? ` · <span style="color:var(--text)">${esc(timeStr)}</span>` : ''}</div>
             ${v.views ? `<div class="search-views-badge">${esc(v.views)}</div>` : ''}
           </div>
         </div>
