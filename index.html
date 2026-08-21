@@ -3028,8 +3028,9 @@ async function doYTSearch(q){
     document.getElementById('search-results-label').textContent = `Results for "${q}"`;
 
     resultsList.innerHTML = videos.map(v => {
-      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, thumb: v.thumb, publishedAt: '' };
-      const saved = isVideoSaved(v.id);
+      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, thumb: v.thumb, publishedAt: v.publishedAt || '' };
+      const saved    = isVideoSaved(v.id);
+      const timeStr  = v.publishedAt ? timeAgo(v.publishedAt) : '';
       return `
       <div class="search-video-card" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
         <div class="search-thumb-wrap">
@@ -3041,7 +3042,7 @@ async function doYTSearch(q){
         <div class="search-card-info">
           <div class="search-card-title">${esc(v.title)}</div>
           <div>
-            <div class="search-card-meta">${esc(v.channel)}</div>
+            <div class="search-card-meta">${esc(v.channel)}${timeStr ? ` · ${esc(timeStr)}` : ''}</div>
             ${v.views ? `<div class="search-views-badge">${esc(v.views)}</div>` : ''}
           </div>
         </div>
