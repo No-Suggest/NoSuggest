@@ -1621,6 +1621,11 @@ function purgeExpiredResume(){
    UTILS
 ═══════════════════════════════════════════ */
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;').trim();
+// escHtml: like esc() but safe for strings that may already be HTML-encoded
+// (e.g. YouTube Data API snippet.title returns "&amp;" for "&"). Decodes the
+// five standard entities first, then re-encodes — so pre-encoded input is not
+// double-encoded, plain text is encoded correctly, and XSS is still blocked.
+const escHtml = s => { if(!s) return ''; const d = String(s).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'"); return d.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').trim(); };
 const YOUTUBE_CHANNEL_ID_RE = /^UC[A-Za-z0-9_-]{22}$/;
 const YOUTUBE_VIDEO_ID_RE   = /^[A-Za-z0-9_-]{11}$/;
 
@@ -3032,7 +3037,7 @@ async function doYTSearch(q){
       const saved    = isVideoSaved(v.id);
       const timeStr  = v.publishedAt ? timeAgo(v.publishedAt) : '';
       return `
-      <div class="search-video-card" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
+      <div class="search-video-card" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
         <div class="search-thumb-wrap">
           <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
           <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSaveById('${esc(v.id)}',this)">
@@ -3040,7 +3045,7 @@ async function doYTSearch(q){
           </button>
         </div>
         <div class="search-card-info">
-          <div class="search-card-title">${esc(v.title)}</div>
+          <div class="search-card-title">${escHtml(v.title)}</div>
           <div>
             <div class="search-card-meta">${esc(v.channel)}${timeStr ? ` · <span style="color:var(--text)">${esc(timeStr)}</span>` : ''}</div>
             ${v.views ? `<div class="search-views-badge">${esc(v.views)}</div>` : ''}
