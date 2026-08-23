@@ -2282,39 +2282,44 @@ document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache();
 let currentVideoData    = null;
 let ytPlayer            = null;
 let videoEndedNaturally = false;
+let playerGeneration    = 0;
+let playerReadyTimer    = null;
 
-function onYouTubeIframeAPIReady(){
-  if(typeof window.createPlayerPending === 'function'){
-    window.createPlayerPending();
-    window.createPlayerPending = null;
+function clearPlayerReadyTimer(){
+  if(playerReadyTimer){
+    clearTimeout(playerReadyTimer);
+    playerReadyTimer = null;
   }
 }
 
+function onYouTubeIframeAPIReady(){
+  if(typeof window.createPlayerPending === 'function'){
+    const pending = window.createPlayerPending;
+    window.createPlayerPending = null;
+    pending();
+  }
+}
 function openPlayerFromSearch(videoId){
   const v = VIDEO_DATA[videoId];
   if(!v) return;
   openPlayer(v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
 }
-
 function toggleSearchSaveById(videoId, btn){
   const v = VIDEO_DATA[videoId];
   if(!v) return;
   toggleSearchSave(btn, v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
 }
-
 function openPlayerFromSaved(videoId){
   const v = VIDEO_DATA[videoId];
   if(!v) return;
   openPlayer(v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
 }
-
 function openPlayerById(videoId, chId){
   const v  = VIDEO_DATA[videoId];
   const ch = STORE.channels.find(c => c.id === chId) || {};
   if(!v) return;
   openPlayer(v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
 }
-
 function toggleFeedSaveById(videoId, chId){
   const v  = VIDEO_DATA[videoId];
   const ch = STORE.channels.find(c => c.id === chId) || {};
@@ -2322,82 +2327,173 @@ function toggleFeedSaveById(videoId, chId){
   const btn = document.querySelector(`.feed-save-btn[onclick*="'${videoId}'"]`);
   toggleFeedSave(btn, v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
 }
-
 function openPlayer(videoId, title, channelName, publishedAt, thumb){
+  const myPlayerGeneration = ++playerGeneration;
   currentVideoData = { id:videoId, title, channelName, publishedAt, thumb: thumb||'' };
   document.getElementById('player-title').textContent = title || 'Video';
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent         = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
+
   const overlay = document.getElementById('player-overlay');
+  const wrap = document.querySelector('.player-video-wrap');
+  const blocked = document.getElementById('player-embed-blocked');
+  const blockedText = blocked.querySelector('p');
+  const watchLink = document.getElementById('player-watch-yt-link');
+  const resumeEntry  = getResumeEntry(videoId);
+  const startSeconds = resumeEntry ? resumeEntry.t : 0;
+
+  let triedFallbackDomain = false;
+  let resumeToastShown = false;
+  let activeHost = '';
+
+  videoEndedNaturally = false;
+  clearPlayerReadyTimer();
+  window.createPlayerPending = null;
+
   overlay.style.display = 'flex';
   requestAnimationFrame(() => {
+    if(myPlayerGeneration !== playerGeneration) return;
     overlay.classList.add('open');
     a11yOpenModal(overlay, closePlayer);
   });
 
-  if(ytPlayer){ try{ ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
-  const wrap = document.querySelector('.player-video-wrap');
-  const div  = document.createElement('div');
-  div.id = 'player-iframe';
-  wrap.innerHTML = '';
-  wrap.style.display = '';
-  document.getElementById('player-embed-blocked').classList.remove('show');
-  wrap.appendChild(div);
+  function isCurrentPlayer(){
+    // Generation is the source of truth. The player is intentionally created
+    // before requestAnimationFrame applies the overlay's visual `open` class.
+    // Closing or opening another video increments playerGeneration, which
+    // invalidates all delayed callbacks from this player instance.
+    return myPlayerGeneration === playerGeneration;
+  }
 
-  const resumeEntry  = getResumeEntry(videoId);
-  const startSeconds = resumeEntry ? resumeEntry.t : 0;
-  videoEndedNaturally = false;
+  function destroyCurrentPlayer(){
+    clearPlayerReadyTimer();
+    if(ytPlayer){
+      try{ ytPlayer.destroy(); } catch(e){}
+      ytPlayer = null;
+    }
+  }
 
-  function createPlayer(){
-    ytPlayer = new YT.Player('player-iframe', {
-      height: '100%', width: '100%', videoId,
-      host: 'https://www.youtube-nocookie.com',
-      playerVars: { autoplay:1, rel:0, iv_load_policy:3, fs:1, playsinline:1, cc_load_policy:0,
-                    start: startSeconds, origin: window.location.origin },
-      events: {
-        onReady: () => {
-          if(startSeconds > 0){
-            toast('Resuming from ' + formatSeconds(startSeconds), 3500);
-          }
-          /* Exclude the iframe from Tab order entirely. Once focus moves
-             into YouTube's own cross-origin iframe content, keydown
-             events happen inside youtube.com's document — invisible to
-             our parent-page Tab trap, so Tab could wander through
-             however many controls YouTube's own player exposes before
-             control returns to this page. Setting tabindex=-1 on the
-             iframe element keeps Tab moving only between our own
-             close/save buttons, as intended. */
-          try{
-            const iframeEl = ytPlayer.getIframe();
-            if(iframeEl) iframeEl.tabIndex = -1;
-          } catch(e){}
+  function showPlayerFailure(message){
+    if(!isCurrentPlayer()) return;
+    destroyCurrentPlayer();
+    wrap.style.display = 'none';
+    blockedText.textContent = message;
+    blocked.classList.add('show');
+    watchLink.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(videoId);
+  }
+
+  function tryStandardHost(reason){
+    if(!isCurrentPlayer() || triedFallbackDomain || activeHost === 'https://www.youtube.com') return false;
+    triedFallbackDomain = true;
+    console.warn('[NoSuggest] Privacy-enhanced player failed; retrying standard YouTube player:', reason);
+    toast('Private player unavailable. Retrying standard player…', 3000);
+    createPlayer('https://www.youtube.com');
+    return true;
+  }
+
+  function createPlayer(host){
+    if(!isCurrentPlayer()) return;
+    activeHost = host;
+    destroyCurrentPlayer();
+
+    const div = document.createElement('div');
+    div.id = 'player-iframe';
+    wrap.innerHTML = '';
+    wrap.style.display = '';
+    blocked.classList.remove('show');
+    wrap.appendChild(div);
+
+    let ready = false;
+
+    try{
+      ytPlayer = new YT.Player('player-iframe', {
+        height: '100%', width: '100%', videoId,
+        host,
+        playerVars: {
+          autoplay:1, rel:0, iv_load_policy:3, fs:1, playsinline:1,
+          cc_load_policy:0, origin:window.location.origin, start:startSeconds
         },
-        onStateChange: e => {
-          if(e.data === YT.PlayerState.ENDED){
-            videoEndedNaturally = true;
-            deleteResumeEntry(videoId);
-            closePlayer();
-          } else if(e.data === YT.PlayerState.PAUSED){
-            captureResumeOnPause();
-          }
-        },
-        onError: e => {
-          if(e.data === 150 || e.data === 101){
-            document.querySelector('.player-video-wrap').style.display = 'none';
-            const blocked = document.getElementById('player-embed-blocked');
-            blocked.classList.add('show');
-            document.getElementById('player-watch-yt-link').href =
-              'https://www.youtube.com/watch?v=' + (currentVideoData?.id || '');
+        events: {
+          onReady: e => {
+            if(!isCurrentPlayer()) return;
+            ready = true;
+            clearPlayerReadyTimer();
+            if(startSeconds > 0 && !resumeToastShown){
+              resumeToastShown = true;
+              toast('Resuming from ' + formatSeconds(startSeconds), 3500);
+            }
+            try{
+              const iframeEl = e.target.getIframe();
+              if(iframeEl) iframeEl.tabIndex = -1;
+            } catch(err){}
+          },
+          onStateChange: e => {
+            if(!isCurrentPlayer()) return;
+            if(e.data === YT.PlayerState.ENDED){
+              videoEndedNaturally = true;
+              deleteResumeEntry(videoId);
+              closePlayer();
+            } else if(e.data === YT.PlayerState.PAUSED){
+              captureResumeOnPause();
+            }
+          },
+          onError: e => {
+            if(!isCurrentPlayer()) return;
+            clearPlayerReadyTimer();
+            const code = Number(e.data);
+
+            // These are video/policy errors, not host errors. Switching
+            // domains cannot make an invalid, unavailable, or embed-blocked
+            // video playable, so avoid an unnecessary second iframe request.
+            if(code === 2 || code === 100 || code === 101 || code === 150){
+              const message = (code === 101 || code === 150)
+                ? "This video can't be played here — the channel has disabled external playback."
+                : "This video isn't available in the embedded player.";
+              showPlayerFailure(message);
+              return;
+            }
+
+            // Error 5 (HTML5 playback failure), 153 (missing Referer/API
+            // Client identity — this can plausibly differ between the
+            // nocookie and standard domains, unlike 101/150), and other
+            // undocumented errors can occasionally be host-specific.
+            // Retry once using the standard YouTube host, then show the
+            // external link.
+            if(tryStandardHost('YouTube player error ' + code)) return;
+            showPlayerFailure("This video couldn't be played here. You can still open it on YouTube.");
           }
         }
-      }
-    });
-  }
-  if(typeof YT !== 'undefined' && YT.Player){ createPlayer(); }
-  else{ window.createPlayerPending = createPlayer; }
-}
+      });
+    } catch(err){
+      if(tryStandardHost('Player initialization exception')) return;
+      showPlayerFailure("The video player couldn't be started. You can still open it on YouTube.");
+      return;
+    }
 
+    // A blocked/DNS-filtered nocookie host may never dispatch onReady or
+    // onError. Retry the standard host once after a bounded wait. Do not
+    // run a second timeout for the fallback host.
+    if(host === 'https://www.youtube-nocookie.com'){
+      playerReadyTimer = setTimeout(() => {
+        if(!ready && isCurrentPlayer()){
+          if(!tryStandardHost('Privacy-enhanced player readiness timeout')){
+            showPlayerFailure("The private video player didn't respond. You can still open the video on YouTube.");
+          }
+        }
+      }, 12000);
+    }
+  }
+
+  if(typeof YT !== 'undefined' && YT.Player){
+    createPlayer('https://www.youtube-nocookie.com');
+  } else {
+    window.createPlayerPending = () => {
+      if(!isCurrentPlayer()) return;
+      createPlayer('https://www.youtube-nocookie.com');
+    };
+  }
+}
 function formatSeconds(s){
   s = Math.floor(s);
   const h = Math.floor(s / 3600);
@@ -2457,14 +2553,26 @@ function toggleSaveFromPlayer(){
   if(currentScreen === 'saved') initSaved();
 }
 function closePlayer(){
+  // Invalidate all callbacks and pending API initialization belonging to
+  // the player being closed before touching the iframe.
+  playerGeneration++;
+  clearPlayerReadyTimer();
+  window.createPlayerPending = null;
+
   if(!videoEndedNaturally) captureResumeOnPause();
   if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
   const overlay = document.getElementById('player-overlay');
   overlay.classList.remove('open');
-  if(ytPlayer){ try{ ytPlayer.stopVideo(); } catch(e){} }
-  // Wait for 0.2s fade-out transition then fully hide to release iOS touch tracking
-  setTimeout(() => { overlay.style.display = 'none'; }, 220);
-  // Do NOT call initFeed() here — feed is already rendered
+  if(ytPlayer){
+    try{ ytPlayer.stopVideo(); } catch(e){}
+    try{ ytPlayer.destroy(); } catch(e){}
+    ytPlayer = null;
+  }
+  // Wait for 0.2s fade-out transition then fully hide to release iOS touch tracking.
+  setTimeout(() => {
+    if(!overlay.classList.contains('open')) overlay.style.display = 'none';
+  }, 220);
+  // Do NOT call initFeed() here — feed is already rendered.
   a11yCloseModal();
 }
 
