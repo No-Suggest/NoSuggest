@@ -110,7 +110,7 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
 <div class="page-hero">
   <div class="section-label">Legal</div>
   <h1>Privacy Policy</h1>
-  <div class="last-updated">Last updated: 4 July 2026</div>
+  <div class="last-updated">Last updated: 24 August 2026</div>
 </div>
 <!-- CONTENT -->
 <div class="content-wrap">
@@ -143,7 +143,7 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
     </ul>
   </div>
   <h2>3. How NoSuggest Accesses YouTube Data</h2>
-  <p>NoSuggest uses a privacy-preserving serverless proxy to retrieve publicly available YouTube information, including video titles, thumbnails, and channel uploads. This is the same information visible to anyone on YouTube.</p>
+  <p><strong>NoSuggest uses YouTube API Services</strong> — specifically the official YouTube Data API v3 — through our own backend proxy, to retrieve publicly available YouTube information, including video titles, thumbnails, and channel uploads. This is the same information visible to anyone browsing YouTube directly, retrieved exclusively through YouTube's official, documented API.</p>
   <div class="highlight-box">
     <p>NoSuggest only accesses <strong>publicly available YouTube data</strong>. It cannot access your watch history, liked videos, subscriptions, or any private YouTube account data. No login to YouTube or Google is required at any point.</p>
   </div>
@@ -163,13 +163,14 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
   <h2>5. Third-Party Services</h2>
   <p>NoSuggest interacts with the following third-party services:</p>
   <ul>
-    <li><strong>YouTube (video playback)</strong> - videos play via YouTube's embedded player. When you watch a video, YouTube's own systems apply. Subject to <a href="https://www.youtube.com/t/terms" target="_blank">YouTube's Terms of Service</a> and <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a></li>
+    <li><strong>YouTube (video playback)</strong> - videos play via YouTube's embedded player, served from YouTube's privacy-enhanced <code>youtube-nocookie.com</code> domain for every video, regardless of content. This domain does not set YouTube's standard tracking cookies or tie playback to a signed-in Google account. NoSuggest applies this to all embeds unconditionally, including any video that may be designated "Made for Kids," rather than only to a subset. When the player loads, it still shares basic data with YouTube (such as which video is being viewed) to render the thumbnail and title, determine playability, and help prevent fraud and abuse. Additional data is shared with YouTube once you press play, to support normal playback. This exchange happens directly between your browser and YouTube, is not something NoSuggest can see or control, and is governed by <a href="https://www.youtube.com/t/terms" target="_blank">YouTube's Terms of Service</a> and <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a>. NoSuggest does not enable autoplay before you choose to play a video, which limits this data sharing to when you actively start a video</li>
     <li><strong>Cloudflare Web Analytics</strong> - cookie-free, privacy-respecting analytics that records only aggregate page view data. Does not track individuals. Subject to <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's Privacy Policy</a></li>
     <li><strong>Google Fonts</strong> - for typography. Subject to <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a></li>
   </ul>
   <p>We have no control over these third-party services and encourage you to review their privacy policies.</p>
   <h2>6. Children's Privacy</h2>
-  <p>NoSuggest does not collect any personal data from anyone, including children. The app has no accounts, no sign-up, and no server-side storage. NoSuggest includes a Kids Mode feature that restricts navigation within the app. However, video content accessed through NoSuggest is hosted by YouTube and subject to YouTube's own terms.</p>
+  <p>NoSuggest, as a product, is a general-audience application and is not directed to children. NoSuggest does not collect any personal data from anyone, including children. The app has no accounts, no sign-up, and no server-side storage.</p>
+  <p>NoSuggest includes an optional Kids Mode feature that a parent or guardian can enable, using a PIN they set, to restrict navigation on a device to a pre-approved list of channels. This is a parental control a supervising adult chooses to turn on — it does not change the fact that NoSuggest itself is not marketed or directed to children. Video content accessed through NoSuggest, including in Kids Mode, is hosted by YouTube and subject to YouTube's own terms.</p>
   <h2>7. Changes to This Policy</h2>
   <p>We may update this privacy policy from time to time. Any changes will be posted on this page with an updated date. As we collect no personal data, changes are unlikely to affect you materially.</p>
   <h2>8. Your Rights</h2>
