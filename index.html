@@ -1469,7 +1469,7 @@ function openDesktopShare(){document.getElementById('desktop-share-backdrop').cl
 function closeDesktopShare(){document.getElementById('desktop-share-backdrop').classList.remove('show');a11yCloseModal()}
 function desktopShareMessage(){return NOSUGGEST_SHARE.text+'\n\n'+NOSUGGEST_SHARE.url}
 function openShareDestination(url){const w=window.open(url,'_blank','noopener,noreferrer');if(!w)toast('Pop-up blocked. Please allow pop-ups and try again.',3500);else closeDesktopShare()}
-function shareDesktopLinkedIn(){openShareDestination('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(NOSUGGEST_SHARE.url))}
+function shareDesktopLinkedIn(){openShareDestination('https://www.linkedin.com/company/nosuggest')}
 function shareDesktopX(){openShareDestination('https://x.com/intent/post?text='+encodeURIComponent(NOSUGGEST_SHARE.text)+'&url='+encodeURIComponent(NOSUGGEST_SHARE.url))}
 function shareDesktopFacebook(){openShareDestination('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(NOSUGGEST_SHARE.url))}
 function shareDesktopWhatsApp(){openShareDestination('https://web.whatsapp.com/send?text='+encodeURIComponent(desktopShareMessage()))}
