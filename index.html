@@ -283,6 +283,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-share-strip .ss-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;max-width:400px;}
 #nav-share-strip .ss-actions{display:flex;gap:10px;margin-top:0.5rem;width:100%;max-width:320px;}
 #nav-share-strip .ss-actions button{flex:1;}
+#desktop-share-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:520;display:none;align-items:center;justify-content:center;padding:1.5rem}#desktop-share-backdrop.show{display:flex}#desktop-share-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem 1.4rem;width:100%;max-width:410px;display:flex;flex-direction:column;gap:1rem;box-shadow:0 18px 60px rgba(0,0,0,.55)}.dsm-title{font-size:18px;font-weight:600}.dsm-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.55}.dsm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dsm-btn,.dsm-close{min-height:44px;padding:.7rem .8rem;background:var(--bg3);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer}.dsm-btn:hover{border-color:var(--accent)}.dsm-primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}.dsm-close{width:100%;background:transparent;color:var(--muted)}
+
 
 /* ── iOS install bottom sheet ── */
 #ios-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:450;display:none;opacity:0;transition:opacity 0.25s;}
@@ -1274,6 +1276,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
+  <div id="desktop-share-backdrop"><div id="desktop-share-modal" role="dialog" aria-modal="true" aria-labelledby="desktop-share-title" aria-describedby="desktop-share-description"><div class="dsm-title" id="desktop-share-title">Share NoSuggest</div><div class="dsm-body" id="desktop-share-description">Choose a destination. Social networks build the link preview from NoSuggest's Open Graph image and details.</div><div class="dsm-actions"><button class="dsm-btn dsm-primary" onclick="copyDesktopShare()">Copy message</button><button class="dsm-btn" onclick="shareDesktopLinkedIn()">LinkedIn</button><button class="dsm-btn" onclick="shareDesktopX()">X</button><button class="dsm-btn" onclick="shareDesktopFacebook()">Facebook</button><button class="dsm-btn" onclick="shareDesktopWhatsApp()">WhatsApp</button><button class="dsm-btn" onclick="shareDesktopGmail()">Gmail</button><button class="dsm-btn" onclick="shareDesktopEmail()">Email app</button></div><button class="dsm-close" onclick="closeDesktopShare()">Cancel</button></div></div>
   <!-- iOS INSTALL BOTTOM SHEET -->
   <div id="ios-sheet-backdrop" onclick="closeIosSheet()"></div>
   <div id="ios-sheet">
@@ -1459,21 +1462,21 @@ function triggerInstallFromSettings(){
   if(isIos() && !isInStandaloneMode()) openIosSheet();
 }
 
-function shareNoSuggest(){
-  const shareData = {
-    title: 'NoSuggest',
-    text: "I use NoSuggest to watch YouTube without the algorithm deciding what's next. No recommendations, no Shorts, no rabbit holes — just the channels you choose. Free, no sign-up.",
-    url: 'https://www.nosuggest.com'
-  };
-  if(navigator.share){
-    navigator.share(shareData).catch(() => {});
-  } else {
-    // Fallback for desktop — copy to clipboard
-    navigator.clipboard.writeText(shareData.text + ' ' + shareData.url)
-      .then(() => alert('Link copied to clipboard!'))
-      .catch(() => {});
-  }
-}
+const NOSUGGEST_SHARE={title:'NoSuggest',text:"I use NoSuggest to watch YouTube without the algorithm deciding what's next. No recommendations, no Shorts, no rabbit holes — just the channels you choose. Free, no sign-up.",url:'https://www.nosuggest.com/'};
+function isMobileShareDevice(){if(navigator.userAgentData&&typeof navigator.userAgentData.mobile==='boolean')return navigator.userAgentData.mobile;return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)}
+function shareNoSuggest(){if(isMobileShareDevice()&&navigator.share){navigator.share(NOSUGGEST_SHARE).catch(e=>{if(e&&e.name!=='AbortError')copyShareTextFallback()});return}openDesktopShare()}
+function openDesktopShare(){document.getElementById('desktop-share-backdrop').classList.add('show');a11yOpenModal(document.getElementById('desktop-share-modal'),closeDesktopShare)}
+function closeDesktopShare(){document.getElementById('desktop-share-backdrop').classList.remove('show');a11yCloseModal()}
+function desktopShareMessage(){return NOSUGGEST_SHARE.text+'\n\n'+NOSUGGEST_SHARE.url}
+function openShareDestination(url){const w=window.open(url,'_blank','noopener,noreferrer');if(!w)toast('Pop-up blocked. Please allow pop-ups and try again.',3500);else closeDesktopShare()}
+function shareDesktopLinkedIn(){openShareDestination('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(NOSUGGEST_SHARE.url))}
+function shareDesktopX(){openShareDestination('https://x.com/intent/post?text='+encodeURIComponent(NOSUGGEST_SHARE.text)+'&url='+encodeURIComponent(NOSUGGEST_SHARE.url))}
+function shareDesktopFacebook(){openShareDestination('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(NOSUGGEST_SHARE.url))}
+function shareDesktopWhatsApp(){openShareDestination('https://web.whatsapp.com/send?text='+encodeURIComponent(desktopShareMessage()))}
+function shareDesktopGmail(){openShareDestination('https://mail.google.com/mail/?view=cm&fs=1&su='+encodeURIComponent(NOSUGGEST_SHARE.title)+'&body='+encodeURIComponent(desktopShareMessage()))}
+function shareDesktopEmail(){location.href='mailto:?subject='+encodeURIComponent(NOSUGGEST_SHARE.title)+'&body='+encodeURIComponent(desktopShareMessage());closeDesktopShare()}
+function copyDesktopShare(){copyToClipboard(desktopShareMessage());closeDesktopShare();toast('Share message copied ✓')}
+function copyShareTextFallback(){copyToClipboard(desktopShareMessage());toast('Share message copied ✓')}
 
 /* ── Nav strip dismiss — session only, reappears on next visit ── */
 function dismissNavStrip(e){
@@ -1953,12 +1956,12 @@ function applyKidsMode(){
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
   // Hide elements kids shouldn't see or accidentally tap
-  const kidsHide = ['settings-share-row','settings-support-row','nav-share-strip','share-strip-backdrop'];
+  const kidsHide = ['settings-share-row','settings-support-row','nav-share-strip','share-strip-backdrop','desktop-share-backdrop'];
   kidsHide.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = on ? 'none' : '';
   });
-  if(on) closeShareStrip();
+  if(on){ closeShareStrip(); closeDesktopShare(); }
   if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add' || currentScreen === 'settings')){
     showScreen('feed');
   }
@@ -3259,8 +3262,8 @@ function dismissShareStrip(){
 }
 
 function shareFromStrip(){
-  shareNoSuggest();
   closeShareStrip();
+  shareNoSuggest();
 }
 
 /* ═══════════════════════════════════════════
