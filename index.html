@@ -56,7 +56,7 @@
       "name": "What is NoSuggest?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "NoSuggest is a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no auto-play, no trending feed, no sign-in required. Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual. NoSuggest itself will never show ads and will remain free forever. NoSuggest collects no personal data, runs no ad trackers, and builds no user profiles. We use Cloudflare's cookie-less Web Analytics for aggregate visit counts only, which can't identify individuals or track anyone across sites. Fonts are loaded from Google Fonts, and video playback uses YouTube's official player — both are Google's own services and follow Google's own data practices, the same as they would on any site."
+        "text": "NoSuggest is a quiet act of resistance against YouTube's algorithm — a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no autoplay, no notifications, no trending feed, no sign-in required. Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual. NoSuggest itself will never show ads and will remain free forever. NoSuggest collects no personal data, runs no ad trackers, and builds no user profiles. We use Cloudflare's cookie-less Web Analytics for aggregate visit counts only, which can't identify individuals or track anyone across sites. Fonts are loaded from Google Fonts, and video playback uses YouTube's official player — both are Google's own services and follow Google's own data practices, the same as they would on any site."
       }
     },
     {
@@ -80,7 +80,7 @@
       "name": "How do I move my channels and saved videos to another device?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Go to Settings and tap Export Backup. NoSuggest generates a backup code containing all your channels and saved videos. Copy that code and paste it into Settings → Import Backup on your new device. Everything transfers instantly. There is no login or account by design — NoSuggest intentionally does not ask for your name, email, or any personal information. The export and import approach keeps your data entirely on your own devices."
+        "text": "Go to Settings and tap Export Backup. NoSuggest generates a backup code containing all your channels and saved videos. Copy that code and paste it into Settings → Import Backup on your new device. Everything transfers instantly. There is no login or account by design — NoSuggest intentionally does not ask for your name, email, or any personal information. The export and import approach keeps your data entirely on your own devices. Because there's no account syncing channels in the background, each device keeps its own separate list by default — your phone, laptop, and your kids' iPad can each follow a completely different set of channels until you explicitly transfer a backup code between them."
       }
     },
     {
@@ -121,6 +121,30 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Yes. NoSuggest is completely free, with no ads and no premium tier, and works on iPhone, iPad, Android, and desktop through any browser. It's a Progressive Web App rather than an App Store or Play Store download, so there's nothing to install from a store — just add it to your home screen and it behaves like a native app. See \"Is NoSuggest available on the App Store or Google Play?\" above for exact install steps on each device."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I watch YouTube without distractions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "NoSuggest strips away every distraction built into YouTube's own interface. There's no recommended videos sidebar, no autoplay, no trending page, no comments pulled into your feed, and no push notifications trying to bring you back. You choose which channels to follow, see only their latest uploads in a plain list, watch what you came for, and close the tab — nothing on screen is designed to keep you scrolling. Because it's a free Progressive Web App with no sign-in, it works the same way for focused study sessions, deep work at a desk, or just watching YouTube on your own terms instead of the algorithm's."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I stop YouTube's autoplay?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "NoSuggest has no autoplay at all, so there's nothing to switch off. Regular YouTube automatically starts a new video the moment the last one ends, based on watch history and inferred interest — that's the autoplay behaviour most people are trying to disable. NoSuggest's feed simply doesn't do this: when a video finishes, playback stops and you're back at your list of channels. There's no 'up next' queue, no countdown before the next video starts, and no autoplay toggle to remember to turn off on every device, because the feature doesn't exist in NoSuggest in the first place."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I watch YouTube without Shorts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "NoSuggest's feed never shows Shorts. There's no Shorts shelf, no Shorts autoplay loop, and no way for one to surface by accident — you only see the regular long-form uploads from the channels you've chosen to follow, listed in a simple feed. Videos still play through YouTube's own official embedded player, so playback works exactly like regular YouTube; the difference is everything around it — the Shorts feed, the recommended videos, and the autoplay next-up queue — is simply not there."
       }
     }
   ]
@@ -967,26 +991,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
       </div>
       <div class="settings-section" style="padding-top:0">
-        <div class="settings-label">About</div>
+        <div class="settings-label">Share &amp; Install</div>
         <div class="settings-card">
-          <div class="settings-row">
-            <div class="settings-row-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">NoSuggest</div>
-              <div class="settings-row-sub">A quiet act of resistance. Add only the channels you choose, watch what you came for, and close it. No algorithm deciding what's next. No recommendations. No Shorts loop. No doom scroll. Just the videos you wanted.</div>
-            </div>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">Per device</div>
-              <div class="settings-row-sub"><strong style="color:var(--text)">Channels you add here stay on this device.</strong><br/>Your phone, laptop and your kids iPad can each have their own list.</div>
-            </div>
-          </div>
           <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()" role="button" tabindex="0">
             <div class="settings-row-icon" style="color:var(--accent)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
@@ -1020,7 +1026,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <span>What is NoSuggest?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">NoSuggest is a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no auto-play, no trending feed, no sign-in required.<br><br>Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual.<br><br>NoSuggest itself will never show ads and will remain free forever.<br><br>NoSuggest collects no personal data, runs no ad trackers, and builds no user profiles. We use Cloudflare's cookie-less Web Analytics for aggregate visit counts only, which can't identify individuals or track anyone across sites. Fonts are loaded from Google Fonts, and video playback uses YouTube's official player — both are Google's own services and follow Google's own data practices, the same as they would on any site.</div>
+            <div class="faq-a">NoSuggest is a quiet act of resistance against YouTube's algorithm — a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no autoplay, no notifications, no trending feed, no sign-in required.<br><br>Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual.<br><br>NoSuggest itself will never show ads and will remain free forever.<br><br>NoSuggest collects no personal data, runs no ad trackers, and builds no user profiles. We use Cloudflare's cookie-less Web Analytics for aggregate visit counts only, which can't identify individuals or track anyone across sites. Fonts are loaded from Google Fonts, and video playback uses YouTube's official player — both are Google's own services and follow Google's own data practices, the same as they would on any site.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1044,7 +1050,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <span>How do I move my channels and saved videos to another device?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">Go to Settings and tap Export Backup. NoSuggest generates a backup code containing all your channels and saved videos. Copy that code and paste it into Settings → Import Backup on your new device. Everything transfers instantly.<br><br>There is no login or account by design — NoSuggest intentionally does not ask for your name, email, or any personal information. The export and import approach keeps your data entirely on your own devices.</div>
+            <div class="faq-a">Go to Settings and tap Export Backup. NoSuggest generates a backup code containing all your channels and saved videos. Copy that code and paste it into Settings → Import Backup on your new device. Everything transfers instantly.<br><br>There is no login or account by design — NoSuggest intentionally does not ask for your name, email, or any personal information. The export and import approach keeps your data entirely on your own devices.<br><br>Because there's no account syncing channels in the background, each device keeps its own separate list by default — your phone, laptop, and your kids' iPad can each follow a completely different set of channels until you explicitly transfer a backup code between them.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1087,6 +1093,30 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
             <div class="faq-a">Yes. NoSuggest is completely free, with no ads and no premium tier, and works on iPhone, iPad, Android, and desktop through any browser. It's a Progressive Web App rather than an App Store or Play Store download, so there's nothing to install from a store — just add it to your home screen and it behaves like a native app. See "Is NoSuggest available on the App Store or Google Play?" above for exact install steps on each device.</div>
           </div>
 
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
+            <div class="faq-q">
+              <span>How can I watch YouTube without distractions?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">NoSuggest strips away every distraction built into YouTube's own interface. There's no recommended videos sidebar, no autoplay, no trending page, no comments pulled into your feed, and no push notifications trying to bring you back.<br><br>You choose which channels to follow, see only their latest uploads in a plain list, watch what you came for, and close the tab — nothing on screen is designed to keep you scrolling.<br><br>Because it's a free Progressive Web App with no sign-in, it works the same way for focused study sessions, deep work at a desk, or just watching YouTube on your own terms instead of the algorithm's.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
+            <div class="faq-q">
+              <span>How do I stop YouTube's autoplay?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">NoSuggest has no autoplay at all, so there's nothing to switch off. Regular YouTube automatically starts a new video the moment the last one ends, based on watch history and inferred interest — that's the autoplay behaviour most people are trying to disable.<br><br>NoSuggest's feed simply doesn't do this: when a video finishes, playback stops and you're back at your list of channels. There's no "up next" queue, no countdown before the next video starts, and no autoplay toggle to remember to turn off on every device, because the feature doesn't exist in NoSuggest in the first place.</div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
+            <div class="faq-q">
+              <span>How do I watch YouTube without Shorts?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="faq-a">NoSuggest's feed never shows Shorts. There's no Shorts shelf, no Shorts autoplay loop, and no way for one to surface by accident — you only see the regular long-form uploads from the channels you've chosen to follow, listed in a simple feed.<br><br>Videos still play through YouTube's own official embedded player, so playback works exactly like regular YouTube; the difference is everything around it — the Shorts feed, the recommended videos, and the autoplay next-up queue — is simply not there.</div>
+          </div>
+
         </div>
       </div>
 
@@ -1126,8 +1156,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
             <a href="https://nosuggest.com/terms" target="_blank" rel="noopener">Terms</a>
           </div>
           <div class="footer-col">
-            <div class="footer-col-title">Connect</div>
-            <a href="https://nosuggest.com/contact" target="_blank" rel="noopener" style="color:var(--text)">Get in touch</a>
+            <div class="footer-col-title">Get in Touch</div>
+            <a href="https://nosuggest.com/contact" target="_blank" rel="noopener"><b>Contact</b></a>
             <a href="https://github.com/No-Suggest/NoSuggest" target="_blank" rel="noopener">GitHub</a>
             <a href="https://www.nosuggest.com/featured" target="_blank" rel="noopener">Featured</a>
             <a href="https://www.nosuggest.com/creators" target="_blank" rel="noopener">Creators</a>
