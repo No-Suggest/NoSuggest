@@ -1,5 +1,4 @@
 const CACHE = 'nosuggest-v1';
-
 /* Core app shell — precached on install so there's always something to
    serve offline. This is a single-page app, so the shell is just the
    page itself; add any other same-origin static assets here (manifest,
@@ -10,7 +9,6 @@ const APP_SHELL = [
   '/manifest.json',
   '/nosuggest-logo-v2-512.png'
 ];
-
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
@@ -19,7 +17,6 @@ self.addEventListener('install', e => {
   );
   self.skipWaiting();
 });
-
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
@@ -29,10 +26,17 @@ self.addEventListener('activate', e => {
       .then(() => self.clients.claim())
   );
 });
-
 self.addEventListener('fetch', e => {
   if(e.request.method !== 'GET') return; // don't try to cache POST/etc.
-
+  // Only manage our own origin's requests. Cross-origin requests — the
+  // YouTube embed player, its thumbnails, api.nosuggest.com, fonts, etc. —
+  // are left completely untouched, so the browser's normal network stack
+  // (and any retry logic the resource itself has) handles them. Without
+  // this check, a single transient network blip on a YouTube player
+  // resource gets permanently converted into a broken response for the
+  // whole page, since there's no cache entry for these highly specific,
+  // parameterized third-party URLs to fall back to.
+  if(new URL(e.request.url).origin !== self.location.origin) return;
   // Network first — always fetch fresh, fall back to cache.
   // On a successful network response, store a copy so the cache stays
   // up to date and offline fallback actually has something recent to serve.
