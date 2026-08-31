@@ -920,6 +920,31 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="settings-header"><h2>Settings</h2></div>
     <div class="screen-body">
       <div class="settings-section">
+        <div class="settings-card">
+          <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()" role="button" tabindex="0">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Install NoSuggest</div>
+              <div class="settings-row-sub">Add to your home screen for the full app experience</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Install ↓</div>
+          </div>
+          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()" id="settings-share-row" role="button" tabindex="0">
+            <div class="settings-row-icon" style="color:var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Share NoSuggest</div>
+              <div class="settings-row-sub">Know someone tired of the algorithm? Share NoSuggest with them.</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" style="padding-top:0">
         <div class="settings-label">Family</div>
         <div class="settings-card">
           <div class="settings-row" style="cursor:pointer" onclick="toggleKidsMode()" role="button" tabindex="0">
@@ -985,31 +1010,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
             <div class="settings-row-text">
               <div class="settings-row-label">Create a Pack</div>
               <div class="settings-row-sub">Turn your current channel list into a shareable link. Only channels, nothing personal. Anyone who opens the link can add them to their own feed.</div>
-            </div>
-            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
-          </div>
-        </div>
-      </div>
-      <div class="settings-section" style="padding-top:0">
-        <div class="settings-label">Share &amp; Install</div>
-        <div class="settings-card">
-          <div class="settings-row" id="settings-install-row" style="display:none;cursor:pointer" onclick="triggerInstallFromSettings()" role="button" tabindex="0">
-            <div class="settings-row-icon" style="color:var(--accent)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">Install NoSuggest</div>
-              <div class="settings-row-sub">Add to your home screen for the full app experience</div>
-            </div>
-            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Install ↓</div>
-          </div>
-          <div class="settings-row" style="cursor:pointer" onclick="shareNoSuggest()" id="settings-share-row" role="button" tabindex="0">
-            <div class="settings-row-icon" style="color:var(--accent)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            </div>
-            <div class="settings-row-text">
-              <div class="settings-row-label">Share NoSuggest</div>
-              <div class="settings-row-sub">Know someone tired of the algorithm? Share NoSuggest with them.</div>
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
           </div>
@@ -1139,7 +1139,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
       </div>
       <!-- ── Site footer (matches kids-mode / classroom / creators pages) ── -->
-      <div class="site-footer">
+      <div class="site-footer" id="settings-site-footer">
         <div class="footer-grid">
           <div class="footer-col">
             <div class="footer-col-title">Guides</div>
@@ -1971,7 +1971,7 @@ function applyKidsMode(){
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
   // Hide elements kids shouldn't see or accidentally tap
-  const kidsHide = ['settings-share-row','nav-share-strip','share-strip-backdrop','desktop-share-backdrop'];
+  const kidsHide = ['settings-share-row','settings-site-footer','nav-share-strip','share-strip-backdrop','desktop-share-backdrop'];
   kidsHide.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = on ? 'none' : '';
