@@ -351,19 +351,13 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .icon-btn{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--accent);transition:border-color 0.15s,color 0.15s;}
 .icon-btn:hover{border-color:var(--border2);color:var(--text);}
 .icon-btn svg{width:16px;height:16px;}
-/* Reload button — two arrow arcs sandwiching the word "Reload".
-   The left arc curves up-left, the right arc curves down-right,
-   giving the visual of a circular refresh symbol split around the label. */
-.reload-btn{display:flex;align-items:center;gap:3px;padding:0.35rem 0.7rem;background:var(--bg2);border:1px solid var(--border);border-radius:20px;color:var(--accent);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:border-color 0.15s,background 0.15s;white-space:nowrap;}
-.reload-btn:hover{border-color:var(--border2);background:var(--bg3);}
-.reload-btn:active{transform:scale(0.97);}
-.reload-arrow{width:12px;height:20px;flex-shrink:0;}
-.reload-label{padding:0 2px;}
-/* Labeled Add Channel button — used in Channels header */
-.header-label-btn{display:flex;align-items:center;gap:6px;padding:0.4rem 0.85rem;background:var(--bg2);border:1px solid var(--border);border-radius:20px;color:var(--accent);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:border-color 0.15s,background 0.15s;white-space:nowrap;}
-.header-label-btn:hover{border-color:var(--border2);background:var(--bg3);}
-.header-label-btn:active{transform:scale(0.97);}
-.header-label-btn svg{flex-shrink:0;}
+/* Labeled header buttons — Reload (Feed) and Add Channel (Channels).
+   Accent-filled to match the onboarding "Add Channels" button style,
+   keeping the visual language consistent across the whole app. */
+.header-label-btn{display:flex;align-items:center;gap:6px;padding:0.4rem 0.85rem;background:var(--accent);border:none;border-radius:20px;color:#0a0a0a;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
+.header-label-btn:hover{opacity:0.88;}
+.header-label-btn:active{transform:scale(0.97);opacity:0.85;}
+.header-label-btn svg{flex-shrink:0;stroke:#0a0a0a;}
 .channel-section{padding:1.25rem 1.25rem 0.5rem;animation:fadeUp 0.35s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .channel-label{display:flex;align-items:center;gap:8px;margin-bottom:0.9rem;}
@@ -844,10 +838,9 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="feed-header">
       <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 10 videos/channel</span></h2>
       <div class="feed-actions">
-        <button class="reload-btn" id="feed-refresh-btn" title="Reload feed">
-          <svg class="reload-arrow reload-arrow-left" viewBox="0 0 14 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4v6H5M2.5 9a8 8 0 0 1 8.5-5"/></svg>
-          <span class="reload-label">Reload</span>
-          <svg class="reload-arrow reload-arrow-right" viewBox="0 0 14 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 20v-6h6M11.5 15a8 8 0 0 1-8.5 5"/></svg>
+        <button class="header-label-btn" id="feed-refresh-btn" title="Reload feed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:15px;height:15px;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Reload
         </button>
       </div>
     </div>
