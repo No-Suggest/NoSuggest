@@ -801,12 +801,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <button class="btn" onclick="getStarted()" style="margin-top:0">Get Started →</button>
     </div>
 
-    <!-- Positioned after the setup card (not before it) so its late,
-         asynchronous appearance — beforeinstallprompt can fire well after
-         first paint — never pushes the primary card down. It was flagged
-         as a CLS source in Cloudflare Web Analytics when it sat above the
-         card; now only the footer text below shifts, which is far less
-         disruptive. -->
     <button id="android-install-btn" onclick="triggerInstallPrompt()"
       style="display:none;align-items:center;justify-content:center;gap:10px;width:100%;padding:0.85rem;margin-top:1rem;background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:15px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
@@ -890,10 +884,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
           </div>
           <div class="input-hint">Type a name or handle, then press Enter or tap Search</div>
 
-          <!-- Absolutely positioned so a slow network response doesn't shift
-               the preview/fallback card below when results finally arrive
-               (was the #1 CLS source in Cloudflare Web Analytics — this
-               list used to push everything below it down on load). -->
           <div id="channel-suggestions" class="channel-suggestions"></div>
           <div id="channel-searching" class="searching-state" style="display:none">
             <div class="search-spinner"></div>
@@ -1246,23 +1236,23 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
   <!-- BOTTOM NAV -->
   <nav class="nav" id="main-nav" aria-label="Main navigation">
-    <button class="nav-btn active" id="nav-feed" onclick="showScreen('feed')">
+    <button class="nav-btn active" id="nav-feed" onclick="navigateMain('feed')">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
       <span>Feed</span>
     </button>
-    <button class="nav-btn" id="nav-search" onclick="showScreen('search')">
+    <button class="nav-btn" id="nav-search" onclick="navigateMain('search')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <span>Search</span>
     </button>
-    <button class="nav-btn" id="nav-saved" onclick="showScreen('saved')">
+    <button class="nav-btn" id="nav-saved" onclick="navigateMain('saved')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
       <span>Saved</span>
     </button>
-    <button class="nav-btn" id="nav-channels" onclick="showScreen('channels')">
+    <button class="nav-btn" id="nav-channels" onclick="navigateMain('channels')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span>Channels</span>
     </button>
-    <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">
+    <button class="nav-btn" id="nav-settings" onclick="navigateMain('settings')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span>Settings</span>
     </button>
@@ -1699,11 +1689,16 @@ function hasDuplicateIds(items){
   return new Set(items.map(item => item.id)).size !== items.length;
 }
 
-function toast(msg, dur=2200){
+let toastTimer = null;
+function toast(msg, dur=5000){
   const t = document.getElementById('toast');
+  clearTimeout(toastTimer);
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), dur);
+  toastTimer = setTimeout(() => {
+    t.classList.remove('show');
+    toastTimer = null;
+  }, dur);
 }
 
 /* Returns true when a video was published within the last 24 hours.
@@ -1839,6 +1834,17 @@ function validateVideoUrl(input){
 /* ═══════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════ */
+/* Bottom navigation must also work from Add Channel. If channels were
+   added, leaveAddScreen performs the required reload and lands on target. */
+function navigateMain(name){
+  if(currentScreen === 'add'){
+    localStorage.setItem('ns_add_return_tab', name);
+    leaveAddScreen();
+    return;
+  }
+  showScreen(name);
+}
+
 function showScreen(name, opts){
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
@@ -1867,10 +1873,11 @@ function showScreen(name, opts){
   currentScreen = name;
 
   const nav = document.getElementById('main-nav');
-  nav.style.display = (name === 'setup' || name === 'add') ? 'none' : 'flex';
+  nav.style.display = (name === 'setup') ? 'none' : 'flex';
 
   const navMap = {feed:'nav-feed', channels:'nav-channels', settings:'nav-settings', search:'nav-search', saved:'nav-saved'};
   if(navMap[name]) document.getElementById(navMap[name]).classList.add('active');
+  else if(name === 'add') document.getElementById('nav-channels').classList.add('active');
 
   if(name === 'feed'){
     // Only kick off a real load the first time Feed is shown this
@@ -2952,7 +2959,7 @@ function inlineAddChannel(index){
 
 
   // Toast confirmation
-  toast(`Added ${ch.name} ✓`);
+  toast(`Added ${ch.name} ✓ - Go to Feed tab to see latest videos`);
 }
 
 /* Called by both the back-button and popstate when leaving the Add screen.
@@ -3048,7 +3055,7 @@ async function doFallbackAdd(inputVal){
     });
     STORE.channels = channels;
     _addedThisSession = true;
-    sessionStorage.setItem('ns_post_reload_toast', `Added ${ch.name || 'channel'} ✓`);
+    sessionStorage.setItem('ns_post_reload_toast', `Added ${ch.name || 'channel'} ✓ - Go to Feed tab to see latest videos`);
     leaveAddScreen();
   } catch(err){
     if(err.name === 'AbortError' || generation !== channelRequestGeneration) return;
@@ -3743,7 +3750,7 @@ async function confirmAddPack(){
   STORE.channels = channels;
   STORE.hasLaunched = true;
   const count = toAdd.length;
-  toast(`Added ${count} channel${count===1?'':'s'} ✓`);
+  toast(`Added ${count} channel${count===1?'':'s'} ✓ - Go to Feed tab to see latest videos`);
   closePackConfirm();
   cleanPackUrlParam();
   await resolvePackAvatars(toAdd);
