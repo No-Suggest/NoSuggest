@@ -351,6 +351,13 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .icon-btn{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--accent);transition:border-color 0.15s,color 0.15s;}
 .icon-btn:hover{border-color:var(--border2);color:var(--text);}
 .icon-btn svg{width:16px;height:16px;}
+/* Labeled header buttons — Reload (Feed) and Add Channel (Channels).
+   Accent-filled to match the onboarding "Add Channels" button style,
+   keeping the visual language consistent across the whole app. */
+.header-label-btn{display:flex;align-items:center;gap:6px;padding:0.4rem 0.85rem;background:var(--accent);border:none;border-radius:20px;color:#0a0a0a;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
+.header-label-btn:hover{opacity:0.88;}
+.header-label-btn:active{transform:scale(0.97);opacity:0.85;}
+.header-label-btn svg{flex-shrink:0;stroke:#0a0a0a;}
 .channel-section{padding:1.25rem 1.25rem 0.5rem;animation:fadeUp 0.35s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .channel-label{display:flex;align-items:center;gap:8px;margin-bottom:0.9rem;}
@@ -831,8 +838,9 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="feed-header">
       <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 10 videos/channel</span></h2>
       <div class="feed-actions">
-        <button class="icon-btn" id="feed-refresh-btn" title="Refresh">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <button class="header-label-btn" id="feed-refresh-btn" title="Reload feed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:15px;height:15px;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Reload
         </button>
       </div>
     </div>
@@ -850,9 +858,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <div class="screen" id="screen-channels">
     <div class="channels-header">
       <h2 id="ch-heading">My Channels</h2>
-      <button class="icon-btn" onclick="localStorage.setItem('ns_add_return_tab','channels');showScreen('add')" title="Add channel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:20px;height:20px;"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+      <button class="header-label-btn" id="ch-add-btn" onclick="openAddChannelOnboarding()" title="Add channel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:16px;height:16px;"><path d="M12 5v14M5 12h14"/></svg>Add Channel</button>
     </div>
     <div class="screen-body" id="channels-body">
       <div class="empty-feed no-channels" id="no-channels" style="display:none">
@@ -2138,6 +2144,10 @@ async function initFeed(newChannelId){
   const body     = document.getElementById('feed-body');
   const empty    = document.getElementById('feed-empty');
 
+  // Hide Reload button when there are no channels — nothing to reload
+  const reloadBtn = document.getElementById('feed-refresh-btn');
+  if(reloadBtn) reloadBtn.style.display = channels.length ? '' : 'none';
+
   if(!channels.length){
     body.innerHTML = '';
     body.appendChild(empty);
@@ -2662,9 +2672,12 @@ function initChannels(){
 
   headingEl.textContent = `My Channels (${channels.length}/${MAX_CHANNELS})`;
 
-  const headerAddBtn = document.querySelector('#screen-channels .channels-header .icon-btn');
+  const headerAddBtn = document.getElementById('ch-add-btn');
   const fab          = document.querySelector('.add-channel-fab');
-  if(headerAddBtn) headerAddBtn.style.display = atLimit ? 'none' : '';
+  // Hide header Add Channel button when: no channels yet (onboarding card is the only CTA)
+  // OR when channel limit is reached (can't add more).
+  const showHeaderAdd = channels.length > 0 && !atLimit;
+  if(headerAddBtn) headerAddBtn.style.display = showHeaderAdd ? '' : 'none';
   if(fab)          fab.style.display          = atLimit ? 'none' : '';
 
   if(!channels.length){
