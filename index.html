@@ -174,7 +174,7 @@ html{height:100%;overflow:hidden;background:var(--bg);}
 :root{
   --bg:#0a0a0a; --bg2:#111111; --bg3:#1a1a1a;
   --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.15);
-  --text:#f0f0ee; --muted:#888884; --faint:#87877f;
+  --text:#f0f0ee; --muted:#b0b0aa; --faint:#c8c8c2;
   --accent:#e8ff5a; --accent2:#ff6b35; --danger:#ff4444;
   --radius:16px; --radius-sm:10px;
   --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
@@ -502,15 +502,29 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .preview-check svg{width:14px;height:14px;fill:var(--bg);}
 .searching-state{position:absolute;top:100%;left:0;right:0;margin-top:0.75rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:6;padding:1.5rem;text-align:center;color:var(--muted);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:10px;}
 .channel-search-anchor{position:relative;}
-.channel-suggestions{position:absolute;top:100%;left:0;right:0;margin-top:0.75rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;display:none;animation:fadeUp 0.2s ease;box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:6;}
-.channel-suggestion-item{display:flex;align-items:center;gap:12px;padding:0.85rem 1rem;cursor:pointer;background:var(--bg2);border-bottom:1px solid var(--border);transition:background 0.15s;}
+.channel-suggestions{position:absolute;top:100%;left:0;right:0;margin-top:0.75rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow-x:hidden;overflow-y:auto;max-height:calc(100vh - 190px - var(--safe-top) - var(--safe-bot) - 64px);max-height:calc(100dvh - 190px - var(--safe-top) - var(--safe-bot) - 64px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none;animation:fadeUp 0.2s ease;box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:6;}
+.channel-suggestions::-webkit-scrollbar{display:none;width:0;height:0;}
+@media(max-width:768px){.channel-suggestions{max-height:calc(100vh - 180px - var(--safe-top) - var(--safe-bot) - 64px);max-height:calc(100dvh - 180px - var(--safe-top) - var(--safe-bot) - 64px);}}
+/* Each row IS the button — one interactive element, no nesting.
+   width:100% + text-align:left resets <button> defaults. */
+.channel-suggestion-item{display:flex;align-items:center;gap:12px;padding:0.85rem 1rem;cursor:pointer;background:var(--bg2);border-bottom:1px solid var(--border);transition:background 0.15s;width:100%;text-align:left;border-left:none;border-right:none;border-top:none;border-radius:0;font-family:inherit;min-height:48px;}
 .channel-suggestion-item:last-child{border-bottom:none;}
+.channel-suggestion-item:hover{background:var(--bg3);}
 .channel-suggestion-item:active{background:var(--bg3);}
+.channel-suggestion-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+/* Added state — dimmed row, no pointer, removed from natural tab order via disabled attr */
+.channel-suggestion-item:disabled,.channel-suggestion-item[disabled]{cursor:default;pointer-events:none;}
+.channel-suggestion-item:disabled .suggestion-avatar,.channel-suggestion-item[disabled] .suggestion-avatar,.channel-suggestion-item:disabled .suggestion-info,.channel-suggestion-item[disabled] .suggestion-info{opacity:0.65;}
 .suggestion-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg3);overflow:hidden;flex-shrink:0;border:1px solid var(--border);}
 .suggestion-avatar img{width:100%;height:100%;object-fit:cover;}
 .suggestion-info{flex:1;min-width:0;}
 .suggestion-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .suggestion-subs{font-size:11px;color:var(--muted);margin-top:1px;font-family:'DM Mono',monospace;}
+/* Inline add affordance on the right of each row */
+.suggestion-add-btn{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:0.4rem 0.75rem;background:var(--accent);color:var(--bg);border-radius:20px;font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;letter-spacing:0.02em;transition:opacity 0.15s;white-space:nowrap;}
+.channel-suggestion-item:disabled .suggestion-add-btn,.channel-suggestion-item[disabled] .suggestion-add-btn{background:transparent;color:var(--muted);padding:0;gap:4px;}
+/* MAX_CHANNELS cap warning row */
+.suggestion-cap-notice{padding:0.75rem 1rem;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;border-top:1px solid var(--border);}
 
 /* Manual URL fallback section */
 .fallback-divider{display:flex;align-items:center;gap:10px;margin:1.5rem 0 1rem;}
@@ -678,7 +692,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .search-spinner::after{inset:7px;border-bottom-color:var(--accent2);border-left-color:var(--accent2);animation:search-spin-ccw 0.85s cubic-bezier(0.5,0,0.5,1) infinite;}
 @keyframes search-spin-cw{to{transform:rotate(360deg)}}
 @keyframes search-spin-ccw{to{transform:rotate(-360deg)}}
-#toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:0.6rem 1.2rem;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:300;white-space:nowrap;pointer-events:none;}
+#toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:0.6rem 1.2rem;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:300;width:max-content;max-width:calc(100vw - 32px);white-space:normal;text-align:center;line-height:1.4;overflow-wrap:anywhere;pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* ── Export confirmation modal ── */
@@ -787,12 +801,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <button class="btn" onclick="getStarted()" style="margin-top:0">Get Started →</button>
     </div>
 
-    <!-- Positioned after the setup card (not before it) so its late,
-         asynchronous appearance — beforeinstallprompt can fire well after
-         first paint — never pushes the primary card down. It was flagged
-         as a CLS source in Cloudflare Web Analytics when it sat above the
-         card; now only the footer text below shifts, which is far less
-         disruptive. -->
     <button id="android-install-btn" onclick="triggerInstallPrompt()"
       style="display:none;align-items:center;justify-content:center;gap:10px;width:100%;padding:0.85rem;margin-top:1rem;background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:15px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
@@ -854,7 +862,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <!-- SCREEN: ADD CHANNEL -->
   <div class="screen" id="screen-add">
     <div class="add-header">
-      <button class="back-btn" onclick="showScreen('channels')">
+      <button class="back-btn" onclick="leaveAddScreen()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       </button>
       <h2>Add Channel</h2>
@@ -876,10 +884,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
           </div>
           <div class="input-hint">Type a name or handle, then press Enter or tap Search</div>
 
-          <!-- Absolutely positioned so a slow network response doesn't shift
-               the preview/fallback card below when results finally arrive
-               (was the #1 CLS source in Cloudflare Web Analytics — this
-               list used to push everything below it down on load). -->
           <div id="channel-suggestions" class="channel-suggestions"></div>
           <div id="channel-searching" class="searching-state" style="display:none">
             <div class="search-spinner"></div>
@@ -889,23 +893,11 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
 
 
-        <div class="preview-card" id="channel-preview">
-          <div class="preview-avatar"><img id="preview-img" src="" alt=""/></div>
-          <div class="preview-info">
-            <div class="preview-name" id="preview-name"></div>
-            <div class="preview-subs" id="preview-subs"></div>
-          </div>
-          <div class="preview-check">
-            <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-          </div>
-        </div>
-
         <div class="error-msg" id="add-error" role="alert" style="margin-top:0.75rem"></div>
-        <button class="btn" id="add-btn" style="display:none">Add Channel</button>
 
         <!-- FALLBACK: Paste URL directly -->
-        <div class="fallback-divider"><span>can't find it? paste the link instead</span></div>
-        <div class="fallback-card">
+        <div class="fallback-divider" id="add-fallback-divider"><span>can't find it? paste the link instead</span></div>
+        <div class="fallback-card" id="add-fallback-card">
           <p>Paste a YouTube channel URL directly, search sometimes misses niche or newly renamed channels.<br/>
           Examples: <code>youtube.com/@creator</code> or <code>youtube.com/channel/UCxxxxxxx</code></p>
           <div class="error-msg" id="fallback-error" role="alert" style="margin-top:0.5rem"></div>
@@ -1244,23 +1236,23 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
   <!-- BOTTOM NAV -->
   <nav class="nav" id="main-nav" aria-label="Main navigation">
-    <button class="nav-btn active" id="nav-feed" onclick="showScreen('feed')">
+    <button class="nav-btn active" id="nav-feed" onclick="navigateMain('feed')">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
       <span>Feed</span>
     </button>
-    <button class="nav-btn" id="nav-search" onclick="showScreen('search')">
+    <button class="nav-btn" id="nav-search" onclick="navigateMain('search')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <span>Search</span>
     </button>
-    <button class="nav-btn" id="nav-saved" onclick="showScreen('saved')">
+    <button class="nav-btn" id="nav-saved" onclick="navigateMain('saved')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
       <span>Saved</span>
     </button>
-    <button class="nav-btn" id="nav-channels" onclick="showScreen('channels')">
+    <button class="nav-btn" id="nav-channels" onclick="navigateMain('channels')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span>Channels</span>
     </button>
-    <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">
+    <button class="nav-btn" id="nav-settings" onclick="navigateMain('settings')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span>Settings</span>
     </button>
@@ -1561,17 +1553,15 @@ const STORE = {
 };
 
 let currentScreen  = '';
-let foundChannel   = null;
 let feedGeneration = 0;
 // True once a full Feed load has been kicked off this page session.
 // Prevents showScreen('feed') from calling initFeed() again on every
 // simple tab switch back to Feed. The channel list can only change via
-// flows that already force a full location.reload() (removeChannel(),
-// the add-btn handler, and doFallbackAdd() all reload the page after
-// changing STORE.channels), so once a full load has started this
-// session there's nothing new to fetch; simply
-// re-showing the already-populated (or still-loading, in the
-// background) DOM is correct and avoids restarting work in progress.
+// flows that force a location.reload() (removeChannel(), doFallbackAdd())
+// or the deferred reload in leaveAddScreen() after inline multi-adds.
+// Once a full load has started this session there's nothing new to fetch;
+// re-showing the already-populated (or still-loading, in the background)
+// DOM is correct and avoids restarting work in progress.
 let feedEverInitialized = false;
 // AbortController for the most recent full-feed reload. Each channel's
 // retry chain (fetchVideosRSSWithRetry) can legitimately run for a
@@ -1699,11 +1689,22 @@ function hasDuplicateIds(items){
   return new Set(items.map(item => item.id)).size !== items.length;
 }
 
-function toast(msg, dur=2200){
+/* Dismiss the on-screen keyboard after successful searches so results
+   have the full viewport on iOS, iPadOS and Android. */
+function dismissSearchKeyboard(input){
+  if(input && document.activeElement === input) input.blur();
+}
+
+let toastTimer = null;
+function toast(msg, dur=5000){
   const t = document.getElementById('toast');
+  clearTimeout(toastTimer);
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), dur);
+  toastTimer = setTimeout(() => {
+    t.classList.remove('show');
+    toastTimer = null;
+  }, dur);
 }
 
 /* Returns true when a video was published within the last 24 hours.
@@ -1839,6 +1840,17 @@ function validateVideoUrl(input){
 /* ═══════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════ */
+/* Bottom navigation must also work from Add Channel. If channels were
+   added, leaveAddScreen performs the required reload and lands on target. */
+function navigateMain(name){
+  if(currentScreen === 'add'){
+    localStorage.setItem('ns_add_return_tab', name);
+    leaveAddScreen();
+    return;
+  }
+  showScreen(name);
+}
+
 function showScreen(name, opts){
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
@@ -1867,10 +1879,11 @@ function showScreen(name, opts){
   currentScreen = name;
 
   const nav = document.getElementById('main-nav');
-  nav.style.display = (name === 'setup' || name === 'add') ? 'none' : 'flex';
+  nav.style.display = (name === 'setup') ? 'none' : 'flex';
 
   const navMap = {feed:'nav-feed', channels:'nav-channels', settings:'nav-settings', search:'nav-search', saved:'nav-saved'};
   if(navMap[name]) document.getElementById(navMap[name]).classList.add('active');
+  else if(name === 'add') document.getElementById('nav-channels').classList.add('active');
 
   if(name === 'feed'){
     // Only kick off a real load the first time Feed is shown this
@@ -2685,53 +2698,75 @@ function removeChannel(id){
    Fallback: Paste YouTube channel URL directly
 ═══════════════════════════════════════════ */
 let searchTimeout = null;
+let channelRequestGeneration = 0;
+let channelRequestController = null;
+
+function cancelChannelRequest(){
+  channelRequestGeneration++;
+  if(channelRequestController){
+    channelRequestController.abort();
+    channelRequestController = null;
+  }
+}
+
+function resetChannelSearchUi({ showFallback = true } = {}){
+  stopLoadingMessages();
+  document.getElementById('channel-searching').style.display = 'none';
+  const suggestions = document.getElementById('channel-suggestions');
+  suggestions.style.display = 'none';
+  suggestions.innerHTML = '';
+  if(showFallback) setFallbackHintVisible(true);
+}
+
+/* The suggestions dropdown is position:absolute (see comment on
+   #channel-suggestions) so a slow network response doesn't shift this
+   fallback hint when results arrive. But that also means the dropdown
+   doesn't push this hint down — it just overlays on top of it. There's
+   only ~1.5rem of natural clearance below the input in the empty state,
+   so even a single result visually overlaps this hint's text. Simplest
+   fix: hide the hint entirely whenever there's something to overlap it
+   with, and only show it when there's nothing behind it to collide. */
+function setFallbackHintVisible(visible){
+  const d = visible ? '' : 'none';
+  document.getElementById('add-fallback-divider').style.display = d;
+  document.getElementById('add-fallback-card').style.display    = d;
+}
 
 function initAdd(){
-  foundChannel = null;
+  cancelChannelRequest();
+  _addedThisSession = false;
   document.getElementById('channel-input').value     = '';
   document.getElementById('channel-suggestions').style.display = 'none';
   document.getElementById('channel-suggestions').innerHTML     = '';
-  document.getElementById('channel-preview').classList.remove('show');
-  document.getElementById('add-btn').style.display   = 'none';
   document.getElementById('add-error').style.display = 'none';
   document.getElementById('fallback-error').style.display = 'none';
   document.getElementById('channel-searching').style.display = 'none';
+  setFallbackHintVisible(true);
   setTimeout(() => document.getElementById('channel-input').focus(), 300);
 }
 
 document.getElementById('channel-input').addEventListener('input', e => {
   clearTimeout(searchTimeout);
+  cancelChannelRequest();
+  resetChannelSearchUi();
+
   const q = e.target.value.trim();
-  if(!q){
-    document.getElementById('channel-preview').classList.remove('show');
-    document.getElementById('add-btn').style.display    = 'none';
-    document.getElementById('add-error').style.display  = 'none';
-    document.getElementById('fallback-error').style.display = 'none';
-    document.getElementById('channel-suggestions').style.display = 'none';
-    return;
-  }
-  // URL paste → validate first, then resolve via fallback logic
+  document.getElementById('add-error').style.display = 'none';
+  document.getElementById('fallback-error').style.display = 'none';
+  if(!q) return;
+
+  // URL paste: validate first, then resolve after a short debounce.
   if(/^https?:\/\//i.test(q)){
     const vResult = validateChannelUrl(q);
     if(!vResult.ok){
-      document.getElementById('channel-suggestions').style.display = 'none';
-      document.getElementById('channel-suggestions').innerHTML     = '';
-      document.getElementById('channel-preview').classList.remove('show');
-      document.getElementById('add-btn').style.display   = 'none';
       const errEl = document.getElementById('add-error');
-      errEl.textContent   = vResult.msg;
+      errEl.textContent = vResult.msg;
       errEl.style.display = 'block';
       return;
     }
-    document.getElementById('channel-suggestions').style.display = 'none';
-    document.getElementById('channel-suggestions').innerHTML     = '';
-    document.getElementById('channel-preview').classList.remove('show');
-    document.getElementById('add-btn').style.display   = 'none';
-    document.getElementById('add-error').style.display = 'none';
     searchTimeout = setTimeout(() => doFallbackAdd(q), 600);
-    return;
   }
-  // Plain keyword typing no longer auto-searches — wait for Enter or the Search button
+  // Plain keywords wait for Enter or the Search button.
 });
 
 document.getElementById('channel-input').addEventListener('keydown', e => {
@@ -2791,117 +2826,181 @@ function stopLoadingMessages(){
 }
 
 async function doChannelSearch(query){
-  const searching   = document.getElementById('channel-searching');
-  const preview     = document.getElementById('channel-preview');
-  const errEl       = document.getElementById('add-error');
-  const addBtn      = document.getElementById('add-btn');
+  cancelChannelRequest();
+  const generation = channelRequestGeneration;
+  const controller = new AbortController();
+  channelRequestController = controller;
+
+  const searching = document.getElementById('channel-searching');
+  const errEl = document.getElementById('add-error');
   const suggestions = document.getElementById('channel-suggestions');
 
-  searching.style.display   = 'block';
+  searching.style.display = 'block';
   startLoadingMessages('channel-search-progress-text', CHANNEL_SEARCH_MESSAGES);
-  preview.classList.remove('show');
-  errEl.style.display       = 'none';
-  addBtn.style.display      = 'none';
+  errEl.style.display = 'none';
   suggestions.style.display = 'none';
-  suggestions.innerHTML     = '';
+  suggestions.innerHTML = '';
+  setFallbackHintVisible(false);
 
   try{
-    const res      = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+    if(!res.ok) throw new Error(`Channel search failed (${res.status})`);
     const channels = await res.json();
-    searching.style.display = 'none';
-    stopLoadingMessages();
 
-    // Discard stale response if user has typed something different
+    if(generation !== channelRequestGeneration) return;
     const currentQ = document.getElementById('channel-input').value.trim();
     if(currentQ.toLowerCase() !== query.trim().toLowerCase()) return;
 
-    if(!channels.length || channels.error){
-      errEl.textContent  = 'No channels found. Try a different name or paste the channel URL directly in this box.';
+    channelRequestController = null;
+    searching.style.display = 'none';
+    stopLoadingMessages();
+
+    if(!Array.isArray(channels) || channels.error || !channels.length){
+      errEl.textContent = 'No channels found. Try a different name or paste the channel URL directly in this box.';
       errEl.style.display = 'block';
+      setFallbackHintVisible(true);
       return;
     }
 
-    suggestions.innerHTML = channels.map((ch, i) => `
-      <div class="channel-suggestion-item" onclick="selectSuggestion(${i})" role="button" tabindex="0" aria-label="Add ${esc(ch.name)}">
-        <div class="suggestion-avatar">
-          <img src="${esc(ch.avatar)}" alt="${esc(ch.name)}" loading="lazy"
+    dismissSearchKeyboard(document.getElementById('channel-input'));
+
+    const existingIds = new Set(STORE.channels.map(c => c.id));
+    const atLimit = STORE.channels.length >= MAX_CHANNELS;
+    suggestions.innerHTML = channels.map((ch, i) => {
+      const alreadyAdded = existingIds.has(ch.id);
+      const disabled = alreadyAdded || atLimit;
+      const addedLabel = alreadyAdded ? '✓ Added' : (atLimit ? 'Limit reached' : '+ Add');
+      const ariaLabel = alreadyAdded
+        ? `${ch.name}, already added`
+        : (atLimit ? `${ch.name}, channel limit reached` : `Add ${ch.name}, ${ch.subs || ''}`);
+      return `
+      <button type="button" class="channel-suggestion-item"
+              onclick="inlineAddChannel(${i})"
+              aria-label="${esc(ariaLabel)}"
+              ${disabled ? 'disabled' : ''}
+              data-ch-index="${i}">
+        <span class="suggestion-avatar">
+          <img src="${esc(ch.avatar || '')}" alt="" loading="lazy"
                onerror="this.style.display='none'"/>
-        </div>
-        <div class="suggestion-info">
-          <div class="suggestion-name">${esc(ch.name)}</div>
-          <div class="suggestion-subs">${esc(ch.subs)}</div>
-        </div>
-      </div>`).join('');
+        </span>
+        <span class="suggestion-info">
+          <span class="suggestion-name">${esc(ch.name || 'Unknown channel')}</span>
+          <span class="suggestion-subs">${esc(ch.subs || '')}</span>
+        </span>
+        <span class="suggestion-add-btn" aria-hidden="true">${esc(addedLabel)}</span>
+      </button>`;
+    }).join('');
 
+    if(atLimit){
+      suggestions.insertAdjacentHTML('beforeend',
+        `<div class="suggestion-cap-notice">Channel limit (${MAX_CHANNELS}) reached — remove a channel first.</div>`);
+    }
     window._channelSuggestions = channels;
-    suggestions.style.display  = 'block';
-
+    suggestions.style.display = 'block';
   } catch(err){
+    if(err.name === 'AbortError' || generation !== channelRequestGeneration) return;
+    channelRequestController = null;
     searching.style.display = 'none';
     stopLoadingMessages();
-    errEl.textContent  = 'Search failed. Check your connection or paste the channel URL directly in this box.';
+    errEl.textContent = 'Search failed. Check your connection or paste the channel URL directly in this box.';
     errEl.style.display = 'block';
-    foundChannel = null;
+    setFallbackHintVisible(true);
   }
 }
 
-function selectSuggestion(index){
+/* ── Inline per-row add — no preview step, no page reload.
+   Each tap pushes straight to storage. The user keeps the results list and can add more.
+   A single deferred reload happens when they leave the Add Channel
+   screen (back button / popstate), handled in leaveAddScreen(). ── */
+let _addedThisSession = false; // tracks whether any channel was added this visit
+
+function inlineAddChannel(index){
   const ch = window._channelSuggestions?.[index];
   if(!ch) return;
-  foundChannel = ch;
 
-  document.getElementById('channel-suggestions').style.display = 'none';
-  document.getElementById('add-error').style.display           = 'none';
-  document.getElementById('preview-img').src                   = ch.avatar;
-  document.getElementById('preview-name').textContent          = ch.name;
-  document.getElementById('preview-subs').textContent          = ch.subs || '';
-  document.getElementById('channel-preview').classList.add('show');
+  // Guard: already added (shouldn't be reachable since button is disabled, but be safe)
+  if(STORE.channels.some(c => c.id === ch.id)){
+    toast('Already in your list');
+    return;
+  }
 
-  const addBtn = document.getElementById('add-btn');
-  const exists = STORE.channels.some(c => c.id === ch.id);
-  if(exists){
-    addBtn.textContent         = '✓ Already Added';
-    addBtn.disabled            = true;
-    addBtn.style.display       = 'block';
-    addBtn.style.background    = 'transparent';
-    addBtn.style.border        = '1.5px solid var(--border)';
-    addBtn.style.color         = 'var(--muted)';
-    addBtn.style.cursor        = 'default';
-    addBtn.style.pointerEvents = 'none';
-    addBtn.style.opacity       = '1';
+  // Guard: at cap
+  if(STORE.channels.length >= MAX_CHANNELS){
+    toast(`Channel limit reached (${MAX_CHANNELS}) — remove one first`);
+    return;
+  }
+
+  // 1. Persist to storage immediately
+  const channels = STORE.channels;
+  channels.push(ch);
+  STORE.channels = channels;
+  _addedThisSession = true;
+
+  // 2. Flip this row to the ✓ Added state instantly (no reload)
+  const suggestions = document.getElementById('channel-suggestions');
+  const rowEl = suggestions.querySelector(`[data-ch-index="${index}"]`);
+  if(rowEl){
+    rowEl.disabled = true;
+    rowEl.setAttribute('aria-label', `${ch.name}, ${ch.subs}, added`);
+    const addBadge = rowEl.querySelector('.suggestion-add-btn');
+    if(addBadge) addBadge.textContent = '✓ Added';
+  }
+
+  // 3. If we just hit the cap, disable all remaining unadded rows + show notice
+  if(STORE.channels.length >= MAX_CHANNELS){
+    suggestions.querySelectorAll('.channel-suggestion-item:not([disabled])').forEach(btn => {
+      const idx = parseInt(btn.dataset.chIndex, 10);
+      const c   = window._channelSuggestions?.[idx];
+      if(c && !STORE.channels.some(x => x.id === c.id)){
+        btn.disabled = true;
+        btn.setAttribute('aria-label', `${c.name}, channel limit reached`);
+        const badge = btn.querySelector('.suggestion-add-btn');
+        if(badge) badge.textContent = 'Limit reached';
+      }
+    });
+    // Append cap notice if not already present
+    if(!suggestions.querySelector('.suggestion-cap-notice')){
+      suggestions.insertAdjacentHTML('beforeend',
+        `<div class="suggestion-cap-notice">Channel limit (${MAX_CHANNELS}) reached — remove a channel first.</div>`);
+    }
+  }
+
+
+  // Toast confirmation
+  toast(`Added ${ch.name} ✓ - Go to Feed tab to see latest videos`);
+}
+
+/* Called by both the back-button and popstate when leaving the Add screen.
+   If any channels were added this session we need a reload so the Channels
+   tab list and other storage-dependent state rebuild cleanly. */
+function leaveAddScreen(){
+  clearTimeout(searchTimeout);
+  cancelChannelRequest();
+  if(_addedThisSession){
+    _addedThisSession = false;
+    // Persist which tab to land on after reload
+    const returnTab = localStorage.getItem('ns_add_return_tab') || 'channels';
+    localStorage.setItem('ns_active_tab', returnTab);
+    localStorage.removeItem('ns_add_return_tab');
+    location.reload();
   } else {
-    addBtn.textContent         = `Add ${ch.name}`;
-    addBtn.disabled            = false;
-    addBtn.style.display       = 'block';
-    addBtn.style.background    = '';
-    addBtn.style.border        = '';
-    addBtn.style.color         = '';
-    addBtn.style.cursor        = '';
-    addBtn.style.pointerEvents = '';
-    addBtn.style.opacity       = '';
+    const returnTab = localStorage.getItem('ns_add_return_tab') || 'channels';
+    localStorage.removeItem('ns_add_return_tab');
+    showScreen(returnTab);
   }
 }
 
-document.getElementById('add-btn').onclick = () => {
-  if(!foundChannel) return;
-  if(STORE.channels.some(c => c.id === foundChannel.id)){ toast('Already in your list'); return; }
-  if(STORE.channels.length >= MAX_CHANNELS){ toast(`Channel limit reached (${MAX_CHANNELS})`); return; }
-  const channels = STORE.channels;
-  channels.push(foundChannel);
-  STORE.channels = channels;
-  const returnTab = localStorage.getItem('ns_add_return_tab') || 'feed';
-  localStorage.setItem('ns_active_tab', returnTab);
-  localStorage.removeItem('ns_add_return_tab');
-  location.reload();
-};
-
 async function doFallbackAdd(inputVal){
-  const input  = (inputVal || '').trim();
-  const errEl  = document.getElementById('fallback-error');
+  const input = (inputVal || '').trim();
+  const errEl = document.getElementById('fallback-error');
   const searching = document.getElementById('channel-searching');
 
   errEl.style.display = 'none';
-  if(!input){ errEl.textContent = 'Could not recognise that URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx'; errEl.style.display='block'; return; }
+  if(!input){
+    errEl.textContent = 'Could not recognise that URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx';
+    errEl.style.display = 'block';
+    return;
+  }
 
   const parsed = extractChannelIdFromUrl(input);
   if(!parsed){
@@ -2910,37 +3009,42 @@ async function doFallbackAdd(inputVal){
     return;
   }
 
+  cancelChannelRequest();
+  const generation = channelRequestGeneration;
+  const controller = new AbortController();
+  channelRequestController = controller;
   searching.style.display = 'block';
   startLoadingMessages('channel-search-progress-text', CHANNEL_SEARCH_MESSAGES);
+  setFallbackHintVisible(false);
 
   try{
-    let channelId   = '';
-    let channelName = '';
-    let avatar      = '';
-    let subs        = '';
-    let handle      = '';
-
-    const res     = await fetch(`${PROXY}/channels?q=${encodeURIComponent(parsed.value)}`);
+    const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(parsed.value)}`, { signal: controller.signal });
+    if(!res.ok) throw new Error(`Channel lookup failed (${res.status})`);
     const results = await res.json();
-
-    if(!results.length || results.error){
+    if(generation !== channelRequestGeneration) return;
+    if(!Array.isArray(results) || results.error || !results.length){
       throw new Error('Channel not found via URL. Try searching by name above.');
     }
-    const ch    = results[0];
-    channelId   = ch.id;
-    channelName = ch.name;
-    avatar      = ch.avatar;
-    subs        = ch.subs;
-    handle      = ch.handle || '';
 
-    if(!channelId){
-      throw new Error('Could not resolve channel ID from that URL.');
+    let ch;
+    if(parsed.type === 'id'){
+      ch = results.find(result => result && result.id === parsed.value);
+      if(!ch) throw new Error('The exact channel from that URL could not be verified. Try searching by channel name.');
+    } else {
+      const wanted = parsed.value.replace(/^@/, '').toLowerCase();
+      ch = results.find(result =>
+        String(result?.handle || '').replace(/^@/, '').toLowerCase() === wanted
+      ) || results[0];
     }
 
+    if(!ch || !ch.id) throw new Error('Could not resolve channel ID from that URL.');
+
+    channelRequestController = null;
     searching.style.display = 'none';
     stopLoadingMessages();
+    setFallbackHintVisible(true);
 
-    if(STORE.channels.some(c => c.id === channelId)){
+    if(STORE.channels.some(c => c.id === ch.id)){
       toast('Already in your list');
       return;
     }
@@ -2950,15 +3054,24 @@ async function doFallbackAdd(inputVal){
     }
 
     const channels = STORE.channels;
-    channels.push({ id:channelId, name:channelName, avatar, subs, handle });
+    channels.push({
+      id: ch.id,
+      name: ch.name || 'Unknown channel',
+      avatar: ch.avatar || '',
+      subs: ch.subs || '',
+      handle: ch.handle || ''
+    });
     STORE.channels = channels;
-    toast(`Added ${channelName} ✓`);
-    location.reload();
-
+    _addedThisSession = true;
+    sessionStorage.setItem('ns_post_reload_toast', `Added ${ch.name || 'channel'} ✓ - Go to Feed tab to see latest videos`);
+    leaveAddScreen();
   } catch(err){
+    if(err.name === 'AbortError' || generation !== channelRequestGeneration) return;
+    channelRequestController = null;
     searching.style.display = 'none';
     stopLoadingMessages();
-    errEl.textContent   = err.message || 'Could not add channel. Check the URL and try again.';
+    setFallbackHintVisible(true);
+    errEl.textContent = err.message || 'Could not add channel. Check the URL and try again.';
     errEl.style.display = 'block';
   }
 }
@@ -3163,6 +3276,7 @@ async function doYTSearch(q){
       return;
     }
 
+    dismissSearchKeyboard(document.getElementById('search-input'));
     document.getElementById('search-results-label').textContent = `Results for "${q}"`;
 
     resultsList.innerHTML = videos.map(v => {
@@ -3645,7 +3759,7 @@ async function confirmAddPack(){
   STORE.channels = channels;
   STORE.hasLaunched = true;
   const count = toAdd.length;
-  toast(`Added ${count} channel${count===1?'':'s'} ✓`);
+  toast(`Added ${count} channel${count===1?'':'s'} ✓ - Go to Feed tab to see latest videos`);
   closePackConfirm();
   cleanPackUrlParam();
   await resolvePackAvatars(toAdd);
@@ -3747,13 +3861,18 @@ window.addEventListener('load', () => {
     showScreen('setup');
   }
   checkForIncomingPack();
+  const postReloadToast = sessionStorage.getItem('ns_post_reload_toast');
+  if(postReloadToast){
+    sessionStorage.removeItem('ns_post_reload_toast');
+    setTimeout(() => toast(postReloadToast), 100);
+  }
 });
 
 history.pushState(null, '', location.href);
 window.addEventListener('popstate', () => {
   const overlay = document.getElementById('player-overlay');
   if(overlay.classList.contains('open')){ closePlayer(); }
-  else if(currentScreen === 'add'){ showScreen('channels'); }
+  else if(currentScreen === 'add'){ leaveAddScreen(); }
   else{ history.pushState(null, '', location.href); }
 });
 
