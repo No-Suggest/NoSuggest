@@ -841,7 +841,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         <div class="big-icon">📺</div>
         <h3>No channels yet</h3>
         <p>Add some YouTube channels to start watching without distractions</p>
-        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="showScreen('channels')">Add Channels</button>
+        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>
       </div>
     </div>
   </div>
@@ -855,7 +855,12 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       </button>
     </div>
     <div class="screen-body" id="channels-body">
-      <div class="no-channels" id="no-channels">No channels added yet.<br/>Tap + to add your first channel.</div>
+      <div class="empty-feed no-channels" id="no-channels" style="display:none">
+        <div class="big-icon">📺</div>
+        <h3>No channels yet</h3>
+        <p>Add some YouTube channels to start watching without distractions</p>
+        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>
+      </div>
     </div>
   </div>
 
@@ -1772,16 +1777,6 @@ function extractChannelIdFromUrl(input){
   return null;
 }
 
-/* ── URL validation helpers ──────────────────────────────────────────
-   validateChannelUrl: checks that a pasted URL is a supported YouTube
-   channel URL. Rejects playlists, non-YouTube domains (t.co, bit.ly,
-   etc.), bare youtu.be links, and any URL that doesn't point to a
-   channel. Returns { ok:true } on success or { ok:false, msg } on failure.
-
-   validateVideoUrl: checks that a pasted URL in the video-search box
-   is a recognisable YouTube video URL. Rejects playlist-only URLs,
-   non-YouTube domains, and URLs with no extractable video ID.
-   Returns { ok:true } on success or { ok:false, msg } on failure. */
 function validateChannelUrl(input){
   input = (input || '').trim();
   if(!/^https?:\/\//i.test(input)){
@@ -1840,6 +1835,19 @@ function validateVideoUrl(input){
 /* ═══════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════ */
+/* openAddChannelOnboarding — used by the "Add Channels" button on both
+   the Feed and Channels empty states. Goes straight to the Add Channel
+   screen and focuses the search box, removing the extra navigation step
+   for first-time users. */
+function openAddChannelOnboarding(){
+  localStorage.setItem('ns_add_return_tab', currentScreen === 'channels' ? 'channels' : 'feed');
+  showScreen('add');
+  requestAnimationFrame(() => {
+    const input = document.getElementById('channel-input');
+    if(input) input.focus();
+  });
+}
+
 /* Bottom navigation must also work from Add Channel. If channels were
    added, leaveAddScreen performs the required reload and lands on target. */
 function navigateMain(name){
@@ -2662,7 +2670,7 @@ function initChannels(){
   if(!channels.length){
     body.innerHTML = '';
     body.appendChild(noEl);
-    noEl.style.display = 'block';
+    noEl.style.display = 'flex';
     return;
   }
   noEl.style.display = 'none';
