@@ -1689,6 +1689,12 @@ function hasDuplicateIds(items){
   return new Set(items.map(item => item.id)).size !== items.length;
 }
 
+/* Dismiss the on-screen keyboard after successful searches so results
+   have the full viewport on iOS, iPadOS and Android. */
+function dismissSearchKeyboard(input){
+  if(input && document.activeElement === input) input.blur();
+}
+
 let toastTimer = null;
 function toast(msg, dur=5000){
   const t = document.getElementById('toast');
@@ -2856,6 +2862,8 @@ async function doChannelSearch(query){
       return;
     }
 
+    dismissSearchKeyboard(document.getElementById('channel-input'));
+
     const existingIds = new Set(STORE.channels.map(c => c.id));
     const atLimit = STORE.channels.length >= MAX_CHANNELS;
     suggestions.innerHTML = channels.map((ch, i) => {
@@ -3268,6 +3276,7 @@ async function doYTSearch(q){
       return;
     }
 
+    dismissSearchKeyboard(document.getElementById('search-input'));
     document.getElementById('search-results-label').textContent = `Results for "${q}"`;
 
     resultsList.innerHTML = videos.map(v => {
