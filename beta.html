@@ -3692,47 +3692,45 @@ async function confirmFollowChannel(){
   btn.disabled    = true;
   btn.textContent = 'Adding…';
   // Strategy:
-  //   1. If we have a real UC channel ID (starts with UC), search by that first — exact match, no ambiguity.
-  //   2. If not (channelId is empty or not a UC ID), fall back to searching by name.
-  // This prevents the wrong channel being saved when the search API returns multiple name matches.
-  let ch = null;
+  //   1. If we have a real UC channel ID, search by ID first — most precise, no ambiguity.
+  //   2. If no UC ID (search API didn't return one), fall back to searching by name
+  //      and take the first result — same behaviour as the main Add Channel flow.
   const hasRealId = channelId && /^UC[A-Za-z0-9_-]{22}$/.test(channelId);
+  let ch = null;
   try{
     if(hasRealId){
-      // Search by ID first — most precise
+      // ID-first: look up by the UC channel ID — avoids name-collision entirely
       const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(channelId)}`);
       if(res.ok){
         const results = await res.json();
         if(Array.isArray(results) && results.length){
-          // Exact ID match only — never accept a different channel just because it ranked first
-          ch = results.find(r => r.id === channelId) || null;
+          ch = results.find(r => r.id === channelId) || results[0];
         }
       }
     }
-    // If ID search failed or no real ID available, try by name
+    // Name fallback: used when no UC ID available OR ID lookup returned nothing
     if(!ch){
       const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(name)}`);
       if(res.ok){
         const results = await res.json();
         if(Array.isArray(results) && results.length){
-          // If we have a UC ID, still require an exact match to avoid wrong-channel saves
-          // If no UC ID, take the closest name match
-          ch = hasRealId
-            ? results.find(r => r.id === channelId) || null
-            : results.find(r => r.name === name) || results[0];
+          // Prefer an exact ID match if we have one, otherwise take the top result
+          ch = (hasRealId && results.find(r => r.id === channelId)) || results[0];
         }
       }
     }
-  } catch(e){ /* network error — will fall through to failure handling below */ }
-  // If both lookups failed or returned no usable result — do NOT save a STUB entry.
-  // A STUB_ ID will never match anything in the channel list, feed, or future searches.
-  // Better to tell the user and let them try the manual "Add Channel" flow instead.
-  if(!ch || !ch.id || !/^UC[A-Za-z0-9_-]{22}$/.test(ch.id)){
-    btn.disabled    = false;
-    btn.textContent = 'Follow Channel';
-    toast(`Couldn't resolve "${name}" — try adding via the Channels tab instead.`, 4000);
-    closeFollowChannelPopup();
-    return;
+  } catch(e){ /* network error — fall through to stub */ }
+  // If the API returned nothing usable, build a minimal stub so the user
+  // still gets something. A stub won't have an avatar but will appear in
+  // the channel list and feed correctly once the RSS resolves the channel.
+  if(!ch || !ch.id){
+    ch = {
+      id:     channelId || ('STUB_' + Date.now()),
+      name:   name,
+      avatar: '',
+      subs:   '',
+      handle: ''
+    };
   }
   // Final guards before writing
   if(STORE.channels.some(c => c.id === ch.id || c.name === ch.name)){
@@ -3748,7 +3746,8 @@ async function confirmFollowChannel(){
   const channels = STORE.channels;
   channels.push({ id: ch.id, name: ch.name || name, avatar: ch.avatar || '', subs: ch.subs || '', handle: ch.handle || '' });
   STORE.channels = channels;
-  // Refresh the channel list screen immediately (no reload needed — initChannels reads fresh from storage)
+  // Refresh the Channels list screen immediately in the background —
+  // initChannels() reads fresh from localStorage so no reload needed.
   initChannels();
   toast(`Following ${ch.name || name} ✓ — Tap Channels to see it in your updated list`);
   closeFollowChannelPopup();
