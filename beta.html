@@ -2953,7 +2953,7 @@ const MAX_CHANNELS = 25;
 function initChannels(){
   const channels  = STORE.channels;
   const body      = document.getElementById('channels-body');
-  const noEl      = document.getElementById('no-channels');
+  let   noEl      = document.getElementById('no-channels');
   const headingEl = document.getElementById('ch-heading');
   const atLimit   = channels.length >= MAX_CHANNELS;
 
@@ -2969,11 +2969,24 @@ function initChannels(){
 
   if(!channels.length){
     body.innerHTML = '';
+    // Defensive: body.innerHTML gets overwritten below whenever there ARE
+    // channels, which destroys #no-channels since it lives inside #channels-body.
+    // If the count ever drops back to zero after that, getElementById above
+    // returns null — rebuild the placeholder rather than throwing on appendChild(null).
+    if(!noEl){
+      noEl = document.createElement('div');
+      noEl.className   = 'empty-feed no-channels';
+      noEl.id          = 'no-channels';
+      noEl.innerHTML   = `<div class="big-icon">📺</div>
+        <h3>No channels yet</h3>
+        <p>Add some YouTube channels to start watching without distractions</p>
+        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>`;
+    }
     body.appendChild(noEl);
     noEl.style.display = 'flex';
     return;
   }
-  noEl.style.display = 'none';
+  if(noEl) noEl.style.display = 'none';
   body.innerHTML = channels.map((ch, i) => `
     <div class="channel-list-item" style="animation-delay:${i*40}ms">
       <div class="cli-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
@@ -3691,50 +3704,56 @@ async function confirmFollowChannel(){
   const btn = document.getElementById('follow-ch-confirm-btn');
   btn.disabled    = true;
   btn.textContent = 'Adding…';
-  // Strategy:
-  //   1. If we have a real UC channel ID, search by ID first — most precise, no ambiguity.
-  //   2. If no UC ID (search API didn't return one), fall back to searching by name
-  //      and take the first result — same behaviour as the main Add Channel flow.
-  const hasRealId = channelId && /^UC[A-Za-z0-9_-]{22}$/.test(channelId);
-  let ch = null;
-  try{
-    if(hasRealId){
-      // ID-first: look up by the UC channel ID — avoids name-collision entirely
-      const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(channelId)}`);
-      if(res.ok){
-        const results = await res.json();
-        if(Array.isArray(results) && results.length){
-          ch = results.find(r => r.id === channelId) || results[0];
-        }
-      }
-    }
-    // Name fallback: used when no UC ID available OR ID lookup returned nothing
-    if(!ch){
+
+  // The channelId here came straight from the video search result (YouTube's
+  // own channelId on the video), so it IS the real UC id — trust it as the
+  // source of truth. We only ever hit /channels to enrich display fields
+  // (avatar/subs/handle); a failed or slow lookup must never block the add
+  // or swap in a different id. Previously this re-derived the id via a
+  // name/first-result match (or a fake "STUB_" id when the lookup failed),
+  // which could silently attach the wrong channel or one whose videos can
+  // never load.
+  let ch = { id: channelId || '', name, avatar: thumb || '', subs: '', handle: '' };
+
+  if(!ch.id){
+    // Only reachable for older/edge-case data with no id on the video at all.
+    try{
       const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(name)}`);
       if(res.ok){
         const results = await res.json();
-        if(Array.isArray(results) && results.length){
-          // Prefer an exact ID match if we have one, otherwise take the top result
-          ch = (hasRealId && results.find(r => r.id === channelId)) || results[0];
+        const match = Array.isArray(results) && (results.find(r => r.name === name) || results[0]);
+        if(match && match.id){
+          ch = { id: match.id, name: match.name || name, avatar: match.avatar || thumb || '', subs: match.subs || '', handle: match.handle || '' };
         }
       }
+    } catch(e){ /* no network fallback available */ }
+
+    if(!ch.id){
+      toast('Could not verify this channel. Try again in a moment.');
+      btn.disabled    = false;
+      btn.textContent = 'Follow Channel';
+      return;
     }
-  } catch(e){ /* network error — fall through to stub */ }
-  // If the API returned nothing usable, build a minimal stub so the user
-  // still gets something. A stub won't have an avatar but will appear in
-  // the channel list and feed correctly once the RSS resolves the channel.
-  if(!ch || !ch.id){
-    ch = {
-      id:     channelId || ('STUB_' + Date.now()),
-      name:   name,
-      avatar: '',
-      subs:   '',
-      handle: ''
-    };
+  } else {
+    // Best-effort enrichment only — never overrides the id, never blocks on failure.
+    try{
+      const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(channelId)}`);
+      if(res.ok){
+        const results = await res.json();
+        const match = Array.isArray(results) && results.find(r => r.id === channelId);
+        if(match){
+          ch.avatar = match.avatar || ch.avatar;
+          ch.subs   = match.subs   || '';
+          ch.handle = match.handle || '';
+          ch.name   = match.name   || ch.name;
+        }
+      }
+    } catch(e){ /* enrichment is optional */ }
   }
-  // Final guards before writing
-  if(STORE.channels.some(c => c.id === ch.id || c.name === ch.name)){
-    toast(`Already following ${ch.name || name}`);
+
+  // Final guards before writing (re-checked fresh — state may have changed while awaiting)
+  if(STORE.channels.some(c => c.id === ch.id)){
+    toast(`Already following ${ch.name}`);
     closeFollowChannelPopup();
     return;
   }
@@ -3744,15 +3763,16 @@ async function confirmFollowChannel(){
     return;
   }
   const channels = STORE.channels;
-  channels.push({ id: ch.id, name: ch.name || name, avatar: ch.avatar || '', subs: ch.subs || '', handle: ch.handle || '' });
+  channels.push(ch);
   STORE.channels = channels;
-  // Refresh the Channels list screen immediately in the background —
-  // initChannels() reads fresh from localStorage so no reload needed.
-  initChannels();
-  toast(`Following ${ch.name || name} ✓ — Tap Channels to see it in your updated list`);
   closeFollowChannelPopup();
-  // Flip the Follow link in the current search results to "✓ Following"
-  _refreshFollowLinksInResults(ch.name || name, ch.id);
+  // Refresh the "Follow Channel" links in the current results to show ✓ Following
+  _refreshFollowLinksInResults(ch.name, ch.id);
+  // Re-render the Channels screen right now (its DOM already exists even
+  // while Search is the active tab), so the list is already correct the
+  // moment the user taps over — no reload or manual refresh needed.
+  initChannels();
+  toast(`${ch.name} added ✓ — Tap Channels to see it in your updated list`);
 }
 function closeFollowChannelPopup(){
   document.getElementById('follow-ch-backdrop').classList.remove('show');
@@ -3767,10 +3787,12 @@ function _refreshFollowLinksInResults(channelName, channelId){
     // Match by aria-label which contains the channel name
     const label = btn.getAttribute('aria-label') || '';
     if(label.includes(channelName) || (channelId && label.includes(channelId))){
-      btn.textContent = '✓ Following';
+      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> ✓ Following`;
+      btn.disabled = true;
       btn.style.color = 'var(--muted)';
       btn.style.textDecoration = 'none';
       btn.style.cursor = 'default';
+      btn.style.opacity = '1';
       btn.onclick = null;
       btn.setAttribute('aria-label', `Already following ${channelName}`);
     }
