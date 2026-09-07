@@ -647,7 +647,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 /* Play zone — the only part that triggers video playback */
 .search-card-play-zone{display:flex;gap:12px;cursor:pointer;transition:transform 0.12s;}
 .search-card-play-zone:active{transform:scale(0.98);}
-.search-card-follow-row{padding:0 0.75rem 0.6rem 0;display:flex;justify-content:flex-end;}
+.search-card-follow-row{padding:0.1rem 0.75rem 0.6rem 0.75rem;display:flex;justify-content:flex-start;}
 .search-thumb-wrap{position:relative;flex-shrink:0;width:130px;}
 .search-thumb-wrap img{width:130px;height:73px;object-fit:cover;display:block;}
 .search-save-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
@@ -3596,6 +3596,11 @@ async function doYTSearch(q){
       const alreadyFollowed = v.channel && STORE.channels.some(c => c.name === v.channel || (v.channelId && c.id === v.channelId));
       const followLabel = alreadyFollowed ? '✓ Following' : `Follow Channel: ${v.channel || ''}`;
       const followDisabled = alreadyFollowed ? 'disabled style="color:var(--muted);text-decoration:none;cursor:default;opacity:1;"' : '';
+      // Safe single-quoted values for inline onclick — strip any single quotes from channel name
+      const safeChannel   = (v.channel   || '').replace(/'/g, '');
+      const safeChannelId = (v.channelId || '').replace(/'/g, '');
+      const safeThumb     = (v.thumb     || '').replace(/'/g, '');
+      const followOnclick = alreadyFollowed ? '' : `openFollowChannelPopup('${safeChannel}','${safeChannelId}','${safeThumb}')`;
       return `
       <div class="search-video-card">
         <div class="search-card-play-zone" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
@@ -3613,7 +3618,7 @@ async function doYTSearch(q){
         </div>
         <div class="search-card-follow-row">
           <button class="follow-channel-link" ${followDisabled}
-            onclick="${alreadyFollowed ? '' : `openFollowChannelPopup(${JSON.stringify(esc(v.channel||''))},${JSON.stringify(esc(v.channelId||''))},${JSON.stringify(esc(v.thumb||''))})`}"
+            onclick="${followOnclick}"
             aria-label="${alreadyFollowed ? `Already following ${esc(v.channel)}` : `Follow channel: ${esc(v.channel)}`}">
             ${alreadyFollowed
               ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> ${esc(followLabel)}`
