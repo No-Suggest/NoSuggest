@@ -642,24 +642,271 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #search-input::-webkit-search-cancel-button{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);clip-path:polygon(20% 0%,0% 20%,30% 50%,0% 80%,20% 100%,50% 70%,80% 100%,100% 80%,70% 50%,100% 20%,80% 0%,50% 30%);cursor:pointer;}
 .search-results{padding:1.25rem;box-sizing:border-box;overflow-x:hidden;}
 .search-results-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);font-family:'DM Mono',monospace;margin-bottom:0.85rem;}
-.search-video-card{display:flex;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:10px;cursor:pointer;transition:border-color 0.15s,transform 0.12s;width:100%;box-sizing:border-box;}
-.search-video-card:active{transform:scale(0.98);}
+.search-video-card{display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:10px;transition:border-color 0.15s;width:100%;box-sizing:border-box;}
 .search-video-card:hover{border-color:var(--border2);}
+/* Play zone — the only part that triggers video playback */
+.search-card-play-zone{display:flex;gap:12px;cursor:pointer;transition:transform 0.12s;}
+.search-card-play-zone:active{transform:scale(0.98);}
+
 .search-thumb-wrap{position:relative;flex-shrink:0;width:130px;}
 .search-thumb-wrap img{width:130px;height:73px;object-fit:cover;display:block;}
 .search-save-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
 .search-save-btn:hover{background:rgba(232,255,90,0.25);}
 .search-save-btn svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;}
 .search-save-btn.saved svg{fill:var(--accent);}
-.search-card-info{flex:1;padding:0.65rem 0.75rem 0.65rem 0;display:flex;flex-direction:column;justify-content:space-between;min-width:0;}
+.search-card-info{flex:1;padding:0.65rem 0.75rem 0.65rem 0;display:flex;flex-direction:column;justify-content:flex-start;gap:3px;min-width:0;}
 .search-card-title{font-size:12.5px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;max-width:100%;word-break:break-word;}
 .search-card-meta{font-size:10.5px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .search-views-badge{display:inline-block;font-size:9.5px;background:rgba(232,255,90,0.12);color:var(--accent);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;margin-top:3px;}
 .search-empty-state{text-align:center;padding:3.5rem 2rem;color:var(--faint);font-size:14px;line-height:1.7;}
 .search-empty-state .big-icon{font-size:3.5rem;opacity:0.3;margin-bottom:0.75rem;}
-.search-choice-btn{display:flex;align-items:center;gap:14px;width:100%;padding:1.1rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:left;transition:border-color 0.15s,background 0.15s;}
-.search-choice-btn:active{background:var(--bg3);}
-.search-choice-icon{font-size:1.6rem;flex-shrink:0;line-height:1;}
+/* ── Follow Channel link inside search result cards ── */
+.follow-channel-link{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:10.5px;
+  color:var(--accent);
+  text-decoration:underline;
+  text-underline-offset:2px;
+  text-decoration-color:rgba(232,255,90,0.45);
+  cursor:pointer;
+  background:none;
+  border:none;
+  padding:0;
+  font-family:'DM Mono',monospace;
+  line-height:1.4;
+  transition:text-decoration-color 0.15s,opacity 0.15s;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.follow-channel-link:hover{text-decoration-color:var(--accent);opacity:0.85;}
+/* ── Follow Channel popup modal ── */
+#follow-ch-backdrop{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.72);
+  z-index:600;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:1.5rem;
+}
+#follow-ch-backdrop.show{display:flex;}
+#follow-ch-modal{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  padding:1.6rem 1.4rem 1.4rem;
+  width:100%;
+  max-width:360px;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  box-shadow:0 18px 60px rgba(0,0,0,0.55);
+  animation:fadeUp 0.2s ease;
+}
+.follow-ch-avatar-row{display:flex;align-items:center;gap:12px;}
+.follow-ch-avatar{
+  width:52px;height:52px;
+  border-radius:50%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  overflow:hidden;
+  flex-shrink:0;
+}
+.follow-ch-avatar img{width:100%;height:100%;object-fit:cover;}
+.follow-ch-avatar-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--faint);
+}
+.follow-ch-name{font-size:16px;font-weight:600;color:var(--text);line-height:1.3;}
+.follow-ch-handle{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+.follow-ch-body{font-size:13px;color:var(--muted);line-height:1.6;}
+.follow-ch-actions{display:flex;gap:9px;margin-top:0.25rem;}
+.follow-ch-btn-primary{
+  flex:1;padding:0.78rem;
+  background:var(--accent);color:var(--bg);
+  border:none;border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.follow-ch-btn-primary:active{opacity:0.85;}
+.follow-ch-btn-primary:disabled{opacity:0.5;cursor:default;}
+.follow-ch-btn-cancel{
+  padding:0.78rem 1rem;
+  background:var(--bg3);color:var(--muted);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;
+}
+/* ── Follow Channel link inside search result cards ── */
+.follow-channel-link{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:10.5px;
+  color:var(--accent);
+  text-decoration:underline;
+  text-underline-offset:2px;
+  text-decoration-color:rgba(232,255,90,0.45);
+  cursor:pointer;
+  background:none;
+  border:none;
+  padding:0;
+  font-family:'DM Mono',monospace;
+  line-height:1.4;
+  transition:text-decoration-color 0.15s,opacity 0.15s;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.follow-channel-link:hover{text-decoration-color:var(--accent);opacity:0.85;}
+/* ── Follow Channel popup modal ── */
+#follow-ch-backdrop{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.72);
+  z-index:600;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:1.5rem;
+}
+#follow-ch-backdrop.show{display:flex;}
+#follow-ch-modal{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  padding:1.6rem 1.4rem 1.4rem;
+  width:100%;
+  max-width:360px;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  box-shadow:0 18px 60px rgba(0,0,0,0.55);
+  animation:fadeUp 0.2s ease;
+}
+.follow-ch-avatar-row{display:flex;align-items:center;gap:12px;}
+.follow-ch-avatar{
+  width:52px;height:52px;
+  border-radius:50%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  overflow:hidden;
+  flex-shrink:0;
+}
+.follow-ch-avatar img{width:100%;height:100%;object-fit:cover;}
+.follow-ch-avatar-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--faint);
+}
+.follow-ch-name{font-size:16px;font-weight:600;color:var(--text);line-height:1.3;}
+.follow-ch-handle{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+.follow-ch-body{font-size:13px;color:var(--muted);line-height:1.6;}
+.follow-ch-actions{display:flex;gap:9px;margin-top:0.25rem;}
+.follow-ch-btn-primary{
+  flex:1;padding:0.78rem;
+  background:var(--accent);color:var(--bg);
+  border:none;border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.follow-ch-btn-primary:active{opacity:0.85;}
+.follow-ch-btn-primary:disabled{opacity:0.5;cursor:default;}
+.follow-ch-btn-cancel{
+  padding:0.78rem 1rem;
+  background:var(--bg3);color:var(--muted);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;
+}
+/* ── Search chooser: large responsive tiles ── */
+.search-choice-intro{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.7;
+  margin-bottom:4px;
+  font-family:'DM Mono',monospace;
+}
+.search-choice-grid{
+  display:grid;
+  gap:16px;
+  padding:1.25rem 1.25rem 1.5rem;
+  align-content:start;
+}
+@media(min-width:900px){
+  .search-choice-grid{
+    grid-template-columns:1fr 1fr;
+    align-items:stretch;
+  }
+}
+.search-choice-tile{
+  width:100%;
+  min-height:180px;
+  background:linear-gradient(135deg,rgba(232,255,90,.10),rgba(232,255,90,.03));
+  border:1px solid rgba(232,255,90,.15);
+  border-radius:24px;
+  padding:1.5rem;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:flex-start;
+  cursor:pointer;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+  text-align:left;
+}
+.search-choice-tile:hover{
+  border-color:var(--accent);
+  transform:translateY(-2px);
+}
+.search-choice-tile:active{
+  transform:scale(.98);
+}
+.search-choice-tile-icon{
+  width:60px;
+  height:60px;
+  border-radius:16px;
+  background:rgba(232,255,90,.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--accent);
+  flex-shrink:0;
+}
+.search-choice-tile-icon svg{
+  width:28px;
+  height:28px;
+}
+.search-choice-tile-content{
+  flex:1;
+  width:100%;
+  margin-top:1.1rem;
+}
+.search-choice-tile-title{
+  font-size:1.25rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:.4rem;
+  letter-spacing:-0.01em;
+}
+.search-choice-tile-sub{
+  font-size:.9rem;
+  line-height:1.6;
+  color:var(--muted);
+}
+.search-choice-tile-arrow{
+  margin-top:1.1rem;
+  font-size:1.5rem;
+  font-weight:700;
+  color:var(--accent);
+}
+/* legacy — kept so any other reference doesn't break */
+.search-choice-btn{display:none;}
+.search-choice-icon{display:none;}
 .search-choice-text{flex:1;}
 .search-choice-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
 .search-choice-sub{font-size:12px;color:var(--muted);line-height:1.4;}
@@ -1189,23 +1436,39 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
     <div class="screen-body" id="search-body">
       <!-- Chooser -->
-      <div id="search-chooser" style="display:flex;flex-direction:column;gap:12px;padding:1.5rem 1.25rem">
-        <button class="search-choice-btn" onclick="pickSearchMode('videos')">
-          <div class="search-choice-icon">🎬</div>
-          <div class="search-choice-text">
-            <div class="search-choice-title">Search Videos to Watch</div>
-            <div class="search-choice-sub">Find and play any YouTube video, or paste a link</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--faint)"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <button class="search-choice-btn" onclick="pickSearchMode('channels')">
-          <div class="search-choice-icon">📡</div>
-          <div class="search-choice-text">
-            <div class="search-choice-title">Search Channels to Follow</div>
-            <div class="search-choice-sub">Add a channel to your feed by name, handle, or URL</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--faint)"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
+      <div id="search-chooser" style="display:flex;flex-direction:column">
+        <div class="search-choice-grid">
+          <!-- Videos tile -->
+          <button class="search-choice-tile" onclick="pickSearchMode('videos')">
+            <div class="search-choice-tile-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <polygon points="10,8 17,12 10,16"/>
+              </svg>
+            </div>
+            <div class="search-choice-tile-content">
+              <div class="search-choice-tile-title"><b>Search Videos</b></div>
+              <div class="search-choice-tile-title"><i>Find and watch any YouTube video, or paste a link directly.</i></div>
+            </div>
+            <div class="search-choice-tile-arrow">→</div>
+          </button>
+          <!-- Channels tile -->
+          <button class="search-choice-tile" onclick="pickSearchMode('channels')">
+            <div class="search-choice-tile-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="search-choice-tile-content">
+              <div class="search-choice-tile-title"><b>Search Channels</b></div>
+              <div class="search-choice-tile-title"><i>Follow creators by name, handle, or channel URL.</i></div>
+            </div>
+            <div class="search-choice-tile-arrow">→</div>
+          </button>
+        </div>
       </div>
       <!-- Video search pane (hidden until chosen) -->
       <div id="search-video-pane" style="display:none">
@@ -1416,6 +1679,30 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
+  <!-- FOLLOW CHANNEL POPUP — triggered by clicking creator name in search results -->
+  <div id="follow-ch-backdrop">
+    <div id="follow-ch-modal" role="dialog" aria-modal="true" aria-labelledby="follow-ch-title">
+      <div class="follow-ch-avatar-row">
+        <div class="follow-ch-avatar" id="follow-ch-avatar">
+          <div class="follow-ch-avatar-placeholder">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="follow-ch-name" id="follow-ch-title">Channel Name</div>
+          <div class="follow-ch-handle" id="follow-ch-handle"></div>
+        </div>
+      </div>
+      <div class="follow-ch-body" id="follow-ch-body">Add this channel to your feed and see their latest videos without leaving your search results.</div>
+      <div class="follow-ch-actions">
+        <button class="follow-ch-btn-cancel" onclick="closeFollowChannelPopup()">Cancel</button>
+        <button class="follow-ch-btn-primary" id="follow-ch-confirm-btn" onclick="confirmFollowChannel()">Follow Channel</button>
+      </div>
+    </div>
+  </div>
   <div id="toast" role="status" aria-live="polite"></div>
 </div>
 
@@ -2666,7 +2953,7 @@ const MAX_CHANNELS = 25;
 function initChannels(){
   const channels  = STORE.channels;
   const body      = document.getElementById('channels-body');
-  const noEl      = document.getElementById('no-channels');
+  let   noEl      = document.getElementById('no-channels');
   const headingEl = document.getElementById('ch-heading');
   const atLimit   = channels.length >= MAX_CHANNELS;
 
@@ -2682,11 +2969,24 @@ function initChannels(){
 
   if(!channels.length){
     body.innerHTML = '';
+    // Defensive: body.innerHTML gets overwritten below whenever there ARE
+    // channels, which destroys #no-channels since it lives inside #channels-body.
+    // If the count ever drops back to zero after that, getElementById above
+    // returns null — rebuild the placeholder rather than throwing on appendChild(null).
+    if(!noEl){
+      noEl = document.createElement('div');
+      noEl.className   = 'empty-feed no-channels';
+      noEl.id          = 'no-channels';
+      noEl.innerHTML   = `<div class="big-icon">📺</div>
+        <h3>No channels yet</h3>
+        <p>Add some YouTube channels to start watching without distractions</p>
+        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>`;
+    }
     body.appendChild(noEl);
     noEl.style.display = 'flex';
     return;
   }
-  noEl.style.display = 'none';
+  if(noEl) noEl.style.display = 'none';
   body.innerHTML = channels.map((ch, i) => `
     <div class="channel-list-item" style="animation-delay:${i*40}ms">
       <div class="cli-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
@@ -3148,6 +3448,7 @@ function initSearch(){
   document.getElementById('search-header-title').textContent  = 'Search';
   document.getElementById('search-input-row').style.display   = 'none';
   document.getElementById('search-chooser').style.display     = 'flex';
+  document.getElementById('search-chooser').style.flexDirection = 'column';
   document.getElementById('search-video-pane').style.display  = 'none';
   document.getElementById('search-results-wrap').style.display = 'none';
   document.getElementById('search-loading').style.display     = 'none';
@@ -3301,22 +3602,58 @@ async function doYTSearch(q){
     document.getElementById('search-results-label').textContent = `Results for "${q}"`;
 
     resultsList.innerHTML = videos.map(v => {
-      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, thumb: v.thumb, publishedAt: v.publishedAt || '' };
+      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb, publishedAt: v.publishedAt || '' };
       const saved    = isVideoSaved(v.id);
       const timeStr  = v.publishedAt ? timeAgo(v.publishedAt) : '';
+      // Determine if channel is already followed (safe local comparison — no network call)
+      const alreadyFollowed = v.channel && STORE.channels.some(c => c.name === v.channel || (v.channelId && c.id === v.channelId));
+      const hasChannelId    = !!v.channelId;
+      // Safe single-quoted values for inline onclick — strip any single quotes from channel name
+      const safeChannel   = (v.channel   || '').replace(/'/g, '');
+      const safeChannelId = (v.channelId || '').replace(/'/g, '');
+      const safeThumb     = (v.thumb     || '').replace(/'/g, '');
+
+      // Three states:
+      //  1. Already following  → non-interactive, shows "✓ Following: <name>" so the
+      //     channel is still identifiable even though the button is disabled.
+      //  2. Real channelId present → clickable "Follow Channel: <name>" link.
+      //  3. No channelId available → plain channel name, NOT a link/button. Following by
+      //     name alone would require a name-search lookup that costs quota and can attach
+      //     the wrong channel (common names return many matches) — so this state offers
+      //     no follow action at all rather than risk it.
+      let followBlockHtml = '';
+      if(v.channel){
+        if(alreadyFollowed){
+          followBlockHtml = `
+            <button class="follow-channel-link" disabled style="color:var(--muted);text-decoration:none;cursor:default;opacity:1;"
+              aria-label="Already following ${esc(v.channel)}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> Following: ${esc(v.channel)}
+            </button>`;
+        } else if(hasChannelId){
+          followBlockHtml = `
+            <button class="follow-channel-link"
+              onclick="event.stopPropagation();openFollowChannelPopup('${safeChannel}','${safeChannelId}','${safeThumb}')"
+              aria-label="Follow channel: ${esc(v.channel)}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Follow Channel: ${esc(v.channel)}
+            </button>`;
+        } else {
+          followBlockHtml = `<div class="follow-channel-link" style="color:var(--muted);text-decoration:none;cursor:default;" aria-label="${esc(v.channel)} — follow unavailable">${esc(v.channel)}</div>`;
+        }
+      }
       return `
-      <div class="search-video-card" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
-        <div class="search-thumb-wrap">
-          <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
-          <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSaveById('${esc(v.id)}',this)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="${saved?'var(--accent)':'none'}" stroke="var(--accent)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-        <div class="search-card-info">
-          <div class="search-card-title">${escHtml(v.title)}</div>
-          <div>
-            <div class="search-card-meta">${esc(v.channel)}${timeStr ? ` · <span style="color:var(--text)">${esc(timeStr)}</span>` : ''}</div>
-            ${v.views ? `<div class="search-views-badge">${esc(v.views)}</div>` : ''}
+      <div class="search-video-card">
+        <div class="search-card-play-zone" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
+          <div class="search-thumb-wrap">
+            <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
+            <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSaveById('${esc(v.id)}',this)" tabindex="-1">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="${saved?'var(--accent)':'none'}" stroke="var(--accent)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+          <div class="search-card-info">
+            <div class="search-card-title">${escHtml(v.title)}</div>
+            <div class="search-card-meta" style="margin-bottom:4px">${timeStr ? `<span style="color:var(--text)">${esc(timeStr)}</span>` : ''}</div>
+            ${followBlockHtml}
+            ${v.views ? `<div class="search-views-badge" style="margin-top:4px">${esc(v.views)}</div>` : ''}
           </div>
         </div>
       </div>`;
@@ -3338,6 +3675,149 @@ function toggleSearchSave(btn, id, title, channelName, publishedAt, thumb){
   btn.querySelector('svg').setAttribute('fill', saved ? 'var(--accent)' : 'none');
   btn.classList.toggle('saved', saved);
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
+}
+/* ═══════════════════════════════════════════
+   FOLLOW CHANNEL POPUP — from video search results
+   Lets the user follow a channel without leaving search results.
+═══════════════════════════════════════════ */
+let _followChannelPending   = null; // { name, channelId, thumb, avatar, subs, handle }
+let _followChannelRequestId = 0;    // guards against a stale enrichment response applying after the popup was closed/reopened
+
+function renderFollowChannelAvatar(src){
+  const avatarEl = document.getElementById('follow-ch-avatar');
+  if(src){
+    avatarEl.innerHTML = `<img src="${esc(src)}" alt="" onerror="this.style.display='none'"/>`;
+  } else {
+    avatarEl.innerHTML = `<div class="follow-ch-avatar-placeholder">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg></div>`;
+  }
+}
+async function openFollowChannelPopup(channelName, channelId, thumb){
+  if(!channelName) return;
+  // Guard: already following
+  if(STORE.channels.some(c => c.name === channelName || (channelId && c.id === channelId))){
+    toast(`You're already following ${channelName}`);
+    return;
+  }
+  // Guard: at limit
+  if(STORE.channels.length >= MAX_CHANNELS){
+    toast(`Channel limit reached (${MAX_CHANNELS}) — remove a channel first`);
+    return;
+  }
+  // Guard: no id at all. In practice this button is only ever rendered in search
+  // results when a real channelId is present, but this stays as a defensive
+  // fallback for any future caller — we never want to guess a channel by name.
+  if(!channelId){
+    toast('Could not verify this channel — no channel ID available.');
+    return;
+  }
+
+  const requestId = ++_followChannelRequestId;
+  _followChannelPending = { name: channelName, channelId, thumb, avatar: thumb || '', subs: '', handle: '' };
+
+  // Populate the modal immediately with what the video search result already gave
+  // us — don't make the user stare at a blank popup while the network call runs.
+  document.getElementById('follow-ch-title').textContent  = channelName;
+  document.getElementById('follow-ch-handle').textContent = '';
+  document.getElementById('follow-ch-body').textContent   =
+    `Add "${channelName}" to your channel list and see their latest videos in your Feed.`;
+  renderFollowChannelAvatar(thumb);
+
+  // Confirm is disabled until the one enrichment call below settles — this is the
+  // single network call for the whole add flow, made here (not after confirm) so
+  // the user can see the channel's real avatar/handle/subs before committing.
+  const btn = document.getElementById('follow-ch-confirm-btn');
+  btn.disabled    = true;
+  btn.textContent = 'Loading…';
+
+  document.getElementById('follow-ch-backdrop').classList.add('show');
+  a11yOpenModal(document.getElementById('follow-ch-modal'), closeFollowChannelPopup);
+
+  try{
+    const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(channelId)}`);
+    if(requestId !== _followChannelRequestId) return; // popup closed/reopened while this was in flight — discard
+    if(res.ok){
+      const results = await res.json();
+      const match = Array.isArray(results) && results.find(r => r.id === channelId);
+      if(match){
+        _followChannelPending.avatar = match.avatar || _followChannelPending.avatar;
+        _followChannelPending.subs   = match.subs   || '';
+        _followChannelPending.handle = match.handle || '';
+        _followChannelPending.name   = match.name   || _followChannelPending.name;
+        document.getElementById('follow-ch-title').textContent  = _followChannelPending.name;
+        document.getElementById('follow-ch-handle').textContent = [match.handle, match.subs].filter(Boolean).join(' · ');
+        renderFollowChannelAvatar(_followChannelPending.avatar);
+      }
+    }
+  } catch(e){ /* enrichment is optional — popup already shows the best-effort info from the search result */ }
+
+  if(requestId !== _followChannelRequestId) return; // a newer popup open (or a close) took over while we were waiting
+  btn.disabled    = false;
+  btn.textContent = 'Follow Channel';
+}
+function confirmFollowChannel(){
+  if(!_followChannelPending) return;
+  const ch = {
+    id:     _followChannelPending.channelId,
+    name:   _followChannelPending.name,
+    avatar: _followChannelPending.avatar || '',
+    subs:   _followChannelPending.subs   || '',
+    handle: _followChannelPending.handle || ''
+  };
+  if(!ch.id){
+    toast('Could not verify this channel. Try again in a moment.');
+    return;
+  }
+  // Final guards before writing (re-checked fresh — state may have changed while the popup was open)
+  if(STORE.channels.some(c => c.id === ch.id)){
+    toast(`Already following ${ch.name}`);
+    closeFollowChannelPopup();
+    return;
+  }
+  if(STORE.channels.length >= MAX_CHANNELS){
+    toast(`Channel limit reached (${MAX_CHANNELS})`);
+    closeFollowChannelPopup();
+    return;
+  }
+  const channels = STORE.channels;
+  channels.push(ch);
+  STORE.channels = channels;
+  closeFollowChannelPopup();
+  // Refresh the "Follow Channel" links in the current results to show ✓ Following
+  _refreshFollowLinksInResults(ch.name, ch.id);
+  // Re-render the Channels screen right now (its DOM already exists even
+  // while Search is the active tab), so the list is already correct the
+  // moment the user taps over — no reload or manual refresh needed.
+  initChannels();
+  toast(`${ch.name} added ✓ — Tap Channels to see it in your updated list`);
+}
+function closeFollowChannelPopup(){
+  _followChannelRequestId++; // invalidate any enrichment fetch still in flight for this popup instance
+  document.getElementById('follow-ch-backdrop').classList.remove('show');
+  _followChannelPending = null;
+  a11yCloseModal();
+}
+/* Update all matching Follow Channel buttons in the current results list to the "✓ Following" state */
+function _refreshFollowLinksInResults(channelName, channelId){
+  const list = document.getElementById('search-results-list');
+  if(!list) return;
+  list.querySelectorAll('.follow-channel-link').forEach(btn => {
+    // Match by aria-label which contains the channel name
+    const label = btn.getAttribute('aria-label') || '';
+    if(label.includes(channelName) || (channelId && label.includes(channelId))){
+      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> Following: ${esc(channelName)}`;
+      btn.disabled = true;
+      btn.style.color = 'var(--muted)';
+      btn.style.textDecoration = 'none';
+      btn.style.cursor = 'default';
+      btn.style.opacity = '1';
+      btn.onclick = null;
+      btn.setAttribute('aria-label', `Already following ${channelName}`);
+    }
+  });
 }
 
 /* ═══════════════════════════════════════════
