@@ -2425,11 +2425,26 @@ async function loadChannelVideos(ch, gen, body){
   }
 }
 
+function ensureFeedEmptyEl(){
+  let empty = document.getElementById('feed-empty');
+  if(!empty){
+    // The full-reload path below wipes #feed-body via innerHTML once it has
+    // content, which destroys #feed-empty since it lives inside #feed-body.
+    // Rebuild it rather than letting callers hit appendChild(null)/null.style.
+    empty = document.createElement('div');
+    empty.className = 'empty-feed';
+    empty.id        = 'feed-empty';
+    empty.innerHTML = `<div class="big-icon">📺</div>
+      <h3>No channels yet</h3>
+      <p>Add some YouTube channels to start watching without distractions</p>
+      <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>`;
+  }
+  return empty;
+}
 async function initFeed(newChannelId){
-  const myGen    = ++feedGeneration;
   const channels = STORE.channels;
   const body     = document.getElementById('feed-body');
-  const empty    = document.getElementById('feed-empty');
+  let   empty    = ensureFeedEmptyEl();
 
   // Hide Reload button when there are no channels — nothing to reload
   const reloadBtn = document.getElementById('feed-refresh-btn');
@@ -2443,14 +2458,21 @@ async function initFeed(newChannelId){
   }
   empty.style.display = 'none';
 
-  // Single new channel added — just load and append it
+  // Single new channel added — just load and append it. Deliberately does
+  // NOT bump feedGeneration: doing so would make every not-yet-fired
+  // channel from an in-progress full load (see below) bail out early via
+  // the generation checks, silently dropping those channels and leaving
+  // the loading sentinel stuck on screen forever. Riding on the current
+  // generation keeps this append harmless whether or not a full load is
+  // still in flight.
   if(newChannelId){
     const ch = channels.find(c => c.id === newChannelId);
     if(!ch) return;
-    loadChannelVideos(ch, myGen, body);
+    loadChannelVideos(ch, feedGeneration, body);
     return;
   }
 
+  const myGen = ++feedGeneration; // only a full reload gets a new generation
   if(feedAbortController) feedAbortController.abort();
   const myAbortController = new AbortController();
   feedAbortController = myAbortController;
@@ -2525,10 +2547,11 @@ async function initFeed(newChannelId){
             if(s) s.remove();
             if(!body.querySelector('.channel-section')){
               body.innerHTML = '';
-              body.appendChild(empty);
-              empty.querySelector('h3').textContent = 'Connection failure';
-              empty.querySelector('p').textContent  = 'Could not load any channels. Check your connection and refresh.';
-              empty.style.display = 'flex';
+              const failEmpty = ensureFeedEmptyEl();
+              body.appendChild(failEmpty);
+              failEmpty.querySelector('h3').textContent = 'Connection failure';
+              failEmpty.querySelector('p').textContent  = 'Could not load any channels. Check your connection and refresh.';
+              failEmpty.style.display = 'flex';
             }
           });
         } else {
@@ -3792,6 +3815,11 @@ function confirmFollowChannel(){
   // while Search is the active tab), so the list is already correct the
   // moment the user taps over — no reload or manual refresh needed.
   initChannels();
+  // Same for Feed: if it's already been visited this session, append just
+  // this one new channel's videos now (no need to re-fetch everyone else).
+  // If Feed hasn't been visited yet, its first full load already picks up
+  // every followed channel automatically, so nothing extra is needed here.
+  if(feedEverInitialized) initFeed(ch.id);
   toast(`${ch.name} added ✓ — Tap Channels to see it in your updated list`);
 }
 function closeFollowChannelPopup(){
