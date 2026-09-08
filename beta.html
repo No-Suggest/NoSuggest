@@ -1438,6 +1438,20 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <!-- Chooser -->
       <div id="search-chooser" style="display:flex;flex-direction:column">
         <div class="search-choice-grid">
+          <!-- Videos tile -->
+          <button class="search-choice-tile" onclick="pickSearchMode('videos')">
+            <div class="search-choice-tile-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <polygon points="10,8 17,12 10,16"/>
+              </svg>
+            </div>
+            <div class="search-choice-tile-content">
+              <div class="search-choice-tile-title"><b>Search Videos</b></div>
+              <div class="search-choice-tile-title"><i>Find and watch any YouTube video, or paste a link directly.</i></div>
+            </div>
+            <div class="search-choice-tile-arrow">→</div>
+          </button>
           <!-- Channels tile -->
           <button class="search-choice-tile" onclick="pickSearchMode('channels')">
             <div class="search-choice-tile-icon">
@@ -1451,20 +1465,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
             <div class="search-choice-tile-content">
               <div class="search-choice-tile-title"><b>Search Channels</b></div>
               <div class="search-choice-tile-title"><i>Follow creators by name, handle, or channel URL.</i></div>
-            </div>
-            <div class="search-choice-tile-arrow">→</div>
-          </button>
-          <!-- Videos tile -->
-          <button class="search-choice-tile" onclick="pickSearchMode('videos')">
-            <div class="search-choice-tile-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="9"/>
-                <polygon points="10,8 17,12 10,16"/>
-              </svg>
-            </div>
-            <div class="search-choice-tile-content">
-              <div class="search-choice-tile-title"><b>Search Videos</b></div>
-              <div class="search-choice-tile-title"><i>Find and watch any YouTube video, or paste a link directly.</i></div>
             </div>
             <div class="search-choice-tile-arrow">→</div>
           </button>
@@ -3605,15 +3605,41 @@ async function doYTSearch(q){
       VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb, publishedAt: v.publishedAt || '' };
       const saved    = isVideoSaved(v.id);
       const timeStr  = v.publishedAt ? timeAgo(v.publishedAt) : '';
-      // Determine if channel is already followed
+      // Determine if channel is already followed (safe local comparison — no network call)
       const alreadyFollowed = v.channel && STORE.channels.some(c => c.name === v.channel || (v.channelId && c.id === v.channelId));
-      const followLabel = alreadyFollowed ? '✓ Following' : `Follow Channel: ${v.channel || ''}`;
-      const followDisabled = alreadyFollowed ? 'disabled style="color:var(--muted);text-decoration:none;cursor:default;opacity:1;"' : '';
+      const hasChannelId    = !!v.channelId;
       // Safe single-quoted values for inline onclick — strip any single quotes from channel name
       const safeChannel   = (v.channel   || '').replace(/'/g, '');
       const safeChannelId = (v.channelId || '').replace(/'/g, '');
       const safeThumb     = (v.thumb     || '').replace(/'/g, '');
-      const followOnclick = alreadyFollowed ? '' : `openFollowChannelPopup('${safeChannel}','${safeChannelId}','${safeThumb}')`;
+
+      // Three states:
+      //  1. Already following  → non-interactive, shows "✓ Following: <name>" so the
+      //     channel is still identifiable even though the button is disabled.
+      //  2. Real channelId present → clickable "Follow Channel: <name>" link.
+      //  3. No channelId available → plain channel name, NOT a link/button. Following by
+      //     name alone would require a name-search lookup that costs quota and can attach
+      //     the wrong channel (common names return many matches) — so this state offers
+      //     no follow action at all rather than risk it.
+      let followBlockHtml = '';
+      if(v.channel){
+        if(alreadyFollowed){
+          followBlockHtml = `
+            <button class="follow-channel-link" disabled style="color:var(--muted);text-decoration:none;cursor:default;opacity:1;"
+              aria-label="Already following ${esc(v.channel)}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> Following: ${esc(v.channel)}
+            </button>`;
+        } else if(hasChannelId){
+          followBlockHtml = `
+            <button class="follow-channel-link"
+              onclick="event.stopPropagation();openFollowChannelPopup('${safeChannel}','${safeChannelId}','${safeThumb}')"
+              aria-label="Follow channel: ${esc(v.channel)}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Follow Channel: ${esc(v.channel)}
+            </button>`;
+        } else {
+          followBlockHtml = `<div class="follow-channel-link" style="color:var(--muted);text-decoration:none;cursor:default;" aria-label="${esc(v.channel)} — follow unavailable">${esc(v.channel)}</div>`;
+        }
+      }
       return `
       <div class="search-video-card">
         <div class="search-card-play-zone" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
@@ -3626,13 +3652,7 @@ async function doYTSearch(q){
           <div class="search-card-info">
             <div class="search-card-title">${escHtml(v.title)}</div>
             <div class="search-card-meta" style="margin-bottom:4px">${timeStr ? `<span style="color:var(--text)">${esc(timeStr)}</span>` : ''}</div>
-            <button class="follow-channel-link" ${followDisabled}
-              onclick="event.stopPropagation();${followOnclick}"
-              aria-label="${alreadyFollowed ? `Already following ${esc(v.channel)}` : `Follow channel: ${esc(v.channel)}`}">
-              ${alreadyFollowed
-                ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> ${esc(followLabel)}`
-                : `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> ${esc(followLabel)}`}
-            </button>
+            ${followBlockHtml}
             ${v.views ? `<div class="search-views-badge" style="margin-top:4px">${esc(v.views)}</div>` : ''}
           </div>
         </div>
@@ -3660,8 +3680,22 @@ function toggleSearchSave(btn, id, title, channelName, publishedAt, thumb){
    FOLLOW CHANNEL POPUP — from video search results
    Lets the user follow a channel without leaving search results.
 ═══════════════════════════════════════════ */
-let _followChannelPending = null; // { name, channelId, thumb }
-function openFollowChannelPopup(channelName, channelId, thumb){
+let _followChannelPending   = null; // { name, channelId, thumb, avatar, subs, handle }
+let _followChannelRequestId = 0;    // guards against a stale enrichment response applying after the popup was closed/reopened
+
+function renderFollowChannelAvatar(src){
+  const avatarEl = document.getElementById('follow-ch-avatar');
+  if(src){
+    avatarEl.innerHTML = `<img src="${esc(src)}" alt="" onerror="this.style.display='none'"/>`;
+  } else {
+    avatarEl.innerHTML = `<div class="follow-ch-avatar-placeholder">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg></div>`;
+  }
+}
+async function openFollowChannelPopup(channelName, channelId, thumb){
   if(!channelName) return;
   // Guard: already following
   if(STORE.channels.some(c => c.name === channelName || (channelId && c.id === channelId))){
@@ -3673,85 +3707,71 @@ function openFollowChannelPopup(channelName, channelId, thumb){
     toast(`Channel limit reached (${MAX_CHANNELS}) — remove a channel first`);
     return;
   }
-  _followChannelPending = { name: channelName, channelId, thumb };
-  // Populate modal
+  // Guard: no id at all. In practice this button is only ever rendered in search
+  // results when a real channelId is present, but this stays as a defensive
+  // fallback for any future caller — we never want to guess a channel by name.
+  if(!channelId){
+    toast('Could not verify this channel — no channel ID available.');
+    return;
+  }
+
+  const requestId = ++_followChannelRequestId;
+  _followChannelPending = { name: channelName, channelId, thumb, avatar: thumb || '', subs: '', handle: '' };
+
+  // Populate the modal immediately with what the video search result already gave
+  // us — don't make the user stare at a blank popup while the network call runs.
   document.getElementById('follow-ch-title').textContent  = channelName;
-  document.getElementById('follow-ch-handle').textContent = channelId ? '' : '';
+  document.getElementById('follow-ch-handle').textContent = '';
   document.getElementById('follow-ch-body').textContent   =
     `Add "${channelName}" to your channel list and see their latest videos in your Feed.`;
-  // Avatar
-  const avatarEl = document.getElementById('follow-ch-avatar');
-  if(thumb){
-    avatarEl.innerHTML = `<img src="${esc(thumb)}" alt="" onerror="this.style.display='none'"/>`;
-  } else {
-    avatarEl.innerHTML = `<div class="follow-ch-avatar-placeholder">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg></div>`;
-  }
-  // Reset confirm button
-  const btn = document.getElementById('follow-ch-confirm-btn');
-  btn.disabled = false;
-  btn.textContent = 'Follow Channel';
-  // Show
-  document.getElementById('follow-ch-backdrop').classList.add('show');
-  a11yOpenModal(document.getElementById('follow-ch-modal'), closeFollowChannelPopup);
-}
-async function confirmFollowChannel(){
-  if(!_followChannelPending) return;
-  const { name, channelId, thumb } = _followChannelPending;
+  renderFollowChannelAvatar(thumb);
+
+  // Confirm is disabled until the one enrichment call below settles — this is the
+  // single network call for the whole add flow, made here (not after confirm) so
+  // the user can see the channel's real avatar/handle/subs before committing.
   const btn = document.getElementById('follow-ch-confirm-btn');
   btn.disabled    = true;
-  btn.textContent = 'Adding…';
+  btn.textContent = 'Loading…';
 
-  // The channelId here came straight from the video search result (YouTube's
-  // own channelId on the video), so it IS the real UC id — trust it as the
-  // source of truth. We only ever hit /channels to enrich display fields
-  // (avatar/subs/handle); a failed or slow lookup must never block the add
-  // or swap in a different id. Previously this re-derived the id via a
-  // name/first-result match (or a fake "STUB_" id when the lookup failed),
-  // which could silently attach the wrong channel or one whose videos can
-  // never load.
-  let ch = { id: channelId || '', name, avatar: thumb || '', subs: '', handle: '' };
+  document.getElementById('follow-ch-backdrop').classList.add('show');
+  a11yOpenModal(document.getElementById('follow-ch-modal'), closeFollowChannelPopup);
 
-  if(!ch.id){
-    // Only reachable for older/edge-case data with no id on the video at all.
-    try{
-      const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(name)}`);
-      if(res.ok){
-        const results = await res.json();
-        const match = Array.isArray(results) && (results.find(r => r.name === name) || results[0]);
-        if(match && match.id){
-          ch = { id: match.id, name: match.name || name, avatar: match.avatar || thumb || '', subs: match.subs || '', handle: match.handle || '' };
-        }
+  try{
+    const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(channelId)}`);
+    if(requestId !== _followChannelRequestId) return; // popup closed/reopened while this was in flight — discard
+    if(res.ok){
+      const results = await res.json();
+      const match = Array.isArray(results) && results.find(r => r.id === channelId);
+      if(match){
+        _followChannelPending.avatar = match.avatar || _followChannelPending.avatar;
+        _followChannelPending.subs   = match.subs   || '';
+        _followChannelPending.handle = match.handle || '';
+        _followChannelPending.name   = match.name   || _followChannelPending.name;
+        document.getElementById('follow-ch-title').textContent  = _followChannelPending.name;
+        document.getElementById('follow-ch-handle').textContent = [match.handle, match.subs].filter(Boolean).join(' · ');
+        renderFollowChannelAvatar(_followChannelPending.avatar);
       }
-    } catch(e){ /* no network fallback available */ }
-
-    if(!ch.id){
-      toast('Could not verify this channel. Try again in a moment.');
-      btn.disabled    = false;
-      btn.textContent = 'Follow Channel';
-      return;
     }
-  } else {
-    // Best-effort enrichment only — never overrides the id, never blocks on failure.
-    try{
-      const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(channelId)}`);
-      if(res.ok){
-        const results = await res.json();
-        const match = Array.isArray(results) && results.find(r => r.id === channelId);
-        if(match){
-          ch.avatar = match.avatar || ch.avatar;
-          ch.subs   = match.subs   || '';
-          ch.handle = match.handle || '';
-          ch.name   = match.name   || ch.name;
-        }
-      }
-    } catch(e){ /* enrichment is optional */ }
-  }
+  } catch(e){ /* enrichment is optional — popup already shows the best-effort info from the search result */ }
 
-  // Final guards before writing (re-checked fresh — state may have changed while awaiting)
+  if(requestId !== _followChannelRequestId) return; // a newer popup open (or a close) took over while we were waiting
+  btn.disabled    = false;
+  btn.textContent = 'Follow Channel';
+}
+function confirmFollowChannel(){
+  if(!_followChannelPending) return;
+  const ch = {
+    id:     _followChannelPending.channelId,
+    name:   _followChannelPending.name,
+    avatar: _followChannelPending.avatar || '',
+    subs:   _followChannelPending.subs   || '',
+    handle: _followChannelPending.handle || ''
+  };
+  if(!ch.id){
+    toast('Could not verify this channel. Try again in a moment.');
+    return;
+  }
+  // Final guards before writing (re-checked fresh — state may have changed while the popup was open)
   if(STORE.channels.some(c => c.id === ch.id)){
     toast(`Already following ${ch.name}`);
     closeFollowChannelPopup();
@@ -3775,6 +3795,7 @@ async function confirmFollowChannel(){
   toast(`${ch.name} added ✓ — Tap Channels to see it in your updated list`);
 }
 function closeFollowChannelPopup(){
+  _followChannelRequestId++; // invalidate any enrichment fetch still in flight for this popup instance
   document.getElementById('follow-ch-backdrop').classList.remove('show');
   _followChannelPending = null;
   a11yCloseModal();
@@ -3787,7 +3808,7 @@ function _refreshFollowLinksInResults(channelName, channelId){
     // Match by aria-label which contains the channel name
     const label = btn.getAttribute('aria-label') || '';
     if(label.includes(channelName) || (channelId && label.includes(channelId))){
-      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> ✓ Following`;
+      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> Following: ${esc(channelName)}`;
       btn.disabled = true;
       btn.style.color = 'var(--muted)';
       btn.style.textDecoration = 'none';
