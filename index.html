@@ -2391,10 +2391,10 @@ function appendChannelToFeed(ch, videos, body){
     body.appendChild(div);
   }
   const html = `<div class="channel-section" id="feed-ch-${ch.id}">
-    <button type="button" class="skip-channel-link" onclick="skipChannelSection('${esc(ch.id)}')">Skip ${esc(ch.name)}'s videos, go to next channel</button>
+    <button type="button" class="skip-channel-link" onclick="skipChannelSection('${esc(ch.id)}')">Skip ${escHtml(ch.name)}'s videos, go to next channel</button>
     <div class="channel-label" tabindex="-1">
       <div class="ch-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
-      <span class="ch-name">${esc(ch.name)}</span>
+      <span class="ch-name">${escHtml(ch.name)}</span>
 
     </div>
     <div class="videos-scroll" id="videos-${ch.id}"></div>
@@ -2578,13 +2578,13 @@ function renderVideos(ch, videos){
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
     const isNew    = isNewVideo(v.publishedAt);
     return `
-    <div class="video-thumb${isNew ? ' is-new' : ''}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
+    <div class="video-thumb${isNew ? ' is-new' : ''}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
       <div class="thumb-img-wrap">
         <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
       </div>
       <div class="thumb-info">
-        <div class="thumb-title">${esc(v.title)}</div>
+        <div class="thumb-title">${escHtml(v.title)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="thumb-meta" style="${isNew ? 'color:var(--accent)' : ''}">${timeAgo(v.publishedAt)}</div>
           <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
@@ -3014,7 +3014,7 @@ function initChannels(){
     <div class="channel-list-item" style="animation-delay:${i*40}ms">
       <div class="cli-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
       <div class="cli-info">
-        <div class="cli-name">${esc(ch.name)}</div>
+        <div class="cli-name">${escHtml(ch.name)}</div>
         <div class="cli-handle">${esc(ch.subs || '')}</div>
       </div>
       <button class="cli-remove" onclick="removeChannel('${esc(ch.id)}')" title="Remove">
@@ -3866,13 +3866,13 @@ function initSaved(){
     VIDEO_DATA[v.id] = v;
     return `
     <div class="saved-video-card" style="animation:fadeUp 0.3s ease ${i*30}ms both"
-         onclick="openPlayerFromSaved('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
+         onclick="openPlayerFromSaved('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
       <div class="saved-thumb-wrap">
         <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
       </div>
       <div class="saved-card-info">
-        <div class="saved-card-title">${esc(v.title)}</div>
-        <div class="saved-card-meta">${esc(v.channelName)}</div>
+        <div class="saved-card-title">${escHtml(v.title)}</div>
+        <div class="saved-card-meta">${escHtml(v.channelName)}</div>
         <div class="saved-card-meta" style="margin-top:2px">Saved ${timeAgo(v.savedAt)}</div>
       </div>
       <button class="saved-remove-btn" onclick="event.stopPropagation();removeSaved('${esc(v.id)}')" title="Remove">
@@ -4256,7 +4256,7 @@ function openPackConfirm(incomingChannels){
         : "This pack link doesn't contain anything new for you.";
 
   const listEl = document.getElementById('pack-confirm-list');
-  listEl.innerHTML = toAdd.map(c => `<div class="pack-channel-item">${esc(c.name)}</div>`).join('');
+  listEl.innerHTML = toAdd.map(c => `<div class="pack-channel-item">${escHtml(c.name)}</div>`).join('');
   listEl.style.display = toAdd.length ? 'flex' : 'none';
 
   const noteEl = document.getElementById('pack-confirm-note');
