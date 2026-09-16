@@ -618,6 +618,24 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .settings-row-label{font-size:14px;font-weight:500;color:var(--text);}
 .settings-row-sub{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px;}
 .settings-row-action{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.settings-select{display:flex;align-items:center;gap:6px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.65rem;font-family:'DM Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;transition:border-color 0.15s;}
+.settings-select:hover{border-color:var(--accent);}
+.settings-select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+.settings-select svg{color:var(--muted);flex-shrink:0;}
+/* ── Videos-per-channel picker modal — mirrors export-modal/pack-modal ── */
+#vpc-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#vpc-backdrop.show{display:flex;}
+#vpc-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.5rem 1.4rem 1.25rem;width:100%;max-width:280px;max-height:min(70vh,480px);display:flex;flex-direction:column;gap:0.85rem;box-shadow:0 18px 60px rgba(0,0,0,0.55);animation:fadeUp 0.2s ease;}
+.vpc-title{font-size:16px;font-weight:600;color:var(--text);flex-shrink:0;}
+.vpc-list{overflow-y:auto;display:flex;flex-direction:column;gap:2px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.vpc-list::-webkit-scrollbar{width:6px;}
+.vpc-list::-webkit-scrollbar-track{background:transparent;}
+.vpc-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.vpc-list::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+.vpc-option{padding:0.6rem 0.8rem;border-radius:8px;font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--text);background:transparent;border:none;text-align:left;cursor:pointer;transition:background 0.12s;flex-shrink:0;}
+.vpc-option:hover{background:var(--bg3);}
+.vpc-option.selected{background:var(--accent);color:var(--bg);}
+.vpc-close{padding:0.7rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;}
 .btn-danger{background:rgba(255,68,68,0.1);color:var(--danger);border:1.5px solid rgba(255,68,68,0.2);}
 
 /* ═══════════════════════════════════════
@@ -1083,7 +1101,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <!-- SCREEN: FEED -->
   <div class="screen" id="screen-feed">
     <div class="feed-header">
-      <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px">Latest 10 videos/channel</span></h2>
+      <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px" id="feed-vpc-label">Latest 10 videos/channel</span></h2>
       <div class="feed-actions">
         <button class="header-label-btn" id="feed-refresh-btn" title="Reload feed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:15px;height:15px;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -1190,6 +1208,25 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <div class="settings-row-sub">Know someone tired of the algorithm? Share NoSuggest with them.</div>
             </div>
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Share ↗</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" style="padding-top:0">
+        <div class="settings-label">Feed</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Videos per Channel</div>
+              <div class="settings-row-sub">How many videos to load per channel in your feed</div>
+            </div>
+            <button type="button" class="settings-select" id="vpc-trigger" onclick="openVpcPicker()" aria-haspopup="dialog" aria-label="Videos per channel">
+              <span id="vpc-trigger-value">10</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -1706,6 +1743,14 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <div id="toast" role="status" aria-live="polite"></div>
 </div>
 
+<div id="vpc-backdrop" onclick="if(event.target===this)closeVpcPicker()">
+  <div id="vpc-modal" role="dialog" aria-modal="true" aria-labelledby="vpc-title">
+    <div class="vpc-title" id="vpc-title">Videos per Channel</div>
+    <div class="vpc-list" id="vpc-list"></div>
+    <button type="button" class="vpc-close" onclick="closeVpcPicker()">Cancel</button>
+  </div>
+</div>
+
 <script>
 'use strict';
 
@@ -1848,6 +1893,11 @@ const STORE = {
   set kidsPin(v){  v ? localStorage.setItem('ns_kids_pin', v) : localStorage.removeItem('ns_kids_pin') },
   get sessionCount(){ return parseInt(localStorage.getItem('ns_session_count')||'0',10) },
   set sessionCount(v){ localStorage.setItem('ns_session_count', String(v)) },
+  // Videos loaded per channel in the feed. Default 10, user-selectable 1-50
+  // (see Settings > Feed). Clamped on read so a corrupted/edited localStorage
+  // value can never send an out-of-range count to the backend.
+  get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_channel')||'10',10); return (v>=1 && v<=50) ? v : 10; },
+  set videosPerChannel(v){ localStorage.setItem('ns_videos_per_channel', String(v)) },
 };
 
 let currentScreen  = '';
@@ -1878,7 +1928,7 @@ const CACHE_TTL = 3 * 60 * 60 * 1000;
 
 function getCachedVideos(channelId){
   try{
-    const raw = localStorage.getItem('ft_vc_' + channelId);
+    const raw = localStorage.getItem('ft_vc_v2_' + channelId);
     if(!raw) return null;
     const {ts, videos} = JSON.parse(raw);
     if(Date.now() - ts > CACHE_TTL) return null;
@@ -1886,7 +1936,7 @@ function getCachedVideos(channelId){
   } catch(e){ return null; }
 }
 function setCachedVideos(channelId, videos){
-  try{ localStorage.setItem('ft_vc_' + channelId, JSON.stringify({ts: Date.now(), videos})); } catch(e){}
+  try{ localStorage.setItem('ft_vc_v2_' + channelId, JSON.stringify({ts: Date.now(), videos})); } catch(e){}
 }
 function clearVideoCache(){
   Object.keys(localStorage).filter(k => k.startsWith('ft_vc_')).forEach(k => localStorage.removeItem(k));
@@ -2404,7 +2454,7 @@ function appendChannelToFeed(ch, videos, body){
   const block = wrapper.firstElementChild;
   block.style.animation = 'fadeUp 0.35s ease both';
   body.appendChild(block);
-  renderVideos(ch, videos);
+  renderVideos(ch, videos.slice(0, STORE.videosPerChannel));
   // Force Android Chrome repaint
   const el = document.getElementById('videos-' + ch.id);
   if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
@@ -3032,7 +3082,7 @@ function initChannels(){
 
 function removeChannel(id){
   STORE.channels = STORE.channels.filter(c => c.id !== id);
-  localStorage.removeItem('ft_vc_' + id);
+  localStorage.removeItem('ft_vc_v2_' + id);
   location.reload();
 }
 
@@ -3435,6 +3485,62 @@ function initSettings(){
   }
   const statusEl = document.getElementById('kids-mode-status');
   if(statusEl){ statusEl.textContent = STORE.kidsMode ? 'On' : 'Off'; statusEl.style.color = STORE.kidsMode ? 'var(--accent)' : 'var(--muted)'; }
+
+  const vpcTriggerValue = document.getElementById('vpc-trigger-value');
+  if(vpcTriggerValue) vpcTriggerValue.textContent = STORE.videosPerChannel;
+  updateVideosPerChannelLabel();
+}
+function updateVideosPerChannelLabel(){
+  const label = document.getElementById('feed-vpc-label');
+  if(label) label.textContent = `Latest ${STORE.videosPerChannel} videos/channel`;
+}
+
+/* ── Videos-per-channel picker: a custom modal instead of a native
+   <select>, since a native dropdown's open-list styling (scrollbar,
+   row highlight) can't be reskinned to match the app's dark theme —
+   it just renders as whatever the OS/browser gives it. ── */
+function openVpcPicker(){
+  const list = document.getElementById('vpc-list');
+  if(!list.children.length){
+    for(let i = 1; i <= 50; i++){
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'vpc-option';
+      btn.textContent = i;
+      btn.dataset.val = i;
+      btn.onclick = () => selectVpc(i);
+      list.appendChild(btn);
+    }
+  }
+  const current = STORE.videosPerChannel;
+  [...list.children].forEach(btn => btn.classList.toggle('selected', Number(btn.dataset.val) === current));
+  document.getElementById('vpc-backdrop').classList.add('show');
+  a11yOpenModal(document.getElementById('vpc-modal'), closeVpcPicker);
+  const sel = list.querySelector('.selected');
+  if(sel) sel.scrollIntoView({ block: 'center' });
+}
+function closeVpcPicker(){
+  document.getElementById('vpc-backdrop').classList.remove('show');
+  a11yCloseModal();
+}
+/* Backend now always returns up to 50 videos per channel in one call
+   (see /rss), so changing this setting is just a re-slice of data
+   already fetched and cached — no refetch, no cache clear, no page
+   reload. Re-renders every channel section currently in the feed DOM;
+   renderVideos() no-ops for channels that aren't rendered yet. */
+function selectVpc(n){
+  STORE.videosPerChannel = n;
+  const vpcTriggerValue = document.getElementById('vpc-trigger-value');
+  if(vpcTriggerValue) vpcTriggerValue.textContent = n;
+  updateVideosPerChannelLabel();
+  reRenderAllChannelFeeds();
+  closeVpcPicker();
+}
+function reRenderAllChannelFeeds(){
+  STORE.channels.forEach(ch => {
+    const videos = getCachedVideos(ch.id);
+    if(videos) renderVideos(ch, videos.slice(0, STORE.videosPerChannel));
+  });
 }
 
 /* ═══════════════════════════════════════════
@@ -4381,6 +4487,7 @@ document.addEventListener('keydown', (e) => {
 
 window.addEventListener('load', () => {
   purgeExpiredResume();
+  updateVideosPerChannelLabel();
   applyKidsMode();
   initSessionBanner();
   if(STORE.hasLaunched){
