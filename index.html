@@ -1212,7 +1212,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
       </div>
 
-      <div class="settings-section" style="padding-top:0">
+      <div class="settings-section" id="settings-vpc-row" style="padding-top:0">
         <div class="settings-label">Feed</div>
         <div class="settings-card">
           <div class="settings-row">
@@ -2335,7 +2335,7 @@ function applyKidsMode(){
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
   // Hide elements kids shouldn't see or accidentally tap
-  const kidsHide = ['settings-share-row','settings-site-footer','nav-share-strip','share-strip-backdrop','desktop-share-backdrop'];
+  const kidsHide = ['settings-share-row','settings-vpc-row','settings-site-footer','nav-share-strip','share-strip-backdrop','desktop-share-backdrop'];
   kidsHide.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = on ? 'none' : '';
