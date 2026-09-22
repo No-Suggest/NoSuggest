@@ -1002,8 +1002,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .pack-note{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.5;}
 .pack-note.warn{color:#e8a53b;}
 /* ── Pack QR code ── */
-.pack-qr-wrap{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:var(--radius-sm);padding:0.85rem;}
-.pack-qr-wrap svg{width:300px;height:300px;max-width:100%;display:block;}
+.pack-qr-wrap{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:var(--radius-sm);padding:0.85rem;box-sizing:border-box;width:100%;max-width:300px;margin:0 auto;}
+.pack-qr-wrap svg{width:100%;height:auto;display:block;}
 .pack-qr-label{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;text-align:center;margin-top:-0.4rem;}
 /* ── Export/Pack code box: use the app's standard thin scrollbar, matching .vpc-list ── */
 .em-code{scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
