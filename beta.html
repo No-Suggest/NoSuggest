@@ -1005,6 +1005,12 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .pack-qr-wrap{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:var(--radius-sm);padding:0.85rem;}
 .pack-qr-wrap svg{width:300px;height:300px;max-width:100%;display:block;}
 .pack-qr-label{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;text-align:center;margin-top:-0.4rem;}
+/* ── Export/Pack code box: use the app's standard thin scrollbar, matching .vpc-list ── */
+.em-code{scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.em-code::-webkit-scrollbar{width:6px;}
+.em-code::-webkit-scrollbar-track{background:transparent;}
+.em-code::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.em-code::-webkit-scrollbar-thumb:hover{background:var(--muted);}
 /* ── Feed loading progress sentinel ── */
 #feed-loading-sentinel{display:flex;flex-direction:column;align-items:center;gap:12px;padding:2.5rem 1.25rem 3rem;text-align:center;}
 .feed-progress-text{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.02em;line-height:1.6;}
