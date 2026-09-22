@@ -1011,6 +1011,12 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .em-code::-webkit-scrollbar-track{background:transparent;}
 .em-code::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 .em-code::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+/* ── Pack modal's own outer scroll (kicks in on short viewports) — same treatment ── */
+#pack-modal,#pack-confirm-modal{scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+#pack-modal::-webkit-scrollbar,#pack-confirm-modal::-webkit-scrollbar{width:6px;}
+#pack-modal::-webkit-scrollbar-track,#pack-confirm-modal::-webkit-scrollbar-track{background:transparent;}
+#pack-modal::-webkit-scrollbar-thumb,#pack-confirm-modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+#pack-modal::-webkit-scrollbar-thumb:hover,#pack-confirm-modal::-webkit-scrollbar-thumb:hover{background:var(--muted);}
 /* ── Feed loading progress sentinel ── */
 #feed-loading-sentinel{display:flex;flex-direction:column;align-items:center;gap:12px;padding:2.5rem 1.25rem 3rem;text-align:center;}
 .feed-progress-text{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.02em;line-height:1.6;}
