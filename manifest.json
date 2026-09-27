@@ -26,7 +26,7 @@
   "screenshots": [
     {
       "src": "/screenshots/feed.png",
-      "sizes": "390x844",
+      "sizes": "1220x2712",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Your feed, your channels"
