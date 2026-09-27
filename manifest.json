@@ -6,6 +6,7 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
   "icons": [
@@ -16,7 +17,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/nosuggest-logo-v2-512.png",
+      "src": "/nosuggest-logo-v2-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
@@ -56,6 +57,41 @@
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
+      "label": "NoSuggest settings"
+    },
+    {
+      "src": "/screenshots/desktop/feed.png",
+      "sizes": "1917x1006",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Your feed, your channels"
+    },
+    {
+      "src": "/screenshots/desktop/get-started.png",
+      "sizes": "1882x865",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Get started with NoSuggest"
+    },
+    {
+      "src": "/screenshots/desktop/saved.png",
+      "sizes": "1915x1003",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Your saved videos"
+    },
+    {
+      "src": "/screenshots/desktop/search.png",
+      "sizes": "1897x937",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Search without distraction"
+    },
+    {
+      "src": "/screenshots/desktop/settings.png",
+      "sizes": "1918x1000",
+      "type": "image/png",
+      "form_factor": "wide",
       "label": "NoSuggest settings"
     }
   ]
