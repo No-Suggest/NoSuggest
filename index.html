@@ -3753,6 +3753,9 @@ async function doYTSearch(q){
       VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb, publishedAt: v.publishedAt || '' };
       const saved    = isVideoSaved(v.id);
       const timeStr  = v.publishedAt ? timeAgo(v.publishedAt) : '';
+      const durationDisplay = v.duration
+        ? `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:2px;margin-top:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>${esc(v.duration)}`
+        : '';
       // Determine if channel is already followed (safe local comparison — no network call)
       const alreadyFollowed = v.channel && STORE.channels.some(c => c.name === v.channel || (v.channelId && c.id === v.channelId));
       const hasChannelId    = !!v.channelId;
@@ -3799,7 +3802,7 @@ async function doYTSearch(q){
           </div>
           <div class="search-card-info">
             <div class="search-card-title">${escHtml(v.title)}</div>
-            <div class="search-card-meta" style="margin-bottom:4px">${[v.duration, timeStr, v.views].filter(Boolean).join(' • ')}</div>
+            <div class="search-card-meta" style="margin-bottom:4px">${[durationDisplay, timeStr, v.views].filter(Boolean).join(' • ')}</div>
             ${followBlockHtml}
           </div>
         </div>
