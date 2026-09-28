@@ -3799,7 +3799,7 @@ async function doYTSearch(q){
           </div>
           <div class="search-card-info">
             <div class="search-card-title">${escHtml(v.title)}</div>
-            <div class="search-card-meta" style="margin-bottom:4px">${[timeStr, v.views].filter(Boolean).join(' • ')}</div>
+            <div class="search-card-meta" style="margin-bottom:4px">${[v.duration, timeStr, v.views].filter(Boolean).join(' • ')}</div>
             ${followBlockHtml}
           </div>
         </div>
