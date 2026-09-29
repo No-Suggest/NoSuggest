@@ -855,12 +855,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   gap:16px;
   padding:1.25rem 1.25rem 1.5rem;
   align-content:start;
-}
-@media(min-width:900px){
-  .search-choice-grid{
-    grid-template-columns:1fr 1fr;
-    align-items:stretch;
-  }
+  grid-template-columns:1fr;
 }
 .search-choice-tile{
   width:100%;
@@ -1023,6 +1018,20 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .feed-progress-bar{width:100px;height:2px;background:var(--border);border-radius:1px;overflow:hidden;}
 @keyframes feed-progress-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 .feed-progress-bar::after{content:'';display:block;height:100%;width:60%;background:var(--accent);border-radius:1px;animation:feed-progress-shimmer 1.4s ease-in-out infinite;}
+/* ── Continue Watching pane ── */
+.cw-card{display:flex;align-items:stretch;border-bottom:1px solid var(--border);animation:fadeUp 0.3s ease both;transition:background 0.12s;}
+.cw-card:hover{background:var(--bg2);}
+.cw-play-zone{display:flex;gap:12px;cursor:pointer;flex:1;padding:0.85rem 0 0.85rem 1.25rem;align-items:flex-start;min-width:0;}
+.cw-play-zone:active{opacity:0.85;}
+.cw-thumb-wrap{position:relative;flex-shrink:0;width:120px;}
+.cw-thumb-wrap img{width:120px;height:67px;object-fit:cover;display:block;border-radius:6px;}
+.cw-resume-badge{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.78);color:var(--accent);font-size:9px;font-family:'DM Mono',monospace;font-weight:600;text-align:center;padding:3px 4px;border-radius:0 0 5px 5px;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cw-info{flex:1;min-width:0;padding-right:4px;}
+.cw-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
+.cw-meta{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cw-remove-btn{flex-shrink:0;width:44px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--muted);cursor:pointer;transition:color 0.15s;align-self:stretch;padding:0;}
+.cw-remove-btn:hover{color:var(--danger);}
+.cw-remove-btn svg{width:15px;height:15px;}
 </style>
 </head>
 <body>
@@ -1505,6 +1514,21 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
             </div>
             <div class="search-choice-tile-arrow">→</div>
           </button>
+          <!-- Continue Watching tile -->
+          <button class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')">
+            <div class="search-choice-tile-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <polygon points="9 8 15 11 9 14 9 8" fill="currentColor" stroke="none"/>
+                <path d="M2 20h8M12 20h10"/>
+              </svg>
+            </div>
+            <div class="search-choice-tile-content">
+              <div class="search-choice-tile-title"><b>Continue Watching</b></div>
+              <div class="search-choice-tile-title"><i>Resume unfinished videos from where you left off.</i></div>
+            </div>
+            <div class="search-choice-tile-arrow">→</div>
+          </button>
           <!-- Channels tile -->
           <button class="search-choice-tile" onclick="pickSearchMode('channels')">
             <div class="search-choice-tile-icon">
@@ -1541,6 +1565,14 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
           <div class="feed-progress-text" id="video-search-progress-text" style="margin-top:10px">Searching YouTube…</div>
         </div>
         <div id="search-error" class="error-msg" role="alert" style="margin:1.5rem 1.25rem;display:none"></div>
+      </div>
+      <!-- Continue Watching pane (hidden until chosen) -->
+      <div id="search-continue-pane" style="display:none">
+        <div id="cw-list"></div>
+        <div id="cw-empty" class="search-empty-state" style="display:none">
+          <div class="big-icon">⏸️</div>
+          <p><b>No videos in progress.</b><br/>If you start watching a video and leave mid-way,<br> it will appear here so you can pick up where you left off.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -1973,9 +2005,9 @@ function getResumeStore(){
 function setResumeStore(obj){
   try{ localStorage.setItem('ns_resume', JSON.stringify(obj)); } catch(e){}
 }
-function saveResumePosition(videoId, seconds, title, channelName){
+function saveResumePosition(videoId, seconds, title, channelName, thumb){
   const store = getResumeStore();
-  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'' };
+  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'', thumb: thumb||'' };
   setResumeStore(store);
 }
 function deleteResumeEntry(videoId){
@@ -2634,6 +2666,9 @@ async function initFeed(newChannelId){
 
 /* Video data map — keyed by videoId, avoids quote-escaping bugs in onclick attrs */
 const VIDEO_DATA = {};
+/* Resume data map — populated by initContinueWatching(), keyed by videoId.
+   Avoids escaping complexities in onclick attrs for resume cards. */
+const RESUME_DATA = {};
 
 function renderVideos(ch, videos){
   const el = document.getElementById('videos-' + ch.id);
@@ -2959,7 +2994,7 @@ function captureResumeOnPause(){
       return;
     }
     // Mid-video — save position
-    saveResumePosition(currentVideoData.id, current, currentVideoData.title, currentVideoData.channelName);
+    saveResumePosition(currentVideoData.id, current, currentVideoData.title, currentVideoData.channelName, currentVideoData.thumb);
   } catch(e){}
 }
 
@@ -3005,6 +3040,11 @@ function closePlayer(){
   // Wait for 0.2s fade-out transition then fully hide to release iOS touch tracking.
   setTimeout(() => {
     if(!overlay.classList.contains('open')) overlay.style.display = 'none';
+    // Refresh Continue Watching list so finished/updated entries disappear immediately
+    const cwPane = document.getElementById('search-continue-pane');
+    if(currentScreen === 'search' && cwPane && cwPane.style.display !== 'none'){
+      initContinueWatching();
+    }
   }, 220);
   // Do NOT call initFeed() here — feed is already rendered.
   a11yCloseModal();
@@ -3598,6 +3638,7 @@ function initSearch(){
   document.getElementById('search-chooser').style.display     = 'flex';
   document.getElementById('search-chooser').style.flexDirection = 'column';
   document.getElementById('search-video-pane').style.display  = 'none';
+  document.getElementById('search-continue-pane').style.display = 'none';
   document.getElementById('search-results-wrap').style.display = 'none';
   document.getElementById('search-loading').style.display     = 'none';
   stopLoadingMessages();
@@ -3612,6 +3653,16 @@ function pickSearchMode(mode){
     showScreen('add');
     return;
   }
+  if(mode === 'continue'){
+    document.getElementById('search-header-title').textContent    = 'Continue Watching';
+    document.getElementById('search-chooser').style.display       = 'none';
+    document.getElementById('search-video-pane').style.display    = 'none';
+    document.getElementById('search-input-row').style.display     = 'none';
+    document.getElementById('search-continue-pane').style.display = 'block';
+    initContinueWatching();
+    return;
+  }
+  // 'videos' mode
   document.getElementById('search-header-title').textContent = 'Search Videos';
   document.getElementById('search-chooser').style.display    = 'none';
   document.getElementById('search-video-pane').style.display = 'block';
@@ -4013,6 +4064,83 @@ function removeSaved(id){
   STORE.savedVideos = STORE.savedVideos.filter(v => v.id !== id);
   initSaved();
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
+}
+/* ═══════════════════════════════════════════
+   CONTINUE WATCHING
+   Reads ns_resume, sorts entries by last-watched DESC, renders cards.
+   Each card: thumb + "▶ Resume at X:XX" badge, title, channel, time,
+   and an X button to remove just that entry. openPlayer() handles
+   auto-seek via getResumeEntry() internally. closePlayer() refreshes
+   this list after close so finished entries disappear automatically.
+═══════════════════════════════════════════ */
+function initContinueWatching(){
+  const store   = getResumeStore();
+  const listEl  = document.getElementById('cw-list');
+  const emptyEl = document.getElementById('cw-empty');
+  const entries = Object.entries(store)
+    .map(([id, e]) => ({ id, ...e }))
+    .sort((a, b) => b.saved - a.saved);   // most recently watched first
+
+  if(!entries.length){
+    listEl.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  listEl.innerHTML = entries.map((e, idx) => {
+    RESUME_DATA[e.id] = e;               // store for onclick (avoids inline escaping)
+    const thumb      = e.thumb || `https://i.ytimg.com/vi/${esc(e.id)}/mqdefault.jpg`;
+    const resumeAt   = formatSeconds(e.t);
+    const watchedAgo = e.saved ? timeAgo(new Date(e.saved).toISOString()) : '';
+    return `
+    <div class="cw-card" id="cw-${esc(e.id)}" style="animation-delay:${idx * 30}ms">
+      <div class="cw-play-zone"
+           onclick="openPlayerFromResume('${esc(e.id)}')"
+           role="button" tabindex="0"
+           aria-label="Resume: ${escHtml(e.title || 'video')}">
+        <div class="cw-thumb-wrap">
+          <img src="${esc(thumb)}" alt="" loading="lazy"
+               onerror="this.src='https://i.ytimg.com/vi/${esc(e.id)}/mqdefault.jpg'"/>
+          <div class="cw-resume-badge">&#9654; Resume at ${escHtml(resumeAt)}</div>
+        </div>
+        <div class="cw-info">
+          <div class="cw-title">${escHtml(e.title || 'Untitled video')}</div>
+          <div class="cw-meta">${escHtml(e.ch || '')}</div>
+          ${watchedAgo ? `<div class="cw-meta" style="margin-top:2px">Watched ${escHtml(watchedAgo)}</div>` : ''}
+        </div>
+      </div>
+      <button class="cw-remove-btn"
+              onclick="removeResumeItem('${esc(e.id)}')"
+              aria-label="Remove from Continue Watching"
+              title="Remove">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+/* Open the player for a resume entry. openPlayer() auto-seeks to the saved
+   position via getResumeEntry() internally — no extra work needed here. */
+function openPlayerFromResume(videoId){
+  const e = RESUME_DATA[videoId];
+  if(!e) return;
+  const thumb = e.thumb || `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+  openPlayer(videoId, e.title || '', e.ch || '', '', thumb);
+}
+
+/* Remove one resume entry and update the DOM in-place — no full re-render.
+   Reveals the empty state if the list is now empty. */
+function removeResumeItem(videoId){
+  deleteResumeEntry(videoId);
+  delete RESUME_DATA[videoId];
+  const card = document.getElementById('cw-' + videoId);
+  if(card) card.remove();
+  const listEl = document.getElementById('cw-list');
+  if(listEl && !listEl.querySelector('.cw-card')){
+    listEl.innerHTML = '';
+    const emptyEl = document.getElementById('cw-empty');
+    if(emptyEl) emptyEl.style.display = 'block';
+  }
 }
 
 /* ═══════════════════════════════════════════
