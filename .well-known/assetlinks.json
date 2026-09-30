@@ -1,8 +1,13 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.nosuggest.www.twa",
-        "sha256_cert_fingerprints": ["BE:43:E7:7B:52:F4:0E:C8:96:A8:11:79:8A:F2:A9:99:D8:E6:BC:3D:0C:C2:55:8C:C8:27:2E:7F:DD:72:FF:B3"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.nosuggest.www.twa",
+    "sha256_cert_fingerprints": [
+      "BE:43:E7:7B:52:F4:0E:C8:96:A8:11:79:8A:F2:A9:99:D8:E6:BC:3D:0C:C2:55:8C:C8:27:2E:7F:DD:72:FF:B3",
+      "CB:E2:E1:98:75:6D:34:04:C9:91:A5:6A:F5:40:15:48:8A:ED:5C:2D:16:BE:6E:59:0C:C2:DF:F8:1F:37:14:B4",
+      "BD:04:84:F6:B3:28:B7:BB:15:11:3D:DE:25:63:7A:2C:44:21:0E:3B:9B:6A:E8:E8:D3:7F:ED:BC:FF:24:9F:72",
+	  "5A:54:A1:C4:1A:5E:9E:79:BB:3B:27:A3:18:1F:04:0A:AA:51:82:AF:7B:47:D5:BB:76:B0:F2:6D:9D:33:F7:5B"
+    ]
+  }
+}]
