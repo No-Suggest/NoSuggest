@@ -2351,6 +2351,65 @@ let videoEndedNaturally = false;
 let playerGeneration    = 0;
 let playerReadyTimer    = null;
 
+/* ── Screen Wake Lock ──────────────────────────────────────────────
+   Keeps the screen on while a video is actively PLAYING, instead of
+   relying only on the browser's own built-in "don't sleep during
+   video" heuristic — that heuristic lives entirely outside the page
+   and can vary by browser version, OEM battery-saver settings, and
+   installed-PWA vs. in-tab context, which is why screen-lock behavior
+   can differ between two devices running the exact same page.
+
+   Feature-detected via 'wakeLock' in navigator — on browsers without
+   support (e.g. iOS Safari < 16.4), every function below is a no-op
+   and playback falls back to exactly the pre-existing behavior. Never
+   throws, never blocks or alters playback either way.
+
+   NOT a fix for: 1) the screen turning off from an explicit user
+   action (power button, switching apps) — per spec, the browser is
+   REQUIRED to auto-release the lock the instant the document goes
+   hidden, so this can't and shouldn't try to override that; or
+   2) a hardware proximity sensor forcing the screen off (e.g. a case
+   or screen protector interfering with it) — that happens below the
+   web platform entirely and no page-level API can reach it. */
+let wakeLockSentinel = null;
+
+async function requestScreenWakeLock(){
+  if(!('wakeLock' in navigator)) return;   // unsupported — silent no-op
+  if(wakeLockSentinel) return;             // already held — avoid a duplicate request
+  const myGeneration = playerGeneration;
+  try{
+    const sentinel = await navigator.wakeLock.request('screen');
+    // The player this was requested for may have closed, or a different
+    // video may have opened, while this Promise was pending. Don't let
+    // a stale lock outlive the player session it belongs to.
+    if(myGeneration !== playerGeneration){
+      try{ await sentinel.release(); } catch(e){}
+      return;
+    }
+    wakeLockSentinel = sentinel;
+    wakeLockSentinel.addEventListener('release', () => {
+      // Fires both for our own releaseScreenWakeLock() calls AND when
+      // the browser force-releases it for reasons outside our control
+      // (document went hidden, OS-level battery intervention). Either
+      // way, clear the reference so a later requestScreenWakeLock()
+      // isn't short-circuited by a stale, already-dead sentinel.
+      wakeLockSentinel = null;
+    });
+  } catch(err){
+    // Expected, non-exceptional rejections: battery saver active,
+    // document not visible at request time, permissions policy. Never
+    // surface this to the user or affect playback — it just means the
+    // screen behaves exactly as it did before this feature existed.
+    wakeLockSentinel = null;
+  }
+}
+
+async function releaseScreenWakeLock(){
+  if(!wakeLockSentinel) return;
+  try{ await wakeLockSentinel.release(); } catch(e){}
+  wakeLockSentinel = null;
+}
+
 function clearPlayerReadyTimer(){
   if(playerReadyTimer){
     clearTimeout(playerReadyTimer);
@@ -2442,6 +2501,7 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
 
   function showPlayerFailure(message){
     if(!isCurrentPlayer()) return;
+    releaseScreenWakeLock();
     destroyCurrentPlayer();
     wrap.style.display = 'none';
     blockedText.textContent = message;
@@ -2499,9 +2559,13 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
             if(e.data === YT.PlayerState.ENDED){
               videoEndedNaturally = true;
               deleteResumeEntry(videoId);
+              releaseScreenWakeLock();
               closePlayer();
             } else if(e.data === YT.PlayerState.PAUSED){
               captureResumeOnPause();
+              releaseScreenWakeLock();
+            } else if(e.data === YT.PlayerState.PLAYING){
+              requestScreenWakeLock();
             }
           },
           onError: e => {
@@ -2627,6 +2691,7 @@ function closePlayer(){
   playerGeneration++;
   clearPlayerReadyTimer();
   window.createPlayerPending = null;
+  releaseScreenWakeLock();
 
   if(!videoEndedNaturally) captureResumeOnPause();
   if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
@@ -4021,13 +4086,22 @@ window.addEventListener('popstate', () => {
   else{ history.pushState(null, '', location.href); }
 });
 
-/* Capture resume when app goes to background (tab switch, home button on mobile PWA) */
+/* Capture resume when app goes to background (tab switch, home button on mobile PWA).
+   No explicit wake-lock release needed on the hidden branch — the spec requires the
+   browser to auto-release any held lock the instant the document goes hidden, and
+   wakeLockSentinel is cleared via its own 'release' listener (see requestScreenWakeLock). */
 document.addEventListener('visibilitychange', () => {
+  const overlay = document.getElementById('player-overlay');
   if(document.hidden){
-    const overlay = document.getElementById('player-overlay');
     if(overlay && overlay.classList.contains('open')){
       captureResumeOnPause();
     }
+  } else if(overlay && overlay.classList.contains('open') && ytPlayer){
+    // Coming back to foreground: if the video is still playing, the
+    // browser force-released the previous lock while hidden — re-request it.
+    try{
+      if(ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) requestScreenWakeLock();
+    } catch(e){}
   }
 });
 </script>
