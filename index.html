@@ -842,88 +842,15 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
   cursor:pointer;
 }
-/* ── Search chooser: large responsive tiles ── */
-.search-choice-intro{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.7;
-  margin-bottom:4px;
-  font-family:'DM Mono',monospace;
-}
-.search-choice-grid{
-  display:grid;
-  gap:16px;
-  padding:1.25rem 1.25rem 1.5rem;
-  align-content:start;
-  grid-template-columns:1fr;
-}
-.search-choice-tile{
-  width:100%;
-  min-height:180px;
-  background:linear-gradient(135deg,rgba(232,255,90,.10),rgba(232,255,90,.03));
-  border:1px solid rgba(232,255,90,.15);
-  border-radius:24px;
-  padding:1.5rem;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  align-items:flex-start;
-  cursor:pointer;
-  transition:transform .18s ease,border-color .18s ease,background .18s ease;
-  text-align:left;
-}
-.search-choice-tile:hover{
-  border-color:var(--accent);
-  transform:translateY(-2px);
-}
-.search-choice-tile:active{
-  transform:scale(.98);
-}
-.search-choice-tile-icon{
-  width:60px;
-  height:60px;
-  border-radius:16px;
-  background:rgba(232,255,90,.12);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:var(--accent);
-  flex-shrink:0;
-}
-.search-choice-tile-icon svg{
-  width:28px;
-  height:28px;
-}
-.search-choice-tile-content{
-  flex:1;
-  width:100%;
-  margin-top:1.1rem;
-}
-.search-choice-tile-title{
-  font-size:1.25rem;
-  font-weight:700;
-  color:var(--text);
-  margin-bottom:.4rem;
-  letter-spacing:-0.01em;
-}
-.search-choice-tile-sub{
-  font-size:.9rem;
-  line-height:1.6;
-  color:var(--muted);
-}
-.search-choice-tile-arrow{
-  margin-top:1.1rem;
-  font-size:1.5rem;
-  font-weight:700;
-  color:var(--accent);
-}
-/* legacy — kept so any other reference doesn't break */
-.search-choice-btn{display:none;}
-.search-choice-icon{display:none;}
-.search-choice-text{flex:1;}
-.search-choice-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
-.search-choice-sub{font-size:12px;color:var(--muted);line-height:1.4;}
-
+/* Search chooser: compact, premium destination cards */
+.search-choice-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:clamp(16px,4vw,32px);max-width:920px;width:100%;margin:0 auto}
+.search-choice-intro{color:var(--muted);font-size:13px;line-height:1.5;padding:0 2px 8px}.search-choice-intro strong{display:block;color:var(--text);font:500 clamp(22px,3vw,29px) 'Fraunces',serif;letter-spacing:-.03em;margin-bottom:5px}
+.search-choice-tile{--tone:#e8ff5a;--glow:rgba(232,255,90,.09);position:relative;overflow:hidden;width:100%;min-height:125px;display:grid;grid-template-columns:62px minmax(0,1fr) 34px;align-items:center;gap:clamp(12px,3vw,22px);padding:clamp(16px,3vw,24px);text-align:left;color:var(--text);background:linear-gradient(115deg,var(--glow),#171717 60%);border:1px solid rgba(255,255,255,.13);border-radius:20px;box-shadow:0 9px 30px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.05);cursor:pointer;font-family:'Outfit',sans-serif;transition:transform .2s,border-color .2s,box-shadow .2s}
+.search-choice-tile:nth-of-type(2){--tone:#ffb985;--glow:rgba(255,185,133,.09)}.search-choice-tile:nth-of-type(3){--tone:#a9c5ff;--glow:rgba(169,197,255,.09)}
+.search-choice-tile::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--tone)}.search-choice-tile:hover{transform:translateY(-3px);border-color:var(--tone);box-shadow:0 18px 38px rgba(0,0,0,.36)}.search-choice-tile:active{transform:scale(.99)}.search-choice-tile:focus-visible{outline:2px solid var(--tone);outline-offset:3px}
+.search-choice-tile-icon{width:62px;height:62px;display:grid;place-items:center;border:1px solid var(--border2);border-radius:17px;background:var(--glow);color:var(--tone)}.search-choice-tile-icon svg{width:29px;height:29px}.search-choice-tile-content{min-width:0}.search-choice-tile-kicker{display:block;font:500 10px 'DM Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--tone);margin-bottom:6px}.search-choice-tile-title{display:block;font-size:clamp(17px,2.2vw,22px);font-weight:700;line-height:1.15;letter-spacing:-.025em;margin-bottom:6px}.search-choice-tile-sub{display:block;font-size:13px;line-height:1.45;color:var(--muted)}.search-choice-tile-arrow{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border2);border-radius:50%;color:var(--tone);font-size:20px;transition:transform .2s}.search-choice-tile:hover .search-choice-tile-arrow{transform:translateX(3px)}
+@media(max-width:480px){.search-choice-grid{gap:10px;padding:16px}.search-choice-tile{grid-template-columns:50px minmax(0,1fr) 28px;gap:12px;min-height:116px;padding:15px;border-radius:17px}.search-choice-tile-icon{width:50px;height:50px;border-radius:13px}.search-choice-tile-icon svg{width:24px;height:24px}.search-choice-tile-arrow{width:28px;height:28px;font-size:18px}.search-choice-tile-sub{font-size:12px}}
+@media(max-width:360px){.search-choice-tile{grid-template-columns:44px minmax(0,1fr) 24px;gap:9px;padding:12px}.search-choice-tile-icon{width:44px;height:44px}.search-choice-tile-title{font-size:16px}.search-choice-tile-arrow{width:24px;height:24px}}
 /* ═══════════════════════════════════════
    SCREEN: SAVED VIDEOS
 ═══════════════════════════════════════ */
@@ -1500,50 +1427,21 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <!-- Chooser -->
       <div id="search-chooser" style="display:flex;flex-direction:column">
         <div class="search-choice-grid">
-          <!-- Videos tile -->
-          <button class="search-choice-tile" onclick="pickSearchMode('videos')">
-            <div class="search-choice-tile-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="9"/>
-                <polygon points="10,8 17,12 10,16"/>
-              </svg>
-            </div>
-            <div class="search-choice-tile-content">
-              <div class="search-choice-tile-title"><b>Search Videos</b></div>
-              <div class="search-choice-tile-title"><i>Find and watch any YouTube video, or paste a link directly.</i></div>
-            </div>
-            <div class="search-choice-tile-arrow">→</div>
+          <div class="search-choice-intro"><strong>What would you like to search?</strong></div>
+          <button type="button" class="search-choice-tile" onclick="pickSearchMode('videos')" aria-label="Search Videos: Find a video or paste a link to watch.">
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m10 8 6 4-6 4V8Z"/></svg></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search Videos</span><span class="search-choice-tile-sub">Find a video or paste a link to watch.</span></span>
+            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
-          <!-- Continue Watching tile -->
-          <button class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')">
-            <div class="search-choice-tile-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                <polygon points="9 8 15 11 9 14 9 8" fill="currentColor" stroke="none"/>
-                <path d="M2 20h8M12 20h10"/>
-              </svg>
-            </div>
-            <div class="search-choice-tile-content">
-              <div class="search-choice-tile-title"><b>Continue Watching</b></div>
-              <div class="search-choice-tile-title"><i>Resume unfinished videos from where you left off.</i></div>
-            </div>
-            <div class="search-choice-tile-arrow">→</div>
+          <button type="button" class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m10 7.5 6 4-6 4v-8Z"/><path d="M5.5 17.5h13"/><path d="M5.5 17.5h7" stroke-width="2.8"/></svg></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Pick up where you left off</span><span class="search-choice-tile-title">Continue Watching</span><span class="search-choice-tile-sub">Your unfinished videos, ready when you are.</span></span>
+            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
-          <!-- Channels tile -->
-          <button class="search-choice-tile" onclick="pickSearchMode('channels')">
-            <div class="search-choice-tile-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <div class="search-choice-tile-content">
-              <div class="search-choice-tile-title"><b>Search Channels</b></div>
-              <div class="search-choice-tile-title"><i>Follow creators by name, handle, or channel URL.</i></div>
-            </div>
-            <div class="search-choice-tile-arrow">→</div>
+          <button type="button" class="search-choice-tile" onclick="pickSearchMode('channels')" aria-label="Search Channels: Find creators and add them to your feed.">
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20v-1.5a6.5 6.5 0 0 1 13 0V20H3.5Z"/><path d="M18 7h4m-2-2v4"/></svg></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Make it yours</span><span class="search-choice-tile-title">Search Channels</span><span class="search-choice-tile-sub">Find creators and add them to your feed.</span></span>
+            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
         </div>
       </div>
@@ -2852,10 +2750,19 @@ function toggleFeedSaveById(videoId, chId){
   const btn = document.querySelector(`.feed-save-btn[onclick*="'${videoId}'"]`);
   toggleFeedSave(btn, v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
 }
+// Decode character references once for the plain-text player heading and resume metadata.
+// Escape angle brackets before parsing; never insert the result as HTML.
+function decodeVideoTitle(value){
+  const raw = String(value || '');
+  if(!raw) return '';
+  const safe = raw.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return new DOMParser().parseFromString('<!doctype html><title>' + safe + '</title>', 'text/html').title;
+}
 function openPlayer(videoId, title, channelName, publishedAt, thumb){
   const myPlayerGeneration = ++playerGeneration;
-  currentVideoData = { id:videoId, title, channelName, publishedAt, thumb: thumb||'' };
-  document.getElementById('player-title').textContent = title || 'Video';
+  const displayTitle = decodeVideoTitle(title);
+  currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'' };
+  document.getElementById('player-title').textContent = displayTitle || 'Video';
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent         = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
