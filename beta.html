@@ -423,6 +423,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 }
 .ch-avatar{width:28px;height:28px;background:var(--bg3);border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--border);}
 .ch-avatar img{width:100%;height:100%;object-fit:cover;}
+.channel-avatar-fallback{width:100%;height:100%;display:grid;place-items:center;color:var(--accent);font-weight:700;font-size:12px;}
+.ch-avatar img,.cli-avatar img{position:relative;}
 .ch-name{font-size:13px;font-weight:600;color:var(--text);letter-spacing:0.01em;}
 .videos-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;transform:translateZ(0);will-change:transform;backface-visibility:hidden;}
 .videos-scroll::-webkit-scrollbar{display:none;}
@@ -474,6 +476,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .channel-list-item{display:flex;align-items:center;gap:12px;padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);animation:fadeUp 0.3s ease both;}
 .cli-avatar{width:40px;height:40px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);overflow:hidden;flex-shrink:0;}
 .cli-avatar img{width:100%;height:100%;object-fit:cover;}
+.ch-avatar,.cli-avatar{position:relative;}
+.ch-avatar .channel-avatar-fallback,.cli-avatar .channel-avatar-fallback{position:absolute;inset:0;}
 .cli-info{flex:1;min-width:0;}
 .cli-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cli-handle{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;margin-top:1px;}
@@ -1953,6 +1957,49 @@ function importedHttpsUrl(value){
   }
 }
 
+// Repair missing or expired channel artwork by immutable channel ID, never by name.
+const avatarRepairs = new Map();
+const avatarAttempted = new Set();
+function channelAvatarMarkup(ch){
+  const id = String(ch.id || '');
+  const label = escHtml((ch.name || '?').trim().slice(0, 1).toUpperCase() || '?');
+  const image = importedHttpsUrl(ch.avatar);
+  return `<span class="channel-avatar-fallback" aria-hidden="true">${label}</span>${image ? `<img src="${esc(image)}" alt="" onerror="repairChannelAvatar(this,'${esc(id)}')"/>` : ''}`;
+}
+async function repairChannelAvatar(img, id){
+  if(img){ img.removeAttribute('onerror'); img.remove(); }
+  if(!YOUTUBE_CHANNEL_ID_RE.test(id) || avatarAttempted.has(id)) return;
+  avatarAttempted.add(id);
+  try{
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    let res;
+    try { res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(id)}`, {signal:controller.signal}); }
+    finally { clearTimeout(timer); }
+    if(!res.ok) return;
+    const data = await res.json();
+    const match = Array.isArray(data) && data.find(ch => ch.id === id);
+    const avatar = match && importedHttpsUrl(match.avatar);
+    if(!avatar) return;
+    const channels = STORE.channels;
+    const index = channels.findIndex(ch => ch.id === id);
+    if(index < 0) return;
+    channels[index] = {...channels[index], avatar, handle:match.handle || channels[index].handle || '', subs:match.subs || channels[index].subs || ''};
+    STORE.channels = channels;
+    // Update both Feed and Channels without resetting either screen.
+    document.querySelectorAll('.ch-avatar, .cli-avatar').forEach(el => {
+      const row = el.closest('[data-channel-id]');
+      if(row && row.dataset.channelId === id){
+        const image = el.querySelector('img');
+        if(image){ image.onerror = () => { image.remove(); }; image.src = avatar; }
+        else { const fresh = document.createElement('img'); fresh.alt = ''; fresh.onerror = () => fresh.remove(); fresh.src = avatar; el.appendChild(fresh); }
+      }
+    });
+  } catch(e){ /* Keep initial-letter fallback. Retry on a later page session. */ }
+}
+function repairMissingChannelAvatars(){
+  STORE.channels.filter(ch => !importedHttpsUrl(ch.avatar)).forEach(ch => repairChannelAvatar(null, ch.id));
+}
 function normalizeImportedChannel(channel){
   if(!channel || typeof channel !== 'object' || Array.isArray(channel)) return null;
   const id = boundedImportedText(channel.id, 24);
@@ -2380,10 +2427,10 @@ function appendChannelToFeed(ch, videos, body){
     div.className = 'section-divider';
     body.appendChild(div);
   }
-  const html = `<div class="channel-section" id="feed-ch-${ch.id}">
+  const html = `<div class="channel-section" id="feed-ch-${ch.id}" data-channel-id="${esc(ch.id)}">
     <button type="button" class="skip-channel-link" onclick="skipChannelSection('${esc(ch.id)}')">Skip ${escHtml(ch.name)}'s videos, go to next channel</button>
     <div class="channel-label" tabindex="-1">
-      <div class="ch-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
+      <div class="ch-avatar">${channelAvatarMarkup(ch)}</div>
       <span class="ch-name">${escHtml(ch.name)}</span>
 
     </div>
@@ -3083,8 +3130,8 @@ function initChannels(){
   }
   if(noEl) noEl.style.display = 'none';
   body.innerHTML = channels.map((ch, i) => `
-    <div class="channel-list-item" style="animation-delay:${i*40}ms">
-      <div class="cli-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
+    <div class="channel-list-item" data-channel-id="${esc(ch.id)}" style="animation-delay:${i*40}ms">
+      <div class="cli-avatar">${channelAvatarMarkup(ch)}</div>
       <div class="cli-info">
         <div class="cli-name">${escHtml(ch.name)}</div>
         <div class="cli-handle">${esc(ch.subs || '')}</div>
@@ -4590,13 +4637,13 @@ async function confirmAddPack(){
 
 async function resolvePackAvatars(toAdd){
   const BATCH_SIZE     = 5;
-  const LOOKUP_TIMEOUT = 15000; // comfortably above worst observed backend latency
+  const LOOKUP_TIMEOUT = 15000; // bounded ID lookup
 
   async function lookupOne(c){
     try{
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), LOOKUP_TIMEOUT);
-      const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(c.name)}`, { signal: controller.signal });
+      const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(c.id)}`, { signal: controller.signal });
       clearTimeout(timer);
       if(!res.ok) return;
       const results = await res.json();
@@ -4606,7 +4653,7 @@ async function resolvePackAvatars(toAdd){
       const channels = STORE.channels;
       const idx = channels.findIndex(ch => ch.id === c.id);
       if(idx !== -1){
-        channels[idx] = { ...channels[idx], avatar: match.avatar || '', subs: match.subs || '', handle: match.handle || '' };
+        channels[idx] = { ...channels[idx], avatar: importedHttpsUrl(match.avatar) || channels[idx].avatar || '', subs: match.subs || channels[idx].subs || '', handle: match.handle || channels[idx].handle || '' };
         STORE.channels = channels;
       }
     } catch(e){
@@ -4675,6 +4722,7 @@ document.addEventListener('keydown', (e) => {
 
 window.addEventListener('load', () => {
   purgeExpiredResume();
+  repairMissingChannelAvatars();
   updateVideosPerChannelLabel();
   applyKidsMode();
   initSessionBanner();
