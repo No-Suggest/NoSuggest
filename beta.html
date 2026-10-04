@@ -2056,48 +2056,33 @@ function extractYouTubeId(input){
 /* Extract channel ID from a YouTube channel URL.
    Handles: /channel/UCxxx  /@handle  /c/name  /user/name */
 function extractChannelIdFromUrl(input){
-  input = input.trim();
-  // Direct UC... id
-  const ucMatch = input.match(/channel\/(UC[a-zA-Z0-9_-]{22})/);
-  if(ucMatch) return { type:'id', value: ucMatch[1] };
-  // @handle
-  const handleMatch = input.match(/youtube\.com\/@([^/?&\s]+)/);
-  if(handleMatch) return { type:'handle', value: '@' + handleMatch[1] };
-  // /c/name or /user/name
-  const nameMatch = input.match(/youtube\.com\/(?:c|user)\/([^/?&\s]+)/);
-  if(nameMatch) return { type:'handle', value: nameMatch[1] };
+  let url;
+  try{ url = new URL(String(input).trim()); } catch(e){ return null; }
+  const host = url.hostname.toLowerCase().replace(/^(www|m|music)\./, '');
+  if(!['http:', 'https:'].includes(url.protocol) || host !== 'youtube.com') return null;
+  const segments = url.pathname.split('/').filter(Boolean);
+  if(!segments.length) return null;
+  const first = segments[0];
+  const slug = segments[1];
+  if(first.toLowerCase() === 'channel' && /^UC[A-Za-z0-9_-]{22}$/.test(slug || '') && (segments.length === 2 || (segments.length === 3 && ['videos','featured','streams','shorts','live'].includes(segments[2].toLowerCase()))))
+    return { type:'id', value:slug, legacy:false };
+  if(first.startsWith('@') && /^@[^\s/?#@]+$/u.test(first) && (segments.length === 1 || (segments.length === 2 && ['videos','featured','streams','shorts','live'].includes(segments[1].toLowerCase()))))
+    return { type:'handle', value:first, legacy:false };
+  if(['c','user'].includes(first.toLowerCase()) && slug && /^[^\s/?#@]+$/u.test(slug) && (segments.length === 2 || (segments.length === 3 && ['videos','featured','streams','shorts','live'].includes(segments[2].toLowerCase()))))
+    return { type:'handle', value:'@' + slug, legacy:true, legacyType:first.toLowerCase() };
   return null;
 }
-
 function validateChannelUrl(input){
   input = (input || '').trim();
-  if(!/^https?:\/\//i.test(input)){
-    return { ok:false, msg:'That doesn\'t look like a URL. Please paste the full YouTube channel link (starting with https://).' };
-  }
-  let hostname;
-  try{
-    hostname = new URL(input).hostname.replace(/^(www|m|music)\./, '');
-  } catch(e){
-    return { ok:false, msg:'Invalid URL. Please paste a valid YouTube channel link.' };
-  }
-  if(hostname !== 'youtube.com' && hostname !== 'youtu.be'){
-    return { ok:false, msg:'That URL is not from YouTube. Please paste a YouTube channel link (e.g. youtube.com/@creator).' };
-  }
-  if(hostname === 'youtu.be'){
-    return { ok:false, msg:'That\'s a YouTube video link, not a channel link. Paste a channel URL like youtube.com/@creator or youtube.com/channel/UCxxx instead.' };
-  }
-  const parsed = new URL(input);
-  const hasList  = parsed.searchParams.has('list');
-  const isChannel = /\/(channel\/UC[a-zA-Z0-9_-]{22}|@[^/?&\s]+|c\/[^/?&\s]+|user\/[^/?&\s]+)/.test(parsed.pathname);
-  if(hasList && !isChannel){
-    return { ok:false, msg:'That\'s a YouTube playlist link, not a channel link. Open the channel page and copy the URL from there (e.g. youtube.com/@creator).' };
-  }
-  if(!extractChannelIdFromUrl(input)){
-    return { ok:false, msg:'Could not recognise that as a YouTube channel URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx' };
-  }
+  if(!/^https?:\/\//i.test(input)) return { ok:false, msg:'Please paste the full YouTube channel link starting with https://.' };
+  let url;
+  try{ url = new URL(input); } catch(e){ return { ok:false, msg:'Invalid YouTube channel URL.' }; }
+  const host = url.hostname.toLowerCase().replace(/^(www|m|music)\./, '');
+  if(host === 'youtu.be') return { ok:false, msg:'That is a video link, not a channel link.' };
+  if(host !== 'youtube.com') return { ok:false, msg:'Please paste a YouTube channel link.' };
+  if(!extractChannelIdFromUrl(input)) return { ok:false, msg:'Could not recognise a channel ID, @handle, /c/ or /user/ link.' };
   return { ok:true };
 }
-
 function validateVideoUrl(input){
   input = (input || '').trim();
   if(!/^https?:\/\//i.test(input)){
@@ -3428,6 +3413,11 @@ async function doFallbackAdd(inputVal){
   }
 
   const parsed = extractChannelIdFromUrl(input);
+  if(parsed?.legacy){
+    errEl.textContent = 'A legacy /' + parsed.legacyType + '/ slug is not necessarily its current @handle. Open the link on YouTube and paste its current @handle or /channel/ ID instead.';
+    errEl.style.display = 'block';
+    return;
+  }
   if(!parsed){
     errEl.textContent = 'Could not recognise that URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx';
     errEl.style.display = 'block';
@@ -3463,7 +3453,8 @@ async function doFallbackAdd(inputVal){
     }
 
     if(!ch || !ch.id) throw new Error('Could not resolve channel ID from that URL.');
-
+    if(parsed.type === 'handle' && String(ch.handle || '').toLowerCase() !== parsed.value.toLowerCase())
+      throw new Error('Could not verify the exact handle from this URL. Paste its /channel/ ID instead.');
     channelRequestController = null;
     searching.style.display = 'none';
     stopLoadingMessages();
