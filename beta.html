@@ -1744,7 +1744,9 @@ async function getSitekey(){
 async function getFreshTurnstileToken(){
   const sk=await getSitekey();
   await loadTurnstile();
-  return showVerification(sk,'nosuggest_search');
+  verificationStatus(true);
+  try{return await showVerification(sk,'nosuggest_search');}
+  finally{verificationStatus(false);}
 }
 
 function allowVerificationRetry(){apiSessionBlockedUntil=0;apiSessionBlockedError=null;}
