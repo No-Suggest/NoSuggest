@@ -1795,7 +1795,15 @@ function loadTurnstile(){
   }).catch(e=>{turnstileScriptPending=null;throw e;});
   return turnstileScriptPending;
 }
+// Serialize access to the one Turnstile container. Each caller still receives
+// its own fresh, single-use token; failures do not poison later requests.
+let verificationQueue=Promise.resolve();
 function showVerification(sitekey,action='nosuggest_session'){
+  const result=verificationQueue.then(()=>renderVerification(sitekey,action));
+  verificationQueue=result.then(()=>{},()=>{});
+  return result;
+}
+function renderVerification(sitekey,action){
   return new Promise((resolve,reject)=>{
     const backdrop=document.getElementById('api-verify-backdrop');
     const widget=document.getElementById('api-verify-widget');
