@@ -1726,13 +1726,34 @@ let apiSession=null, apiSessionUntil=0, apiSessionPending=null;
 let apiSessionBlockedUntil=0, apiSessionBlockedError=null;
 const API_VERIFY_COOLDOWN_MS=15000;
 let turnstileScriptPending=null;
+let cachedSitekey=null;
+// Fetch and cache the Turnstile site key — shared by session and search verification.
+async function getSitekey(){
+  if(cachedSitekey)return cachedSitekey;
+  const res=await fetch(PROXY+'/auth/config',{cache:'no-store'});
+  if(!res.ok)throw new Error('Verification unavailable. Please try again.');
+  const cfg=await res.json();
+  if(!cfg.sitekey)throw new Error('Verification unavailable.');
+  cachedSitekey=cfg.sitekey;
+  return cachedSitekey;
+}
+// Obtain a fresh, single-use Cloudflare Turnstile token for expensive calls
+// (video search, channel name search). Uses action 'nosuggest_search' so the
+// Worker can distinguish it from the session-acquisition action.
+// No token is stored — caller must not retry on failure without re-calling this.
+async function getFreshTurnstileToken(){
+  const sk=await getSitekey();
+  await loadTurnstile();
+  return showVerification(sk,'nosuggest_search');
+}
+
 function allowVerificationRetry(){apiSessionBlockedUntil=0;apiSessionBlockedError=null;}
 function hasLiveApiSession(){return !!(apiSession && Date.now()<apiSessionUntil);}
 function restoreApiSession(){
   try{
     const saved=JSON.parse(sessionStorage.getItem(API_SESSION_STORAGE_KEY)||'null');
     if(saved && typeof saved.token==='string' && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(saved.token) &&
-       Number.isFinite(saved.until) && saved.until>Date.now() && saved.until<=Date.now()+900000){
+       Number.isFinite(saved.until) && saved.until>Date.now() && saved.until<=Date.now()+300000){
       apiSession=saved.token;apiSessionUntil=saved.until;
     }else sessionStorage.removeItem(API_SESSION_STORAGE_KEY);
   }catch(e){try{sessionStorage.removeItem(API_SESSION_STORAGE_KEY);}catch(ignore){}}
@@ -1772,7 +1793,7 @@ function loadTurnstile(){
   }).catch(e=>{turnstileScriptPending=null;throw e;});
   return turnstileScriptPending;
 }
-function showVerification(sitekey){
+function showVerification(sitekey,action='nosuggest_session'){
   return new Promise((resolve,reject)=>{
     const backdrop=document.getElementById('api-verify-backdrop');
     const widget=document.getElementById('api-verify-widget');
@@ -1788,7 +1809,7 @@ function showVerification(sitekey){
     const timer=setTimeout(()=>finish(new Error('Verification timed out. Please retry.')),90000);
     try{
       widgetId=turnstile.render(widget,{
-        sitekey,action:'nosuggest_api',appearance:'interaction-only',
+        sitekey,action,appearance:'interaction-only',
         size:window.innerWidth<350?'compact':'normal',
         callback:token=>finish(null,token),
         'before-interactive-callback':()=>{backdrop.classList.add('interactive');document.getElementById('api-verify-modal').setAttribute('aria-hidden','false');verificationStatus(false);},
@@ -1808,12 +1829,9 @@ async function ensureApiSession(){
   apiSessionPending=(async()=>{
     verificationStatus(true);
     try{
-      const configResponse=await fetch(PROXY+'/auth/config',{cache:'no-store'});
-      if(!configResponse.ok)throw new Error('Verification unavailable. Please try again.');
-      const config=await configResponse.json();
-      if(!config.sitekey)throw new Error('Verification unavailable.');
+      const sitekey=await getSitekey();
       await loadTurnstile();
-      const token=await showVerification(config.sitekey);
+      const token=await showVerification(sitekey);
       verificationStatus(true);
       const response=await fetch(PROXY+'/auth/session',{
         method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',
@@ -1822,7 +1840,7 @@ async function ensureApiSession(){
       if(!response.ok)throw new Error('Verification failed. Please try again.');
       const session=await response.json();
       if(typeof session.token!=='string' || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(session.token) ||
-         !Number.isFinite(session.expiresIn) || session.expiresIn<=5 || session.expiresIn>900)
+         !Number.isFinite(session.expiresIn) || session.expiresIn<=5 || session.expiresIn>300)
         throw new Error('Invalid verification response.');
       saveApiSession(session.token,Date.now()+session.expiresIn*1000-5000);
       apiSessionBlockedUntil=0;apiSessionBlockedError=null;
@@ -3475,7 +3493,23 @@ async function doChannelSearch(query){
 
   try{
     allowVerificationRetry();
-    const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+    // UC IDs and @handles cost 1 quota unit and can never reach search.list.
+    // Everything else (plain names) may hit search.list (100 units) — require fresh Turnstile.
+    const _isId=/^UC[A-Za-z0-9_-]{22}$/.test(query);
+    const _isHandle=query.startsWith('@');
+    let res;
+    if(_isId||_isHandle){
+      // Cheap lookup — reusable session token
+      res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+    } else {
+      // Name search → may hit search.list → fresh Turnstile token required
+      const tsToken=await getFreshTurnstileToken();
+      if(generation!==channelRequestGeneration)return; // cancelled while Turnstile was running
+      res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, {
+        signal: controller.signal,
+        headers: {'X-Turnstile-Token': tsToken}
+      });
+    }
     if(!res.ok) throw new Error(`Channel search failed (${res.status})`);
     const channels = await res.json();
 
@@ -3968,8 +4002,13 @@ async function doYTSearch(q){
 
   try{
     allowVerificationRetry();
-    const res    = await apiFetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`);
-    const videos = await res.json();
+    // Video search always hits search.list (100 quota units) → require fresh Turnstile token.
+    // Token is single-use; do NOT auto-retry on failure.
+    const tsToken = await getFreshTurnstileToken();
+    const res     = await fetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`, {
+      headers: {'X-Turnstile-Token': tsToken}
+    });
+    const videos  = await res.json();
 
     loading.style.display = 'none';
     stopLoadingMessages();
@@ -3978,8 +4017,10 @@ async function doYTSearch(q){
     const currentQ = document.getElementById('search-input').value.trim();
     if(currentQ.toLowerCase() !== q.trim().toLowerCase()) return;
 
-    if(!Array.isArray(videos) || !videos.length || videos.error){
-      errEl.textContent   = 'No results found. Try a different keyword.';
+    if(!res.ok || !Array.isArray(videos) || !videos.length || videos.error){
+      errEl.textContent = !res.ok
+        ? (res.status===403 ? 'Verification failed. Please try again.' : 'Search unavailable. Check your connection.')
+        : 'No results found. Try a different keyword.';
       errEl.style.display = 'block';
       return;
     }
