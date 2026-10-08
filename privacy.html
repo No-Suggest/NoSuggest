@@ -110,7 +110,7 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
 <div class="page-hero">
   <div class="section-label">Legal</div>
   <h1>Privacy Policy</h1>
-  <div class="last-updated">Last updated: 24 August 2026</div>
+  <div class="last-updated">Last updated: 8 October 2026</div>
 </div>
 <!-- CONTENT -->
 <div class="content-wrap">
@@ -119,7 +119,7 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
     No sign-in required. No accounts. Everything you add, save, or configure lives only on your device
     and never leaves it.
   </div>
-  <h2>1. Who We Are</h2>
+  <h2>1. What is NoSuggest?</h2>
   <p>NoSuggest is a free web application that allows you to follow YouTube channels, search for videos, save videos to watch later, and watch them without algorithmic recommendations or behavioural tracking. NoSuggest will never send you notifications, autoplay videos, or suggest what to watch next. You come when you want, watch what you chose, and leave. The app is available at <a href="https://nosuggest.com/">nosuggest.com</a>.</p>
   <h2>2. What Data We Collect</h2>
   <p><strong>We collect no personal data on any server.</strong> Specifically:</p>
@@ -156,15 +156,18 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
     <li>Your last active tab, so the app reopens on the same screen</li>
     <li>Your Kids Mode PIN, if set</li>
     <li>Your Kids Mode on/off preference, if set</li>
+    <li>Videos' metadata which you have started and want to continue watching later</li>
     <li>Playback resume position for videos you've started (video ID, timestamp, title, and channel name), so you can pick up where you left off</li>
     <li>A local count of how many times you've opened the app, used only to decide when to show certain in-app prompts</li>
   </ul>
   <p>You can clear all stored data at any time from the app's Settings screen, or by clearing your browser's local storage.</p>
+  <p>Separately, once the Cloudflare Turnstile check passes (see section 5), our API issues a short-lived access token that your browser keeps in its session storage. It expires after five minutes (or when you close the tab) and contains no personal information. Unlike the data listed above, this token is sent to our API, only to authorise your requests.</p>
   <h2>5. Third-Party Services</h2>
   <p>NoSuggest interacts with the following third-party services:</p>
   <ul>
     <li><strong>YouTube (video playback)</strong> - videos play via YouTube's embedded player, served from YouTube's privacy-enhanced <code>youtube-nocookie.com</code> domain for every video, regardless of content. This domain does not set YouTube's standard tracking cookies or tie playback to a signed-in Google account. NoSuggest applies this to all embeds unconditionally, including any video that may be designated "Made for Kids," rather than only to a subset. When the player loads, it still shares basic data with YouTube (such as which video is being viewed) to render the thumbnail and title, determine playability, and help prevent fraud and abuse. Additional data is shared with YouTube once you press play, to support normal playback. This exchange happens directly between your browser and YouTube, is not something NoSuggest can see or control, and is governed by <a href="https://www.youtube.com/t/terms" target="_blank">YouTube's Terms of Service</a> and <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a>. NoSuggest does not enable autoplay before you choose to play a video, which limits this data sharing to when you actively start a video</li>
     <li><strong>Cloudflare Web Analytics</strong> - cookie-free, privacy-respecting analytics that records only aggregate page view data. Does not track individuals. Subject to <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's Privacy Policy</a></li>
+    <li><strong>Cloudflare Turnstile</strong> - when the app needs to contact our API (for example to load new videos or to search), it runs Cloudflare Turnstile, a bot-protection check that stops automated abuse of our free service. Turnstile runs in your browser and exchanges signals such as your IP address and browser details directly with Cloudflare. NoSuggest does not receive or store these signals. Cloudflare uses them to detect bots and to improve Turnstile. Subject to <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank">Cloudflare's Turnstile Privacy Addendum</a> and <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's Privacy Policy</a></li>
     <li><strong>Google Fonts</strong> - for typography. Subject to <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a></li>
   </ul>
   <p>We have no control over these third-party services and encourage you to review their privacy policies.</p>
