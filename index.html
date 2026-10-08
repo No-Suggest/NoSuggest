@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://www.nosuggest.com/" />
 <link rel="me" href="https://mastodon.social/@varun_m"/>
 
-<!-- Open Graph -->
+
 <meta property="og:title" content="NoSuggest – Distraction-Free YouTube Player"/>
 <meta property="og:description" content="Watch YouTube without algorithms, recommendations, Shorts, or autoplay. Follow your favorite channels privacy-first with no sign-in required."/>
 <meta property="og:url" content="https://www.nosuggest.com/"/>
@@ -23,13 +23,13 @@
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 
-<!-- Twitter Card -->
+
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="NoSuggest – Distraction-Free YouTube Player"/>
 <meta name="twitter:description" content="Watch YouTube without algorithms, recommendations, Shorts, or autoplay. Follow your favorite channels privacy-first with no sign-in required."/>
 <meta name="twitter:image" content="https://www.nosuggest.com/og-image.png"/>
 
-<!-- Structured Data -->
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -163,14 +163,13 @@
 <script async src="https://www.youtube.com/iframe_api"></script>
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "13373b3fce114bcc9f4126115c9932ea"}'></script>
 <style>
-/* ═══════════════════════════════════════
-   RESET & ROOT
-═══════════════════════════════════════ */
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{height:100%;overflow:hidden;background:var(--bg);}
 /* ↑ iOS PWA: html background fills the physical canvas (incl. safe-area zones)
    so any gap between the layout viewport and the physical screen bottom shows
    the app's own dark colour rather than the system UI background. */
+
 :root{
   --bg:#0a0a0a; --bg2:#111111; --bg3:#1a1a1a;
   --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.15);
@@ -181,30 +180,21 @@ html{height:100%;overflow:hidden;background:var(--bg);}
 }
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;height:100%;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
-/* Visible keyboard-focus indicator for the div-based interactive rows
-   (Settings, FAQ, video cards, channel suggestions, Saved cards). Uses
-   :focus-visible so it only appears for keyboard/switch navigation, not
-   mouse or touch taps — it doesn't change how the app looks or feels
-   for normal use.
+/* Visible keyboard-focus indicator for div-based interactive rows.
    Drawn as an INSET box-shadow rather than an outward outline: several
-   containers (e.g. .settings-card) use overflow:hidden to clip their
-   rounded corners, which was cutting off an outward outline along the
-   edges of every row. An inset shadow is drawn inside the element's own
-   box, so it can never be clipped by a parent's overflow, regardless of
-   where the row sits inside its container. */
+   containers use overflow:hidden to clip their rounded corners, which
+   was cutting off an outward outline. An inset shadow is drawn inside
+   the element's own box and can never be clipped by a parent's overflow. */
 [role="button"]:focus-visible,
 .settings-row-link:focus-visible{
   box-shadow: inset 0 0 0 2px var(--accent);
   outline: none;
 }
 
-/* Respect OS-level "reduce motion" setting. Screen transitions, modal
-   fades, the install-sheet pulse animation, and the loading spinner all
-   still function — they just happen near-instantly instead of animating,
-   which avoids triggering discomfort for people with vestibular
-   disorders. Standard, widely-supported media query (Safari 10.1+,
-   Chrome 74+, Firefox 63+); on browsers without support, nothing
-   changes — everything just animates as it does today. */
+/* Respect OS-level "reduce motion" setting. Transitions still function —
+   they happen near-instantly instead of animating, avoiding discomfort for
+   people with vestibular disorders. On browsers without support, nothing
+   changes — everything animates as normal. */
 @media (prefers-reduced-motion: reduce){
   *, *::before, *::after{
     animation-duration: 0.001ms !important;
@@ -213,31 +203,24 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
     scroll-behavior: auto !important;
   }
 }
-/* Suppress focus ring on headings/containers that are focused
-   programmatically (via tabindex="-1") for screen-reader announcements.
-   These elements are never reachable by keyboard Tab, so hiding the
-   outline here doesn't remove any visible affordance for keyboard users.
-   Elements with a natural or positive tabindex are unaffected. */
+
+/* Suppress focus ring on elements focused programmatically (tabindex="-1")
+   for screen-reader announcements. These are never reachable by keyboard Tab,
+   so hiding the outline removes no visible affordance for keyboard users. */
 [tabindex="-1"]:focus,
 [tabindex="-1"]:focus-visible{outline:none;box-shadow:none;}
 
-/* ═══════════════════════════════════════
-   APP SHELL
-═══════════════════════════════════════ */
 #app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
-/* iOS PWA fix — overflow:clip clips content without creating a stacking context
-   or a new containing block, so position:fixed children (nav, strips, overlays)
-   are always positioned relative to the true viewport rather than #app.
-   overflow:hidden can cause iOS WebKit to reposition fixed children relative to
-   the overflow container instead of the viewport in standalone PWA mode.
-   Falls back to overflow:hidden on browsers that don't support clip (iOS <15.4). */
+
+/* overflow:clip clips content without creating a stacking context or new
+   containing block, so position:fixed children (nav, overlays) stay positioned
+   relative to the true viewport. overflow:hidden can cause iOS WebKit to
+   reposition fixed children relative to the overflow container in PWA mode.
+   Falls back to overflow:hidden on iOS <15.4. */
 @supports(overflow:clip){#app{overflow:clip;}}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transform:translate3d(0,12px,0);transition:opacity 0.25s ease,transform 0.25s ease;backface-visibility:hidden;will-change:transform;}
 .screen.active{opacity:1;pointer-events:auto;transform:translate3d(0,0,0);}
 
-/* ═══════════════════════════════════════
-   KIDS MODE
-═══════════════════════════════════════ */
 .kids-mode-banner{display:none;align-items:center;gap:8px;background:#e8ff5a;color:#0a0a0a;font-size:12px;font-weight:600;padding:6px 1rem;letter-spacing:0.04em;text-transform:uppercase;}
 .kids-mode-banner.show{display:flex;}
 .pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:9999;padding:2rem;}
@@ -254,20 +237,14 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .pin-error{font-size:12px;color:#ff4444;min-height:16px;}
 .pin-cancel{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;}
 
-/* ═══════════════════════════════════════
-   SCROLLABLE SCREEN BODY
-═══════════════════════════════════════ */
 .screen-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(80px + var(--safe-bot));}
 .screen-body::-webkit-scrollbar{display:none;}
 .screen-body{scrollbar-width:none;}
 @media(max-width:768px){.screen-body{padding-bottom:calc(120px + var(--safe-bot));}}
-/* Extra bottom padding when install strip is visible */
+
 body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot));}
 @media(max-width:768px){body.show-install-strip .screen-body{padding-bottom:calc(156px + var(--safe-bot));}}
 
-/* ═══════════════════════════════════════
-   NAV BAR
-═══════════════════════════════════════ */
 .nav{position:fixed;bottom:0;left:0;right:0;height:calc(64px + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:100;}
 
 .nav-btn{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;color:#fff;transition:color 0.15s;padding-bottom:4px;}
@@ -275,21 +252,11 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .nav-btn svg{width:20px;height:20px;}
 .nav-btn span{font-size:9px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
 
-/* ── Nav install strip ── */
 #nav-install-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:99;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:linear-gradient(135deg,rgba(232,255,90,0.08),rgba(232,255,90,0.04));border-top:1px solid rgba(232,255,90,0.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;}
 #nav-install-strip.show{display:flex;}
 #nav-install-strip span{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.02em;}
 #nav-install-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 
-/* ── Nav strips: share / LinkedIn / WhatsApp banners, rotate every 5th session ──
-   Background switched from the old #1a0a00+orange treatment to the same
-   accent-tinted glass style already used by #nav-install-strip, so all
-   nav strips read as one consistent family. ── */
-/* SHARE STRIP — replaces the old 3-way share/LinkedIn/WhatsApp rotation.
-   Only one ask now, and it's a real bottom sheet (40% of viewport) with
-   a dimming backdrop behind it, not a thin strip you scroll past. The
-   backdrop has no click-to-dismiss — Share or Later are the only ways
-   out (Escape still works, for keyboard accessibility). */
 #share-strip-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;display:none;}
 #share-strip-backdrop.show{display:block;}
 #nav-share-strip{position:fixed;left:0;right:0;bottom:0;z-index:501;height:40vh;max-height:360px;min-height:280px;background:var(--bg2);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:2rem 1.75rem calc(1.75rem + var(--safe-bot));box-shadow:0 -12px 40px rgba(0,0,0,0.5);}
@@ -302,8 +269,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-share-strip .ss-actions button{flex:1;}
 #desktop-share-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:520;display:none;align-items:center;justify-content:center;padding:1.5rem}#desktop-share-backdrop.show{display:flex}#desktop-share-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem 1.4rem;width:100%;max-width:410px;display:flex;flex-direction:column;gap:1rem;box-shadow:0 18px 60px rgba(0,0,0,.55)}.dsm-title{font-size:18px;font-weight:600}.dsm-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.55}.dsm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dsm-btn,.dsm-close{min-height:44px;padding:.7rem .8rem;background:var(--bg3);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer}.dsm-btn:hover{border-color:var(--accent)}.dsm-primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}.dsm-close{width:100%;background:transparent;color:var(--muted)}
 
-
-/* ── iOS install bottom sheet ── */
 #ios-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:450;display:none;opacity:0;transition:opacity 0.25s;}
 #ios-sheet-backdrop.show{display:block;opacity:1;}
 #ios-sheet{position:fixed;bottom:0;left:0;right:0;z-index:451;background:var(--bg2);border-radius:20px 20px 0 0;border-top:1px solid var(--border2);padding:0 1.25rem calc(var(--safe-bot) + 1.5rem);transform:translateY(100%);transition:transform 0.32s cubic-bezier(0.32,0.72,0,1);}
@@ -311,7 +276,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .ios-sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 20px;}
 .ios-sheet-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:500;color:var(--text);margin-bottom:4px;}
 .ios-sheet-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;}
-/* Animated steps */
+
 .ios-steps{display:flex;flex-direction:column;gap:0;}
 .ios-step{display:flex;align-items:center;gap:14px;padding:0.9rem 0;border-bottom:1px solid var(--border);}
 .ios-step:last-child{border-bottom:none;}
@@ -320,14 +285,11 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .ios-step-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
 .ios-step-sub{font-size:12px;color:var(--muted);line-height:1.4;}
 .ios-step-icon{flex-shrink:0;width:36px;height:36px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;}
-/* Pulse animation on the share icon to draw attention */
+
 @keyframes ios-pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.18);opacity:0.8;}}
 .ios-step-icon.pulse svg{animation:ios-pulse 1.6s ease-in-out infinite;}
 .ios-sheet-close{width:100%;margin-top:1.25rem;padding:0.85rem;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
 
-/* ═══════════════════════════════════════
-   SCREEN: SETUP / WELCOME
-═══════════════════════════════════════ */
 #screen-setup{background:var(--bg);justify-content:flex-start;padding:2rem;gap:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 #screen-setup::-webkit-scrollbar{display:none;}
 .setup-logo{text-align:center;margin-bottom:3rem;}
@@ -341,9 +303,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border2);}
 .error-msg{color:var(--danger);font-size:12px;margin-top:0.5rem;display:none;font-family:'DM Mono',monospace;}
 
-/* ═══════════════════════════════════════
-   SCREEN: FEED
-═══════════════════════════════════════ */
 .feed-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
 .feed-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;letter-spacing:-0.03em;display:flex;align-items:center;gap:8px;}
 .feed-logo .dot{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;}
@@ -351,9 +310,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .icon-btn{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--accent);transition:border-color 0.15s,color 0.15s;}
 .icon-btn:hover{border-color:var(--border2);color:var(--text);}
 .icon-btn svg{width:16px;height:16px;}
-/* Labeled header buttons — Reload (Feed) and Add Channel (Channels).
-   Accent-filled to match the onboarding "Add Channels" button style,
-   keeping the visual language consistent across the whole app. */
+
 .header-label-btn{display:flex;align-items:center;gap:6px;padding:0.4rem 0.85rem;background:var(--accent);border:none;border-radius:20px;color:#0a0a0a;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
 .header-label-btn:hover{opacity:0.88;}
 .header-label-btn:active{transform:scale(0.97);opacity:0.85;}
@@ -362,12 +319,9 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .channel-label{display:flex;align-items:center;gap:8px;margin-bottom:0.9rem;}
 
-/* Per-channel "skip" link for keyboard users. A channel can have 10
-   videos, each with its own bookmark button (20 tab stops) — this lets
-   someone jump straight past all of them to the next channel in one
-   Tab + Enter instead. Standard skip-link pattern: invisible and out of
-   the visual flow by default, only appears when it actually receives
-   keyboard focus, so it changes nothing for mouse/touch use. */
+/* Per-channel "skip" link for keyboard users — jumps past ~20 video card
+   tab stops in one Tab+Enter. Standard skip-link: invisible by default,
+   visible only on keyboard focus. */
 .skip-channel-link{
   position:absolute;
   left:-9999px;
@@ -393,10 +347,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   margin-bottom:0.6rem;
 }
 
-/* General "skip to main content" link — first focusable element on the
-   page. Same hidden-until-focused pattern as the per-channel skip link:
-   invisible and out of the visual flow for mouse/touch use, appears
-   only when it actually receives keyboard focus. */
 .skip-to-content-link{
   position:absolute;
   left:-9999px;
@@ -423,28 +373,29 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 }
 .ch-avatar{width:28px;height:28px;background:var(--bg3);border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--border);}
 .ch-avatar img{width:100%;height:100%;object-fit:cover;}
+.channel-avatar-fallback{width:100%;height:100%;display:grid;place-items:center;color:var(--accent);font-weight:700;font-size:12px;}
+.ch-avatar img,.cli-avatar img{position:relative;}
 .ch-name{font-size:13px;font-weight:600;color:var(--text);letter-spacing:0.01em;}
 .videos-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;transform:translateZ(0);will-change:transform;backface-visibility:hidden;}
 .videos-scroll::-webkit-scrollbar{display:none;}
 .video-thumb{flex-shrink:0;width:200px;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
 .video-thumb:active{transform:scale(0.97);}
 .video-thumb:hover{border-color:var(--border2);}
+
 /* This card combines overflow:hidden, border-radius, and a GPU compositing
-   layer (transform + will-change, used for smoother horizontal scrolling)
-   — that specific combination can make an inset box-shadow render only
-   partially (a known browser quirk). Reusing the border-color technique
-   already used for :hover sidesteps it entirely, since it's just
-   recoloring an existing border rather than painting a new layered shadow. */
+   layer (transform + will-change). That combination can make an inset box-shadow
+   render only partially — a known browser quirk. Reusing the border-color
+   technique already used for :hover sidesteps it entirely. */
 .video-thumb:focus-visible{
   border-color: var(--accent);
   box-shadow: none;
   outline: none;
 }
-/* New video indicator: 2px accent border for videos published < 24 h ago.
-   No box-shadow here on purpose: .video-thumb has overflow:hidden + border-radius
-   + a GPU compositing layer (transform/will-change), the same combination that
-   clips box-shadow on iOS Safari (see the :focus-visible comment above). Border
-   color/width only, same technique already used for hover/focus. */
+
+/* 2px accent border for videos published <24 h ago. No box-shadow here:
+   .video-thumb has overflow:hidden + border-radius + GPU compositing layer
+   (transform/will-change) — the same combination that clips box-shadow on
+   iOS Safari (see :focus-visible comment above). Border only. */
 .video-thumb.is-new{
   border: 2px solid var(--accent);
 }
@@ -466,14 +417,13 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .feed-save-btn{background:none;border:none;cursor:pointer;padding:2px;border-radius:3px;display:flex;align-items:center;transition:opacity 0.15s;flex-shrink:0;}
 .feed-save-btn:hover{opacity:0.7;}
 
-/* ═══════════════════════════════════════
-   SCREEN: MY CHANNELS
-═══════════════════════════════════════ */
 .channels-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;}
 .channels-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;}
 .channel-list-item{display:flex;align-items:center;gap:12px;padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);animation:fadeUp 0.3s ease both;}
 .cli-avatar{width:40px;height:40px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);overflow:hidden;flex-shrink:0;}
 .cli-avatar img{width:100%;height:100%;object-fit:cover;}
+.ch-avatar,.cli-avatar{position:relative;}
+.ch-avatar .channel-avatar-fallback,.cli-avatar .channel-avatar-fallback{position:absolute;inset:0;}
 .cli-info{flex:1;min-width:0;}
 .cli-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cli-handle{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;margin-top:1px;}
@@ -485,9 +435,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .add-channel-fab:active{transform:scale(0.92);}
 .add-channel-fab svg{width:24px;height:24px;fill:var(--bg);}
 
-/* ═══════════════════════════════════════
-   SCREEN: ADD CHANNEL
-═══════════════════════════════════════ */
 .add-header{padding:calc(var(--safe-top) + 1rem) 1.25rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;}
 .back-btn{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);flex-shrink:0;}
 .back-btn svg{width:18px;height:18px;}
@@ -512,6 +459,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .channel-suggestions{position:absolute;top:100%;left:0;right:0;margin-top:0.75rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow-x:hidden;overflow-y:auto;max-height:calc(100vh - 190px - var(--safe-top) - var(--safe-bot) - 64px);max-height:calc(100dvh - 190px - var(--safe-top) - var(--safe-bot) - 64px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none;animation:fadeUp 0.2s ease;box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:6;}
 .channel-suggestions::-webkit-scrollbar{display:none;width:0;height:0;}
 @media(max-width:768px){.channel-suggestions{max-height:calc(100vh - 180px - var(--safe-top) - var(--safe-bot) - 64px);max-height:calc(100dvh - 180px - var(--safe-top) - var(--safe-bot) - 64px);}}
+
 /* Each row IS the button — one interactive element, no nesting.
    width:100% + text-align:left resets <button> defaults. */
 .channel-suggestion-item{display:flex;align-items:center;gap:12px;padding:0.85rem 1rem;cursor:pointer;background:var(--bg2);border-bottom:1px solid var(--border);transition:background 0.15s;width:100%;text-align:left;border-left:none;border-right:none;border-top:none;border-radius:0;font-family:inherit;min-height:48px;}
@@ -519,7 +467,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .channel-suggestion-item:hover{background:var(--bg3);}
 .channel-suggestion-item:active{background:var(--bg3);}
 .channel-suggestion-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
-/* Added state — dimmed row, no pointer, removed from natural tab order via disabled attr */
+
 .channel-suggestion-item:disabled,.channel-suggestion-item[disabled]{cursor:default;pointer-events:none;}
 .channel-suggestion-item:disabled .suggestion-avatar,.channel-suggestion-item[disabled] .suggestion-avatar,.channel-suggestion-item:disabled .suggestion-info,.channel-suggestion-item[disabled] .suggestion-info{opacity:0.65;}
 .suggestion-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg3);overflow:hidden;flex-shrink:0;border:1px solid var(--border);}
@@ -527,13 +475,12 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .suggestion-info{flex:1;min-width:0;}
 .suggestion-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .suggestion-subs{font-size:11px;color:var(--muted);margin-top:1px;font-family:'DM Mono',monospace;}
-/* Inline add affordance on the right of each row */
+
 .suggestion-add-btn{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:0.4rem 0.75rem;background:var(--accent);color:var(--bg);border-radius:20px;font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;letter-spacing:0.02em;transition:opacity 0.15s;white-space:nowrap;}
 .channel-suggestion-item:disabled .suggestion-add-btn,.channel-suggestion-item[disabled] .suggestion-add-btn{background:transparent;color:var(--muted);padding:0;gap:4px;}
-/* MAX_CHANNELS cap warning row */
+
 .suggestion-cap-notice{padding:0.75rem 1rem;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;border-top:1px solid var(--border);}
 
-/* Manual URL fallback section */
 .fallback-divider{display:flex;align-items:center;gap:10px;margin:1.5rem 0 1rem;}
 .fallback-divider::before,.fallback-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 .fallback-divider span{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;}
@@ -549,9 +496,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .fallback-go-btn:active{transform:scale(0.97);}
 .fallback-go-btn:disabled{opacity:0.5;cursor:default;}
 
-/* ═══════════════════════════════════════
-   VIDEO PLAYER OVERLAY
-═══════════════════════════════════════ */
 #player-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:200;display:none;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.2s;}
 #player-overlay.open{display:flex;opacity:1;pointer-events:all;}
 .player-top{padding:calc(var(--safe-top) + 0.75rem) 1rem 0.75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
@@ -568,9 +512,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .player-embed-blocked p{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px;}
 .player-embed-blocked a{display:inline-block;padding:0.65rem 1.4rem;background:var(--accent);color:var(--bg);border-radius:var(--radius-sm);font-size:14px;font-weight:600;text-decoration:none;}
 
-/* ═══════════════════════════════════════
-   FAQ
-═══════════════════════════════════════ */
 .faq-list{display:flex;flex-direction:column;gap:2px;}
 .faq-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.15s;}
 .faq-item.open{border-color:var(--border2);}
@@ -582,9 +523,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .faq-item.open .faq-a{display:block;}
 .faq-a strong{color:var(--text);font-weight:600;}
 
-/* ═══════════════════════════════════════
-   SETTINGS SCREEN
-═══════════════════════════════════════ */
 .settings-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
 .settings-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;}
 .settings-section{padding:1.25rem;}
@@ -592,18 +530,16 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .settings-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
 .settings-row{display:flex;align-items:center;padding:0.9rem 1.1rem;gap:12px;border-bottom:1px solid var(--border);}
 .settings-row:last-child{border-bottom:none;}
+
 /* Match the card's own rounded corners on its first/last row — without
-   this, a focused first/last row's box-shadow (a sharp rectangle) gets
-   clipped by the card's rounded overflow:hidden mask right at the
-   corners, making the keyboard-focus highlight look cut off/incomplete
-   instead of a clean full box. */
+   this, a focused row's box-shadow gets clipped by the card's overflow:hidden
+   mask at the corners, making the keyboard-focus highlight look cut off. */
 .settings-row:first-child{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);}
 .settings-row:last-child{border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius);}
 .settings-row-link{display:block;text-decoration:none;}
 .settings-row-link:first-child{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);}
 .settings-row-link:last-child{border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius);}
 
-/* ── Site footer (matches kids-mode / classroom / creators pages) ── */
 .site-footer{padding:2rem 1.25rem 1.25rem;border-top:1px solid var(--border);margin-top:0.5rem;}
 .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.75rem;text-align:left;padding-bottom:1.75rem;}
 .footer-col-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;}
@@ -622,7 +558,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .settings-select:hover{border-color:var(--accent);}
 .settings-select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .settings-select svg{color:var(--muted);flex-shrink:0;}
-/* ── Videos-per-channel picker modal — mirrors export-modal/pack-modal ── */
+
 #vpc-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
 #vpc-backdrop.show{display:flex;}
 #vpc-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.5rem 1.4rem 1.25rem;width:100%;max-width:280px;max-height:min(70vh,480px);display:flex;flex-direction:column;gap:0.85rem;box-shadow:0 18px 60px rgba(0,0,0,0.55);animation:fadeUp 0.2s ease;}
@@ -638,9 +574,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .vpc-close{padding:0.7rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;}
 .btn-danger{background:rgba(255,68,68,0.1);color:var(--danger);border:1.5px solid rgba(255,68,68,0.2);}
 
-/* ═══════════════════════════════════════
-   SCREEN: SEARCH
-═══════════════════════════════════════ */
 .search-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
 .search-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:0.9rem;}
 .search-row{display:flex;gap:8px;align-items:center;}
@@ -660,31 +593,198 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #search-input::-webkit-search-cancel-button{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);clip-path:polygon(20% 0%,0% 20%,30% 50%,0% 80%,20% 100%,50% 70%,80% 100%,100% 80%,70% 50%,100% 20%,80% 0%,50% 30%);cursor:pointer;}
 .search-results{padding:1.25rem;box-sizing:border-box;overflow-x:hidden;}
 .search-results-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);font-family:'DM Mono',monospace;margin-bottom:0.85rem;}
-.search-video-card{display:flex;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:10px;cursor:pointer;transition:border-color 0.15s,transform 0.12s;width:100%;box-sizing:border-box;}
-.search-video-card:active{transform:scale(0.98);}
+.search-video-card{display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:10px;transition:border-color 0.15s;width:100%;box-sizing:border-box;}
 .search-video-card:hover{border-color:var(--border2);}
+
+.search-card-play-zone{display:flex;gap:12px;cursor:pointer;transition:transform 0.12s;}
+.search-card-play-zone:active{transform:scale(0.98);}
+
 .search-thumb-wrap{position:relative;flex-shrink:0;width:130px;}
 .search-thumb-wrap img{width:130px;height:73px;object-fit:cover;display:block;}
 .search-save-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
 .search-save-btn:hover{background:rgba(232,255,90,0.25);}
 .search-save-btn svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;}
 .search-save-btn.saved svg{fill:var(--accent);}
-.search-card-info{flex:1;padding:0.65rem 0.75rem 0.65rem 0;display:flex;flex-direction:column;justify-content:space-between;min-width:0;}
+.search-card-info{flex:1;padding:0.65rem 0.75rem 0.65rem 0;display:flex;flex-direction:column;justify-content:flex-start;gap:3px;min-width:0;}
 .search-card-title{font-size:12.5px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;max-width:100%;word-break:break-word;}
 .search-card-meta{font-size:10.5px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-.search-views-badge{display:inline-block;font-size:9.5px;background:rgba(232,255,90,0.12);color:var(--accent);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;margin-top:3px;}
+
 .search-empty-state{text-align:center;padding:3.5rem 2rem;color:var(--faint);font-size:14px;line-height:1.7;}
 .search-empty-state .big-icon{font-size:3.5rem;opacity:0.3;margin-bottom:0.75rem;}
-.search-choice-btn{display:flex;align-items:center;gap:14px;width:100%;padding:1.1rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:left;transition:border-color 0.15s,background 0.15s;}
-.search-choice-btn:active{background:var(--bg3);}
-.search-choice-icon{font-size:1.6rem;flex-shrink:0;line-height:1;}
-.search-choice-text{flex:1;}
-.search-choice-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
-.search-choice-sub{font-size:12px;color:var(--muted);line-height:1.4;}
 
-/* ═══════════════════════════════════════
-   SCREEN: SAVED VIDEOS
-═══════════════════════════════════════ */
+.follow-channel-link{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:10.5px;
+  color:var(--accent);
+  text-decoration:underline;
+  text-underline-offset:2px;
+  text-decoration-color:rgba(232,255,90,0.45);
+  cursor:pointer;
+  background:none;
+  border:none;
+  padding:0;
+  font-family:'DM Mono',monospace;
+  line-height:1.4;
+  transition:text-decoration-color 0.15s,opacity 0.15s;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.follow-channel-link:hover{text-decoration-color:var(--accent);opacity:0.85;}
+
+#follow-ch-backdrop{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.72);
+  z-index:600;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:1.5rem;
+}
+#follow-ch-backdrop.show{display:flex;}
+#follow-ch-modal{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  padding:1.6rem 1.4rem 1.4rem;
+  width:100%;
+  max-width:360px;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  box-shadow:0 18px 60px rgba(0,0,0,0.55);
+  animation:fadeUp 0.2s ease;
+}
+.follow-ch-avatar-row{display:flex;align-items:center;gap:12px;}
+.follow-ch-avatar{
+  width:52px;height:52px;
+  border-radius:50%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  overflow:hidden;
+  flex-shrink:0;
+}
+.follow-ch-avatar img{width:100%;height:100%;object-fit:cover;}
+.follow-ch-avatar-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--faint);
+}
+.follow-ch-name{font-size:16px;font-weight:600;color:var(--text);line-height:1.3;}
+.follow-ch-handle{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+.follow-ch-body{font-size:13px;color:var(--muted);line-height:1.6;}
+.follow-ch-actions{display:flex;gap:9px;margin-top:0.25rem;}
+.follow-ch-btn-primary{
+  flex:1;padding:0.78rem;
+  background:var(--accent);color:var(--bg);
+  border:none;border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.follow-ch-btn-primary:active{opacity:0.85;}
+.follow-ch-btn-primary:disabled{opacity:0.5;cursor:default;}
+.follow-ch-btn-cancel{
+  padding:0.78rem 1rem;
+  background:var(--bg3);color:var(--muted);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;
+}
+
+.follow-channel-link{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:10.5px;
+  color:var(--accent);
+  text-decoration:underline;
+  text-underline-offset:2px;
+  text-decoration-color:rgba(232,255,90,0.45);
+  cursor:pointer;
+  background:none;
+  border:none;
+  padding:0;
+  font-family:'DM Mono',monospace;
+  line-height:1.4;
+  transition:text-decoration-color 0.15s,opacity 0.15s;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.follow-channel-link:hover{text-decoration-color:var(--accent);opacity:0.85;}
+
+#follow-ch-backdrop{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.72);
+  z-index:600;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:1.5rem;
+}
+#follow-ch-backdrop.show{display:flex;}
+#follow-ch-modal{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  padding:1.6rem 1.4rem 1.4rem;
+  width:100%;
+  max-width:360px;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  box-shadow:0 18px 60px rgba(0,0,0,0.55);
+  animation:fadeUp 0.2s ease;
+}
+.follow-ch-avatar-row{display:flex;align-items:center;gap:12px;}
+.follow-ch-avatar{
+  width:52px;height:52px;
+  border-radius:50%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  overflow:hidden;
+  flex-shrink:0;
+}
+.follow-ch-avatar img{width:100%;height:100%;object-fit:cover;}
+.follow-ch-avatar-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--faint);
+}
+.follow-ch-name{font-size:16px;font-weight:600;color:var(--text);line-height:1.3;}
+.follow-ch-handle{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+.follow-ch-body{font-size:13px;color:var(--muted);line-height:1.6;}
+.follow-ch-actions{display:flex;gap:9px;margin-top:0.25rem;}
+.follow-ch-btn-primary{
+  flex:1;padding:0.78rem;
+  background:var(--accent);color:var(--bg);
+  border:none;border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.follow-ch-btn-primary:active{opacity:0.85;}
+.follow-ch-btn-primary:disabled{opacity:0.5;cursor:default;}
+.follow-ch-btn-cancel{
+  padding:0.78rem 1rem;
+  background:var(--bg3);color:var(--muted);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;
+}
+
+.search-choice-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:clamp(16px,4vw,32px);max-width:920px;width:100%;margin:0 auto}
+.search-choice-intro{color:var(--muted);font-size:13px;line-height:1.5;padding:0 2px 8px}.search-choice-intro strong{display:block;color:var(--text);font:500 clamp(22px,3vw,29px) 'Fraunces',serif;letter-spacing:-.03em;margin-bottom:5px}
+.search-choice-tile{--tone:#e8ff5a;--glow:rgba(232,255,90,.09);position:relative;overflow:hidden;width:100%;min-height:125px;display:grid;grid-template-columns:62px minmax(0,1fr) 34px;align-items:center;gap:clamp(12px,3vw,22px);padding:clamp(16px,3vw,24px);text-align:left;color:var(--text);background:linear-gradient(115deg,var(--glow),#171717 60%);border:1px solid rgba(255,255,255,.13);border-radius:20px;box-shadow:0 9px 30px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.05);cursor:pointer;font-family:'Outfit',sans-serif;transition:transform .2s,border-color .2s,box-shadow .2s}
+.search-choice-tile:nth-of-type(2){--tone:#ffb985;--glow:rgba(255,185,133,.09)}.search-choice-tile:nth-of-type(3){--tone:#a9c5ff;--glow:rgba(169,197,255,.09)}
+.search-choice-tile::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--tone)}.search-choice-tile:hover{transform:translateY(-3px);border-color:var(--tone);box-shadow:0 18px 38px rgba(0,0,0,.36)}.search-choice-tile:active{transform:scale(.99)}.search-choice-tile:focus-visible{outline:2px solid var(--tone);outline-offset:3px}
+.search-choice-tile-icon{width:62px;height:62px;display:grid;place-items:center;border:1px solid var(--border2);border-radius:17px;background:var(--glow);color:var(--tone)}.search-choice-tile-icon svg{width:29px;height:29px}.search-choice-tile-content{min-width:0}.search-choice-tile-kicker{display:block;font:500 10px 'DM Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--tone);margin-bottom:6px}.search-choice-tile-title{display:block;font-size:clamp(17px,2.2vw,22px);font-weight:700;line-height:1.15;letter-spacing:-.025em;margin-bottom:6px}.search-choice-tile-sub{display:block;font-size:13px;line-height:1.45;color:var(--muted)}.search-choice-tile-arrow{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border2);border-radius:50%;color:var(--tone);font-size:20px;transition:transform .2s}.search-choice-tile:hover .search-choice-tile-arrow{transform:translateX(3px)}
+@media(max-width:480px){.search-choice-grid{gap:10px;padding:16px}.search-choice-tile{grid-template-columns:50px minmax(0,1fr) 28px;gap:12px;min-height:116px;padding:15px;border-radius:17px}.search-choice-tile-icon{width:50px;height:50px;border-radius:13px}.search-choice-tile-icon svg{width:24px;height:24px}.search-choice-tile-arrow{width:28px;height:28px;font-size:18px}.search-choice-tile-sub{font-size:12px}}
+@media(max-width:360px){.search-choice-tile{grid-template-columns:44px minmax(0,1fr) 24px;gap:9px;padding:12px}.search-choice-tile-icon{width:44px;height:44px}.search-choice-tile-title{font-size:16px}.search-choice-tile-arrow{width:24px;height:24px}}
+
 .saved-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;}
 .saved-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;}
 .saved-count{font-size:12px;color:var(--faint);font-family:'DM Mono',monospace;}
@@ -703,14 +803,9 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .saved-empty-state h3{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;color:var(--muted);}
 .saved-empty-state p{font-size:13.5px;color:var(--faint);line-height:1.6;}
 
-/* ═══════════════════════════════════════
-   SPINNER / TOAST / iOS BANNER
-═══════════════════════════════════════ */
 .spin{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── Engaging search spinner: two counter-rotating rings, used for channel/video
-   search loading states instead of the plain single-ring .spin above ── */
 .search-spinner{position:relative;width:36px;height:36px;margin:0 auto;}
 .search-spinner::before,.search-spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:2.5px solid transparent;}
 .search-spinner::before{border-top-color:var(--accent);border-right-color:var(--accent);animation:search-spin-cw 1s cubic-bezier(0.5,0,0.5,1) infinite;}
@@ -720,7 +815,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:0.6rem 1.2rem;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:300;width:max-content;max-width:calc(100vw - 32px);white-space:normal;text-align:center;line-height:1.4;overflow-wrap:anywhere;pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ── Export confirmation modal ── */
 #export-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
 #export-modal-backdrop.show{display:flex;}
 #export-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1rem;}
@@ -735,7 +829,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #export-modal .em-btn-copy:active{opacity:0.85;}
 #export-modal .em-btn-close{padding:0.75rem 1.1rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
 
-/* ── Channel Pack modals (create + incoming confirm) — mirrors export-modal ── */
 #pack-modal-backdrop,#pack-confirm-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
 #pack-modal-backdrop.show,#pack-confirm-backdrop.show{display:flex;}
 #pack-modal,#pack-confirm-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1rem;max-height:85vh;overflow-y:auto;}
@@ -754,41 +847,66 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .pack-channel-item::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;}
 .pack-note{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.5;}
 .pack-note.warn{color:#e8a53b;}
-/* ── Pack QR code ── */
+
 .pack-qr-wrap{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:var(--radius-sm);padding:0.85rem;box-sizing:border-box;width:100%;max-width:300px;margin:0 auto;}
 .pack-qr-wrap svg{width:100%;height:auto;display:block;}
 .pack-qr-label{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;text-align:center;margin-top:-0.4rem;}
-/* ── Export/Pack code box: use the app's standard thin scrollbar, matching .vpc-list ── */
+
 .em-code{scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
 .em-code::-webkit-scrollbar{width:6px;}
 .em-code::-webkit-scrollbar-track{background:transparent;}
 .em-code::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 .em-code::-webkit-scrollbar-thumb:hover{background:var(--muted);}
-/* ── Pack modal's own outer scroll (kicks in on short viewports) — same treatment ── */
+
 #pack-modal,#pack-confirm-modal{scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
 #pack-modal::-webkit-scrollbar,#pack-confirm-modal::-webkit-scrollbar{width:6px;}
 #pack-modal::-webkit-scrollbar-track,#pack-confirm-modal::-webkit-scrollbar-track{background:transparent;}
 #pack-modal::-webkit-scrollbar-thumb,#pack-confirm-modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 #pack-modal::-webkit-scrollbar-thumb:hover,#pack-confirm-modal::-webkit-scrollbar-thumb:hover{background:var(--muted);}
-/* ── Feed loading progress sentinel ── */
+
 #feed-loading-sentinel{display:flex;flex-direction:column;align-items:center;gap:12px;padding:2.5rem 1.25rem 3rem;text-align:center;}
 .feed-progress-text{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.02em;line-height:1.6;}
 .feed-progress-bar{width:100px;height:2px;background:var(--border);border-radius:1px;overflow:hidden;}
 @keyframes feed-progress-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 .feed-progress-bar::after{content:'';display:block;height:100%;width:60%;background:var(--accent);border-radius:1px;animation:feed-progress-shimmer 1.4s ease-in-out infinite;}
+
+.cw-card{display:flex;align-items:stretch;border-bottom:1px solid var(--border);animation:fadeUp 0.3s ease both;transition:background 0.12s;}
+.cw-card:hover{background:var(--bg2);}
+.cw-play-zone{display:flex;gap:12px;cursor:pointer;flex:1;padding:0.85rem 0 0.85rem 1.25rem;align-items:flex-start;min-width:0;}
+.cw-play-zone:active{opacity:0.85;}
+.cw-thumb-wrap{position:relative;flex-shrink:0;width:120px;}
+.cw-thumb-wrap img{width:120px;height:67px;object-fit:cover;display:block;border-radius:6px;}
+.cw-resume-badge{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.78);color:var(--accent);font-size:9px;font-family:'DM Mono',monospace;font-weight:600;text-align:center;padding:3px 4px;border-radius:0 0 5px 5px;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cw-info{flex:1;min-width:0;padding-right:4px;}
+.cw-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
+.cw-meta{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cw-remove-btn{flex-shrink:0;width:44px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--muted);cursor:pointer;transition:color 0.15s;align-self:stretch;padding:0;}
+.cw-remove-btn:hover{color:var(--danger);}
+.cw-remove-btn svg{width:15px;height:15px;}
+
+#api-verify-backdrop{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bot));pointer-events:none;background:transparent;}
+#api-verify-backdrop.interactive{background:rgba(0,0,0,.88);pointer-events:auto;}
+#api-verify-modal{width:100%;max-width:370px;max-height:90vh;overflow:auto;background:transparent;border:0;border-radius:16px;padding:16px 8px;text-align:center;box-sizing:border-box;pointer-events:none;}
+#api-verify-backdrop.interactive #api-verify-modal{background:var(--bg2);border:1px solid var(--border2);pointer-events:auto;}
+#api-verify-title{display:none;font-size:18px;margin-bottom:12px;}
+#api-verify-backdrop.interactive #api-verify-title{display:block;}
+#api-verify-widget{display:flex;justify-content:center;min-height:65px;}
+#api-verify-status{position:fixed;left:50%;bottom:calc(82px + var(--safe-bot));transform:translateX(-50%);z-index:19999;display:none;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:9px 14px;color:var(--text);font-size:12px;white-space:nowrap;max-width:calc(100vw - 24px);pointer-events:none;}
+#api-verify-status.show{display:flex;}
+#api-verify-status .spin{width:16px;height:16px;flex-shrink:0;}
 </style>
 </head>
 <body>
 <button type="button" class="skip-to-content-link" onclick="skipToMainContent()">Skip to main content</button>
 <div id="app" role="main">
 
-  <!-- KIDS MODE BANNER -->
+  
   <div class="kids-mode-banner" id="kids-banner">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     Kids Mode
   </div>
 
-  <!-- PIN OVERLAY -->
+  
   <div class="pin-overlay" id="pin-overlay">
     <div class="pin-box">
       <h3 id="pin-title">Enter Parental PIN</h3>
@@ -819,7 +937,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- SCREEN: SETUP / WELCOME -->
+  
   <div class="screen" id="screen-setup">
     <div class="setup-logo" style="margin-top:calc(var(--safe-top) + 1rem)">
       <div class="logo-icon" style="background:var(--bg)">
@@ -867,7 +985,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- SCREEN: FEED -->
+  
   <div class="screen" id="screen-feed">
     <div class="feed-header">
       <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px" id="feed-vpc-label">Latest 10 videos/channel</span></h2>
@@ -888,7 +1006,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- SCREEN: MY CHANNELS -->
+  
   <div class="screen" id="screen-channels">
     <div class="channels-header">
       <h2 id="ch-heading">My Channels</h2>
@@ -904,7 +1022,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- SCREEN: ADD CHANNEL -->
+  
   <div class="screen" id="screen-add">
     <div class="add-header">
       <button class="back-btn" onclick="leaveAddScreen()">
@@ -915,7 +1033,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="screen-body">
       <div class="add-body">
 
-        <!-- PRIMARY: Search by name -->
+        
         <div class="field-label">Search by channel name</div>
         <div class="channel-search-anchor">
           <div class="search-row">
@@ -940,7 +1058,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
         <div class="error-msg" id="add-error" role="alert" style="margin-top:0.75rem"></div>
 
-        <!-- FALLBACK: Paste URL directly -->
+        
         <div class="fallback-divider" id="add-fallback-divider"><span>can't find it? paste the link instead</span></div>
         <div class="fallback-card" id="add-fallback-card">
           <p>Paste a YouTube channel URL directly, search sometimes misses niche or newly renamed channels.<br/>
@@ -952,7 +1070,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- SCREEN: SETTINGS -->
+  
   <div class="screen" id="screen-settings">
     <div class="settings-header"><h2>Settings</h2></div>
     <div class="screen-body">
@@ -1040,7 +1158,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
             <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:500">Paste ↙</div>
           </div>
         </div>
-        <!-- Import panel — hidden until triggered -->
+        
         <div id="import-panel" style="display:none;margin-top:0.75rem">
           <div id="import-paste-area" onclick="pasteFromClipboard()" style="width:100%;box-sizing:border-box;padding:0.85rem 1rem;background:var(--bg2);border:1.5px dashed var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;min-height:60px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'" role="button" tabindex="0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
@@ -1055,7 +1173,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
       </div>
 
-      <!-- ── Channel Pack: share a curated channel list via link ── -->
+      
       <div class="settings-section" style="padding-top:0">
         <div class="settings-label">Channel Pack</div>
         <div class="settings-card">
@@ -1072,7 +1190,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
       </div>
 
-      <!-- ── FAQ ── -->
+      
       <div class="settings-section" style="padding-top:0" id="settings-faq-section">
         <div class="settings-label">FAQs</div>
         <div class="faq-list">
@@ -1176,7 +1294,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
       </div>
 
-      <!-- ── Featured Badges (hidden — for human/bot verification only; displayed on /featured page) ── -->
+      
       <div id="featured-badges-hidden" style="display:none" aria-hidden="true">
         <div class="badge-cell">
           <a href="https://smollaunch.com/products/nosuggest" target="_blank" rel="noopener" aria-label="Smol Launch">
@@ -1194,7 +1312,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
           </a>
         </div>
       </div>
-      <!-- ── Site footer (matches kids-mode / classroom / creators pages) ── -->
+      
       <div class="site-footer" id="settings-site-footer">
         <div class="footer-grid">
           <div class="footer-col">
@@ -1226,7 +1344,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- SCREEN: SEARCH -->
+  
   <div class="screen" id="screen-search">
     <div class="search-header">
       <h2 id="search-header-title">Search</h2>
@@ -1241,26 +1359,28 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       </div>
     </div>
     <div class="screen-body" id="search-body">
-      <!-- Chooser -->
-      <div id="search-chooser" style="display:flex;flex-direction:column;gap:12px;padding:1.5rem 1.25rem">
-        <button class="search-choice-btn" onclick="pickSearchMode('videos')">
-          <div class="search-choice-icon">🎬</div>
-          <div class="search-choice-text">
-            <div class="search-choice-title">Search Videos to Watch</div>
-            <div class="search-choice-sub">Find and play any YouTube video, or paste a link</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--faint)"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <button class="search-choice-btn" onclick="pickSearchMode('channels')">
-          <div class="search-choice-icon">📡</div>
-          <div class="search-choice-text">
-            <div class="search-choice-title">Search Channels to Follow</div>
-            <div class="search-choice-sub">Add a channel to your feed by name, handle, or URL</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--faint)"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
+      
+      <div id="search-chooser" style="display:flex;flex-direction:column">
+        <div class="search-choice-grid">
+          <div class="search-choice-intro"><strong>What would you like to search?</strong></div>
+          <button type="button" class="search-choice-tile" onclick="pickSearchMode('videos')" aria-label="Search Videos: Find a video or paste a link to watch.">
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m10 8 6 4-6 4V8Z"/></svg></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search Videos</span><span class="search-choice-tile-sub">Find a video or paste a link to watch.</span></span>
+            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m10 7.5 6 4-6 4v-8Z"/><path d="M5.5 17.5h13"/><path d="M5.5 17.5h7" stroke-width="2.8"/></svg></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Pick up where you left off</span><span class="search-choice-tile-title">Continue Watching</span><span class="search-choice-tile-sub">Your unfinished videos, ready when you are.</span></span>
+            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="search-choice-tile" onclick="pickSearchMode('channels')" aria-label="Search Channels: Find creators and add them to your feed.">
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20v-1.5a6.5 6.5 0 0 1 13 0V20H3.5Z"/><path d="M18 7h4m-2-2v4"/></svg></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Make it yours</span><span class="search-choice-tile-title">Search Channels</span><span class="search-choice-tile-sub">Find creators and add them to your feed.</span></span>
+            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
+          </button>
+        </div>
       </div>
-      <!-- Video search pane (hidden until chosen) -->
+      
       <div id="search-video-pane" style="display:none">
         <div class="search-empty-state" id="search-empty">
           <div class="big-icon">🔍</div>
@@ -1279,10 +1399,18 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
         <div id="search-error" class="error-msg" role="alert" style="margin:1.5rem 1.25rem;display:none"></div>
       </div>
+      
+      <div id="search-continue-pane" style="display:none">
+        <div id="cw-list"></div>
+        <div id="cw-empty" class="search-empty-state" style="display:none">
+          <div class="big-icon">⏸️</div>
+          <p><b>No videos in progress.</b><br/>If you start watching a video and leave mid-way,<br> it will appear here so you can pick up where you left off.</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- SCREEN: SAVED VIDEOS -->
+  
   <div class="screen" id="screen-saved">
     <div class="saved-header">
       <h2>Saved Videos</h2>
@@ -1298,7 +1426,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- BOTTOM NAV -->
+  
   <nav class="nav" id="main-nav" aria-label="Main navigation">
     <button class="nav-btn active" id="nav-feed" onclick="navigateMain('feed')">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -1322,18 +1450,14 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </button>
   </nav>
 
-  <!-- NAV INSTALL STRIP — shown when not installed, hidden after install -->
+  
   <div id="nav-install-strip">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg>
     <span>Tap here to install NoSuggest</span>
     <button class="strip-dismiss" onclick="dismissNavStrip(event)" aria-label="Dismiss">×</button>
   </div>
 
-  <!-- SHARE STRIP — the only share ask in the app now. Shown every 5th
-       session, grows to 40% of the screen, and a dimming backdrop blocks
-       the rest of the app underneath it. Only two ways out: Share or
-       Later — no × dismiss. Same wording used earlier for the pop-up
-       concept; only the container changed. -->
+  
   <div id="share-strip-backdrop"></div>
   <div id="nav-share-strip" role="dialog" aria-modal="true" aria-labelledby="share-strip-title">
     <div class="ss-icon">
@@ -1348,7 +1472,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   </div>
 
   <div id="desktop-share-backdrop"><div id="desktop-share-modal" role="dialog" aria-modal="true" aria-labelledby="desktop-share-title" aria-describedby="desktop-share-description"><div class="dsm-title" id="desktop-share-title">Share NoSuggest</div><div class="dsm-body" id="desktop-share-description">Choose a destination. Social networks build the link preview from NoSuggest's Open Graph image and details.</div><div class="dsm-actions"><button class="dsm-btn dsm-primary" onclick="copyDesktopShare()">Copy message</button><button class="dsm-btn" onclick="shareDesktopLinkedIn()">LinkedIn</button><button class="dsm-btn" onclick="shareDesktopX()">X</button><button class="dsm-btn" onclick="shareDesktopFacebook()">Facebook</button><button class="dsm-btn" onclick="shareDesktopWhatsApp()">WhatsApp</button><button class="dsm-btn" onclick="shareDesktopGmail()">Gmail</button><button class="dsm-btn" onclick="shareDesktopEmail()">Email app</button></div><button class="dsm-close" onclick="closeDesktopShare()">Cancel</button></div></div>
-  <!-- iOS INSTALL BOTTOM SHEET -->
+  
   <div id="ios-sheet-backdrop" onclick="closeIosSheet()"></div>
   <div id="ios-sheet">
     <div class="ios-sheet-handle"></div>
@@ -1389,7 +1513,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <button class="ios-sheet-close" onclick="closeIosSheet()">Got it</button>
   </div>
 
-  <!-- VIDEO PLAYER OVERLAY -->
+  
   <div id="player-overlay">
     <div class="player-top">
       <div class="player-channel" id="player-channel-name"></div>
@@ -1417,8 +1541,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- iOS Install Banner -->
-  <!-- Export confirmation modal -->
+  
+  
   <div id="export-modal-backdrop">
     <div id="export-modal">
       <div class="em-icon">
@@ -1435,7 +1559,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- Channel Pack: created-link modal -->
+  
   <div id="pack-modal-backdrop">
     <div id="pack-modal">
       <div class="em-icon">
@@ -1454,7 +1578,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
-  <!-- Channel Pack: incoming pack confirm modal -->
+  
   <div id="pack-confirm-backdrop">
     <div id="pack-confirm-modal">
       <div class="em-icon">
@@ -1471,6 +1595,30 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
   </div>
 
+  
+  <div id="follow-ch-backdrop">
+    <div id="follow-ch-modal" role="dialog" aria-modal="true" aria-labelledby="follow-ch-title">
+      <div class="follow-ch-avatar-row">
+        <div class="follow-ch-avatar" id="follow-ch-avatar">
+          <div class="follow-ch-avatar-placeholder">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="follow-ch-name" id="follow-ch-title">Channel Name</div>
+          <div class="follow-ch-handle" id="follow-ch-handle"></div>
+        </div>
+      </div>
+      <div class="follow-ch-body" id="follow-ch-body">Add this channel to your feed and see their latest videos without leaving your search results.</div>
+      <div class="follow-ch-actions">
+        <button class="follow-ch-btn-cancel" onclick="closeFollowChannelPopup()">Cancel</button>
+        <button class="follow-ch-btn-primary" id="follow-ch-confirm-btn" onclick="confirmFollowChannel()">Follow Channel</button>
+      </div>
+    </div>
+  </div>
   <div id="toast" role="status" aria-live="polite"></div>
 </div>
 
@@ -1482,21 +1630,183 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   </div>
 </div>
 
+<div id="api-verify-status" role="status" aria-live="polite"><span class="spin" aria-hidden="true"></span><span>Verifying and fetching…</span></div>
+<div id="api-verify-backdrop"><div id="api-verify-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="api-verify-title"><h2 id="api-verify-title">Verify to continue</h2><div id="api-verify-widget"></div></div></div>
 <script>
 'use strict';
 
 const PROXY = 'https://api.nosuggest.com';
 
+/* Turnstile verifies once per session; the Worker-signed session token is
+   reused in this tab until its 5-minute expiry. Expensive calls (video search,
+   channel name search) require a fresh single-use Turnstile token instead. */
+const API_SESSION_STORAGE_KEY='ns_api_session_v1:'+PROXY;
+let apiSession=null, apiSessionUntil=0, apiSessionPending=null;
+let apiSessionBlockedUntil=0, apiSessionBlockedError=null;
+const API_VERIFY_COOLDOWN_MS=15000;
+let turnstileScriptPending=null;
+let cachedSitekey=null;
+
+async function getSitekey(){
+  if(cachedSitekey)return cachedSitekey;
+  const res=await fetch(PROXY+'/auth/config',{cache:'no-store'});
+  if(!res.ok)throw new Error('Verification unavailable. Please try again.');
+  const cfg=await res.json();
+  if(!cfg.sitekey)throw new Error('Verification unavailable.');
+  cachedSitekey=cfg.sitekey;
+  return cachedSitekey;
+}
+
+/* Obtain a fresh, single-use Turnstile token for expensive API calls
+   (video search, channel name search — 100 quota units each).
+   Uses action 'nosuggest_search' so the Worker can distinguish it from
+   the session-acquisition action 'nosuggest_session'.
+   Token is single-use — caller must NOT auto-retry on failure. */
+async function getFreshTurnstileToken(){
+  const sk=await getSitekey();
+  await loadTurnstile();
+  verificationStatus(true);
+  try{return await showVerification(sk,'nosuggest_search');}
+  finally{verificationStatus(false);}
+}
+
+function allowVerificationRetry(){apiSessionBlockedUntil=0;apiSessionBlockedError=null;}
+function hasLiveApiSession(){return !!(apiSession && Date.now()<apiSessionUntil);}
+function restoreApiSession(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(API_SESSION_STORAGE_KEY)||'null');
+    if(saved && typeof saved.token==='string' && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(saved.token) &&
+       Number.isFinite(saved.until) && saved.until>Date.now() && saved.until<=Date.now()+300000){
+      apiSession=saved.token;apiSessionUntil=saved.until;
+    }else sessionStorage.removeItem(API_SESSION_STORAGE_KEY);
+  }catch(e){try{sessionStorage.removeItem(API_SESSION_STORAGE_KEY);}catch(ignore){}}
+}
+function saveApiSession(token,until){
+  apiSession=token;apiSessionUntil=until;
+  try{sessionStorage.setItem(API_SESSION_STORAGE_KEY,JSON.stringify({token,until}));}catch(e){}
+}
+function clearApiSession(){
+  apiSession=null;apiSessionUntil=0;
+  try{sessionStorage.removeItem(API_SESSION_STORAGE_KEY);}catch(e){}
+}
+restoreApiSession();
+function verificationStatus(show){document.getElementById('api-verify-status').classList.toggle('show',show);}
+function closeVerification(){
+  document.getElementById('api-verify-backdrop').classList.remove('interactive');
+  document.getElementById('api-verify-modal').setAttribute('aria-hidden','true');
+  document.getElementById('api-verify-widget').innerHTML='';
+}
+function loadTurnstile(){
+  if(window.turnstile)return Promise.resolve();
+  if(turnstileScriptPending)return turnstileScriptPending;
+  turnstileScriptPending=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async=true;
+    let settled=false;
+    const finish=error=>{
+      if(settled)return;
+      settled=true;clearTimeout(timer);
+      if(error){script.remove();reject(error);}else resolve();
+    };
+    const timer=setTimeout(()=>finish(new Error('Verification timed out.')),15000);
+    script.onload=()=>finish(window.turnstile?null:new Error('Verification unavailable.'));
+    script.onerror=()=>finish(new Error('Verification unavailable.'));
+    document.head.appendChild(script);
+  }).catch(e=>{turnstileScriptPending=null;throw e;});
+  return turnstileScriptPending;
+}
+
+/* Serialize access to the one shared Turnstile widget container.
+   Each caller receives its own fresh, single-use token.
+   A failed call (timeout, error) does not poison later requests because
+   the queue tail is always reset with .then(()=>{},()=>{}) on failure. */
+let verificationQueue=Promise.resolve();
+function showVerification(sitekey,action='nosuggest_session'){
+  const result=verificationQueue.then(()=>renderVerification(sitekey,action));
+  verificationQueue=result.then(()=>{},()=>{});
+  return result;
+}
+function renderVerification(sitekey,action){
+  return new Promise((resolve,reject)=>{
+    const backdrop=document.getElementById('api-verify-backdrop');
+    const widget=document.getElementById('api-verify-widget');
+    let settled=false,widgetId;
+    const finish=(error,token)=>{
+      if(settled)return;
+      settled=true;clearTimeout(timer);
+      backdrop.classList.remove('interactive');
+      Promise.resolve().then(()=>{if(widgetId!==undefined)try{turnstile.remove(widgetId);}catch(e){}});
+      closeVerification();
+      error?reject(error):resolve(token);
+    };
+    const timer=setTimeout(()=>finish(new Error('Verification timed out. Please retry.')),90000);
+    try{
+      widgetId=turnstile.render(widget,{
+        sitekey,action,appearance:'interaction-only',
+        size:window.innerWidth<350?'compact':'normal',
+        callback:token=>finish(null,token),
+        'before-interactive-callback':()=>{backdrop.classList.add('interactive');document.getElementById('api-verify-modal').setAttribute('aria-hidden','false');verificationStatus(false);},
+        'after-interactive-callback':()=>{backdrop.classList.remove('interactive');document.getElementById('api-verify-modal').setAttribute('aria-hidden','true');verificationStatus(true);},
+        'error-callback':()=>finish(new Error('Verification failed. Please retry.')),
+        'expired-callback':()=>finish(new Error('Verification expired. Please retry.')),
+        'unsupported-callback':()=>finish(new Error('Verification unavailable on this browser.')),
+        'timeout-callback':()=>finish(new Error('Verification timed out. Please retry.'))
+      });
+    }catch(e){finish(new Error('Verification could not start.'));}
+  });
+}
+async function ensureApiSession(){
+  if(hasLiveApiSession())return apiSession;
+  if(apiSessionPending)return apiSessionPending;
+  if(Date.now()<apiSessionBlockedUntil && apiSessionBlockedError)throw apiSessionBlockedError;
+  apiSessionPending=(async()=>{
+    verificationStatus(true);
+    try{
+      const sitekey=await getSitekey();
+      await loadTurnstile();
+      const token=await showVerification(sitekey);
+      verificationStatus(true);
+      const response=await fetch(PROXY+'/auth/session',{
+        method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',
+        body:JSON.stringify({token})
+      });
+      if(!response.ok)throw new Error('Verification failed. Please try again.');
+      const session=await response.json();
+      if(typeof session.token!=='string' || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(session.token) ||
+         !Number.isFinite(session.expiresIn) || session.expiresIn<=5 || session.expiresIn>300)
+        throw new Error('Invalid verification response.');
+      saveApiSession(session.token,Date.now()+session.expiresIn*1000-5000);
+      apiSessionBlockedUntil=0;apiSessionBlockedError=null;
+      setTimeout(repairMissingChannelAvatars,0);
+      return apiSession;
+    }finally{verificationStatus(false);}
+  })().catch(e=>{
+    apiSessionBlockedError=e;apiSessionBlockedUntil=Date.now()+API_VERIFY_COOLDOWN_MS;throw e;
+  }).finally(()=>{apiSessionPending=null;});
+  return apiSessionPending;
+}
+async function apiFetch(url,options={}){
+  if(options.signal?.aborted)throw Object.assign(new Error('Aborted'),{name:'AbortError'});
+  let session=await ensureApiSession();
+  if(options.signal?.aborted)throw Object.assign(new Error('Aborted'),{name:'AbortError'});
+  const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),Authorization:'Bearer '+session}});
+  let response=await request();
+  if(response.status===401){
+    if(apiSession===session)clearApiSession();
+    session=await ensureApiSession();
+    if(options.signal?.aborted)throw Object.assign(new Error('Aborted'),{name:'AbortError'});
+    response=await request();
+  }
+  return response;
+}
+
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').catch(()=>{});
 }
 
-/* ═══════════════════════════════════════════
-   PWA INSTALL — unified for Android + iOS 16.4+ + iOS fallback
-═══════════════════════════════════════════ */
 let deferredInstallPrompt = null;
 
-/* ── Show/hide helpers ── */
 function showInstallUI(){
   const btn = document.getElementById('android-install-btn');
   if(btn) btn.style.display = 'flex';
@@ -1517,7 +1827,6 @@ function hideInstallUI(){
   if(strip){ strip.classList.remove('show'); document.body.classList.remove('show-install-strip'); }
 }
 
-/* ── beforeinstallprompt — fires on Android AND iOS 16.4+ Safari ── */
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
@@ -1559,14 +1868,12 @@ function shareDesktopEmail(){location.href='mailto:?subject='+encodeURIComponent
 function copyDesktopShare(){copyToClipboard(desktopShareMessage());closeDesktopShare();toast('Share message copied ✓')}
 function copyShareTextFallback(){copyToClipboard(desktopShareMessage());toast('Share message copied ✓')}
 
-/* ── Nav strip dismiss — session only, reappears on next visit ── */
 function dismissNavStrip(e){
   e.stopPropagation();
   document.getElementById('nav-install-strip').classList.remove('show');
   document.body.classList.remove('show-install-strip');
 }
 
-/* ── iOS bottom sheet ── */
 function openIosSheet(){
   document.getElementById('ios-sheet-backdrop').classList.add('show');
   requestAnimationFrame(() => {
@@ -1580,7 +1887,6 @@ function closeIosSheet(){
   a11yCloseModal();
 }
 
-/* ── iOS detection ── */
 function isIos(){
   return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -1590,7 +1896,6 @@ function isInStandaloneMode(){
     window.matchMedia('(display-mode: standalone)').matches;
 }
 
-/* ── iOS fallback: older Safari without beforeinstallprompt ── */
 if(isIos() && !isInStandaloneMode()){
   setTimeout(() => {
     if(deferredInstallPrompt) return;
@@ -1608,12 +1913,27 @@ if(isIos() && !isInStandaloneMode()){
   }, 1000);
 }
 
-/* ═══════════════════════════════════════════
-   STATE : localStorage-backed store
-═══════════════════════════════════════════ */
+/* Single source of truth for the per-device channel cap. Enforced inside
+   STORE (read AND write) so every path — add, pack, backup restore, stale
+   second tab — is bounded in one place. Declared above STORE because
+   MAX_CHANNELS is a const and would be in its temporal dead zone if
+   STORE.channels were read first. */
+const CHANNEL_LIMIT = 25;
+
+function sanitizeChannels(list){
+  if(!Array.isArray(list)) return [];
+  const seen = new Set(), out = [];
+  for(const c of list){
+    if(out.length >= CHANNEL_LIMIT) break;
+    if(!c || typeof c !== 'object' || typeof c.id !== 'string' || seen.has(c.id)) continue;
+    seen.add(c.id); out.push(c);
+  }
+  return out;
+}
+
 const STORE = {
-  get channels(){   try{ return JSON.parse(localStorage.getItem('ft_channels')||'[]') }catch(e){ return [] } },
-  set channels(v){  localStorage.setItem('ft_channels', JSON.stringify(v)) },
+  get channels(){   try{ return sanitizeChannels(JSON.parse(localStorage.getItem('ft_channels')||'[]')) }catch(e){ return [] } },
+  set channels(v){  localStorage.setItem('ft_channels', JSON.stringify(sanitizeChannels(v))) },
   get hasLaunched(){ return !!localStorage.getItem('ns_launched') },
   set hasLaunched(v){ v ? localStorage.setItem('ns_launched','1') : localStorage.removeItem('ns_launched') },
   get savedVideos(){ try{ return JSON.parse(localStorage.getItem('ft_saved_videos')||'[]') }catch(e){ return [] } },
@@ -1624,37 +1944,31 @@ const STORE = {
   set kidsPin(v){  v ? localStorage.setItem('ns_kids_pin', v) : localStorage.removeItem('ns_kids_pin') },
   get sessionCount(){ return parseInt(localStorage.getItem('ns_session_count')||'0',10) },
   set sessionCount(v){ localStorage.setItem('ns_session_count', String(v)) },
-  // Videos loaded per channel in the feed. Default 10, user-selectable 1-50
-  // (see Settings > Feed). Clamped on read so a corrupted/edited localStorage
-  // value can never send an out-of-range count to the backend.
-  get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_channel')||'10',10); return (v>=1 && v<=50) ? v : 10; },
+  
+  
+  
+  /* Videos loaded per channel. Clamped on read (not just on write) so a
+   corrupted/edited localStorage value can never send an out-of-range count
+   to the backend. Default 10, user-selectable 1–50 via Settings > Feed. */
+get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_channel')||'10',10); return (v>=1 && v<=50) ? v : 10; },
   set videosPerChannel(v){ localStorage.setItem('ns_videos_per_channel', String(v)) },
 };
 
 let currentScreen  = '';
 let feedGeneration = 0;
-// True once a full Feed load has been kicked off this page session.
-// Prevents showScreen('feed') from calling initFeed() again on every
-// simple tab switch back to Feed. The channel list can only change via
-// flows that force a location.reload() (removeChannel(), doFallbackAdd())
-// or the deferred reload in leaveAddScreen() after inline multi-adds.
-// Once a full load has started this session there's nothing new to fetch;
-// re-showing the already-populated (or still-loading, in the background)
-// DOM is correct and avoids restarting work in progress.
+
+/* True once a full Feed load has been kicked off this page session.
+   Prevents showScreen('feed') from calling initFeed() again on every tab
+   switch back to Feed. The channel list can only change via flows that force
+   a location.reload(), so re-showing the already-populated DOM is correct. */
 let feedEverInitialized = false;
-// AbortController for the most recent full-feed reload. Each channel's
-// retry chain (fetchVideosRSSWithRetry) can legitimately run for a
-// couple of minutes worst-case (3 attempts, each up to the 45s RSS
-// timeout), so if a full reload ever *does* need to happen while a
-// previous one is still in flight, this lets us cancel the superseded
-// reload's fetches outright instead of leaving them to run to
-// completion in the background for no benefit, silently competing for
-// connections with the reload that actually matters.
+
+/* AbortController for the most recent full-feed reload. If a new full
+   reload is triggered while a previous one is in flight, this cancels the
+   superseded reload's fetches instead of letting them compete for connections
+   with the reload that actually matters. */
 let feedAbortController = null;
 
-/* ═══════════════════════════════════════════
-   VIDEO CACHE : 3h TTL, per channel
-═══════════════════════════════════════════ */
 const CACHE_TTL = 3 * 60 * 60 * 1000;
 
 function getCachedVideos(channelId){
@@ -1673,11 +1987,6 @@ function clearVideoCache(){
   Object.keys(localStorage).filter(k => k.startsWith('ft_vc_')).forEach(k => localStorage.removeItem(k));
 }
 
-/* ═══════════════════════════════════════════
-   RESUME STORE
-   Key: 'ns_resume' → { [videoId]: { t, saved, title, ch } }
-   Entries expire after 30 days and are cleaned on boot.
-═══════════════════════════════════════════ */
 const RESUME_TTL = 30 * 24 * 60 * 60 * 1000;
 
 function getResumeStore(){
@@ -1686,9 +1995,9 @@ function getResumeStore(){
 function setResumeStore(obj){
   try{ localStorage.setItem('ns_resume', JSON.stringify(obj)); } catch(e){}
 }
-function saveResumePosition(videoId, seconds, title, channelName){
+function saveResumePosition(videoId, seconds, title, channelName, thumb){
   const store = getResumeStore();
-  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'' };
+  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'', thumb: thumb||'' };
   setResumeStore(store);
 }
 function deleteResumeEntry(videoId){
@@ -1708,13 +2017,113 @@ function purgeExpiredResume(){
   if(changed) setResumeStore(store);
 }
 
-/* ═══════════════════════════════════════════
-   UTILS
-═══════════════════════════════════════════ */
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;').trim();
 
-/* Dismiss the on-screen keyboard after successful searches so results
-   have the full viewport on iOS, iPadOS and Android. */
+/* escHtml: like esc() but safe for strings that may already be HTML-encoded
+   (e.g. YouTube Data API snippet.title returns "&amp;" for "&"). Decodes the
+   five standard entities first, then re-encodes — so pre-encoded input is not
+   double-encoded, plain text is encoded correctly, and XSS is still blocked. */
+const escHtml = s => { if(!s) return ''; const d = String(s).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'"); return d.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').trim(); };
+const YOUTUBE_CHANNEL_ID_RE = /^UC[A-Za-z0-9_-]{22}$/;
+const YOUTUBE_VIDEO_ID_RE   = /^[A-Za-z0-9_-]{11}$/;
+
+function boundedImportedText(value, maxLength, fallback=''){
+  if(typeof value !== 'string') return fallback;
+  const text = value.trim();
+  return text ? text.slice(0, maxLength) : fallback;
+}
+
+function importedHttpsUrl(value){
+  if(typeof value !== 'string' || value.length > 2048) return '';
+  try{
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.href : '';
+  } catch(e){
+    return '';
+  }
+}
+
+const avatarRepairs = new Map();
+const avatarAttempted = new Set();
+function channelAvatarMarkup(ch){
+  const id = String(ch.id || '');
+  const label = escHtml((ch.name || '?').trim().slice(0, 1).toUpperCase() || '?');
+  const image = importedHttpsUrl(ch.avatar);
+  return `<span class="channel-avatar-fallback" aria-hidden="true">${label}</span>${image ? `<img src="${esc(image)}" alt="" onerror="repairChannelAvatar(this,'${esc(id)}')"/>` : ''}`;
+}
+async function repairChannelAvatar(img, id){
+  if(img){ img.removeAttribute('onerror'); img.remove(); }
+  if(!YOUTUBE_CHANNEL_ID_RE.test(id) || avatarAttempted.has(id)) return;
+  if(!hasLiveApiSession()) return; // silent repair must never trigger verification modal 
+  const repairSession=apiSession;
+  avatarAttempted.add(id);
+  try{
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    let res;
+    try {
+      
+      
+      res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(id)}`, {
+        signal:controller.signal, headers:{Authorization:'Bearer '+repairSession}
+      });
+    } finally { clearTimeout(timer); }
+    if(!res.ok) return;
+    const data = await res.json();
+    const match = Array.isArray(data) && data.find(ch => ch.id === id);
+    const avatar = match && importedHttpsUrl(match.avatar);
+    if(!avatar) return;
+    const channels = STORE.channels;
+    const index = channels.findIndex(ch => ch.id === id);
+    if(index < 0) return;
+    channels[index] = {...channels[index], avatar, handle:match.handle || channels[index].handle || '', subs:match.subs || channels[index].subs || ''};
+    STORE.channels = channels;
+    
+    document.querySelectorAll('.ch-avatar, .cli-avatar').forEach(el => {
+      const row = el.closest('[data-channel-id]');
+      if(row && row.dataset.channelId === id){
+        const image = el.querySelector('img');
+        if(image){ image.onerror = () => { image.remove(); }; image.src = avatar; }
+        else { const fresh = document.createElement('img'); fresh.alt = ''; fresh.onerror = () => fresh.remove(); fresh.src = avatar; el.appendChild(fresh); }
+      }
+    });
+  } catch(e){  }
+}
+function repairMissingChannelAvatars(){
+  STORE.channels.filter(ch => !importedHttpsUrl(ch.avatar)).forEach(ch => repairChannelAvatar(null, ch.id));
+}
+function normalizeImportedChannel(channel){
+  if(!channel || typeof channel !== 'object' || Array.isArray(channel)) return null;
+  const id = boundedImportedText(channel.id, 24);
+  if(!YOUTUBE_CHANNEL_ID_RE.test(id)) return null;
+  return {
+    id,
+    name:   boundedImportedText(channel.name, 120, id),
+    avatar: importedHttpsUrl(channel.avatar),
+    subs:   boundedImportedText(channel.subs, 80),
+    handle: boundedImportedText(channel.handle, 120)
+  };
+}
+
+function normalizeImportedVideo(video){
+  if(!video || typeof video !== 'object' || Array.isArray(video)) return null;
+  const id = boundedImportedText(video.id, 11);
+  if(!YOUTUBE_VIDEO_ID_RE.test(id)) return null;
+  const savedAtDate = new Date(video.savedAt);
+  return {
+    id,
+    title:       boundedImportedText(video.title, 300, 'Untitled video'),
+    channelName: boundedImportedText(video.channelName, 120),
+    publishedAt: boundedImportedText(video.publishedAt, 80),
+    thumb:       importedHttpsUrl(video.thumb),
+    savedAt:     Number.isNaN(savedAtDate.getTime()) ? new Date().toISOString() : savedAtDate.toISOString()
+  };
+}
+
+function hasDuplicateIds(items){
+  return new Set(items.map(item => item.id)).size !== items.length;
+}
+
 function dismissSearchKeyboard(input){
   if(input && document.activeElement === input) input.blur();
 }
@@ -1731,28 +2140,25 @@ function toast(msg, dur=5000){
   }, dur);
 }
 
-/* Returns true when a video was published within the last 24 hours.
-   Works for ISO date strings AND Worker relative strings like "15 hours ago".
-   Excludes day/week/month/year FIRST so "month" never trips the 'm' (minute) check. */
 function isNewVideo(publishedAt){
   if(!publishedAt) return false;
   const d = new Date(publishedAt);
   if(!isNaN(d.getTime())){
     const diffMs = Date.now() - d.getTime();
-    return diffMs >= 0 && diffMs < 86400000;          // guard against future/scheduled timestamps
+    return diffMs >= 0 && diffMs < 86400000;          
   }
   const s = String(publishedAt).toLowerCase();
-  if(/day|week|month|year/.test(s)) return false;   // never < 24 h — catches "month" before 'm'
-  if(/\bnow\b/.test(s)) return true;                 // "just now"
+  if(/day|week|month|year/.test(s)) return false;  // never <24h — catches 'month' before 'm'
+  if(/\bnow\b/.test(s)) return true;               // 'just now'                 
   const h = s.match(/(\d+)\s*h/);
-  if(h) return parseInt(h[1]) < 24;                  // "15 hours ago", "3h ago"
-  if(/\d+\s*m/.test(s)) return true;                 // "45 minutes ago", "5m ago"
+  if(h) return parseInt(h[1]) < 24;                  
+  if(/\d+\s*m/.test(s)) return true;                 
   return false;
 }
 function timeAgo(iso){
   if(!iso) return '';
-  // New Worker returns relative strings like "3 hours ago", "1 day ago" : pass through directly
-  if(isNaN(new Date(iso).getTime())) return iso;
+  
+  if(isNaN(new Date(iso).getTime())) return iso; // Worker returns relative strings like '3 hours ago' — pass through
   const s = Math.floor((Date.now() - new Date(iso)) / 1000);
   if(s < 3600)   return Math.floor(s/60) + 'm ago';
   if(s < 86400)  return Math.floor(s/3600) + 'h ago';
@@ -1781,51 +2187,42 @@ function extractYouTubeId(input){
   return null;
 }
 
-/* Extract channel ID from a YouTube channel URL.
-   Handles: /channel/UCxxx  /@handle  /c/name  /user/name */
 function extractChannelIdFromUrl(input){
-  input = input.trim();
-  // Direct UC... id
-  const ucMatch = input.match(/channel\/(UC[a-zA-Z0-9_-]{22})/);
-  if(ucMatch) return { type:'id', value: ucMatch[1] };
-  // @handle
-  const handleMatch = input.match(/youtube\.com\/@([^/?&\s]+)/);
-  if(handleMatch) return { type:'handle', value: '@' + handleMatch[1] };
-  // /c/name or /user/name
-  const nameMatch = input.match(/youtube\.com\/(?:c|user)\/([^/?&\s]+)/);
-  if(nameMatch) return { type:'handle', value: nameMatch[1] };
+  let url;
+  try { url = new URL(String(input || '').trim()); } catch(e){ return null; }
+  if(!['https:', 'http:'].includes(url.protocol)) return null;
+  const host = url.hostname.toLowerCase().replace(/^(www|m|music)\./, '');
+  if(host !== 'youtube.com' || url.searchParams.has('v')) return null;
+  const parts = url.pathname.split('/').filter(Boolean);
+  if(!parts.length) return null;
+  const first = parts[0], second = parts[1];
+  
+  
+  // Optional last segment is a channel tab (Videos, About, etc.), not identity.
+    // Accept any simple tab name so paths like /podcasts work too.
+    const simpleTab = value => /^[A-Za-z][A-Za-z0-9_-]*$/.test(value || '');
+  if(first.toLowerCase() === 'channel' && /^UC[A-Za-z0-9_-]{22}$/.test(second || '') &&
+     (parts.length === 2 || (parts.length === 3 && simpleTab(parts[2]))))
+    return { type:'id', value:second, legacy:false };
+  if(/^@[\p{L}\p{N}._-]+$/u.test(first) &&
+     (parts.length === 1 || (parts.length === 2 && simpleTab(second))))
+    return { type:'handle', value:first, legacy:false };
+  if(['c','user'].includes(first.toLowerCase()) && second && /^[A-Za-z0-9._-]+$/.test(second) &&
+     (parts.length === 2 || (parts.length === 3 && simpleTab(parts[2]))))
+    return { type:'handle', value:'@' + second, legacy:true, legacyType:first.toLowerCase() };
   return null;
 }
-
 function validateChannelUrl(input){
   input = (input || '').trim();
-  if(!/^https?:\/\//i.test(input)){
-    return { ok:false, msg:'That doesn\'t look like a URL. Please paste the full YouTube channel link (starting with https://).' };
-  }
-  let hostname;
-  try{
-    hostname = new URL(input).hostname.replace(/^(www|m|music)\./, '');
-  } catch(e){
-    return { ok:false, msg:'Invalid URL. Please paste a valid YouTube channel link.' };
-  }
-  if(hostname !== 'youtube.com' && hostname !== 'youtu.be'){
-    return { ok:false, msg:'That URL is not from YouTube. Please paste a YouTube channel link (e.g. youtube.com/@creator).' };
-  }
-  if(hostname === 'youtu.be'){
-    return { ok:false, msg:'That\'s a YouTube video link, not a channel link. Paste a channel URL like youtube.com/@creator or youtube.com/channel/UCxxx instead.' };
-  }
-  const parsed = new URL(input);
-  const hasList  = parsed.searchParams.has('list');
-  const isChannel = /\/(channel\/UC[a-zA-Z0-9_-]{22}|@[^/?&\s]+|c\/[^/?&\s]+|user\/[^/?&\s]+)/.test(parsed.pathname);
-  if(hasList && !isChannel){
-    return { ok:false, msg:'That\'s a YouTube playlist link, not a channel link. Open the channel page and copy the URL from there (e.g. youtube.com/@creator).' };
-  }
-  if(!extractChannelIdFromUrl(input)){
-    return { ok:false, msg:'Could not recognise that as a YouTube channel URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx' };
-  }
+  if(!/^https?:\/\//i.test(input)) return { ok:false, msg:'Please paste the full YouTube channel link starting with https://.' };
+  let url;
+  try { url = new URL(input); } catch(e){ return { ok:false, msg:'Invalid YouTube channel URL.' }; }
+  const host = url.hostname.toLowerCase().replace(/^(www|m|music)\./, '');
+  if(host === 'youtu.be') return { ok:false, msg:'That is a video link, not a channel link.' };
+  if(host !== 'youtube.com') return { ok:false, msg:'Please paste a YouTube channel link.' };
+  if(!extractChannelIdFromUrl(input)) return { ok:false, msg:'Could not recognise a channel ID, @handle, /c/ or /user/ link.' };
   return { ok:true };
 }
-
 function validateVideoUrl(input){
   input = (input || '').trim();
   if(!/^https?:\/\//i.test(input)){
@@ -1852,13 +2249,6 @@ function validateVideoUrl(input){
   return { ok:true };
 }
 
-/* ═══════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════ */
-/* openAddChannelOnboarding — used by the "Add Channels" button on both
-   the Feed and Channels empty states. Goes straight to the Add Channel
-   screen and focuses the search box, removing the extra navigation step
-   for first-time users. */
 function openAddChannelOnboarding(){
   localStorage.setItem('ns_add_return_tab', currentScreen === 'channels' ? 'channels' : 'feed');
   showScreen('add');
@@ -1868,8 +2258,6 @@ function openAddChannelOnboarding(){
   });
 }
 
-/* Bottom navigation must also work from Add Channel. If channels were
-   added, leaveAddScreen performs the required reload and lands on target. */
 function navigateMain(name){
   if(currentScreen === 'add'){
     localStorage.setItem('ns_add_return_tab', name);
@@ -1882,18 +2270,11 @@ function navigateMain(name){
 function showScreen(name, opts){
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
-    /* inert removes an entire inactive screen's content from keyboard
-       tab order and from screen readers in one step — without it,
-       every inactive screen's buttons/links/inputs stayed reachable by
-       Tab even though they were invisible (only opacity/pointer-events
-       were used to hide them), which meant Tab could jump into a
-       completely different, invisible screen instead of continuing
-       through the one actually on-screen.
-       Progressive enhancement: supported in all current Chrome/Edge,
-       Safari 15.4+, and Firefox 112+. On any older browser without
-       support, this attribute is simply ignored — behavior falls back
-       to exactly how it worked before this fix, never worse. */
-    s.setAttribute('inert', '');
+    
+    /* inert removes inactive screens from Tab order and screen readers.
+         Without it, Tab could reach invisible screens. Progressive enhancement:
+         silently ignored on older browsers — behavior falls back to pre-fix state. */
+      s.setAttribute('inert', '');
   });
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
@@ -1914,12 +2295,9 @@ function showScreen(name, opts){
   else if(name === 'add') document.getElementById('nav-channels').classList.add('active');
 
   if(name === 'feed'){
-    // Only kick off a real load the first time Feed is shown this
-    // session, or when explicitly asked to (opts truthy). Every later
-    // plain re-entry (nav tap back to Feed) just re-reveals the
-    // existing DOM — whatever loaded already stays loaded, and
-    // whatever's still loading keeps loading in the background
-    // uninterrupted, exactly as it would if the screen had stayed put.
+    // Only kick off a real load the first time Feed is shown this session,
+    // or when explicitly asked to (opts truthy). Later tab switches just
+    // re-reveal the existing DOM — in-progress loads continue uninterrupted.
     if(opts || !feedEverInitialized){
       feedEverInitialized = true;
       initFeed(opts);
@@ -1931,13 +2309,10 @@ function showScreen(name, opts){
   if(name === 'search')   initSearch();
   if(name === 'saved')    initSaved();
 
-  /* Move keyboard focus into the newly active screen so the very next
-     Tab press continues naturally inside it, instead of requiring a
-     manual click first. Focusing the screen's own heading (rather than
-     just repositioning focus silently) also makes a screen reader
-     announce which screen you've landed on — the standard pattern for
-     view changes in a single-page app. Falls back to the screen
-     container itself if a screen has no heading. */
+  
+  /* Move keyboard focus into the newly active screen so the next Tab press
+     continues naturally inside it. Heading focus makes screen readers announce
+     which screen you've landed on — standard single-page app pattern. */
   const focusTarget = activeScreenEl.querySelector('h1, h2') || activeScreenEl;
   if(!focusTarget.hasAttribute('tabindex')) focusTarget.setAttribute('tabindex', '-1');
   focusTarget.focus({preventScroll: true});
@@ -1948,9 +2323,6 @@ function getStarted(){
   showScreen(STORE.channels.length ? 'feed' : 'channels');
 }
 
-/* ═══════════════════════════════════════════
-   KIDS MODE
-═══════════════════════════════════════════ */
 let pinBuffer = '';
 let pinMode   = '';
 
@@ -2011,7 +2383,7 @@ function applyKidsMode(){
   document.getElementById('kids-banner').classList.toggle('show', on);
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
-  // Hide elements kids shouldn't see or accidentally tap
+  
   const kidsHide = ['settings-share-row','settings-vpc-row','settings-site-footer','nav-share-strip','share-strip-backdrop','desktop-share-backdrop'];
   kidsHide.forEach(id => {
     const el = document.getElementById(id);
@@ -2024,10 +2396,6 @@ function applyKidsMode(){
   const statusEl = document.getElementById('kids-mode-status');
   if(statusEl){ statusEl.textContent = on ? 'On' : 'Off'; statusEl.style.color = on ? 'var(--accent)' : 'var(--muted)'; }
 }
-
-/* ═══════════════════════════════════════════
-   VIDEO FEED
-═══════════════════════════════════════════ */
 
 /* Resolve the best available handle for a channel object.
    New channels store it in ch.handle.
@@ -2058,7 +2426,7 @@ async function fetchVideosRSS(channelId, handle, externalSignal) {
 
   let res;
   try {
-    res = await fetch(rssUrl, { signal: controller.signal });
+    res = await apiFetch(rssUrl, { signal: controller.signal });
     clearTimeout(timer);
   } catch(e) {
     clearTimeout(timer);
@@ -2086,7 +2454,7 @@ async function fetchVideosRSS(channelId, handle, externalSignal) {
 }
 
 async function fetchVideosRSSWithRetry(channelId, handle, externalSignal) {
-  const RETRY_DELAY = 2000;  // gap between retries
+  const RETRY_DELAY = 2000;  
   let lastError;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
@@ -2097,6 +2465,7 @@ async function fetchVideosRSSWithRetry(channelId, handle, externalSignal) {
       lastError = e;
       console.warn(`[NoSuggest] ${channelId} attempt ${attempt} failed:`, e.message);
       if (externalSignal && externalSignal.aborted) throw e;
+      if (/^Verification |^Invalid verification/.test(e.message)) throw e;
       if (attempt < 3) await new Promise(r => setTimeout(r, RETRY_DELAY));
     }
   }
@@ -2105,11 +2474,6 @@ async function fetchVideosRSSWithRetry(channelId, handle, externalSignal) {
   throw lastError;
 }
 
-/* ═══════════════════════════════════════════
-   FEED SCREEN
-═══════════════════════════════════════════ */
-
-/* Append a successfully loaded channel to the feed body */
 function appendChannelToFeed(ch, videos, body){
   const hasSections = body.querySelectorAll('.channel-section').length > 0;
   if(hasSections){
@@ -2117,10 +2481,10 @@ function appendChannelToFeed(ch, videos, body){
     div.className = 'section-divider';
     body.appendChild(div);
   }
-  const html = `<div class="channel-section" id="feed-ch-${ch.id}">
+  const html = `<div class="channel-section" id="feed-ch-${ch.id}" data-channel-id="${esc(ch.id)}">
     <button type="button" class="skip-channel-link" onclick="skipChannelSection('${esc(ch.id)}')">Skip ${escHtml(ch.name)}'s videos, go to next channel</button>
     <div class="channel-label" tabindex="-1">
-      <div class="ch-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
+      <div class="ch-avatar">${channelAvatarMarkup(ch)}</div>
       <span class="ch-name">${escHtml(ch.name)}</span>
 
     </div>
@@ -2131,8 +2495,8 @@ function appendChannelToFeed(ch, videos, body){
   const block = wrapper.firstElementChild;
   block.style.animation = 'fadeUp 0.35s ease both';
   body.appendChild(block);
-  renderVideos(ch, videos.slice(0, STORE.videosPerChannel));
-  // Force Android Chrome repaint
+  renderVideos(ch, videos.slice(0, STORE.videosPerChannel), !hasSections);
+  
   const el = document.getElementById('videos-' + ch.id);
   if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
 }
@@ -2147,18 +2511,36 @@ async function loadChannelVideos(ch, gen, body){
     if(feedGeneration !== gen) return;
     requestAnimationFrame(() => { appendChannelToFeed(ch, videos, body); });
   } catch(e){
-    // Silently drop — channel just won't appear
+    
     console.warn(`[NoSuggest] ${ch.id} not shown after all retries:`, e.message);
   }
 }
 
+function ensureFeedEmptyEl(){
+  let empty = document.getElementById('feed-empty');
+  if(!empty){
+    
+    
+    
+    // Full-reload path wipes #feed-body via innerHTML, destroying #feed-empty.
+    // Rebuild it rather than crashing on appendChild(null).
+    empty = document.createElement('div');
+    empty.className = 'empty-feed';
+    empty.id        = 'feed-empty';
+    empty.innerHTML = `<div class="big-icon">📺</div>
+      <h3>No channels yet</h3>
+      <p>Add some YouTube channels to start watching without distractions</p>
+      <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>`;
+  }
+  return empty;
+}
 async function initFeed(newChannelId){
-  const myGen    = ++feedGeneration;
+  allowVerificationRetry(); 
   const channels = STORE.channels;
   const body     = document.getElementById('feed-body');
-  const empty    = document.getElementById('feed-empty');
+  let   empty    = ensureFeedEmptyEl();
 
-  // Hide Reload button when there are no channels — nothing to reload
+  
   const reloadBtn = document.getElementById('feed-refresh-btn');
   if(reloadBtn) reloadBtn.style.display = channels.length ? '' : 'none';
 
@@ -2170,14 +2552,23 @@ async function initFeed(newChannelId){
   }
   empty.style.display = 'none';
 
-  // Single new channel added — just load and append it
+  
+  
+  
+  
+  
+  
+  
+  // Single new channel added — append only. Deliberately does NOT bump
+  // feedGeneration: doing so would cancel any in-progress full load.
   if(newChannelId){
     const ch = channels.find(c => c.id === newChannelId);
     if(!ch) return;
-    loadChannelVideos(ch, myGen, body);
+    loadChannelVideos(ch, feedGeneration, body);
     return;
   }
 
+  const myGen = ++feedGeneration; 
   if(feedAbortController) feedAbortController.abort();
   const myAbortController = new AbortController();
   feedAbortController = myAbortController;
@@ -2185,9 +2576,9 @@ async function initFeed(newChannelId){
 
   body.innerHTML = '';
 
-  // Track how many channels complete (success or fail) to detect all-failed case
+  
   let completed = 0;
-  let loaded    = 0;   // channels that successfully returned videos
+  let loaded    = 0;   
   const total   = channels.length;
   const sentinel = document.createElement('div');
   sentinel.id = 'feed-loading-sentinel';
@@ -2215,6 +2606,8 @@ async function initFeed(newChannelId){
     const jitter = Math.floor(Math.random() * 250);
     const delay = i === 0? jitter: SESSION_WARMUP + (i - 1) * (cached ? 100 : 500) + jitter;
     setTimeout(async () => {
+      // Guard: if a newer load started while this fetch was in flight,
+      // this generation's DOM has been wiped. Bail out.
       if(feedGeneration !== myGen) return;
       try{
         let videos = cached;
@@ -2226,7 +2619,7 @@ async function initFeed(newChannelId){
         loaded++;
         requestAnimationFrame(() => {
           appendChannelToFeed(ch, videos, body);
-          // Keep sentinel pinned at the very bottom as new channels arrive
+          
           const s = document.getElementById('feed-loading-sentinel');
           if(s) body.appendChild(s);
           updateSentinelText();
@@ -2234,32 +2627,35 @@ async function initFeed(newChannelId){
       } catch(e){
         console.warn(`[NoSuggest] ${ch.id} failed silently:`, e.message);
       } finally {
-        // Guard: if the user navigated away and back to Feed (or triggered
-        // another full reload) while this fetch was still in flight, this
-        // generation's body/sentinel have already been wiped by the newer
-        // initFeed() call. Without this check, a late-resolving stale fetch
-        // would grab the NEW generation's sentinel/body via the shared DOM
-        // id and corrupt its progress text, remove its sentinel early, or
-        // (worst case) wipe genuinely-loading content and show a false
-        // "Connection failure" state. Bail out — this generation's work no
-        // longer matters.
+        
+        
+        
+        
+        
+        
+        
+        
+        
         if(feedGeneration !== myGen) return;
         completed++;
         if(completed === total){
           requestAnimationFrame(() => {
-            // Remove sentinel — all channels have finished (success or fail)
+            
             const s = document.getElementById('feed-loading-sentinel');
             if(s) s.remove();
             if(!body.querySelector('.channel-section')){
               body.innerHTML = '';
-              body.appendChild(empty);
-              empty.querySelector('h3').textContent = 'Connection failure';
-              empty.querySelector('p').textContent  = 'Could not load any channels. Check your connection and refresh.';
-              empty.style.display = 'flex';
+              const failEmpty = ensureFeedEmptyEl();
+              body.appendChild(failEmpty);
+              failEmpty.querySelector('h3').textContent = 'Connection failure';
+              failEmpty.querySelector('p').textContent  = 'Could not load any channels. Check your connection and refresh.';
+              const failBtn = failEmpty.querySelector('.btn');
+              if(failBtn){ failBtn.textContent = '↺ Refresh'; failBtn.removeAttribute('onclick'); failBtn.onclick = () => { clearVideoCache(); location.reload(); }; }
+              failEmpty.style.display = 'flex';
             }
           });
         } else {
-          // A channel finished (even if it failed) — update the count
+          
           requestAnimationFrame(updateSentinelText);
         }
       }
@@ -2267,24 +2663,29 @@ async function initFeed(newChannelId){
   });
 }
 
-/* Video data map — keyed by videoId, avoids quote-escaping bugs in onclick attrs */
+/* Video data map — keyed by videoId. Avoids quote-escaping bugs in onclick
+   attrs by letting onclick pass only the ID, with data looked up at call time. */
 const VIDEO_DATA = {};
 
-function renderVideos(ch, videos){
+/* Resume data map — populated by initContinueWatching(), keyed by videoId.
+   Avoids escaping complexities in onclick attrs for resume cards. */
+const RESUME_DATA = {};
+
+function renderVideos(ch, videos, prioritizeFirst){
   const el = document.getElementById('videos-' + ch.id);
   if(!el) return;
   if(!videos.length){
     el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No full-form latest videos found for this channel</div>`;
     return;
   }
-  el.innerHTML = videos.map(v => {
+  el.innerHTML = videos.map((v, idx) => {
     VIDEO_DATA[v.id] = v;
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
     const isNew    = isNewVideo(v.publishedAt);
     return `
     <div class="video-thumb${isNew ? ' is-new' : ''}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
       <div class="thumb-img-wrap">
-        <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"/>
+        <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"${prioritizeFirst && idx === 0 ? ' fetchpriority="high"' : ""}/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
       </div>
       <div class="thumb-info">
@@ -2300,17 +2701,6 @@ function renderVideos(ch, videos){
   }).join('');
 }
 
-/* Moves keyboard focus from one channel section straight to the next
-   one's label, skipping past its entire row of video cards (and their
-   nested bookmark buttons) in a single Tab + Enter instead of ~20 Tab
-   presses. If this was the last channel, focus falls back to the
-   refresh button — a predictable, always-present landmark — rather
-   than silently going nowhere. */
-/* General "skip to main content" link. Bypasses the skip button itself
-   (the only thing before it on the page) and moves focus straight to
-   whichever screen is currently active — same heading-first, screen-
-   container-fallback logic already used when switching screens via the
-   nav, so behavior stays consistent everywhere focus is managed. */
 function skipToMainContent(){
   const activeScreenEl = document.querySelector('.screen.active');
   if(!activeScreenEl) return;
@@ -2325,11 +2715,9 @@ function skipChannelSection(fromChannelId){
   if(idx === -1) return;
   const next = sections[idx + 1];
   if(next){
-    /* Focus the NEXT channel's own skip button, not its label — landing
-       on the label instead sits past that channel's skip button in tab
-       order, so a second Tab would go straight into its videos, making
-       the chain break after one hop. Focusing its skip button lets
-       someone chain Enter, Enter, Enter through several channels. */
+    /* Focus the NEXT channel's skip button, not its label — the label sits
+       past the skip button in tab order, breaking the chain. Focusing the
+       skip button lets someone chain Enter, Enter through channels. */
     const nextSkip = next.querySelector('.skip-channel-link');
     if(nextSkip) nextSkip.focus();
   } else {
@@ -2340,66 +2728,48 @@ function skipChannelSection(fromChannelId){
 
 document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache(); location.reload(); };
 
-
-
-/* ═══════════════════════════════════════════
-   VIDEO PLAYER
-═══════════════════════════════════════════ */
 let currentVideoData    = null;
 let ytPlayer            = null;
 let videoEndedNaturally = false;
 let playerGeneration    = 0;
 let playerReadyTimer    = null;
 
-/* ── Screen Wake Lock ──────────────────────────────────────────────
-   Keeps the screen on while a video is actively PLAYING, instead of
-   relying only on the browser's own built-in "don't sleep during
-   video" heuristic — that heuristic lives entirely outside the page
-   and can vary by browser version, OEM battery-saver settings, and
-   installed-PWA vs. in-tab context, which is why screen-lock behavior
-   can differ between two devices running the exact same page.
-
-   Feature-detected via 'wakeLock' in navigator — on browsers without
-   support (e.g. iOS Safari < 16.4), every function below is a no-op
-   and playback falls back to exactly the pre-existing behavior. Never
-   throws, never blocks or alters playback either way.
-
-   NOT a fix for: 1) the screen turning off from an explicit user
-   action (power button, switching apps) — per spec, the browser is
-   REQUIRED to auto-release the lock the instant the document goes
-   hidden, so this can't and shouldn't try to override that; or
-   2) a hardware proximity sensor forcing the screen off (e.g. a case
-   or screen protector interfering with it) — that happens below the
-   web platform entirely and no page-level API can reach it. */
+/* ── Screen Wake Lock ─────────────────────────────────────────────────
+   Keeps the screen on while a video is PLAYING. Feature-detected: on browsers
+   without support (iOS Safari <16.4) this is a no-op.
+   NOT a fix for: explicit user screen-off (browser must release lock when doc
+   goes hidden — per spec) or hardware proximity sensor interference. */
 let wakeLockSentinel = null;
 
 async function requestScreenWakeLock(){
-  if(!('wakeLock' in navigator)) return;   // unsupported — silent no-op
-  if(wakeLockSentinel) return;             // already held — avoid a duplicate request
+  if(!('wakeLock' in navigator)) return; // unsupported — silent no-op
+  if(wakeLockSentinel) return;           // already held — avoid duplicate request
   const myGeneration = playerGeneration;
   try{
     const sentinel = await navigator.wakeLock.request('screen');
-    // The player this was requested for may have closed, or a different
-    // video may have opened, while this Promise was pending. Don't let
-    // a stale lock outlive the player session it belongs to.
+    
+    
+    
     if(myGeneration !== playerGeneration){
       try{ await sentinel.release(); } catch(e){}
       return;
     }
     wakeLockSentinel = sentinel;
     wakeLockSentinel.addEventListener('release', () => {
-      // Fires both for our own releaseScreenWakeLock() calls AND when
-      // the browser force-releases it for reasons outside our control
-      // (document went hidden, OS-level battery intervention). Either
-      // way, clear the reference so a later requestScreenWakeLock()
-      // isn't short-circuited by a stale, already-dead sentinel.
+      /* Fires for both our own releases AND browser force-releases (doc went hidden,
+         OS battery saver). Clear reference so later requests aren't short-circuited
+         by a stale, already-dead sentinel. */
+      
+      
+      
+      
       wakeLockSentinel = null;
     });
   } catch(err){
-    // Expected, non-exceptional rejections: battery saver active,
-    // document not visible at request time, permissions policy. Never
-    // surface this to the user or affect playback — it just means the
-    // screen behaves exactly as it did before this feature existed.
+    
+    
+    
+    
     wakeLockSentinel = null;
   }
 }
@@ -2452,10 +2822,18 @@ function toggleFeedSaveById(videoId, chId){
   const btn = document.querySelector(`.feed-save-btn[onclick*="'${videoId}'"]`);
   toggleFeedSave(btn, v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
 }
+
+function decodeVideoTitle(value){
+  const raw = String(value || '');
+  if(!raw) return '';
+  const safe = raw.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return new DOMParser().parseFromString('<!doctype html><title>' + safe + '</title>', 'text/html').title;
+}
 function openPlayer(videoId, title, channelName, publishedAt, thumb){
   const myPlayerGeneration = ++playerGeneration;
-  currentVideoData = { id:videoId, title, channelName, publishedAt, thumb: thumb||'' };
-  document.getElementById('player-title').textContent = title || 'Video';
+  const displayTitle = decodeVideoTitle(title);
+  currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'' };
+  document.getElementById('player-title').textContent = displayTitle || 'Video';
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent         = timeAgo(publishedAt);
   updatePlayerSaveBtn(videoId);
@@ -2484,10 +2862,8 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   });
 
   function isCurrentPlayer(){
-    // Generation is the source of truth. The player is intentionally created
-    // before requestAnimationFrame applies the overlay's visual `open` class.
-    // Closing or opening another video increments playerGeneration, which
-    // invalidates all delayed callbacks from this player instance.
+    // Generation is the source of truth. Closing or opening another video
+    // increments playerGeneration, invalidating all callbacks from this instance.
     return myPlayerGeneration === playerGeneration;
   }
 
@@ -2573,9 +2949,9 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
             clearPlayerReadyTimer();
             const code = Number(e.data);
 
-            // These are video/policy errors, not host errors. Switching
-            // domains cannot make an invalid, unavailable, or embed-blocked
-            // video playable, so avoid an unnecessary second iframe request.
+            
+            // Codes 2,100,101,150 are video/policy errors, not host errors.
+            // Switching domains cannot make an embed-blocked video playable.
             if(code === 2 || code === 100 || code === 101 || code === 150){
               const message = (code === 101 || code === 150)
                 ? "This video can't be played here — the channel has disabled external playback."
@@ -2584,13 +2960,14 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
               return;
             }
 
-            // Error 5 (HTML5 playback failure), 153 (missing Referer/API
-            // Client identity — this can plausibly differ between the
-            // nocookie and standard domains, unlike 101/150), and other
-            // undocumented errors can occasionally be host-specific.
-            // Retry once using the standard YouTube host, then show the
-            // external link.
-            if(tryStandardHost('YouTube player error ' + code)) return;
+            
+            
+            
+            
+            
+            
+            // Error 5 (HTML5 playback) and others can be host-specific — retry once.
+              if(tryStandardHost('YouTube player error ' + code)) return;
             showPlayerFailure("This video couldn't be played here. You can still open it on YouTube.");
           }
         }
@@ -2601,9 +2978,9 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
       return;
     }
 
-    // A blocked/DNS-filtered nocookie host may never dispatch onReady or
-    // onError. Retry the standard host once after a bounded wait. Do not
-    // run a second timeout for the fallback host.
+    
+    // A blocked nocookie host may never dispatch onReady or onError.
+    // Retry the standard host once after a bounded wait. Not run for fallback.
     if(host === 'https://www.youtube-nocookie.com'){
       playerReadyTimer = setTimeout(() => {
         if(!ready && isCurrentPlayer()){
@@ -2638,8 +3015,6 @@ function formatSeconds(s){
   return m + ':' + String(sec).padStart(2, '0');
 }
 
-/* Evaluate current position and save or delete the resume entry.
-   Called on pause, on close, and on background (visibilitychange). */
 function captureResumeOnPause(){
   if(!currentVideoData || !ytPlayer) return;
   try{
@@ -2648,17 +3023,17 @@ function captureResumeOnPause(){
     if(!duration || duration <= 0) return;
     const remaining = duration - current;
     if(current < 30){
-      // Barely started — don't save
+      
       deleteResumeEntry(currentVideoData.id);
       return;
     }
     if(remaining <= 30){
-      // Near the end — treat as finished
+      
       deleteResumeEntry(currentVideoData.id);
       return;
     }
-    // Mid-video — save position
-    saveResumePosition(currentVideoData.id, current, currentVideoData.title, currentVideoData.channelName);
+    
+    saveResumePosition(currentVideoData.id, current, currentVideoData.title, currentVideoData.channelName, currentVideoData.thumb);
   } catch(e){}
 }
 
@@ -2686,8 +3061,7 @@ function toggleSaveFromPlayer(){
   if(currentScreen === 'saved') initSaved();
 }
 function closePlayer(){
-  // Invalidate all callbacks and pending API initialization belonging to
-  // the player being closed before touching the iframe.
+  // Invalidate all callbacks and pending initialization before touching iframe.
   playerGeneration++;
   clearPlayerReadyTimer();
   window.createPlayerPending = null;
@@ -2702,18 +3076,19 @@ function closePlayer(){
     try{ ytPlayer.destroy(); } catch(e){}
     ytPlayer = null;
   }
-  // Wait for 0.2s fade-out transition then fully hide to release iOS touch tracking.
+  
   setTimeout(() => {
     if(!overlay.classList.contains('open')) overlay.style.display = 'none';
+    // Refresh Continue Watching list so updated entries disappear immediately
+    const cwPane = document.getElementById('search-continue-pane');
+    if(currentScreen === 'search' && cwPane && cwPane.style.display !== 'none'){
+      initContinueWatching();
+    }
   }, 220);
-  // Do NOT call initFeed() here — feed is already rendered.
+  
   a11yCloseModal();
 }
 
-/* ═══════════════════════════════════════════
-   ORIENTATION LOCK : landscape on fullscreen
-   Android PWA only — silently ignored elsewhere
-═══════════════════════════════════════════ */
 document.addEventListener('fullscreenchange', () => {
   if(document.fullscreenElement){
     screen.orientation.lock('landscape').catch(()=>{});
@@ -2722,13 +3097,8 @@ document.addEventListener('fullscreenchange', () => {
   }
 });
 
-/* ═══════════════════════════════════════════
-   iOS FULLSCREEN EXIT : reset viewport zoom
-   webkitpresentationmodechanged fires when
-   user exits native iOS video fullscreen
-═══════════════════════════════════════════ */
 function resetViewportZoom(){
-  // maximum-scale=1.0 in viewport meta handles zoom reset passively
+  
 }
 document.addEventListener('webkitfullscreenchange', () => {
   if(!document.webkitFullscreenElement) resetViewportZoom();
@@ -2737,15 +3107,12 @@ document.addEventListener('webkitpresentationmodechanged', (e) => {
   if(e.target && e.target.webkitPresentationMode !== 'fullscreen') resetViewportZoom();
 }, true);
 
-/* ═══════════════════════════════════════════
-   CHANNELS SCREEN
-═══════════════════════════════════════════ */
-const MAX_CHANNELS = 25;
+const MAX_CHANNELS = CHANNEL_LIMIT;
 
 function initChannels(){
   const channels  = STORE.channels;
   const body      = document.getElementById('channels-body');
-  const noEl      = document.getElementById('no-channels');
+  let   noEl      = document.getElementById('no-channels');
   const headingEl = document.getElementById('ch-heading');
   const atLimit   = channels.length >= MAX_CHANNELS;
 
@@ -2753,22 +3120,35 @@ function initChannels(){
 
   const headerAddBtn = document.getElementById('ch-add-btn');
   const fab          = document.querySelector('.add-channel-fab');
-  // Hide header Add Channel button when: no channels yet (onboarding card is the only CTA)
-  // OR when channel limit is reached (can't add more).
+  
+  
   const showHeaderAdd = channels.length > 0 && !atLimit;
   if(headerAddBtn) headerAddBtn.style.display = showHeaderAdd ? '' : 'none';
   if(fab)          fab.style.display          = atLimit ? 'none' : '';
 
   if(!channels.length){
     body.innerHTML = '';
+    
+    
+    
+    
+    if(!noEl){
+      noEl = document.createElement('div');
+      noEl.className   = 'empty-feed no-channels';
+      noEl.id          = 'no-channels';
+      noEl.innerHTML   = `<div class="big-icon">📺</div>
+        <h3>No channels yet</h3>
+        <p>Add some YouTube channels to start watching without distractions</p>
+        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>`;
+    }
     body.appendChild(noEl);
     noEl.style.display = 'flex';
     return;
   }
-  noEl.style.display = 'none';
+  if(noEl) noEl.style.display = 'none';
   body.innerHTML = channels.map((ch, i) => `
-    <div class="channel-list-item" style="animation-delay:${i*40}ms">
-      <div class="cli-avatar">${ch.avatar ? `<img src="${esc(ch.avatar)}" alt=""/>` : ''}</div>
+    <div class="channel-list-item" data-channel-id="${esc(ch.id)}" style="animation-delay:${i*40}ms">
+      <div class="cli-avatar">${channelAvatarMarkup(ch)}</div>
       <div class="cli-info">
         <div class="cli-name">${escHtml(ch.name)}</div>
         <div class="cli-handle">${esc(ch.subs || '')}</div>
@@ -2792,11 +3172,6 @@ function removeChannel(id){
   location.reload();
 }
 
-/* ═══════════════════════════════════════════
-   ADD CHANNEL SCREEN
-   Primary: Worker trigger + 500ms debounce
-   Fallback: Paste YouTube channel URL directly
-═══════════════════════════════════════════ */
 let searchTimeout = null;
 let channelRequestGeneration = 0;
 let channelRequestController = null;
@@ -2818,15 +3193,10 @@ function resetChannelSearchUi({ showFallback = true } = {}){
   if(showFallback) setFallbackHintVisible(true);
 }
 
-/* The suggestions dropdown is position:absolute (see comment on
-   #channel-suggestions) so a slow network response doesn't shift this
-   fallback hint when results arrive. But that also means the dropdown
-   doesn't push this hint down — it just overlays on top of it. There's
-   only ~1.5rem of natural clearance below the input in the empty state,
-   so even a single result visually overlaps this hint's text. Simplest
-   fix: hide the hint entirely whenever there's something to overlap it
-   with, and only show it when there's nothing behind it to collide. */
-function setFallbackHintVisible(visible){
+/* Suggestions dropdown is position:absolute — it overlays the fallback hint
+     rather than pushing it down. Hide the hint whenever results are showing
+     to avoid visual overlap; reveal it only when nothing is behind it. */
+  function setFallbackHintVisible(visible){
   const d = visible ? '' : 'none';
   document.getElementById('add-fallback-divider').style.display = d;
   document.getElementById('add-fallback-card').style.display    = d;
@@ -2855,7 +3225,7 @@ document.getElementById('channel-input').addEventListener('input', e => {
   document.getElementById('fallback-error').style.display = 'none';
   if(!q) return;
 
-  // URL paste: validate first, then resolve after a short debounce.
+  
   if(/^https?:\/\//i.test(q)){
     const vResult = validateChannelUrl(q);
     if(!vResult.ok){
@@ -2866,7 +3236,7 @@ document.getElementById('channel-input').addEventListener('input', e => {
     }
     searchTimeout = setTimeout(() => doFallbackAdd(q), 600);
   }
-  // Plain keywords wait for Enter or the Search button.
+  // Plain keywords wait for Enter or the Search button — no auto-search.
 });
 
 document.getElementById('channel-input').addEventListener('keydown', e => {
@@ -2891,12 +3261,6 @@ function triggerChannelSearch(){
   doChannelSearch(q);
 }
 
-
-/* ── Rotating loading messages: cycles the text under the search spinner
-   so a multi-second wait (the backend's tier fallback + retry cascade
-   can take a few seconds) feels active instead of stuck. Shared across
-   channel search and video search since only one of them is ever
-   in-flight at a time. ── */
 let _loadingMsgInterval = null;
 const CHANNEL_SEARCH_MESSAGES = [
   'Searching YouTube for channels…',
@@ -2943,7 +3307,24 @@ async function doChannelSearch(query){
   setFallbackHintVisible(false);
 
   try{
-    const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+    allowVerificationRetry();
+    // UC IDs and @handles cost 1 quota unit — use reusable session token.
+    // Plain names may hit search.list (100 units) — require fresh Turnstile.
+    const _isId=/^UC[A-Za-z0-9_-]{22}$/.test(query);
+    const _isHandle=query.startsWith('@');
+    let res;
+    if(_isId||_isHandle){
+      
+      res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+    } else {
+      
+      const tsToken=await getFreshTurnstileToken();
+      if(generation!==channelRequestGeneration)return; 
+      res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, {
+        signal: controller.signal,
+        headers: {'X-Turnstile-Token': tsToken}
+      });
+    }
     if(!res.ok) throw new Error(`Channel search failed (${res.status})`);
     const channels = await res.json();
 
@@ -3008,35 +3389,34 @@ async function doChannelSearch(query){
   }
 }
 
-/* ── Inline per-row add — no preview step, no page reload.
-   Each tap pushes straight to storage. The user keeps the results list and can add more.
-   A single deferred reload happens when they leave the Add Channel
-   screen (back button / popstate), handled in leaveAddScreen(). ── */
-let _addedThisSession = false; // tracks whether any channel was added this visit
+let _addedThisSession = false; // tracks whether any channel was added this visit (for deferred reload)
 
-function inlineAddChannel(index){
+/* Inline per-row add — no preview step, no page reload. Each tap pushes
+     straight to storage. A single deferred reload happens when leaving
+     the Add Channel screen (back button / popstate). */
+  function inlineAddChannel(index){
   const ch = window._channelSuggestions?.[index];
   if(!ch) return;
 
-  // Guard: already added (shouldn't be reachable since button is disabled, but be safe)
+  
   if(STORE.channels.some(c => c.id === ch.id)){
     toast('Already in your list');
     return;
   }
 
-  // Guard: at cap
+  
   if(STORE.channels.length >= MAX_CHANNELS){
     toast(`Channel limit reached (${MAX_CHANNELS}) — remove one first`);
     return;
   }
 
-  // 1. Persist to storage immediately
+  
   const channels = STORE.channels;
   channels.push(ch);
   STORE.channels = channels;
   _addedThisSession = true;
 
-  // 2. Flip this row to the ✓ Added state instantly (no reload)
+  
   const suggestions = document.getElementById('channel-suggestions');
   const rowEl = suggestions.querySelector(`[data-ch-index="${index}"]`);
   if(rowEl){
@@ -3046,7 +3426,7 @@ function inlineAddChannel(index){
     if(addBadge) addBadge.textContent = '✓ Added';
   }
 
-  // 3. If we just hit the cap, disable all remaining unadded rows + show notice
+  
   if(STORE.channels.length >= MAX_CHANNELS){
     suggestions.querySelectorAll('.channel-suggestion-item:not([disabled])').forEach(btn => {
       const idx = parseInt(btn.dataset.chIndex, 10);
@@ -3058,27 +3438,23 @@ function inlineAddChannel(index){
         if(badge) badge.textContent = 'Limit reached';
       }
     });
-    // Append cap notice if not already present
+    
     if(!suggestions.querySelector('.suggestion-cap-notice')){
       suggestions.insertAdjacentHTML('beforeend',
         `<div class="suggestion-cap-notice">Channel limit (${MAX_CHANNELS}) reached — remove a channel first.</div>`);
     }
   }
 
-
-  // Toast confirmation
+  
   toast(`Added ${ch.name} ✓ - Go to Feed tab to see latest videos`);
 }
 
-/* Called by both the back-button and popstate when leaving the Add screen.
-   If any channels were added this session we need a reload so the Channels
-   tab list and other storage-dependent state rebuild cleanly. */
 function leaveAddScreen(){
   clearTimeout(searchTimeout);
   cancelChannelRequest();
   if(_addedThisSession){
     _addedThisSession = false;
-    // Persist which tab to land on after reload
+    
     const returnTab = localStorage.getItem('ns_add_return_tab') || 'channels';
     localStorage.setItem('ns_active_tab', returnTab);
     localStorage.removeItem('ns_add_return_tab');
@@ -3103,6 +3479,11 @@ async function doFallbackAdd(inputVal){
   }
 
   const parsed = extractChannelIdFromUrl(input);
+  if(parsed?.legacy){
+    errEl.textContent = 'A legacy /' + parsed.legacyType + '/ slug is not necessarily its current @handle. Open the link on YouTube and paste its current @handle or /channel/ ID instead.';
+    errEl.style.display = 'block';
+    return;
+  }
   if(!parsed){
     errEl.textContent = 'Could not recognise that URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx';
     errEl.style.display = 'block';
@@ -3118,7 +3499,8 @@ async function doFallbackAdd(inputVal){
   setFallbackHintVisible(false);
 
   try{
-    const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(parsed.value)}`, { signal: controller.signal });
+    allowVerificationRetry();
+    const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(parsed.value)}`, { signal: controller.signal });
     if(!res.ok) throw new Error(`Channel lookup failed (${res.status})`);
     const results = await res.json();
     if(generation !== channelRequestGeneration) return;
@@ -3138,6 +3520,7 @@ async function doFallbackAdd(inputVal){
     }
 
     if(!ch || !ch.id) throw new Error('Could not resolve channel ID from that URL.');
+    if(parsed.type === 'handle' && String(ch.handle || '').toLowerCase() !== parsed.value.toLowerCase()) throw new Error('Could not verify the exact handle. Paste its /channel/ ID instead.');
 
     channelRequestController = null;
     searching.style.display = 'none';
@@ -3176,13 +3559,10 @@ async function doFallbackAdd(inputVal){
   }
 }
 
-/* ═══════════════════════════════════════════
-   SETTINGS SCREEN
-═══════════════════════════════════════════ */
 function initSettings(){
   const row = document.getElementById('settings-install-row');
   if(row){
-    // Show if native prompt available OR if iOS without standalone
+    
     const showRow = !!deferredInstallPrompt || (isIos() && !isInStandaloneMode());
     row.style.display = showRow ? 'flex' : 'none';
     if(isIos() && !isInStandaloneMode() && !deferredInstallPrompt){
@@ -3201,10 +3581,6 @@ function updateVideosPerChannelLabel(){
   if(label) label.textContent = `Latest ${STORE.videosPerChannel} videos/channel`;
 }
 
-/* ── Videos-per-channel picker: a custom modal instead of a native
-   <select>, since a native dropdown's open-list styling (scrollbar,
-   row highlight) can't be reskinned to match the app's dark theme —
-   it just renders as whatever the OS/browser gives it. ── */
 function openVpcPicker(){
   const list = document.getElementById('vpc-list');
   if(!list.children.length){
@@ -3229,12 +3605,10 @@ function closeVpcPicker(){
   document.getElementById('vpc-backdrop').classList.remove('show');
   a11yCloseModal();
 }
-/* Backend now always returns up to 50 videos per channel in one call
-   (see /rss), so changing this setting is just a re-slice of data
-   already fetched and cached — no refetch, no cache clear, no page
-   reload. Re-renders every channel section currently in the feed DOM;
-   renderVideos() no-ops for channels that aren't rendered yet. */
-function selectVpc(n){
+
+/* Backend returns up to 50 videos per channel in one call, so changing
+     this setting is just a re-slice of already-cached data — no refetch needed. */
+  function selectVpc(n){
   STORE.videosPerChannel = n;
   const vpcTriggerValue = document.getElementById('vpc-trigger-value');
   if(vpcTriggerValue) vpcTriggerValue.textContent = n;
@@ -3249,9 +3623,6 @@ function reRenderAllChannelFeeds(){
   });
 }
 
-/* ═══════════════════════════════════════════
-   SAVE / UNSAVE HELPERS
-═══════════════════════════════════════════ */
 function toggleSaveVideo(video){
   let saved = STORE.savedVideos;
   const idx = saved.findIndex(v => v.id === video.id);
@@ -3272,18 +3643,16 @@ function toggleFeedSave(btn, id, title, channelName, publishedAt, thumb){
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
 }
 
-/* ═══════════════════════════════════════════
-   SEARCH SCREEN : Worker /videos endpoint
-   URL paste → direct play | keyword → debounced full results
-═══════════════════════════════════════════ */
 let searchVideoTimeout = null;
 
 function initSearch(){
-  // Always reset to chooser when tab is opened
+  
   document.getElementById('search-header-title').textContent  = 'Search';
   document.getElementById('search-input-row').style.display   = 'none';
   document.getElementById('search-chooser').style.display     = 'flex';
+  document.getElementById('search-chooser').style.flexDirection = 'column';
   document.getElementById('search-video-pane').style.display  = 'none';
+  document.getElementById('search-continue-pane').style.display = 'none';
   document.getElementById('search-results-wrap').style.display = 'none';
   document.getElementById('search-loading').style.display     = 'none';
   stopLoadingMessages();
@@ -3298,6 +3667,16 @@ function pickSearchMode(mode){
     showScreen('add');
     return;
   }
+  if(mode === 'continue'){
+    document.getElementById('search-header-title').textContent    = 'Continue Watching';
+    document.getElementById('search-chooser').style.display       = 'none';
+    document.getElementById('search-video-pane').style.display    = 'none';
+    document.getElementById('search-input-row').style.display     = 'none';
+    document.getElementById('search-continue-pane').style.display = 'block';
+    initContinueWatching();
+    return;
+  }
+  
   document.getElementById('search-header-title').textContent = 'Search Videos';
   document.getElementById('search-chooser').style.display    = 'none';
   document.getElementById('search-video-pane').style.display = 'block';
@@ -3305,14 +3684,6 @@ function pickSearchMode(mode){
   setTimeout(() => document.getElementById('search-input').focus(), 300);
 }
 
-/* Keyword video search is manual-trigger only (Enter key or the Search
-   button) — no auto-search while typing. Same reasoning as channel
-   search: avoids firing a backend search call on every keystroke, which
-   previously meant the debounce still ran mid-typing even for people who
-   went on to press Enter anyway, doubling up calls unnecessarily.
-   Pasting a full YouTube URL is unchanged and still instant — that's a
-   direct video open, not a search API call, so there's no backend load
-   concern there and no reason to add friction to it. */
 document.getElementById('search-input').addEventListener('input', e => {
   const q = e.target.value.trim();
 
@@ -3325,7 +3696,7 @@ document.getElementById('search-input').addEventListener('input', e => {
     return;
   }
 
-  // URL paste → validate then play immediately (not a search call)
+  
   if(/^https?:\/\//i.test(q)){
     const vResult = validateVideoUrl(q);
     if(!vResult.ok){
@@ -3347,7 +3718,7 @@ document.getElementById('search-input').addEventListener('input', e => {
       return;
     }
   }
-  // Plain keyword typing no longer auto-searches — wait for Enter or the Search button
+  
 });
 
 document.getElementById('search-input').addEventListener('keydown', e => {
@@ -3358,7 +3729,7 @@ function triggerVideoSearch(){
   clearTimeout(searchVideoTimeout);
   const q = document.getElementById('search-input').value.trim();
   if(!q) return;
-  // If it looks like a URL, validate it first
+  
   if(/^https?:\/\//i.test(q)){
     const vResult = validateVideoUrl(q);
     if(!vResult.ok){
@@ -3398,7 +3769,6 @@ document.getElementById('search-input').addEventListener('search', () => {
   }
 });
 
-
 async function doYTSearch(q){
   if(!q) q = document.getElementById('search-input').value.trim();
   if(!q) return;
@@ -3416,18 +3786,26 @@ async function doYTSearch(q){
   empty.style.display       = 'none';
 
   try{
-    const res    = await fetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`);
-    const videos = await res.json();
+    allowVerificationRetry();
+    // Video search always hits search.list (100 quota units) — fresh
+    // single-use Turnstile token required. Do NOT auto-retry on failure.
+    const tsToken = await getFreshTurnstileToken();
+    const res     = await fetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`, {
+      headers: {'X-Turnstile-Token': tsToken}
+    });
+    const videos  = await res.json();
 
     loading.style.display = 'none';
     stopLoadingMessages();
 
-    // Discard stale response if user has typed something different
+    
     const currentQ = document.getElementById('search-input').value.trim();
     if(currentQ.toLowerCase() !== q.trim().toLowerCase()) return;
 
-    if(!Array.isArray(videos) || !videos.length || videos.error){
-      errEl.textContent   = 'No results found. Try a different keyword.';
+    if(!res.ok || !Array.isArray(videos) || !videos.length || videos.error){
+      errEl.textContent = !res.ok
+        ? (res.status===403 ? 'Verification failed. Please try again.' : 'Search unavailable. Check your connection.')
+        : 'No results found. Try a different keyword.';
       errEl.style.display = 'block';
       return;
     }
@@ -3436,22 +3814,64 @@ async function doYTSearch(q){
     document.getElementById('search-results-label').textContent = `Results for "${q}"`;
 
     resultsList.innerHTML = videos.map(v => {
-      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, thumb: v.thumb, publishedAt: v.publishedAt || '' };
+      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb, publishedAt: v.publishedAt || '' };
       const saved    = isVideoSaved(v.id);
       const timeStr  = v.publishedAt ? timeAgo(v.publishedAt) : '';
+      const durationDisplay = v.duration
+        ? `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:2px;margin-top:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>${esc(v.duration)}`
+        : '';
+      
+      const alreadyFollowed = v.channel && STORE.channels.some(c => c.name === v.channel || (v.channelId && c.id === v.channelId));
+      const hasChannelId    = !!v.channelId;
+      
+      const safeChannel   = (v.channel   || '').replace(/'/g, '');
+      const safeChannelId = (v.channelId || '').replace(/'/g, '');
+      const safeThumb     = (v.thumb     || '').replace(/'/g, '');
+
+      
+      
+      
+      
+      
+      
+      
+      
+      // Three states: 1. Already following → non-interactive
+      //                2. Real channelId → clickable follow link
+      //                3. No channelId → plain name, no action (name-only
+      //                   follow costs quota and can attach the wrong channel)
+      let followBlockHtml = '';
+      if(v.channel){
+        if(alreadyFollowed){
+          followBlockHtml = `
+            <button class="follow-channel-link" disabled style="color:var(--muted);text-decoration:none;cursor:default;opacity:1;"
+              aria-label="Already following ${esc(v.channel)}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> Following: ${esc(v.channel)}
+            </button>`;
+        } else if(hasChannelId){
+          followBlockHtml = `
+            <button class="follow-channel-link"
+              onclick="event.stopPropagation();openFollowChannelPopup('${safeChannel}','${safeChannelId}','${safeThumb}')"
+              aria-label="Follow channel: ${esc(v.channel)}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Follow Channel: ${esc(v.channel)}
+            </button>`;
+        } else {
+          followBlockHtml = `<div class="follow-channel-link" style="color:var(--muted);text-decoration:none;cursor:default;" aria-label="${esc(v.channel)} — follow unavailable">${esc(v.channel)}</div>`;
+        }
+      }
       return `
-      <div class="search-video-card" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${esc(v.title || 'video')}">
-        <div class="search-thumb-wrap">
-          <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
-          <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSaveById('${esc(v.id)}',this)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="${saved?'var(--accent)':'none'}" stroke="var(--accent)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-        <div class="search-card-info">
-          <div class="search-card-title">${esc(v.title)}</div>
-          <div>
-            <div class="search-card-meta">${esc(v.channel)}${timeStr ? ` · <span style="color:var(--text)">${esc(timeStr)}</span>` : ''}</div>
-            ${v.views ? `<div class="search-views-badge">${esc(v.views)}</div>` : ''}
+      <div class="search-video-card">
+        <div class="search-card-play-zone" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
+          <div class="search-thumb-wrap">
+            <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
+            <button class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSaveById('${esc(v.id)}',this)" tabindex="-1">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="${saved?'var(--accent)':'none'}" stroke="var(--accent)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+          <div class="search-card-info">
+            <div class="search-card-title">${escHtml(v.title)}</div>
+            <div class="search-card-meta" style="margin-bottom:4px">${[durationDisplay, timeStr, v.views].filter(Boolean).join(' • ')}</div>
+            ${followBlockHtml}
           </div>
         </div>
       </div>`;
@@ -3475,9 +3895,152 @@ function toggleSearchSave(btn, id, title, channelName, publishedAt, thumb){
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
 }
 
-/* ═══════════════════════════════════════════
-   SAVED VIDEOS SCREEN
-═══════════════════════════════════════════ */
+let _followChannelPending   = null; 
+let _followChannelRequestId = 0;    
+
+function renderFollowChannelAvatar(src){
+  const avatarEl = document.getElementById('follow-ch-avatar');
+  if(src){
+    avatarEl.innerHTML = `<img src="${esc(src)}" alt="" onerror="this.style.display='none'"/>`;
+  } else {
+    avatarEl.innerHTML = `<div class="follow-ch-avatar-placeholder">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg></div>`;
+  }
+}
+async function openFollowChannelPopup(channelName, channelId, thumb){
+  if(!channelName) return;
+  
+  if(STORE.channels.some(c => c.name === channelName || (channelId && c.id === channelId))){
+    toast(`You're already following ${channelName}`);
+    return;
+  }
+  
+  if(STORE.channels.length >= MAX_CHANNELS){
+    toast(`Channel limit reached (${MAX_CHANNELS}) — remove a channel first`);
+    return;
+  }
+  
+  
+  
+  if(!channelId){
+    toast('Could not verify this channel — no channel ID available.');
+    return;
+  }
+
+  const requestId = ++_followChannelRequestId;
+  _followChannelPending = { name: channelName, channelId, thumb, avatar: thumb || '', subs: '', handle: '' };
+
+  
+  
+  document.getElementById('follow-ch-title').textContent  = channelName;
+  document.getElementById('follow-ch-handle').textContent = '';
+  document.getElementById('follow-ch-body').textContent   =
+    `Add "${channelName}" to your channel list and see their latest videos in your Feed.`;
+  renderFollowChannelAvatar(thumb);
+
+  
+  
+  
+  /* Confirm disabled until enrichment settles — user sees real avatar/handle/
+     subs before committing. Single network call for the whole add flow. */
+  const btn = document.getElementById('follow-ch-confirm-btn');
+  btn.disabled    = true;
+  btn.textContent = 'Loading…';
+
+  document.getElementById('follow-ch-backdrop').classList.add('show');
+  a11yOpenModal(document.getElementById('follow-ch-modal'), closeFollowChannelPopup);
+
+  try{
+    const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(channelId)}`);
+    if(requestId !== _followChannelRequestId) return; // popup closed/reopened while in flight 
+    if(res.ok){
+      const results = await res.json();
+      const match = Array.isArray(results) && results.find(r => r.id === channelId);
+      if(match){
+        _followChannelPending.avatar = match.avatar || _followChannelPending.avatar;
+        _followChannelPending.subs   = match.subs   || '';
+        _followChannelPending.handle = match.handle || '';
+        _followChannelPending.name   = match.name   || _followChannelPending.name;
+        document.getElementById('follow-ch-title').textContent  = _followChannelPending.name;
+        document.getElementById('follow-ch-handle').textContent = [match.handle, match.subs].filter(Boolean).join(' · ');
+        renderFollowChannelAvatar(_followChannelPending.avatar);
+      }
+    }
+  } catch(e){  }
+
+  if(requestId !== _followChannelRequestId) return; 
+  btn.disabled    = false;
+  btn.textContent = 'Follow Channel';
+}
+function confirmFollowChannel(){
+  if(!_followChannelPending) return;
+  const ch = {
+    id:     _followChannelPending.channelId,
+    name:   _followChannelPending.name,
+    avatar: _followChannelPending.avatar || '',
+    subs:   _followChannelPending.subs   || '',
+    handle: _followChannelPending.handle || ''
+  };
+  if(!ch.id){
+    toast('Could not verify this channel. Try again in a moment.');
+    return;
+  }
+  
+  /* Final guards re-checked fresh — state may have changed while popup was open */
+  if(STORE.channels.some(c => c.id === ch.id)){
+    toast(`Already following ${ch.name}`);
+    closeFollowChannelPopup();
+    return;
+  }
+  if(STORE.channels.length >= MAX_CHANNELS){
+    toast(`Channel limit reached (${MAX_CHANNELS})`);
+    closeFollowChannelPopup();
+    return;
+  }
+  const channels = STORE.channels;
+  channels.push(ch);
+  STORE.channels = channels;
+  closeFollowChannelPopup();
+  
+  _refreshFollowLinksInResults(ch.name, ch.id);
+  
+  
+  
+  // Re-render Channels immediately — DOM exists even while Search is active.
+  initChannels();
+  // Append just this one channel to Feed without re-fetching everyone else.
+  if(feedEverInitialized) initFeed(ch.id);
+  toast(`${ch.name} added ✓ — Tap Channels to see it in your updated list`);
+}
+function closeFollowChannelPopup(){
+  _followChannelRequestId++; // invalidate any enrichment fetch still in flight 
+  document.getElementById('follow-ch-backdrop').classList.remove('show');
+  _followChannelPending = null;
+  a11yCloseModal();
+}
+
+function _refreshFollowLinksInResults(channelName, channelId){
+  const list = document.getElementById('search-results-list');
+  if(!list) return;
+  list.querySelectorAll('.follow-channel-link').forEach(btn => {
+    
+    const label = btn.getAttribute('aria-label') || '';
+    if(label.includes(channelName) || (channelId && label.includes(channelId))){
+      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--muted)" stroke="none"><path d="M20 6L9 17l-5-5"/></svg> Following: ${esc(channelName)}`;
+      btn.disabled = true;
+      btn.style.color = 'var(--muted)';
+      btn.style.textDecoration = 'none';
+      btn.style.cursor = 'default';
+      btn.style.opacity = '1';
+      btn.onclick = null;
+      btn.setAttribute('aria-label', `Already following ${channelName}`);
+    }
+  });
+}
+
 function initSaved(){
   const videos  = STORE.savedVideos;
   const list    = document.getElementById('saved-list');
@@ -3515,14 +4078,72 @@ function removeSaved(id){
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
 }
 
-/* ═══════════════════════════════════════════
-   SESSION SHARE SHEET : one share ask, every 25th session (raised from
-   5th since this sheet blocks the whole app — a much bigger ask than
-   the old thin strip, so it needs to be rarer). Single banner, single
-   message, no dismiss ×. Grows to 40% of the screen with a dimming
-   backdrop so it reads as a real decision, not a scroll-past strip.
-   Skipped entirely in Kids Mode.
-═══════════════════════════════════════════ */
+function initContinueWatching(){
+  const store   = getResumeStore();
+  const listEl  = document.getElementById('cw-list');
+  const emptyEl = document.getElementById('cw-empty');
+  const entries = Object.entries(store)
+    .map(([id, e]) => ({ id, ...e }))
+    .sort((a, b) => b.saved - a.saved);   
+
+  if(!entries.length){
+    listEl.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  listEl.innerHTML = entries.map((e, idx) => {
+    RESUME_DATA[e.id] = e;               
+    const thumb      = e.thumb || `https://i.ytimg.com/vi/${esc(e.id)}/mqdefault.jpg`;
+    const resumeAt   = formatSeconds(e.t);
+    const watchedAgo = e.saved ? timeAgo(new Date(e.saved).toISOString()) : '';
+    return `
+    <div class="cw-card" id="cw-${esc(e.id)}" style="animation-delay:${idx * 30}ms">
+      <div class="cw-play-zone"
+           onclick="openPlayerFromResume('${esc(e.id)}')"
+           role="button" tabindex="0"
+           aria-label="Resume: ${escHtml(e.title || 'video')}">
+        <div class="cw-thumb-wrap">
+          <img src="${esc(thumb)}" alt="" loading="lazy"
+               onerror="this.src='https://i.ytimg.com/vi/${esc(e.id)}/mqdefault.jpg'"/>
+          <div class="cw-resume-badge">&#9654; Resume at ${escHtml(resumeAt)}</div>
+        </div>
+        <div class="cw-info">
+          <div class="cw-title">${escHtml(e.title || 'Untitled video')}</div>
+          <div class="cw-meta">${escHtml(e.ch || '')}</div>
+          ${watchedAgo ? `<div class="cw-meta" style="margin-top:2px">Watched ${escHtml(watchedAgo)}</div>` : ''}
+        </div>
+      </div>
+      <button class="cw-remove-btn"
+              onclick="removeResumeItem('${esc(e.id)}')"
+              aria-label="Remove from Continue Watching"
+              title="Remove">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function openPlayerFromResume(videoId){
+  const e = RESUME_DATA[videoId];
+  if(!e) return;
+  const thumb = e.thumb || `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+  openPlayer(videoId, e.title || '', e.ch || '', '', thumb);
+}
+
+function removeResumeItem(videoId){
+  deleteResumeEntry(videoId);
+  delete RESUME_DATA[videoId];
+  const card = document.getElementById('cw-' + videoId);
+  if(card) card.remove();
+  const listEl = document.getElementById('cw-list');
+  if(listEl && !listEl.querySelector('.cw-card')){
+    listEl.innerHTML = '';
+    const emptyEl = document.getElementById('cw-empty');
+    if(emptyEl) emptyEl.style.display = 'block';
+  }
+}
+
 function initSessionBanner(){
   const count = STORE.sessionCount + 1;
   STORE.sessionCount = count;
@@ -3554,22 +4175,8 @@ function shareFromStrip(){
   shareNoSuggest();
 }
 
-/* ═══════════════════════════════════════════
-   BACKUP & RESTORE : channels + saved videos
-   Export → modal with base64 blob + copy button
-   Import → paste blob → validate → full replace
-═══════════════════════════════════════════ */
 let _exportCode = '';
 
-/* ═══════════════════════════════════════════
-   ACCESSIBILITY: shared modal focus management
-   Used by every modal/overlay (Export Backup, Create a Pack, incoming
-   Pack confirm, the iOS install sheet, and the Kids Mode PIN screen).
-   On open: focus moves into the modal and Tab is trapped inside it.
-   On close: focus returns to whatever triggered the modal, so keyboard
-   users don't lose their place. Escape closes the active modal.
-   This is plain DOM/focus-management code — no browser-specific APIs —
-   so it behaves identically on Android, iOS, and desktop. */
 let _a11yLastFocused = null;
 let _a11yModalEl     = null;
 let _a11yCloseFn     = null;
@@ -3577,7 +4184,7 @@ let _a11yCloseFn     = null;
 function a11yFocusablesIn(container){
   return Array.from(container.querySelectorAll(
     'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])'
-  )).filter(el => el.offsetParent !== null); // visible only
+  )).filter(el => el.offsetParent !== null); 
 }
 
 function a11yOpenModal(modalEl, closeFn){
@@ -3619,7 +4226,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-
 function doExportBackup(){
   try{
     const payload = {
@@ -3630,7 +4236,7 @@ function doExportBackup(){
     _exportCode = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
     document.getElementById('export-modal-code').textContent = _exportCode;
     document.getElementById('export-modal-backdrop').classList.add('show');
-    /* Also attempt clipboard copy immediately so it's ready */
+    
     copyToClipboard(_exportCode);
     a11yOpenModal(document.getElementById('export-modal'), closeExportModal);
   } catch(e){
@@ -3701,7 +4307,7 @@ async function pasteFromClipboard(){
     label.textContent = 'Backup code ready. Tap Restore to continue.';
     area.style.borderColor = 'var(--accent)';
   } catch(e){
-    // Clipboard API denied — fallback message
+    
     label.textContent = 'Clipboard access denied. Please allow clipboard permission and try again.';
     area.style.borderColor = 'var(--danger)';
   }
@@ -3753,27 +4359,30 @@ function doImportBackup(){
     return;
   }
 
-  const chCount = payload.channels.length;
-  const svCount = payload.savedVideos.length;
-  const msg = 'This will replace ALL current data with:\n\u2022 ' + chCount + ' channel' + (chCount === 1 ? '' : 's') + '\n\u2022 ' + svCount + ' saved video' + (svCount === 1 ? '' : 's') + '\n\nContinue?';
+  const channels    = payload.channels.map(normalizeImportedChannel);
+  const savedVideos = payload.savedVideos.map(normalizeImportedVideo);
+  if(channels.some(channel => !channel) || savedVideos.some(video => !video) ||
+     hasDuplicateIds(channels) || hasDuplicateIds(savedVideos)){
+    errEl.textContent   = 'Backup contains invalid or duplicate channel/video data. Please export a fresh backup.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const chCount = Math.min(channels.length, CHANNEL_LIMIT);
+  const chDropped = channels.length - chCount;
+  const svCount = savedVideos.length;
+  const msg = 'This will replace ALL current data with:\n\u2022 ' + chCount + ' channel' + (chCount === 1 ? '' : 's') + (chDropped ? ' (' + chDropped + ' extra won\'t fit: the limit is ' + CHANNEL_LIMIT + ')' : '') + '\n\u2022 ' + svCount + ' saved video' + (svCount === 1 ? '' : 's') + '\n\nContinue?';
   if(!confirm(msg)) return;
 
-  STORE.channels    = payload.channels;
-  STORE.savedVideos = payload.savedVideos;
+  STORE.channels    = channels;
+  STORE.savedVideos = savedVideos;
   toast('Restored successfully ✓');
   setTimeout(() => location.reload(), 800);
 }
 
-/* ═══════════════════════════════════════════
-   CHANNEL PACK : shareable link, channels-only, merge-only
-   Distinct from Backup & Restore (which is full replace).
-   A Pack never touches saved videos and never overwrites
-   existing channels — it only adds channels not already present,
-   up to the MAX_CHANNELS device limit.
-═══════════════════════════════════════════ */
-const PACK_MAX_CHANNELS = 40; // cap on how many channels one pack link can carry
+const PACK_MAX_CHANNELS = 40; 
 let _packCode = '';
-let _pendingPack = null; // { toAdd:[{id,name}], alreadyHave:number, willSkip:number }
+let _pendingPack = null; 
 
 function toUrlSafeB64(str){
   return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -3784,19 +4393,11 @@ function fromUrlSafeB64(str){
   return decodeURIComponent(escape(atob(b64)));
 }
 
-/* ── QR code encoder (qrcode-generator by Kazuhiko Arase, MIT licensed
-   https://github.com/kazuhikoarase/qrcode-generator) — minified, inlined
-   here to keep NoSuggest a single self-contained file. Used only to turn
-   a pack link into a QR code for classroom sharing; nothing is sent
-   anywhere to generate it. ── */
 var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
 
-/* Renders `text` as an inline QR SVG string, or null if it doesn't fit in
-   any QR code (should not happen for a pack link given the channel cap).
-   Prefers error-correction level M (a good balance of density and
-   scan-resilience to print/screen artifacts); falls back to L only if the
-   data is too large to fit at M even at the largest QR version. */
-function buildQrSvg(text){
+/* Builds an inline QR SVG. Prefers ECC level M (density/resilience balance);
+     falls back to L if data is too large. Quiet zone margin follows QR spec. */
+  function buildQrSvg(text){
   const eccOrder = ['M', 'L'];
   let q = null;
   for(const ecc of eccOrder){
@@ -3807,14 +4408,14 @@ function buildQrSvg(text){
         candidate.make();
         q = candidate;
         break;
-      } catch(e){ /* doesn't fit at this version yet, try the next one */ }
+      } catch(e){  }
     }
     if(q) break;
   }
   if(!q) return null;
 
   const moduleSize = 4;
-  const margin     = 4; // quiet zone, per QR spec recommendation
+  const margin     = 4; 
   const count      = q.getModuleCount();
   const size       = (count + margin * 2) * moduleSize;
   let path = '';
@@ -3830,9 +4431,9 @@ function buildQrSvg(text){
   return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code for this channel pack link"><rect width="${size}" height="${size}" fill="#fff"/><path d="${path}" fill="#000"/></svg>`;
 }
 
-/* Renders (or hides) the pack QR block. Isolated in its own try/catch so a
-   QR failure never blocks the link/code, which is the primary path. */
-function renderPackQr(url){
+/* Isolated in its own try/catch so a QR failure never blocks the
+     text link/code — the link is the primary path, QR is supplementary. */
+  function renderPackQr(url){
   const wrap  = document.getElementById('pack-modal-qr');
   const label = document.getElementById('pack-modal-qr-label');
   if(!wrap || !label) return;
@@ -3903,16 +4504,22 @@ function parsePackCode(code){
   if(payload.c.length > PACK_MAX_CHANNELS){
     return { ok:false, error: 'Pack code appears corrupt (too many entries).' };
   }
-  const channels = payload.c
-    .filter(pair => Array.isArray(pair) && typeof pair[0] === 'string' && pair[0].trim())
-    .map(pair => ({ id: pair[0].trim(), name: (pair[1] || pair[0]).toString().trim() }));
+  const channels = payload.c.map(pair => {
+    if(!Array.isArray(pair) || pair.length < 1 || typeof pair[0] !== 'string') return null;
+    return normalizeImportedChannel({
+      id: pair[0],
+      name: typeof pair[1] === 'string' ? pair[1] : pair[0]
+    });
+  });
+  if(channels.some(channel => !channel) || hasDuplicateIds(channels)){
+    return { ok:false, error: 'This pack contains invalid or duplicate channel data.' };
+  }
   if(!channels.length){
     return { ok:false, error: 'This pack link has no channels in it.' };
   }
   return { ok:true, channels };
 }
 
-/* ── Shown when a pack link is opened, or a code is pasted ── */
 function openPackConfirm(incomingChannels){
   const existing   = STORE.channels;
   const existingIds = new Set(existing.map(c => c.id));
@@ -3960,8 +4567,15 @@ function openPackConfirm(incomingChannels){
 
 async function confirmAddPack(){
   if(!_pendingPack || !_pendingPack.toAdd.length){ closePackConfirm(); return; }
-  const toAdd    = _pendingPack.toAdd;
   const channels = STORE.channels;
+  
+  const toAdd    = _pendingPack.toAdd.slice(0, Math.max(0, CHANNEL_LIMIT - channels.length));
+  if(!toAdd.length){
+    toast(`Channel limit reached (${CHANNEL_LIMIT}). Remove a channel to add more.`);
+    closePackConfirm();
+    cleanPackUrlParam();
+    return;
+  }
   toAdd.forEach(c => {
     channels.push({ id: c.id, name: c.name, avatar: '', subs: '', handle: '' });
   });
@@ -3977,13 +4591,13 @@ async function confirmAddPack(){
 
 async function resolvePackAvatars(toAdd){
   const BATCH_SIZE     = 5;
-  const LOOKUP_TIMEOUT = 15000; // comfortably above worst observed backend latency
+  const LOOKUP_TIMEOUT = 15000; 
 
   async function lookupOne(c){
     try{
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), LOOKUP_TIMEOUT);
-      const res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(c.name)}`, { signal: controller.signal });
+      const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(c.id)}`, { signal: controller.signal });
       clearTimeout(timer);
       if(!res.ok) return;
       const results = await res.json();
@@ -3993,11 +4607,11 @@ async function resolvePackAvatars(toAdd){
       const channels = STORE.channels;
       const idx = channels.findIndex(ch => ch.id === c.id);
       if(idx !== -1){
-        channels[idx] = { ...channels[idx], avatar: match.avatar || '', subs: match.subs || '', handle: match.handle || '' };
+        channels[idx] = { ...channels[idx], avatar: importedHttpsUrl(match.avatar) || channels[idx].avatar || '', subs: match.subs || channels[idx].subs || '', handle: match.handle || channels[idx].handle || '' };
         STORE.channels = channels;
       }
     } catch(e){
-      // Timeout or network hiccup for this one channel — leave it without a photo, non-fatal
+      
     }
   }
 
@@ -4026,10 +4640,10 @@ function cleanPackUrlParam(){
   }
 }
 
-/* Checked once at boot — if a ?pack= link was opened, show the confirm modal.
-   The URL param is stripped immediately on detection (not only after the
-   user decides), so a manual refresh mid-decision can't re-trigger this. */
-function checkForIncomingPack(){
+/* Checked once at boot. URL param stripped immediately on detection
+     (not only after the user decides) so a refresh mid-decision can't
+     re-trigger this. */
+  function checkForIncomingPack(){
   const url  = new URL(location.href);
   const code = url.searchParams.get('pack');
   if(!code) return;
@@ -4042,25 +4656,42 @@ function checkForIncomingPack(){
   openPackConfirm(result.channels);
 }
 
-
-/* ═══════════════════════════════════════════
-   ACCESSIBILITY: keyboard support for role="button" elements
-   Real <button> elements already handle Enter/Space natively — this
-   only covers the div-based interactive rows (Settings, FAQ, video
-   cards, channel suggestions) that carry an explicit role="button" +
-   tabindex="0" but have no native key handling of their own. One
-   delegated listener covers all of them, present and future, without
-   needing an onkeydown on every individual element. */
 document.addEventListener('keydown', (e) => {
   if(e.key !== 'Enter' && e.key !== ' ') return;
   const target = e.target;
   if(target && target.getAttribute && target.getAttribute('role') === 'button'){
-    e.preventDefault(); // stop Space from scrolling the page
+    e.preventDefault(); 
     target.click();
   }
 });
 
+/* One-time curation for devices that hold more than CHANNEL_LIMIT channels
+     (added via backup restore or hand-edited storage before the cap existed).
+     Keeps the first CHANNEL_LIMIT, stashes the rest so nothing is lost. */
+  function curateOverLimitChannels(){
+  try{
+    const raw  = JSON.parse(localStorage.getItem('ft_channels') || '[]');
+    if(!Array.isArray(raw)) return;
+    const kept = sanitizeChannels(raw);
+    if(raw.length === kept.length) return;
+    const seen = new Set(kept.map(c => c.id));
+    const overflow = [];
+    for(const c of raw){
+      if(c && typeof c.id === 'string' && !seen.has(c.id)){
+        seen.add(c.id);
+        overflow.push({ id: c.id, name: String(c.name || c.id).slice(0, 120) });
+      }
+    }
+    localStorage.setItem('ft_channels', JSON.stringify(kept));
+    if(overflow.length){
+      localStorage.setItem('ft_channels_trimmed', JSON.stringify(overflow.slice(0, 100)));
+      setTimeout(() => toast(`Channel limit is ${CHANNEL_LIMIT}. ${overflow.length} extra channel${overflow.length===1?'':'s'} removed from your list.`, 10000), 600);
+    }
+  }catch(e){}
+}
+
 window.addEventListener('load', () => {
+  curateOverLimitChannels();
   purgeExpiredResume();
   updateVideosPerChannelLabel();
   applyKidsMode();
@@ -4086,10 +4717,8 @@ window.addEventListener('popstate', () => {
   else{ history.pushState(null, '', location.href); }
 });
 
-/* Capture resume when app goes to background (tab switch, home button on mobile PWA).
-   No explicit wake-lock release needed on the hidden branch — the spec requires the
-   browser to auto-release any held lock the instant the document goes hidden, and
-   wakeLockSentinel is cleared via its own 'release' listener (see requestScreenWakeLock). */
+/* No explicit wake-lock release on hidden branch — the spec requires the
+   browser to auto-release any held lock when the document goes hidden. */
 document.addEventListener('visibilitychange', () => {
   const overlay = document.getElementById('player-overlay');
   if(document.hidden){
@@ -4097,8 +4726,8 @@ document.addEventListener('visibilitychange', () => {
       captureResumeOnPause();
     }
   } else if(overlay && overlay.classList.contains('open') && ytPlayer){
-    // Coming back to foreground: if the video is still playing, the
-    // browser force-released the previous lock while hidden — re-request it.
+    
+    
     try{
       if(ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) requestScreenWakeLock();
     } catch(e){}
