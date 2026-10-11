@@ -2196,6 +2196,10 @@ function dismissSearchKeyboard(input){
 // ── Unified loading overlay helpers ─────────────────────────────────────────────────────
 let _nloMsgInterval = null;
 function showLoadingOverlay(title, sub){
+  // Dismiss the software keyboard so it doesn't cover the overlay.
+  if(document.activeElement && typeof document.activeElement.blur === 'function'){
+    document.activeElement.blur();
+  }
   document.getElementById('nlo-title').textContent = title || 'Searching…';
   document.getElementById('nlo-sub').textContent   = sub   || '';
   const el = document.getElementById('ns-loading-overlay');
