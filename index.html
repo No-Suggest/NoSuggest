@@ -894,7 +894,61 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #api-verify-status{position:fixed;left:50%;bottom:calc(82px + var(--safe-bot));transform:translateX(-50%);z-index:19999;display:none;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:9px 14px;color:var(--text);font-size:12px;white-space:nowrap;max-width:calc(100vw - 24px);pointer-events:none;}
 #api-verify-status.show{display:flex;}
 #api-verify-status .spin{width:16px;height:16px;flex-shrink:0;}
-</style>
+
+  /* Unified, larger feed loading experience */
+  #feed-loading-sentinel{gap:18px;padding:3.25rem 1.25rem 3.5rem;}
+  #feed-loading-sentinel .feed-orbit{position:relative;width:58px;height:58px;border-radius:50%;border:2px solid rgba(255,255,255,.08);box-shadow:inset 0 0 18px rgba(232,255,90,.04);animation:feed-orbit 1.4s linear infinite;}
+  #feed-loading-sentinel .feed-orbit::before,#feed-loading-sentinel .feed-orbit::after{content:'';position:absolute;border-radius:50%;}
+  #feed-loading-sentinel .feed-orbit::before{width:12px;height:12px;left:3px;top:4px;background:var(--accent);box-shadow:0 0 16px rgba(232,255,90,.65);}
+  #feed-loading-sentinel .feed-orbit::after{width:9px;height:9px;right:5px;bottom:5px;background:var(--accent2);box-shadow:0 0 14px rgba(255,107,53,.55);}
+  @keyframes feed-orbit{to{transform:rotate(360deg)}}
+  #feed-loading-sentinel .feed-progress-bar{width:min(260px,72vw);height:6px;border-radius:999px;}
+  #feed-loading-sentinel .feed-progress-bar::after{display:none;}
+  #feed-loading-sentinel .feed-progress-bar span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:inherit;transition:width .28s ease;}
+  #feed-loading-sentinel .feed-progress-text{font-size:15px;line-height:1.55;color:var(--text);font-weight:500;}
+  /* Screen-local search loaders are the only passive indicators. */
+  #api-verify-status{display:none!important;}
+  
+  /* ── Unified loading overlay — search & channel search — */
+  #ns-loading-overlay{
+    position:fixed;inset:0;z-index:9500;
+    display:none;align-items:center;justify-content:center;
+    padding:24px;
+    background:rgba(5,5,5,.86);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);contain:strict;
+    pointer-events:auto;
+  }
+  #ns-loading-overlay.show{display:flex;}
+  .nlo-card{
+    display:flex;flex-direction:column;align-items:center;gap:20px;
+    width:min(340px,calc(100vw - 40px));
+    padding:30px 26px 26px;
+    background:rgba(17,17,17,.98);
+    border:1px solid var(--border2);border-radius:22px;
+    box-shadow:0 28px 80px rgba(0,0,0,.65);
+    text-align:center;
+  }
+  .nlo-orbit{
+    position:relative;width:62px;height:62px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.08);
+    box-shadow:inset 0 0 20px rgba(232,255,90,.05);
+    animation:feed-orbit 1.4s linear infinite;
+    flex-shrink:0;
+  }
+  .nlo-orbit::before,.nlo-orbit::after{content:'';position:absolute;border-radius:50%;}
+  .nlo-orbit::before{width:13px;height:13px;left:3px;top:4px;background:var(--accent);box-shadow:0 0 18px rgba(232,255,90,.7);}
+  .nlo-orbit::after{width:10px;height:10px;right:5px;bottom:6px;background:var(--accent2);box-shadow:0 0 16px rgba(255,107,53,.6);}
+  .nlo-bar{width:min(240px,72vw);height:6px;background:var(--border);border-radius:999px;overflow:hidden;}
+  .nlo-bar::after{
+    content:'';display:block;height:100%;width:50%;
+    background:linear-gradient(90deg,var(--accent2),var(--accent));
+    border-radius:inherit;
+    animation:nlo-shimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes nlo-shimmer{0%{transform:translateX(-120%)}100%{transform:translateX(240%)}}
+  .nlo-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.01em;line-height:1.35;}
+  .nlo-sub{font:12px/1.5 'DM Mono',monospace;color:var(--muted);min-height:16px;}
+  </style>
 </head>
 <body>
 <button type="button" class="skip-to-content-link" onclick="skipToMainContent()">Skip to main content</button>
@@ -1622,6 +1676,16 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <div id="toast" role="status" aria-live="polite"></div>
 </div>
 
+
+<!-- Unified loading overlay -->
+<div id="ns-loading-overlay" role="status" aria-live="polite" aria-hidden="true">
+  <div class="nlo-card">
+    <div class="nlo-orbit" aria-hidden="true"></div>
+    <div class="nlo-bar"   aria-hidden="true"></div>
+    <div class="nlo-title" id="nlo-title">Searching…</div>
+    <div class="nlo-sub"   id="nlo-sub"></div>
+  </div>
+</div>
 <div id="vpc-backdrop" onclick="if(event.target===this)closeVpcPicker()">
   <div id="vpc-modal" role="dialog" aria-modal="true" aria-labelledby="vpc-title">
     <div class="vpc-title" id="vpc-title">Videos per Channel</div>
@@ -1690,7 +1754,7 @@ function clearApiSession(){
   try{sessionStorage.removeItem(API_SESSION_STORAGE_KEY);}catch(e){}
 }
 restoreApiSession();
-function verificationStatus(show){document.getElementById('api-verify-status').classList.toggle('show',show);}
+function verificationStatus(show){ /* Screen-local loader is the single passive status UI. */ }
 function closeVerification(){
   document.getElementById('api-verify-backdrop').classList.remove('interactive');
   document.getElementById('api-verify-modal').setAttribute('aria-hidden','true');
@@ -2128,6 +2192,54 @@ function dismissSearchKeyboard(input){
   if(input && document.activeElement === input) input.blur();
 }
 
+
+// ── Unified loading overlay helpers ─────────────────────────────────────────────────────
+let _nloMsgInterval = null;
+// Max time a search request may run once sent. Slow networks are fine; a dead
+// connection is cut off with an error instead of leaving the overlay up.
+const SEARCH_TIMEOUT_MS = 75000;
+
+function showLoadingOverlay(title, sub){
+  // Dismiss the software keyboard so it doesn't cover the overlay.
+  if(document.activeElement && typeof document.activeElement.blur === 'function'){
+    document.activeElement.blur();
+  }
+  document.getElementById('nlo-title').textContent = title || 'Searching…';
+  document.getElementById('nlo-sub').textContent   = sub   || '';
+  const el = document.getElementById('ns-loading-overlay');
+  el.classList.add('show');
+  el.setAttribute('aria-hidden','false');
+
+}
+
+function updateLoadingOverlay(title, sub){
+  const el = document.getElementById('ns-loading-overlay');
+  if(!el.classList.contains('show')) return;
+  if(title !== undefined) document.getElementById('nlo-title').textContent = title;
+  if(sub   !== undefined) document.getElementById('nlo-sub').textContent   = sub;
+}
+function hideLoadingOverlay(){
+
+  stopOverlayCycling();
+  const el = document.getElementById('ns-loading-overlay');
+  el.classList.remove('show');
+  el.setAttribute('aria-hidden','true');
+}
+function startOverlayCycling(messages, intervalMs){
+  stopOverlayCycling();
+  if(!messages || !messages.length) return;
+  intervalMs = intervalMs || 1900;
+  let i = 0;
+  updateLoadingOverlay(messages[0]);
+  _nloMsgInterval = setInterval(() => {
+    i = (i + 1) % messages.length;
+    updateLoadingOverlay(messages[i]);
+  }, intervalMs);
+}
+function stopOverlayCycling(){
+  if(_nloMsgInterval){ clearInterval(_nloMsgInterval); _nloMsgInterval = null; }
+}
+// ──────────────────────────────────────────────────────────────────────────────
 let toastTimer = null;
 function toast(msg, dur=5000){
   const t = document.getElementById('toast');
@@ -2583,28 +2695,75 @@ async function initFeed(newChannelId){
   const sentinel = document.createElement('div');
   sentinel.id = 'feed-loading-sentinel';
   sentinel.innerHTML =
-    `<div class="spin"></div>` +
-    (total > 1 ? `<div class="feed-progress-bar"></div>` : '') +
+    `<div class="feed-orbit" aria-hidden="true"></div>` +
+    (total > 1 ? `<div class="feed-progress-bar"><span id="feed-progress-fill"></span></div>` : '') +
     `<div class="feed-progress-text" id="feed-progress-text">` +
       (total === 1 ? `Loading your channel…` : `Loading ${total} channels…`) +
     `</div>`;
   body.appendChild(sentinel);
 
+  // Show the unified overlay during Turnstile/session phase.
+  // Only needed when there is no live 5-min session already.
+  let feedOverlayHidden = hasLiveApiSession() || !channels.some(c => !getCachedVideos(c.id));
+  if(!feedOverlayHidden){
+    showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
+  }
+
   function updateSentinelText(){
     const textEl = document.getElementById('feed-progress-text');
     if(!textEl) return;
     const remaining = total - completed;
+    const fillEl = document.getElementById('feed-progress-fill');
+    if(fillEl) fillEl.style.width = Math.round((completed / total) * 100) + '%';
     if(remaining <= 0) return;
     textEl.textContent = loaded === 0
       ? `Loading ${total} channel${total === 1 ? '' : 's'}…`
       : `${loaded} ${loaded === 1 ? 'channel' : 'channels'} loaded · ${remaining} more to go…`;
   }
 
+  // Requests run in parallel now, so reveal results in the user's channel order.
+  // A channel that is still pending after STRAGGLER_MS no longer holds the rest
+  // back; it is appended when it arrives.
+  const STRAGGLER_MS = 1500;
+  const ready = new Map(), failed = new Set();
+  let nextIdx = 0, straggleTimer = null;
+  function afterDrain(){
+    const s = document.getElementById('feed-loading-sentinel');
+    if(s) body.appendChild(s);
+    updateSentinelText();
+  }
+  function drain(force){
+    for(;;){
+      if(ready.has(nextIdx)){ appendChannelToFeed(channels[nextIdx], ready.get(nextIdx), body); ready.delete(nextIdx); nextIdx++; }
+      else if(failed.has(nextIdx)){ nextIdx++; }
+      else if(force && ready.size){ nextIdx = Math.min(...ready.keys()); }
+      else break;
+    }
+  }
+  function scheduleDrain(){
+    requestAnimationFrame(() => {
+      if(feedGeneration !== myGen) return;
+      drain(false);
+      clearTimeout(straggleTimer); straggleTimer = null;
+      if(ready.size) straggleTimer = setTimeout(() => {
+        straggleTimer = null;
+        if(feedGeneration !== myGen) return;
+        drain(true); afterDrain();
+      }, STRAGGLER_MS);
+      afterDrain();
+    });
+  }
+  function arrive(i, videos){
+    if(i < nextIdx){
+      requestAnimationFrame(() => { if(feedGeneration !== myGen) return; appendChannelToFeed(channels[i], videos, body); afterDrain(); });
+    } else { ready.set(i, videos); scheduleDrain(); }
+  }
+
   channels.forEach((ch, i) => {
     const cached = getCachedVideos(ch.id);
-    const SESSION_WARMUP = 1500;
-    const jitter = Math.floor(Math.random() * 250);
-    const delay = i === 0? jitter: SESSION_WARMUP + (i - 1) * (cached ? 100 : 500) + jitter;
+    const jitter = Math.floor(Math.random() * 80);
+      // Prompt start with a light five-request wave stagger for uncached channels.
+      const delay = cached ? jitter : Math.floor(i / 5) * 120 + jitter;
     setTimeout(async () => {
       // Guard: if a newer load started while this fetch was in flight,
       // this generation's DOM has been wiped. Bail out.
@@ -2617,15 +2776,12 @@ async function initFeed(newChannelId){
         }
         if(feedGeneration !== myGen) return;
         loaded++;
-        requestAnimationFrame(() => {
-          appendChannelToFeed(ch, videos, body);
-          
-          const s = document.getElementById('feed-loading-sentinel');
-          if(s) body.appendChild(s);
-          updateSentinelText();
-        });
+        // Hide the securing overlay the moment the first channel arrives.
+        if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(); }
+        arrive(i, videos);
       } catch(e){
         console.warn(`[NoSuggest] ${ch.id} failed silently:`, e.message);
+        if(feedGeneration === myGen){ failed.add(i); scheduleDrain(); }
       } finally {
         
         
@@ -2639,6 +2795,8 @@ async function initFeed(newChannelId){
         if(feedGeneration !== myGen) return;
         completed++;
         if(completed === total){
+          clearTimeout(straggleTimer); straggleTimer = null;
+          if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(); }
           requestAnimationFrame(() => {
             
             const s = document.getElementById('feed-loading-sentinel');
@@ -3182,6 +3340,7 @@ function cancelChannelRequest(){
     channelRequestController.abort();
     channelRequestController = null;
   }
+  hideLoadingOverlay(); // a cancelled request must never leave the overlay up
 }
 
 function resetChannelSearchUi({ showFallback = true } = {}){
@@ -3294,13 +3453,17 @@ async function doChannelSearch(query){
   const generation = channelRequestGeneration;
   const controller = new AbortController();
   channelRequestController = controller;
+  let timedOut = false, reqTimer = null;
+  const startReqTimeout = () => {
+    clearTimeout(reqTimer);
+    reqTimer = setTimeout(() => { timedOut = true; controller.abort(); }, SEARCH_TIMEOUT_MS);
+  };
 
   const searching = document.getElementById('channel-searching');
   const errEl = document.getElementById('add-error');
   const suggestions = document.getElementById('channel-suggestions');
 
-  searching.style.display = 'block';
-  startLoadingMessages('channel-search-progress-text', CHANNEL_SEARCH_MESSAGES);
+  searching.style.display = 'none';
   errEl.style.display = 'none';
   suggestions.style.display = 'none';
   suggestions.innerHTML = '';
@@ -3314,12 +3477,16 @@ async function doChannelSearch(query){
     const _isHandle=query.startsWith('@');
     let res;
     if(_isId||_isHandle){
-      
+      showLoadingOverlay('Looking up channel…', '');
+      startReqTimeout();
       res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
     } else {
-      
+      showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
       const tsToken=await getFreshTurnstileToken();
+      updateLoadingOverlay('Searching YouTube…', '');
+      startOverlayCycling(['Searching YouTube for channels…','Checking names and handles…','Matching against creators…','Almost there…']);
       if(generation!==channelRequestGeneration)return; 
+      startReqTimeout();
       res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, {
         signal: controller.signal,
         headers: {'X-Turnstile-Token': tsToken}
@@ -3327,14 +3494,14 @@ async function doChannelSearch(query){
     }
     if(!res.ok) throw new Error(`Channel search failed (${res.status})`);
     const channels = await res.json();
+    clearTimeout(reqTimer);
 
     if(generation !== channelRequestGeneration) return;
     const currentQ = document.getElementById('channel-input').value.trim();
     if(currentQ.toLowerCase() !== query.trim().toLowerCase()) return;
 
     channelRequestController = null;
-    searching.style.display = 'none';
-    stopLoadingMessages();
+    hideLoadingOverlay();
 
     if(!Array.isArray(channels) || channels.error || !channels.length){
       errEl.textContent = 'No channels found. Try a different name or paste the channel URL directly in this box.';
@@ -3379,11 +3546,14 @@ async function doChannelSearch(query){
     window._channelSuggestions = channels;
     suggestions.style.display = 'block';
   } catch(err){
-    if(err.name === 'AbortError' || generation !== channelRequestGeneration) return;
+    clearTimeout(reqTimer);
+    if(generation !== channelRequestGeneration) return;
+    if(err.name === 'AbortError' && !timedOut) return;
     channelRequestController = null;
-    searching.style.display = 'none';
-    stopLoadingMessages();
-    errEl.textContent = 'Search failed. Check your connection or paste the channel URL directly in this box.';
+    hideLoadingOverlay();
+    errEl.textContent = timedOut
+      ? 'Search timed out. Check your connection and try again, or paste the channel URL directly in this box.'
+      : 'Search failed. Check your connection or paste the channel URL directly in this box.';
     errEl.style.display = 'block';
     setFallbackHintVisible(true);
   }
@@ -3494,15 +3664,19 @@ async function doFallbackAdd(inputVal){
   const generation = channelRequestGeneration;
   const controller = new AbortController();
   channelRequestController = controller;
-  searching.style.display = 'block';
-  startLoadingMessages('channel-search-progress-text', CHANNEL_SEARCH_MESSAGES);
+  showLoadingOverlay('Looking up channel…', '');
   setFallbackHintVisible(false);
+
+  // Same limit as the searches; here it also covers session setup (apiFetch).
+  let timedOut = false;
+  const reqTimer = setTimeout(() => { timedOut = true; controller.abort(); }, SEARCH_TIMEOUT_MS);
 
   try{
     allowVerificationRetry();
     const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(parsed.value)}`, { signal: controller.signal });
     if(!res.ok) throw new Error(`Channel lookup failed (${res.status})`);
     const results = await res.json();
+    clearTimeout(reqTimer);
     if(generation !== channelRequestGeneration) return;
     if(!Array.isArray(results) || results.error || !results.length){
       throw new Error('Channel not found via URL. Try searching by name above.');
@@ -3523,8 +3697,7 @@ async function doFallbackAdd(inputVal){
     if(parsed.type === 'handle' && String(ch.handle || '').toLowerCase() !== parsed.value.toLowerCase()) throw new Error('Could not verify the exact handle. Paste its /channel/ ID instead.');
 
     channelRequestController = null;
-    searching.style.display = 'none';
-    stopLoadingMessages();
+    hideLoadingOverlay();
     setFallbackHintVisible(true);
 
     if(STORE.channels.some(c => c.id === ch.id)){
@@ -3549,12 +3722,15 @@ async function doFallbackAdd(inputVal){
     sessionStorage.setItem('ns_post_reload_toast', `Added ${ch.name || 'channel'} ✓ - Go to Feed tab to see latest videos`);
     leaveAddScreen();
   } catch(err){
-    if(err.name === 'AbortError' || generation !== channelRequestGeneration) return;
+    clearTimeout(reqTimer);
+    if(generation !== channelRequestGeneration) return;
+    if(err.name === 'AbortError' && !timedOut) return;
     channelRequestController = null;
-    searching.style.display = 'none';
-    stopLoadingMessages();
+    hideLoadingOverlay();
     setFallbackHintVisible(true);
-    errEl.textContent = err.message || 'Could not add channel. Check the URL and try again.';
+    errEl.textContent = timedOut
+      ? 'Lookup timed out. Check your connection and try again.'
+      : (err.message || 'Could not add channel. Check the URL and try again.');
     errEl.style.display = 'block';
   }
 }
@@ -3779,26 +3955,30 @@ async function doYTSearch(q){
   const errEl       = document.getElementById('search-error');
   const empty       = document.getElementById('search-empty');
 
-  loading.style.display     = 'block';
-  startLoadingMessages('video-search-progress-text', VIDEO_SEARCH_MESSAGES);
+  loading.style.display     = 'none';
   resultsWrap.style.display = 'none';
   errEl.style.display       = 'none';
   empty.style.display       = 'none';
+  showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
 
+  let vTimedOut = false, vTimer = null;
   try{
     allowVerificationRetry();
     // Video search always hits search.list (100 quota units) — fresh
     // single-use Turnstile token required. Do NOT auto-retry on failure.
     const tsToken = await getFreshTurnstileToken();
+    updateLoadingOverlay('Fetching results…', '');
+    startOverlayCycling(['Fetching results…','Sorting through results…','Filtering the noise…','Almost done…']);
+    const vCtl = new AbortController();
+    vTimer = setTimeout(() => { vTimedOut = true; vCtl.abort(); }, SEARCH_TIMEOUT_MS);
     const res     = await fetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`, {
-      headers: {'X-Turnstile-Token': tsToken}
+      headers: {'X-Turnstile-Token': tsToken},
+      signal: vCtl.signal
     });
     const videos  = await res.json();
+    clearTimeout(vTimer);
+    hideLoadingOverlay();
 
-    loading.style.display = 'none';
-    stopLoadingMessages();
-
-    
     const currentQ = document.getElementById('search-input').value.trim();
     if(currentQ.toLowerCase() !== q.trim().toLowerCase()) return;
 
@@ -3880,9 +4060,9 @@ async function doYTSearch(q){
     resultsWrap.style.display = 'block';
 
   } catch(err){
-    loading.style.display = 'none';
-    stopLoadingMessages();
-    errEl.textContent     = 'Search failed. Check your connection.';
+    hideLoadingOverlay();
+    clearTimeout(vTimer);
+    errEl.textContent     = vTimedOut ? 'Search timed out. Check your connection and try again.' : 'Search failed. Check your connection.';
     errEl.style.display   = 'block';
   }
 }
