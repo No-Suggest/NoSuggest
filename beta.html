@@ -915,7 +915,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     display:none;align-items:center;justify-content:center;
     padding:24px;
     background:rgba(5,5,5,.86);
-    backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);contain:strict;
     pointer-events:auto;
   }
   #ns-loading-overlay.show{display:flex;}
@@ -2691,6 +2691,13 @@ async function initFeed(newChannelId){
     `</div>`;
   body.appendChild(sentinel);
 
+  // Show the unified overlay during Turnstile/session phase.
+  // Only needed when there is no live 5-min session already.
+  let feedOverlayHidden = hasLiveApiSession();
+  if(!feedOverlayHidden){
+    showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
+  }
+
   function updateSentinelText(){
     const textEl = document.getElementById('feed-progress-text');
     if(!textEl) return;
@@ -2720,6 +2727,8 @@ async function initFeed(newChannelId){
         }
         if(feedGeneration !== myGen) return;
         loaded++;
+        // Hide the securing overlay the moment the first channel arrives.
+        if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(); }
         requestAnimationFrame(() => {
           appendChannelToFeed(ch, videos, body);
           
@@ -2742,6 +2751,7 @@ async function initFeed(newChannelId){
         if(feedGeneration !== myGen) return;
         completed++;
         if(completed === total){
+          if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(); }
           requestAnimationFrame(() => {
             
             const s = document.getElementById('feed-loading-sentinel');
