@@ -908,6 +908,46 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   #feed-loading-sentinel .feed-progress-text{font-size:15px;line-height:1.55;color:var(--text);font-weight:500;}
   /* Screen-local search loaders are the only passive indicators. */
   #api-verify-status{display:none!important;}
+  
+  /* ── Unified loading overlay — search & channel search — */
+  #ns-loading-overlay{
+    position:fixed;inset:0;z-index:9500;
+    display:none;align-items:center;justify-content:center;
+    padding:24px;
+    background:rgba(5,5,5,.86);
+    backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+    pointer-events:auto;
+  }
+  #ns-loading-overlay.show{display:flex;}
+  .nlo-card{
+    display:flex;flex-direction:column;align-items:center;gap:20px;
+    width:min(340px,calc(100vw - 40px));
+    padding:30px 26px 26px;
+    background:rgba(17,17,17,.98);
+    border:1px solid var(--border2);border-radius:22px;
+    box-shadow:0 28px 80px rgba(0,0,0,.65);
+    text-align:center;
+  }
+  .nlo-orbit{
+    position:relative;width:62px;height:62px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.08);
+    box-shadow:inset 0 0 20px rgba(232,255,90,.05);
+    animation:feed-orbit 1.4s linear infinite;
+    flex-shrink:0;
+  }
+  .nlo-orbit::before,.nlo-orbit::after{content:'';position:absolute;border-radius:50%;}
+  .nlo-orbit::before{width:13px;height:13px;left:3px;top:4px;background:var(--accent);box-shadow:0 0 18px rgba(232,255,90,.7);}
+  .nlo-orbit::after{width:10px;height:10px;right:5px;bottom:6px;background:var(--accent2);box-shadow:0 0 16px rgba(255,107,53,.6);}
+  .nlo-bar{width:min(240px,72vw);height:6px;background:var(--border);border-radius:999px;overflow:hidden;}
+  .nlo-bar::after{
+    content:'';display:block;height:100%;width:50%;
+    background:linear-gradient(90deg,var(--accent2),var(--accent));
+    border-radius:inherit;
+    animation:nlo-shimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes nlo-shimmer{0%{transform:translateX(-120%)}100%{transform:translateX(240%)}}
+  .nlo-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.01em;line-height:1.35;}
+  .nlo-sub{font:12px/1.5 'DM Mono',monospace;color:var(--muted);min-height:16px;}
   </style>
 </head>
 <body>
@@ -1636,6 +1676,16 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <div id="toast" role="status" aria-live="polite"></div>
 </div>
 
+
+<!-- Unified loading overlay -->
+<div id="ns-loading-overlay" role="status" aria-live="polite" aria-hidden="true">
+  <div class="nlo-card">
+    <div class="nlo-orbit" aria-hidden="true"></div>
+    <div class="nlo-bar"   aria-hidden="true"></div>
+    <div class="nlo-title" id="nlo-title">Searching…</div>
+    <div class="nlo-sub"   id="nlo-sub"></div>
+  </div>
+</div>
 <div id="vpc-backdrop" onclick="if(event.target===this)closeVpcPicker()">
   <div id="vpc-modal" role="dialog" aria-modal="true" aria-labelledby="vpc-title">
     <div class="vpc-title" id="vpc-title">Videos per Channel</div>
@@ -2142,6 +2192,43 @@ function dismissSearchKeyboard(input){
   if(input && document.activeElement === input) input.blur();
 }
 
+
+// ── Unified loading overlay helpers ─────────────────────────────────────────────────────
+let _nloMsgInterval = null;
+function showLoadingOverlay(title, sub){
+  document.getElementById('nlo-title').textContent = title || 'Searching…';
+  document.getElementById('nlo-sub').textContent   = sub   || '';
+  const el = document.getElementById('ns-loading-overlay');
+  el.classList.add('show');
+  el.setAttribute('aria-hidden','false');
+}
+function updateLoadingOverlay(title, sub){
+  const el = document.getElementById('ns-loading-overlay');
+  if(!el.classList.contains('show')) return;
+  if(title !== undefined) document.getElementById('nlo-title').textContent = title;
+  if(sub   !== undefined) document.getElementById('nlo-sub').textContent   = sub;
+}
+function hideLoadingOverlay(){
+  stopOverlayCycling();
+  const el = document.getElementById('ns-loading-overlay');
+  el.classList.remove('show');
+  el.setAttribute('aria-hidden','true');
+}
+function startOverlayCycling(messages, intervalMs){
+  stopOverlayCycling();
+  if(!messages || !messages.length) return;
+  intervalMs = intervalMs || 1900;
+  let i = 0;
+  updateLoadingOverlay(messages[0]);
+  _nloMsgInterval = setInterval(() => {
+    i = (i + 1) % messages.length;
+    updateLoadingOverlay(messages[i]);
+  }, intervalMs);
+}
+function stopOverlayCycling(){
+  if(_nloMsgInterval){ clearInterval(_nloMsgInterval); _nloMsgInterval = null; }
+}
+// ──────────────────────────────────────────────────────────────────────────────
 let toastTimer = null;
 function toast(msg, dur=5000){
   const t = document.getElementById('toast');
@@ -3315,8 +3402,7 @@ async function doChannelSearch(query){
   const errEl = document.getElementById('add-error');
   const suggestions = document.getElementById('channel-suggestions');
 
-  searching.style.display = 'block';
-  startLoadingMessages('channel-search-progress-text', CHANNEL_SEARCH_MESSAGES);
+  searching.style.display = 'none';
   errEl.style.display = 'none';
   suggestions.style.display = 'none';
   suggestions.innerHTML = '';
@@ -3330,13 +3416,14 @@ async function doChannelSearch(query){
     const _isHandle=query.startsWith('@');
     let res;
     if(_isId||_isHandle){
-      
+      showLoadingOverlay('Looking up channel…', '');
       res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
     } else {
-      
+      showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
       const tsToken=await getFreshTurnstileToken();
-      document.getElementById('channel-search-progress-text').textContent = 'Fetching channel matches…';
-      if(generation!==channelRequestGeneration)return; 
+      updateLoadingOverlay('Searching YouTube…', '');
+      startOverlayCycling(['Searching YouTube for channels…','Checking names and handles…','Matching against creators…','Almost there…']);
+      if(generation!==channelRequestGeneration){hideLoadingOverlay();return;} 
       res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, {
         signal: controller.signal,
         headers: {'X-Turnstile-Token': tsToken}
@@ -3350,8 +3437,7 @@ async function doChannelSearch(query){
     if(currentQ.toLowerCase() !== query.trim().toLowerCase()) return;
 
     channelRequestController = null;
-    searching.style.display = 'none';
-    stopLoadingMessages();
+    hideLoadingOverlay();
 
     if(!Array.isArray(channels) || channels.error || !channels.length){
       errEl.textContent = 'No channels found. Try a different name or paste the channel URL directly in this box.';
@@ -3396,10 +3482,9 @@ async function doChannelSearch(query){
     window._channelSuggestions = channels;
     suggestions.style.display = 'block';
   } catch(err){
-    if(err.name === 'AbortError' || generation !== channelRequestGeneration) return;
+    if(err.name === 'AbortError' || generation !== channelRequestGeneration){hideLoadingOverlay();return;}
     channelRequestController = null;
-    searching.style.display = 'none';
-    stopLoadingMessages();
+    hideLoadingOverlay();
     errEl.textContent = 'Search failed. Check your connection or paste the channel URL directly in this box.';
     errEl.style.display = 'block';
     setFallbackHintVisible(true);
@@ -3511,8 +3596,7 @@ async function doFallbackAdd(inputVal){
   const generation = channelRequestGeneration;
   const controller = new AbortController();
   channelRequestController = controller;
-  searching.style.display = 'block';
-  startLoadingMessages('channel-search-progress-text', CHANNEL_SEARCH_MESSAGES);
+  showLoadingOverlay('Looking up channel…', '');
   setFallbackHintVisible(false);
 
   try{
@@ -3540,8 +3624,7 @@ async function doFallbackAdd(inputVal){
     if(parsed.type === 'handle' && String(ch.handle || '').toLowerCase() !== parsed.value.toLowerCase()) throw new Error('Could not verify the exact handle. Paste its /channel/ ID instead.');
 
     channelRequestController = null;
-    searching.style.display = 'none';
-    stopLoadingMessages();
+    hideLoadingOverlay();
     setFallbackHintVisible(true);
 
     if(STORE.channels.some(c => c.id === ch.id)){
@@ -3568,8 +3651,7 @@ async function doFallbackAdd(inputVal){
   } catch(err){
     if(err.name === 'AbortError' || generation !== channelRequestGeneration) return;
     channelRequestController = null;
-    searching.style.display = 'none';
-    stopLoadingMessages();
+    hideLoadingOverlay();
     setFallbackHintVisible(true);
     errEl.textContent = err.message || 'Could not add channel. Check the URL and try again.';
     errEl.style.display = 'block';
@@ -3796,27 +3878,25 @@ async function doYTSearch(q){
   const errEl       = document.getElementById('search-error');
   const empty       = document.getElementById('search-empty');
 
-  loading.style.display     = 'block';
-  startLoadingMessages('video-search-progress-text', VIDEO_SEARCH_MESSAGES);
+  loading.style.display     = 'none';
   resultsWrap.style.display = 'none';
   errEl.style.display       = 'none';
   empty.style.display       = 'none';
+  showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
 
   try{
     allowVerificationRetry();
     // Video search always hits search.list (100 quota units) — fresh
     // single-use Turnstile token required. Do NOT auto-retry on failure.
     const tsToken = await getFreshTurnstileToken();
-    document.getElementById('video-search-progress-text').textContent = 'Fetching results…';
+    updateLoadingOverlay('Fetching results…', '');
+    startOverlayCycling(['Fetching results…','Sorting through results…','Filtering the noise…','Almost done…']);
     const res     = await fetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`, {
       headers: {'X-Turnstile-Token': tsToken}
     });
     const videos  = await res.json();
+    hideLoadingOverlay();
 
-    loading.style.display = 'none';
-    stopLoadingMessages();
-
-    
     const currentQ = document.getElementById('search-input').value.trim();
     if(currentQ.toLowerCase() !== q.trim().toLowerCase()) return;
 
@@ -3898,8 +3978,7 @@ async function doYTSearch(q){
     resultsWrap.style.display = 'block';
 
   } catch(err){
-    loading.style.display = 'none';
-    stopLoadingMessages();
+    hideLoadingOverlay();
     errEl.textContent     = 'Search failed. Check your connection.';
     errEl.style.display   = 'block';
   }
