@@ -1,8 +1,4 @@
-const CACHE = 'nosuggest-v1';
-/* Core app shell — precached on install so there's always something to
-   serve offline. This is a single-page app, so the shell is just the
-   page itself; add any other same-origin static assets here (manifest,
-   icons) if you want them available offline too. */
+const CACHE = 'nosuggest-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -13,33 +9,25 @@ self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
       .then(cache => cache.addAll(APP_SHELL))
-      .catch(() => {}) // never block install on a precache failure
+      .catch(() => {})
   );
   self.skipWaiting();
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(key => key !== CACHE).map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    const upgrading = keys.some(key => key !== CACHE);
+    await Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)));
+    await self.clients.claim();
+    if(upgrading){
+      const wins = await self.clients.matchAll({type: 'window', includeUncontrolled: true});
+      wins.forEach(c => c.navigate(c.url).catch(() => {}));
+    }
+  })());
 });
 self.addEventListener('fetch', e => {
-  if(e.request.method !== 'GET') return; // don't try to cache POST/etc.
-  // Only manage our own origin's requests. Cross-origin requests — the
-  // YouTube embed player, its thumbnails, api.nosuggest.com, fonts, etc. —
-  // are left completely untouched, so the browser's normal network stack
-  // (and any retry logic the resource itself has) handles them. Without
-  // this check, a single transient network blip on a YouTube player
-  // resource gets permanently converted into a broken response for the
-  // whole page, since there's no cache entry for these highly specific,
-  // parameterized third-party URLs to fall back to.
+  if(e.request.method !== 'GET') return;
   if(new URL(e.request.url).origin !== self.location.origin) return;
-  // Network first — always fetch fresh, fall back to cache.
-  // On a successful network response, store a copy so the cache stays
-  // up to date and offline fallback actually has something recent to serve.
   e.respondWith(
     fetch(e.request)
       .then(res => {
