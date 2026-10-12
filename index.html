@@ -1702,8 +1702,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 const PROXY = 'https://api.nosuggest.com';
 
 /* Turnstile verifies once per session; the Worker-signed session token is
-   reused in this tab until its 5-minute expiry. Expensive calls (video search,
-   channel name search) require a fresh single-use Turnstile token instead. */
+   reused for every API operation in this tab until its 5-minute expiry. */
 const API_SESSION_STORAGE_KEY='ns_api_session_v1:'+PROXY;
 let apiSession=null, apiSessionUntil=0, apiSessionPending=null;
 let apiSessionBlockedUntil=0, apiSessionBlockedError=null;
@@ -1719,19 +1718,6 @@ async function getSitekey(){
   if(!cfg.sitekey)throw new Error('Verification unavailable.');
   cachedSitekey=cfg.sitekey;
   return cachedSitekey;
-}
-
-/* Obtain a fresh, single-use Turnstile token for expensive API calls
-   (video search, channel name search — 100 quota units each).
-   Uses action 'nosuggest_search' so the Worker can distinguish it from
-   the session-acquisition action 'nosuggest_session'.
-   Token is single-use — caller must NOT auto-retry on failure. */
-async function getFreshTurnstileToken(){
-  const sk=await getSitekey();
-  await loadTurnstile();
-  verificationStatus(true);
-  try{return await showVerification(sk,'nosuggest_search');}
-  finally{verificationStatus(false);}
 }
 
 function allowVerificationRetry(){apiSessionBlockedUntil=0;apiSessionBlockedError=null;}
@@ -1781,10 +1767,6 @@ function loadTurnstile(){
   return turnstileScriptPending;
 }
 
-/* Serialize access to the one shared Turnstile widget container.
-   Each caller receives its own fresh, single-use token.
-   A failed call (timeout, error) does not poison later requests because
-   the queue tail is always reset with .then(()=>{},()=>{}) on failure. */
 let verificationQueue=Promise.resolve();
 function showVerification(sitekey,action='nosuggest_session'){
   const result=verificationQueue.then(()=>renderVerification(sitekey,action));
@@ -1977,11 +1959,6 @@ if(isIos() && !isInStandaloneMode()){
   }, 1000);
 }
 
-/* Single source of truth for the per-device channel cap. Enforced inside
-   STORE (read AND write) so every path — add, pack, backup restore, stale
-   second tab — is bounded in one place. Declared above STORE because
-   MAX_CHANNELS is a const and would be in its temporal dead zone if
-   STORE.channels were read first. */
 const CHANNEL_LIMIT = 25;
 
 function sanitizeChannels(list){
@@ -2008,12 +1985,7 @@ const STORE = {
   set kidsPin(v){  v ? localStorage.setItem('ns_kids_pin', v) : localStorage.removeItem('ns_kids_pin') },
   get sessionCount(){ return parseInt(localStorage.getItem('ns_session_count')||'0',10) },
   set sessionCount(v){ localStorage.setItem('ns_session_count', String(v)) },
-  
-  
-  
-  /* Videos loaded per channel. Clamped on read (not just on write) so a
-   corrupted/edited localStorage value can never send an out-of-range count
-   to the backend. Default 10, user-selectable 1–50 via Settings > Feed. */
+
 get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_channel')||'10',10); return (v>=1 && v<=50) ? v : 10; },
   set videosPerChannel(v){ localStorage.setItem('ns_videos_per_channel', String(v)) },
 };
@@ -2021,16 +1993,7 @@ get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_c
 let currentScreen  = '';
 let feedGeneration = 0;
 
-/* True once a full Feed load has been kicked off this page session.
-   Prevents showScreen('feed') from calling initFeed() again on every tab
-   switch back to Feed. The channel list can only change via flows that force
-   a location.reload(), so re-showing the already-populated DOM is correct. */
 let feedEverInitialized = false;
-
-/* AbortController for the most recent full-feed reload. If a new full
-   reload is triggered while a previous one is in flight, this cancels the
-   superseded reload's fetches instead of letting them compete for connections
-   with the reload that actually matters. */
 let feedAbortController = null;
 
 const CACHE_TTL = 3 * 60 * 60 * 1000;
@@ -2783,15 +2746,6 @@ async function initFeed(newChannelId){
         console.warn(`[NoSuggest] ${ch.id} failed silently:`, e.message);
         if(feedGeneration === myGen){ failed.add(i); scheduleDrain(); }
       } finally {
-        
-        
-        
-        
-        
-        
-        
-        
-        
         if(feedGeneration !== myGen) return;
         completed++;
         if(completed === total){
@@ -2917,17 +2871,9 @@ async function requestScreenWakeLock(){
       /* Fires for both our own releases AND browser force-releases (doc went hidden,
          OS battery saver). Clear reference so later requests aren't short-circuited
          by a stale, already-dead sentinel. */
-      
-      
-      
-      
       wakeLockSentinel = null;
     });
   } catch(err){
-    
-    
-    
-    
     wakeLockSentinel = null;
   }
 }
@@ -3106,8 +3052,6 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
             if(!isCurrentPlayer()) return;
             clearPlayerReadyTimer();
             const code = Number(e.data);
-
-            
             // Codes 2,100,101,150 are video/policy errors, not host errors.
             // Switching domains cannot make an embed-blocked video playable.
             if(code === 2 || code === 100 || code === 101 || code === 150){
@@ -3117,13 +3061,6 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
               showPlayerFailure(message);
               return;
             }
-
-            
-            
-            
-            
-            
-            
             // Error 5 (HTML5 playback) and others can be host-specific — retry once.
               if(tryStandardHost('YouTube player error ' + code)) return;
             showPlayerFailure("This video couldn't be played here. You can still open it on YouTube.");
@@ -3135,8 +3072,6 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
       showPlayerFailure("The video player couldn't be started. You can still open it on YouTube.");
       return;
     }
-
-    
     // A blocked nocookie host may never dispatch onReady or onError.
     // Retry the standard host once after a bounded wait. Not run for fallback.
     if(host === 'https://www.youtube-nocookie.com'){
@@ -3471,27 +3406,11 @@ async function doChannelSearch(query){
 
   try{
     allowVerificationRetry();
-    // UC IDs and @handles cost 1 quota unit — use reusable session token.
-    // Plain names may hit search.list (100 units) — require fresh Turnstile.
-    const _isId=/^UC[A-Za-z0-9_-]{22}$/.test(query);
-    const _isHandle=query.startsWith('@');
-    let res;
-    if(_isId||_isHandle){
-      showLoadingOverlay('Looking up channel…', '');
-      startReqTimeout();
-      res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
-    } else {
-      showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
-      const tsToken=await getFreshTurnstileToken();
-      updateLoadingOverlay('Searching YouTube…', '');
-      startOverlayCycling(['Searching YouTube for channels…','Checking names and handles…','Matching against creators…','Almost there…']);
-      if(generation!==channelRequestGeneration)return; 
-      startReqTimeout();
-      res = await fetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, {
-        signal: controller.signal,
-        headers: {'X-Turnstile-Token': tsToken}
-      });
-    }
+    // All channel lookups use the same reusable 5-minute session token.
+    showLoadingOverlay('Searching YouTube…', '');
+    startOverlayCycling(['Searching YouTube for channels…','Checking names and handles…','Matching against creators…','Almost there…']);
+    startReqTimeout();
+    const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
     if(!res.ok) throw new Error(`Channel search failed (${res.status})`);
     const channels = await res.json();
     clearTimeout(reqTimer);
@@ -3964,17 +3883,12 @@ async function doYTSearch(q){
   let vTimedOut = false, vTimer = null;
   try{
     allowVerificationRetry();
-    // Video search always hits search.list (100 quota units) — fresh
-    // single-use Turnstile token required. Do NOT auto-retry on failure.
-    const tsToken = await getFreshTurnstileToken();
+    // Video search uses the same reusable 5-minute session token as every other API call.
     updateLoadingOverlay('Fetching results…', '');
     startOverlayCycling(['Fetching results…','Sorting through results…','Filtering the noise…','Almost done…']);
     const vCtl = new AbortController();
     vTimer = setTimeout(() => { vTimedOut = true; vCtl.abort(); }, SEARCH_TIMEOUT_MS);
-    const res     = await fetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`, {
-      headers: {'X-Turnstile-Token': tsToken},
-      signal: vCtl.signal
-    });
+    const res = await apiFetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`, { signal: vCtl.signal });
     const videos  = await res.json();
     clearTimeout(vTimer);
     hideLoadingOverlay();
