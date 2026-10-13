@@ -1,4 +1,4 @@
-const CACHE = 'nosuggest-v2';
+const CACHE = 'nosuggest-v3';
 const APP_SHELL = [
   '/',
   '/index.html',
