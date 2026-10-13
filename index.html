@@ -56,7 +56,7 @@
       "name": "What is NoSuggest?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "NoSuggest is a quiet act of resistance against YouTube's algorithm — a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no autoplay, no notifications, no trending feed, no sign-in required. Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual. NoSuggest itself will never show ads and will remain free forever. NoSuggest collects no personal data, runs no ad trackers, and builds no user profiles. We use Cloudflare's cookie-less Web Analytics for aggregate visit counts only, which can't identify individuals or track anyone across sites. Fonts are loaded from Google Fonts, and video playback uses YouTube's official player — both are Google's own services and follow Google's own data practices, the same as they would on any site."
+        "text": "NoSuggest is a quiet act of resistance against YouTube's algorithm — a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no autoplay, no notifications, no trending feed, no sign-in required. Videos play through the official YouTube embedded player. NoSuggest does not download, rehost, or modify videos, and it does not block advertisements served by the YouTube player. NoSuggest itself will never show ads and will remain free forever. NoSuggest collects no personal data, runs no ad trackers, and builds no user profiles. We use Cloudflare's cookie-less Web Analytics for aggregate visit counts only, which can't identify individuals or track anyone across sites. Fonts are loaded from Google Fonts, and video playback uses YouTube's official player — both are Google's own services and follow Google's own data practices, the same as they would on any site."
       }
     },
     {
@@ -64,7 +64,7 @@
       "name": "How does Kids Mode work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Kids Mode limits NoSuggest to a safe, distraction-free experience for children. When enabled, the Search tab and Add Channels feature are hidden so kids can only watch videos from channels a parent has already approved. To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device. A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time."
+        "text": "Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children. To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device. A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time."
       }
     },
     {
@@ -136,7 +136,7 @@
       "name": "How do I stop YouTube's autoplay?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "NoSuggest has no autoplay at all, so there's nothing to switch off. Regular YouTube automatically starts a new video the moment the last one ends, based on watch history and inferred interest — that's the autoplay behaviour most people are trying to disable. NoSuggest's feed simply doesn't do this: when a video finishes, playback stops and you're back at your list of channels. There's no 'up next' queue, no countdown before the next video starts, and no autoplay toggle to remember to turn off on every device, because the feature doesn't exist in NoSuggest in the first place."
+        "text": "NoSuggest does not automatically start another video after the selected video ends, so there is no next-video autoplay queue to switch off. Regular YouTube automatically starts a new video the moment the last one ends, based on watch history and inferred interest — that's the autoplay behaviour most people are trying to disable. NoSuggest's feed simply doesn't do this: when a video finishes, playback stops and you're back at your list of channels. There's no 'up next' queue, no countdown before the next video starts, and no autoplay toggle to remember to turn off on every device, because the feature doesn't exist in NoSuggest in the first place."
       }
     },
     {
@@ -306,7 +306,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .feed-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
 .feed-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;letter-spacing:-0.03em;display:flex;align-items:center;gap:8px;}
 .feed-logo .dot{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;}
-.feed-actions{display:flex;gap:8px;}
+.feed-actions{display:flex;gap:8px;align-items:center;}
+  .yt-source{font-size:10px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap}.yt-source a{color:var(--faint);text-decoration:underline}
 .icon-btn{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--accent);transition:border-color 0.15s,color 0.15s;}
 .icon-btn:hover{border-color:var(--border2);color:var(--text);}
 .icon-btn svg{width:16px;height:16px;}
@@ -1011,7 +1012,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         Your phone, laptop and your kids iPad can each have their own list, you choose what each one is for.<br/>
         Come when you feel like it. Watch what you chose. Close it and move on.
       </p>
-      <button class="btn" onclick="getStarted()" style="margin-top:0">Get Started →</button>
+      <label style="display:flex;align-items:flex-start;gap:10px;margin:0 0 1rem;font-size:12.5px;color:var(--muted);line-height:1.55;cursor:pointer"><input id="policy-consent" type="checkbox" style="margin-top:3px;accent-color:var(--accent);width:17px;height:17px;flex-shrink:0"/><span>I agree to the <a href="https://nosuggest.com/privacy" target="_blank" rel="noopener" style="color:var(--accent)">Privacy Policy</a> and <a href="https://nosuggest.com/terms" target="_blank" rel="noopener" style="color:var(--accent)">Terms of Service</a>. I understand that NoSuggest uses YouTube API Services and that YouTube-related features are also subject to the <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener" style="color:var(--accent)">YouTube Terms of Service</a>.</span></label><div class="error-msg" id="policy-consent-error" role="alert" style="margin:0 0 0.75rem">Please agree to the Privacy Policy and Terms to continue.</div><button class="btn" onclick="getStarted()" style="margin-top:0">Agree &amp; Get Started →</button>
     </div>
 
     <button id="android-install-btn" onclick="triggerInstallPrompt()"
@@ -1043,7 +1044,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <div class="screen" id="screen-feed">
     <div class="feed-header">
       <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px" id="feed-vpc-label">Latest 10 videos/channel</span></h2>
-      <div class="feed-actions">
+      <div class="feed-actions"><span class="yt-source">Content from YouTube</span>
         <button class="header-label-btn" id="feed-refresh-btn" title="Reload feed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:15px;height:15px;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Reload
@@ -1245,7 +1246,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       </div>
 
       
-      <div class="settings-section" style="padding-top:0" id="settings-faq-section">
+      <div class="settings-section" style="padding-top:0"><div class="settings-label">Privacy &amp; Data</div><div class="settings-card"><div class="settings-row" style="cursor:pointer" onclick="deleteAllNoSuggestData()" role="button" tabindex="0"><div class="settings-row-icon" style="color:var(--danger)">×</div><div class="settings-row-text"><div class="settings-row-label">Delete all NoSuggest data</div><div class="settings-row-sub">Removes local channels, saved videos, Continue Watching, Kids Mode, preferences and caches. Does not delete anything from YouTube.</div></div><div class="settings-row-action" style="color:var(--danger)">Delete</div></div></div></div><div class="settings-section" style="padding-top:0" id="settings-faq-section">
         <div class="settings-label">FAQs</div>
         <div class="faq-list">
 
@@ -1254,7 +1255,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <span>What is NoSuggest?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">NoSuggest is a quiet act of resistance against YouTube's algorithm — a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no autoplay, no notifications, no trending feed, no sign-in required.<br><br>Videos play inside the official YouTube player, so content creators receive all their credits and analytics exactly as they normally would. NoSuggest does not store, download, or host any videos. YouTube ads placed by the official player are not blocked — creators earn from them as usual.<br><br>NoSuggest itself will never show ads and will remain free forever.<br><br>NoSuggest collects no personal data, runs no ad trackers, and builds no user profiles. We use Cloudflare's cookie-less Web Analytics for aggregate visit counts only, which can't identify individuals or track anyone across sites. Fonts are loaded from Google Fonts, and video playback uses YouTube's official player — both are Google's own services and follow Google's own data practices, the same as they would on any site.</div>
+            <div class="faq-a">NoSuggest is a quiet act of resistance against YouTube's algorithm — a free, distraction-free YouTube client. You follow only the channels you care about and see just their latest videos — no recommendations, no Shorts, no autoplay, no notifications, no trending feed, no sign-in required.<br><br>Videos play through the official YouTube embedded player. NoSuggest does not download, rehost, or modify videos, and it does not block advertisements served by the YouTube player.<br><br>NoSuggest itself will never show ads and will remain free forever.<br><br>NoSuggest collects no personal data, runs no ad trackers, and builds no user profiles. We use Cloudflare's cookie-less Web Analytics for aggregate visit counts only, which can't identify individuals or track anyone across sites. Fonts are loaded from Google Fonts, and video playback uses YouTube's official player — both are Google's own services and follow Google's own data practices, the same as they would on any site.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1262,7 +1263,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <span>How does Kids Mode work?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">Kids Mode limits NoSuggest to a safe, distraction-free experience for children. When enabled, the Search tab and Add Channels feature are hidden so kids can only watch videos from channels a parent has already approved.<br><br>To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.</div>
+            <div class="faq-a">Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children.<br><br>To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1334,7 +1335,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <span>How do I stop YouTube's autoplay?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">NoSuggest has no autoplay at all, so there's nothing to switch off. Regular YouTube automatically starts a new video the moment the last one ends, based on watch history and inferred interest — that's the autoplay behaviour most people are trying to disable.<br><br>NoSuggest's feed simply doesn't do this: when a video finishes, playback stops and you're back at your list of channels. There's no "up next" queue, no countdown before the next video starts, and no autoplay toggle to remember to turn off on every device, because the feature doesn't exist in NoSuggest in the first place.</div>
+            <div class="faq-a">NoSuggest does not automatically start another video after the selected video ends, so there is no next-video autoplay queue to switch off. Regular YouTube automatically starts a new video the moment the last one ends, based on watch history and inferred interest — that's the autoplay behaviour most people are trying to disable.<br><br>NoSuggest's feed simply doesn't do this: when a video finishes, playback stops and you're back at your list of channels. There's no "up next" queue, no countdown before the next video starts, and no autoplay toggle to remember to turn off on every device, because the feature doesn't exist in NoSuggest in the first place.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1367,7 +1368,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
       </div>
       
-      <div class="site-footer" id="settings-site-footer">
+      <div style="padding:0 1.25rem 1.25rem;font-size:11.5px;color:var(--muted);line-height:1.6">NoSuggest intentionally provides a limited, user-curated interface. Recommendations, Shorts, comments, notifications, and YouTube's broader browse experience are not displayed. These are NoSuggest design choices, not restrictions imposed by YouTube. Use links in the official player for the broader YouTube experience.</div><div class="site-footer" id="settings-site-footer">
         <div class="footer-grid">
           <div class="footer-col">
             <div class="footer-col-title">Guides</div>
@@ -1401,7 +1402,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   
   <div class="screen" id="screen-search">
     <div class="search-header">
-      <h2 id="search-header-title">Search</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 id="search-header-title">Search</h2><span class="yt-source">Results from YouTube</span></div>
       <div class="search-row" id="search-input-row" style="display:none">
         <input class="text-input" id="search-input" type="search"
           placeholder="keyword or paste a YouTube URL"
@@ -1467,7 +1468,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   
   <div class="screen" id="screen-saved">
     <div class="saved-header">
-      <h2>Saved Videos</h2>
+      <div><h2>Saved Videos</h2><span class="yt-source">Metadata from YouTube</span></div>
       <span class="saved-count" id="saved-count">0 videos</span>
     </div>
     <div class="screen-body" id="saved-body">
@@ -1733,6 +1734,7 @@ function restoreApiSession(){
 }
 function saveApiSession(token,until){
   apiSession=token;apiSessionUntil=until;
+  setTimeout(() => { try{ refreshStaleApiMetadata(); }catch(e){} }, 800);
   try{sessionStorage.setItem(API_SESSION_STORAGE_KEY,JSON.stringify({token,until}));}catch(e){}
 }
 function clearApiSession(){
@@ -1959,24 +1961,43 @@ if(isIos() && !isInStandaloneMode()){
   }, 1000);
 }
 
-const CHANNEL_LIMIT = 25;
+const POLICY_ACCEPTANCE_VERSION = '2026-10-youtube-1';
+  /* YouTube API Services policy: stored API data must be refreshed (or deleted) within 30 days.
+     Refresh starts at 20 days so anything not seen for a while still has a 10-day margin. */
+  const API_METADATA_TTL = 30 * 24 * 60 * 60 * 1000;
+  const API_METADATA_REFRESH_AFTER = 20 * 24 * 60 * 60 * 1000;
+  /* Foreground maintenance: check at most once every 3 hours. If stale metadata is found,
+     proactively obtain a Turnstile session and refresh — even with no prior user API action. */
+  const MAINTENANCE_CHECK_INTERVAL = 3 * 60 * 60 * 1000;
+  const MAINTENANCE_STORAGE_KEY = 'ns_metadata_maintenance_checked_at';
+  /* After a failed attempt (verification blocked/offline) wait this long before trying again,
+     so a blocked network is not retried on every app switch. */
+  const MAINTENANCE_FAILURE_RETRY_MS = 30 * 60 * 1000;
+  /* The background refresh may cover the screen for at most this long. */
+  const MAINTENANCE_OVERLAY_MAX_MS = 15000;
+  const metaStamp = rec => { const n = Number(rec && rec.metadataFetchedAt); return Number.isFinite(n) && n > 0 ? n : 0; };
+  /* Imported data (backup/pack) keeps its own stamp if valid; otherwise age is unknown (0), so it is refreshed at the next online session. */
+  const importedMetaStamp = v => { const n = Number(v); return (Number.isFinite(n) && n > 0 && n <= Date.now()) ? n : 0; };
+  const CHANNEL_LIMIT = 25;
 
-function sanitizeChannels(list){
+function sanitizeChannels(list, stampNew){
   if(!Array.isArray(list)) return [];
   const seen = new Set(), out = [];
   for(const c of list){
     if(out.length >= CHANNEL_LIMIT) break;
     if(!c || typeof c !== 'object' || typeof c.id !== 'string' || seen.has(c.id)) continue;
-    seen.add(c.id); out.push(c);
+    seen.add(c.id); out.push({...c, metadataFetchedAt: Number.isFinite(c.metadataFetchedAt) ? Math.max(0, c.metadataFetchedAt) : (stampNew ? Date.now() : 0)});
   }
   return out;
 }
 
 const STORE = {
   get channels(){   try{ return sanitizeChannels(JSON.parse(localStorage.getItem('ft_channels')||'[]')) }catch(e){ return [] } },
-  set channels(v){  localStorage.setItem('ft_channels', JSON.stringify(sanitizeChannels(v))) },
+  set channels(v){  localStorage.setItem('ft_channels', JSON.stringify(sanitizeChannels(v, true))) },
   get hasLaunched(){ return !!localStorage.getItem('ns_launched') },
   set hasLaunched(v){ v ? localStorage.setItem('ns_launched','1') : localStorage.removeItem('ns_launched') },
+    get policyAccepted(){ return localStorage.getItem('ns_policy_acceptance_version') === POLICY_ACCEPTANCE_VERSION; },
+    set policyAccepted(v){ v ? localStorage.setItem('ns_policy_acceptance_version', POLICY_ACCEPTANCE_VERSION) : localStorage.removeItem('ns_policy_acceptance_version'); },
   get savedVideos(){ try{ return JSON.parse(localStorage.getItem('ft_saved_videos')||'[]') }catch(e){ return [] } },
   set savedVideos(v){ localStorage.setItem('ft_saved_videos', JSON.stringify(v)) },
   get kidsMode(){  return !!localStorage.getItem('ns_kids_mode') },
@@ -2128,7 +2149,8 @@ function normalizeImportedChannel(channel){
     name:   boundedImportedText(channel.name, 120, id),
     avatar: importedHttpsUrl(channel.avatar),
     subs:   boundedImportedText(channel.subs, 80),
-    handle: boundedImportedText(channel.handle, 120)
+    handle: boundedImportedText(channel.handle, 120),
+    metadataFetchedAt: importedMetaStamp(channel.metadataFetchedAt)
   };
 }
 
@@ -2143,7 +2165,8 @@ function normalizeImportedVideo(video){
     channelName: boundedImportedText(video.channelName, 120),
     publishedAt: boundedImportedText(video.publishedAt, 80),
     thumb:       importedHttpsUrl(video.thumb),
-    savedAt:     Number.isNaN(savedAtDate.getTime()) ? new Date().toISOString() : savedAtDate.toISOString()
+    savedAt:     Number.isNaN(savedAtDate.getTime()) ? new Date().toISOString() : savedAtDate.toISOString(),
+      metadataFetchedAt: importedMetaStamp(video.metadataFetchedAt)
   };
 }
 
@@ -2393,7 +2416,238 @@ function showScreen(name, opts){
   focusTarget.focus({preventScroll: true});
 }
 
+async function deleteAllNoSuggestData(){
+  if(!confirm('Delete all NoSuggest data from this device? This does not delete or change anything on YouTube.')) return;
+  try{localStorage.clear();sessionStorage.clear();}catch(e){}
+  clearApiSession();
+  if('caches' in window){try{const names=await caches.keys();await Promise.all(names.map(n=>caches.delete(n)));}catch(e){}}
+  location.reload();
+}
+/* One-time: records saved before stamps existed get a stamp spread across the next 20 days,
+   so every legacy record is refreshed within 20 days and the load is spread out. */
+function migrateApiMetadataStamps(){
+  try{
+    if(localStorage.getItem('ns_meta_stamps_v1')) return;
+    const spread = () => Date.now() - Math.floor(Math.random() * API_METADATA_REFRESH_AFTER);
+    STORE.channels    = STORE.channels.map(c => metaStamp(c) ? c : {...c, metadataFetchedAt: spread()});
+    STORE.savedVideos = STORE.savedVideos.map(v => metaStamp(v) ? v : {...v, metadataFetchedAt: spread()});
+    localStorage.setItem('ns_meta_stamps_v1', '1');
+  }catch(e){}
+}
+
+/* Hard 30-day limit for API-derived fields. The user's own IDs and saved-list
+   membership are always preserved. Called only AFTER a proactive refresh attempt
+   so users who have been away still see real data when a session can be obtained.
+   If a session cannot be obtained at startup, this still runs as a last resort. */
+function expireStaleApiMetadata(){
+  try{
+    const now = Date.now();
+    const expired = rec => { const s = metaStamp(rec); return s > 0 && now - s >= API_METADATA_TTL; };
+    const channels = STORE.channels;
+    if(channels.some(expired)){
+      STORE.channels = channels.map(c => expired(c)
+        ? {id:c.id, name:'YouTube channel', avatar:'', subs:'', handle:'', metadataFetchedAt:c.metadataFetchedAt} : c);
+    }
+    const saved = STORE.savedVideos;
+    if(saved.some(expired)){
+      STORE.savedVideos = saved.map(v => expired(v)
+        ? {id:v.id, title:'Saved video', channelName:'', publishedAt:'', thumb:'', savedAt:v.savedAt, metadataFetchedAt:v.metadataFetchedAt} : v);
+    }
+    Object.keys(localStorage).filter(k => k.startsWith('ft_vc_')).forEach(k => {
+      try{
+        const entry = JSON.parse(localStorage.getItem(k));
+        if(!entry || !Number.isFinite(entry.ts) || now - entry.ts >= API_METADATA_TTL) localStorage.removeItem(k);
+      }catch(e){ localStorage.removeItem(k); }
+    });
+  }catch(e){}
+}
+
+/* Returns true if any channel or saved-video has metadata that is at least 20 days old
+   (or has no stamp at all), meaning a refresh is due. */
+function hasStaleMetadata(){
+  const now = Date.now();
+  const due = rec => { const s = metaStamp(rec); return !s || now - s >= API_METADATA_REFRESH_AFTER; };
+  return STORE.channels.some(due) || STORE.savedVideos.some(due);
+}
+
+/* Proactive foreground maintenance: obtain a session and refresh stale metadata,
+   showing a non-blocking status message. Called at startup and on resume. */
+let maintenanceRunning = false;
+async function runForegroundMaintenance(fromResume){
+  if(maintenanceRunning) return;
+  if(!STORE.hasLaunched || !STORE.policyAccepted) return;
+  if(!hasStaleMetadata()) return;
+
+  /* Throttle: at most once every 3 hours. On failure the key is not updated,
+     so the next foreground event is eligible to retry immediately. */
+  const lastCheck = parseInt(localStorage.getItem(MAINTENANCE_STORAGE_KEY) || '0', 10);
+  const now = Date.now();
+  if(Number.isFinite(lastCheck) && now - lastCheck < MAINTENANCE_CHECK_INTERVAL) return;
+
+  maintenanceRunning = true;
+  /* Track whether we showed the overlay so we can hide it properly. */
+  let overlayShown = false, overlayTimer = null;
+  try{
+    /* If there is no live session we will need Turnstile. Show the overlay
+       now so the user understands something is happening. If the session
+       already exists the overlay is shown and hidden quickly — acceptable. */
+    /* Never take over an overlay that is already up (the feed or a search the user just
+       started): hiding it when this background task ends would leave their request with no
+       indicator. Also never keep the screen covered for more than MAINTENANCE_OVERLAY_MAX_MS. */
+    if(!hasLiveApiSession() && !document.getElementById('ns-loading-overlay').classList.contains('show')){
+      showLoadingOverlay(
+        fromResume ? 'Refreshing your saved videos…' : 'Keeping video details current…',
+        'One moment — verifying with Cloudflare'
+      );
+      overlayShown = true;
+      overlayTimer = setTimeout(() => { if(overlayShown){ overlayShown = false; hideLoadingOverlay(); } }, MAINTENANCE_OVERLAY_MAX_MS);
+    }
+
+    allowVerificationRetry();
+    /* ensureApiSession() opens the Turnstile widget only if no live session
+       exists. If the user already has a session this returns immediately. */
+    await ensureApiSession();
+
+    /* Update overlay text now that we have a session. */
+    if(overlayShown) updateLoadingOverlay(
+      fromResume ? 'Refreshing your saved videos…' : 'Keeping video details current…',
+      ''
+    );
+
+    /* Run the normal stale-metadata refresh (channels + saved videos).
+       apiMetadataRefreshRunning prevents overlap with any concurrent refresh. */
+    await refreshStaleApiMetadata();
+
+    /* Expire any fields that are still at 30 days after the refresh attempt.
+       Covers records that could not be refreshed (e.g. mid-batch network error). */
+    expireStaleApiMetadata();
+
+    /* Mark maintenance complete only on success so a failed attempt
+       retries at the next foreground event. */
+    localStorage.setItem(MAINTENANCE_STORAGE_KEY, String(now));
+  }catch(e){
+    /* Session unavailable, network error, user dismissed Turnstile, etc.
+       Fall back to expiring fields that have passed the hard 30-day limit.
+       User-owned IDs and saved-list membership are never removed. */
+    expireStaleApiMetadata();
+    /* Failed: retry after MAINTENANCE_FAILURE_RETRY_MS rather than on every foreground event. */
+    try{ localStorage.setItem(MAINTENANCE_STORAGE_KEY, String(Date.now() - MAINTENANCE_CHECK_INTERVAL + MAINTENANCE_FAILURE_RETRY_MS)); }catch(err){}
+  }finally{
+    clearTimeout(overlayTimer);
+    if(overlayShown) hideLoadingOverlay();
+    maintenanceRunning = false;
+  }
+}
+
+/* Silent API read: only with a live session, never opens the verification modal. */
+async function silentApiJson(path, timeoutMs){
+  if(!hasLiveApiSession()) return null;
+  const token = apiSession, ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), timeoutMs || 10000);
+  try{
+    const res = await fetch(`${PROXY}${path}`, {signal: ctl.signal, headers: {Authorization: 'Bearer ' + token}});
+    if(res.status === 401){ clearApiSession(); return null; }   // session ended: stop quietly, never prompt
+    return res.ok ? await res.json() : null;
+  }catch(e){ return null; }
+  finally{ clearTimeout(timer); }
+}
+
+function patchChannelDom(ch){
+  document.querySelectorAll('[data-channel-id]').forEach(row => {
+    if(row.dataset.channelId !== ch.id) return;
+    row.querySelectorAll('.ch-name, .cli-name').forEach(el => { el.innerHTML = escHtml(ch.name); });
+    row.querySelectorAll('.cli-handle').forEach(el => { el.textContent = ch.subs || ''; });
+    row.querySelectorAll('.skip-channel-link').forEach(el => { el.innerHTML = 'Skip ' + escHtml(ch.name) + "'s videos, go to next channel"; });
+    row.querySelectorAll('.ch-avatar, .cli-avatar').forEach(el => { el.innerHTML = channelAvatarMarkup(ch); });
+  });
+}
+
+async function refreshChannelMetadata(){
+  const now = Date.now();
+  const due = STORE.channels
+    .filter(c => YOUTUBE_CHANNEL_ID_RE.test(c.id) && (!metaStamp(c) || now - metaStamp(c) >= API_METADATA_REFRESH_AFTER))
+    .map(c => c.id);
+  let next = 0;
+  const lane = async () => {
+    while(next < due.length){
+      const id = due[next++];
+      const data = await silentApiJson('/channels?q=' + encodeURIComponent(id));
+      if(!hasLiveApiSession() && data === null) return;
+      const m = Array.isArray(data) && data.find(c => c && c.id === id);
+      if(!m) continue;
+      const channels = STORE.channels, i = channels.findIndex(c => c.id === id);
+      if(i < 0) continue;
+      channels[i] = {...channels[i],
+        name:   boundedImportedText(m.name, 120, channels[i].name || id),
+        avatar: importedHttpsUrl(m.avatar),
+        subs:   boundedImportedText(m.subs, 80),
+        handle: boundedImportedText(m.handle, 120),
+        metadataFetchedAt: Date.now()};
+      STORE.channels = channels;
+      patchChannelDom(channels[i]);
+    }
+  };
+  await Promise.all([lane(), lane(), lane()]);
+}
+
+async function refreshSavedMetadata(){
+  const now = Date.now();
+  const savedAtStart = STORE.savedVideos;
+  const validAtStart = savedAtStart.filter(v => YOUTUBE_VIDEO_ID_RE.test(v.id));
+  const refreshDue = validAtStart.some(v => !metaStamp(v) || now - metaStamp(v) >= API_METADATA_REFRESH_AFTER);
+  if(!refreshDue) return;
+
+  /* One stale saved video triggers a refresh of the complete saved-video list.
+     videos.list accepts up to 50 IDs per request, so this synchronises timestamps
+     into 20-day refresh waves instead of making one request per ageing video. */
+  const allIds = [...new Set(validAtStart.map(v => v.id))];
+  let removedTotal = 0, changed = false;
+  for(let i = 0; i < allIds.length; i += 50){
+    const batch = allIds.slice(i, i + 50);
+    const data = await silentApiJson('/videos?ids=' + batch.join(','));
+    if(!Array.isArray(data)){ if(!hasLiveApiSession()) break; continue; }
+    const found = new Map(data.filter(x => x && typeof x.id === 'string').map(x => [x.id, x]));
+    const inBatch = new Set(batch);
+    const saved = [];
+    for(const v of STORE.savedVideos){
+      if(!inBatch.has(v.id)){ saved.push(v); continue; }
+      const m = found.get(v.id);
+      if(m){
+        saved.push({...v,
+          title:       boundedImportedText(m.title, 300, 'Untitled video'),
+          channelName: boundedImportedText(m.channel, 120),
+          publishedAt: boundedImportedText(m.publishedAt, 80),
+          thumb:       importedHttpsUrl(m.thumb),
+          metadataFetchedAt: Date.now()});
+        changed = true;
+      } else if(found.size > 0){
+        /* YouTube returned other videos from this batch but not this one (deleted/private):
+           its stored data must go. A completely empty answer proves nothing (glitch, older
+           backend), so it never deletes; a record past 30 days is already reduced to its ID. */
+        removedTotal++; changed = true;
+      } else saved.push(v);
+    }
+    STORE.savedVideos = saved;
+  }
+  if(changed && currentScreen === 'saved') initSaved();
+  if(removedTotal) toast(`${removedTotal} saved video${removedTotal === 1 ? ' is' : 's are'} no longer available on YouTube and ${removedTotal === 1 ? 'was' : 'were'} removed`, 6000);
+}
+
+let apiMetadataRefreshRunning = false;
+async function refreshStaleApiMetadata(){
+  /* Guard: must have a live session. runForegroundMaintenance() calls
+     ensureApiSession() before calling us, so hasLiveApiSession() is true
+     by the time we run. saveApiSession() also calls us after a session mint.
+     Both paths are safe. */
+  if(apiMetadataRefreshRunning || !hasLiveApiSession()) return;
+  apiMetadataRefreshRunning = true;
+  try{ await refreshChannelMetadata(); await refreshSavedMetadata(); }
+  catch(e){ /* retried at the next session or maintenance cycle */ }
+  finally{ apiMetadataRefreshRunning = false; }
+}
 function getStarted(){
+  const consent=document.getElementById('policy-consent'),error=document.getElementById('policy-consent-error');
+  if(!consent||!consent.checked){if(error)error.style.display='block';return;}
+  if(error)error.style.display='none';STORE.policyAccepted=true;
   STORE.hasLaunched = true;
   showScreen(STORE.channels.length ? 'feed' : 'channels');
 }
@@ -2482,11 +2736,11 @@ function resolveHandle(ch) {
   return '';
 }
 
-async function fetchVideosRSS(channelId, handle, externalSignal) {
+async function fetchVideosCV(channelId, handle, externalSignal) {
   const handleParam = (handle && handle.trim()) ? encodeURIComponent(handle.trim()) : '';
-  const rssUrl     = handleParam
-    ? `${PROXY}/rss?channel=${channelId}&handle=${handleParam}`
-    : `${PROXY}/rss?channel=${channelId}`;
+  const CVUrl     = handleParam
+    ? `${PROXY}/channel-videos?channel=${channelId}&handle=${handleParam}`
+    : `${PROXY}/channel-videos?channel=${channelId}`;
   const controller = new AbortController();
   const timer      = setTimeout(() => controller.abort(), 45000);
 
@@ -2501,7 +2755,7 @@ async function fetchVideosRSS(channelId, handle, externalSignal) {
 
   let res;
   try {
-    res = await apiFetch(rssUrl, { signal: controller.signal });
+    res = await apiFetch(CVUrl, { signal: controller.signal });
     clearTimeout(timer);
   } catch(e) {
     clearTimeout(timer);
@@ -2511,31 +2765,31 @@ async function fetchVideosRSS(channelId, handle, externalSignal) {
   }
 
   if (!res.ok) {
-    throw new Error(`RSS fetch failed: ${res.status}`);
+    throw new Error(`Channel Videos fetch failed: ${res.status}`);
   }
 
   let videos;
   try {
     videos = await res.json();
   } catch(e) {
-    throw new Error('Invalid JSON from RSS endpoint');
+    throw new Error('Invalid JSON from Channel Videos endpoint');
   }
 
   if (!Array.isArray(videos)) {
-    throw new Error('Invalid RSS response format');
+    throw new Error('Invalid Channel Videos response format');
   }
 
   return videos;
 }
 
-async function fetchVideosRSSWithRetry(channelId, handle, externalSignal) {
+async function fetchVideosCVWithRetry(channelId, handle, externalSignal) {
   const RETRY_DELAY = 2000;  
   let lastError;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     if (externalSignal && externalSignal.aborted) throw new Error('Superseded — feed reloaded');
     try {
-      return await fetchVideosRSS(channelId, handle, externalSignal);
+      return await fetchVideosCV(channelId, handle, externalSignal);
     } catch(e) {
       lastError = e;
       console.warn(`[NoSuggest] ${channelId} attempt ${attempt} failed:`, e.message);
@@ -2580,7 +2834,7 @@ async function loadChannelVideos(ch, gen, body){
   try{
     let videos = getCachedVideos(ch.id);
     if(!videos){
-      videos = await fetchVideosRSSWithRetry(ch.id, resolveHandle(ch));
+      videos = await fetchVideosCVWithRetry(ch.id, resolveHandle(ch));
       setCachedVideos(ch.id, videos);
     }
     if(feedGeneration !== gen) return;
@@ -2734,7 +2988,7 @@ async function initFeed(newChannelId){
       try{
         let videos = cached;
         if(!videos){
-          videos = await fetchVideosRSSWithRetry(ch.id, resolveHandle(ch), myAbortSignal);
+          videos = await fetchVideosCVWithRetry(ch.id, resolveHandle(ch), myAbortSignal);
           setCachedVideos(ch.id, videos);
         }
         if(feedGeneration !== myGen) return;
@@ -3722,7 +3976,7 @@ function toggleSaveVideo(video){
   let saved = STORE.savedVideos;
   const idx = saved.findIndex(v => v.id === video.id);
   if(idx >= 0){ saved.splice(idx, 1); toast('Removed from saved'); }
-  else{ saved.unshift({...video, savedAt: new Date().toISOString()}); toast('Saved! ✓'); }
+  else{ saved.unshift({...video, savedAt: new Date().toISOString(), metadataFetchedAt:Date.now()}); toast('Saved! ✓'); }
   STORE.savedVideos = saved;
   const countEl = document.getElementById('saved-count');
   if(countEl) countEl.textContent = `${STORE.savedVideos.length} video${STORE.savedVideos.length===1?'':'s'}`;
@@ -4152,7 +4406,7 @@ function initSaved(){
     <div class="saved-video-card" style="animation:fadeUp 0.3s ease ${i*30}ms both"
          onclick="openPlayerFromSaved('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
       <div class="saved-thumb-wrap">
-        <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
+        <img src="${esc(v.thumb || ('https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg'))}" alt="" loading="lazy"/>
       </div>
       <div class="saved-card-info">
         <div class="saved-card-title">${escHtml(v.title)}</div>
@@ -4773,7 +5027,7 @@ document.addEventListener('keydown', (e) => {
     for(const c of raw){
       if(c && typeof c.id === 'string' && !seen.has(c.id)){
         seen.add(c.id);
-        overflow.push({ id: c.id, name: String(c.name || c.id).slice(0, 120) });
+        overflow.push({ id: c.id });
       }
     }
     localStorage.setItem('ft_channels', JSON.stringify(kept));
@@ -4785,17 +5039,29 @@ document.addEventListener('keydown', (e) => {
 }
 
 window.addEventListener('load', () => {
+  migrateApiMetadataStamps();
   curateOverLimitChannels();
+  /* Note: expireStaleApiMetadata() is now called INSIDE runForegroundMaintenance()
+     AFTER a refresh attempt, so real data is preserved when connectivity exists.
+     If runForegroundMaintenance() fails entirely, it still calls expireStaleApiMetadata()
+     as a safety net. For users with a fresh session it runs immediately after refresh.
+     We do NOT call expireStaleApiMetadata() eagerly here any more. */
   purgeExpiredResume();
   updateVideosPerChannelLabel();
   applyKidsMode();
   initSessionBanner();
-  if(STORE.hasLaunched){
+  if(STORE.hasLaunched && STORE.policyAccepted){
     showScreen(localStorage.getItem('ns_active_tab') || 'feed');
   } else {
     showScreen('setup');
   }
   checkForIncomingPack();
+  /* Foreground maintenance: if stale metadata exists, obtain a session and
+     refresh. This replaces the old "only refresh if session already exists"
+     pattern, so users like music listeners who never trigger API calls still
+     get their saved video metadata kept current. Runs after a short delay
+     so the initial feed render is not blocked. */
+  setTimeout(() => { runForegroundMaintenance(false).catch(() => {}); }, 1500);
   const postReloadToast = sessionStorage.getItem('ns_post_reload_toast');
   if(postReloadToast){
     sessionStorage.removeItem('ns_post_reload_toast');
@@ -4813,18 +5079,28 @@ window.addEventListener('popstate', () => {
 
 /* No explicit wake-lock release on hidden branch — the spec requires the
    browser to auto-release any held lock when the document goes hidden. */
+/* Track when the app was last hidden so we can detect long absences on resume. */
+let _lastHiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
   const overlay = document.getElementById('player-overlay');
   if(document.hidden){
+    _lastHiddenAt = Date.now();
     if(overlay && overlay.classList.contains('open')){
       captureResumeOnPause();
     }
-  } else if(overlay && overlay.classList.contains('open') && ytPlayer){
-    
-    
-    try{
-      if(ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) requestScreenWakeLock();
-    } catch(e){}
+  } else {
+    /* App became visible again. */
+    if(overlay && overlay.classList.contains('open') && ytPlayer){
+      try{
+        if(ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) requestScreenWakeLock();
+      } catch(e){}
+    }
+    /* Run foreground maintenance on resume. This covers the critical case
+       where a PWA is minimised for days/weeks without reloading (e.g. a user
+       who plays music all day and never closes the app). The 3-hour throttle
+       inside runForegroundMaintenance() prevents excessive API calls when the
+       user simply alt-tabs or locks/unlocks their screen briefly. */
+    setTimeout(() => { runForegroundMaintenance(true).catch(() => {}); }, 800);
   }
 });
 </script>
