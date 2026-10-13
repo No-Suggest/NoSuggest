@@ -110,7 +110,7 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
 <div class="page-hero">
   <div class="section-label">Legal</div>
   <h1>Privacy Policy</h1>
-  <div class="last-updated">Last updated: 8 October 2026</div>
+  <div class="last-updated">Last updated: 12 October 2026</div>
 </div>
 <!-- CONTENT -->
 <div class="content-wrap">
@@ -127,8 +127,8 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
     <li>We do not collect your name, email address, or any account information</li>
     <li>We do not require sign-in of any kind</li>
     <li>We do not log your usage, viewing history, or behaviour on our end</li>
-    <li>We do not use cookies or tracking pixels</li>
-    <li>We do not run any backend servers that store user data</li>
+    <li>NoSuggest does not use its own advertising cookies or cross-site tracking pixels</li>
+    <li>Our Cloudflare Worker processes API requests and temporarily caches public YouTube API responses, but does not maintain user accounts or profiles</li>
   </ul>
   <p>We use <strong>Cloudflare Web Analytics</strong>, a privacy-respecting, cookie-free analytics tool that does not track individual visitors. It records only aggregate data such as page views, country, and device type. No personal data is collected or stored. Subject to <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's Privacy Policy</a>.</p>
   <div class="highlight-box">
@@ -160,12 +160,12 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
     <li>Playback resume position for videos you've started (video ID, timestamp, title, and channel name), so you can pick up where you left off</li>
     <li>A local count of how many times you've opened the app, used only to decide when to show certain in-app prompts</li>
   </ul>
-  <p>You can clear all stored data at any time from the app's Settings screen, or by clearing your browser's local storage.</p>
+  <p>Public YouTube API metadata is cached temporarily and is refreshed or removed within 30 days. The per-channel video cache expires after 3 hours, and Continue Watching entries expire after 30 days. Use <strong>Settings → Privacy &amp; Data → Delete all NoSuggest data</strong> to remove NoSuggest local storage, session storage and application caches from that device. This does not delete or change anything held by YouTube.</p>
   <p>Separately, once the Cloudflare Turnstile check passes (see section 5), our API issues a short-lived access token that your browser keeps in its session storage. It expires after five minutes (or when you close the tab) and contains no personal information. Unlike the data listed above, this token is sent to our API, only to authorise your requests.</p>
   <h2>5. Third-Party Services</h2>
   <p>NoSuggest interacts with the following third-party services:</p>
   <ul>
-    <li><strong>YouTube (video playback)</strong> - videos play via YouTube's embedded player, served from YouTube's privacy-enhanced <code>youtube-nocookie.com</code> domain for every video, regardless of content. This domain does not set YouTube's standard tracking cookies or tie playback to a signed-in Google account. NoSuggest applies this to all embeds unconditionally, including any video that may be designated "Made for Kids," rather than only to a subset. When the player loads, it still shares basic data with YouTube (such as which video is being viewed) to render the thumbnail and title, determine playability, and help prevent fraud and abuse. Additional data is shared with YouTube once you press play, to support normal playback. This exchange happens directly between your browser and YouTube, is not something NoSuggest can see or control, and is governed by <a href="https://www.youtube.com/t/terms" target="_blank">YouTube's Terms of Service</a> and <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a>. NoSuggest does not enable autoplay before you choose to play a video, which limits this data sharing to when you actively start a video</li>
+    <li><strong>YouTube (video playback)</strong> - videos play via YouTube's embedded player, initially served from YouTube's privacy-enhanced <code>youtube-nocookie.com</code> domain. If that player cannot load, NoSuggest may retry using the standard YouTube player domain so the selected video can play. When the player loads, it still shares basic data with YouTube (such as which video is being viewed) to render the thumbnail and title, determine playability, and help prevent fraud and abuse. Additional data is shared with YouTube once you press play, to support normal playback. This exchange happens directly between your browser and YouTube, is not something NoSuggest can see or control, and is governed by <a href="https://www.youtube.com/t/terms" target="_blank">YouTube's Terms of Service</a> and <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a>. NoSuggest does not enable autoplay before you choose to play a video, which limits this data sharing to when you actively start a video</li>
     <li><strong>Cloudflare Web Analytics</strong> - cookie-free, privacy-respecting analytics that records only aggregate page view data. Does not track individuals. Subject to <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's Privacy Policy</a></li>
     <li><strong>Cloudflare Turnstile</strong> - when the app needs to contact our API (for example to load new videos or to search), it runs Cloudflare Turnstile, a bot-protection check that stops automated abuse of our free service. Turnstile runs in your browser and exchanges signals such as your IP address and browser details directly with Cloudflare. NoSuggest does not receive or store these signals. Cloudflare uses them to detect bots and to improve Turnstile. Subject to <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank">Cloudflare's Turnstile Privacy Addendum</a> and <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's Privacy Policy</a></li>
     <li><strong>Google Fonts</strong> - for typography. Subject to <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a></li>
@@ -173,7 +173,7 @@ footer{border-top:1px solid var(--border);padding:3rem 1.5rem 2rem;}
   <p>We have no control over these third-party services and encourage you to review their privacy policies.</p>
   <h2>6. Children's Privacy</h2>
   <p>NoSuggest, as a product, is a general-audience application and is not directed to children. NoSuggest does not collect any personal data from anyone, including children. The app has no accounts, no sign-up, and no server-side storage.</p>
-  <p>NoSuggest includes an optional Kids Mode feature that a parent or guardian can enable, using a PIN they set, to restrict navigation on a device to a pre-approved list of channels. This is a parental control a supervising adult chooses to turn on — it does not change the fact that NoSuggest itself is not marketed or directed to children. Video content accessed through NoSuggest, including in Kids Mode, is hosted by YouTube and subject to YouTube's own terms.</p>
+  <p>NoSuggest includes optional Kids Mode, which uses a locally stored PIN to hide Search and channel-management controls. Despite its name, Kids Mode is a channel-curation control, not a content filter. It may be used by parents, teachers, students, or adults who want an additional barrier against adding channels. It does not classify, filter, review, or certify any video or channel as suitable for children. A supervising adult remains responsible for choosing channels and content.</p>
   <h2>7. Changes to This Policy</h2>
   <p>We may update this privacy policy from time to time. Any changes will be posted on this page with an updated date. As we collect no personal data, changes are unlikely to affect you materially.</p>
   <h2>8. Your Rights</h2>
