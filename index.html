@@ -2540,12 +2540,13 @@ async function runForegroundMaintenance(fromResume){
 }
 
 /* Silent API read: only with a live session, never opens the verification modal. */
-async function silentApiJson(path, timeoutMs){
+async function silentApiJson(path, timeoutMs, meta){
   if(!hasLiveApiSession()) return null;
   const token = apiSession, ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), timeoutMs || 10000);
   try{
     const res = await fetch(`${PROXY}${path}`, {signal: ctl.signal, headers: {Authorization: 'Bearer ' + token}});
     if(res.status === 401){ clearApiSession(); return null; }   // session ended: stop quietly, never prompt
+    if(meta) meta.notFound = res.headers.get('X-Channel-Not-Found') === 'true';
     return res.ok ? await res.json() : null;
   }catch(e){ return null; }
   finally{ clearTimeout(timer); }
@@ -2561,17 +2562,35 @@ function patchChannelDom(ch){
   });
 }
 
+/* Remember what was asked recently, so an answer that does not change the stamp (a deleted
+   channel, a failed request) is not asked again on every session. */
+const apiMetadataTried = new Map();
+const recentlyTried = key => Date.now() - (apiMetadataTried.get(key) || 0) < MAINTENANCE_FAILURE_RETRY_MS;
+
 async function refreshChannelMetadata(){
   const now = Date.now();
   const due = STORE.channels
-    .filter(c => YOUTUBE_CHANNEL_ID_RE.test(c.id) && (!metaStamp(c) || now - metaStamp(c) >= API_METADATA_REFRESH_AFTER))
+    .filter(c => YOUTUBE_CHANNEL_ID_RE.test(c.id) && (!metaStamp(c) || now - metaStamp(c) >= API_METADATA_REFRESH_AFTER) && !recentlyTried('c:' + c.id))
     .map(c => c.id);
   let next = 0;
   const lane = async () => {
     while(next < due.length){
       const id = due[next++];
-      const data = await silentApiJson('/channels?q=' + encodeURIComponent(id));
+      apiMetadataTried.set('c:' + id, Date.now());
+      const meta = {};
+      const data = await silentApiJson('/channels?q=' + encodeURIComponent(id), undefined, meta);
       if(!hasLiveApiSession() && data === null) return;
+      if(Array.isArray(data) && data.length === 0 && meta.notFound){
+        /* YouTube says this channel no longer exists: drop its stored data, keep the ID in the user's list,
+           and check again only after the normal refresh interval. */
+        const channels = STORE.channels, i = channels.findIndex(c => c.id === id);
+        if(i >= 0){
+          channels[i] = {...channels[i], name:'Unavailable channel', avatar:'', subs:'', handle:'', metadataFetchedAt: Date.now()};
+          STORE.channels = channels;
+          patchChannelDom(channels[i]);
+        }
+        continue;
+      }
       const m = Array.isArray(data) && data.find(c => c && c.id === id);
       if(!m) continue;
       const channels = STORE.channels, i = channels.findIndex(c => c.id === id);
@@ -2594,7 +2613,8 @@ async function refreshSavedMetadata(){
   const savedAtStart = STORE.savedVideos;
   const validAtStart = savedAtStart.filter(v => YOUTUBE_VIDEO_ID_RE.test(v.id));
   const refreshDue = validAtStart.some(v => !metaStamp(v) || now - metaStamp(v) >= API_METADATA_REFRESH_AFTER);
-  if(!refreshDue) return;
+  if(!refreshDue || recentlyTried('saved')) return;
+  apiMetadataTried.set('saved', Date.now());
 
   /* One stale saved video triggers a refresh of the complete saved-video list.
      videos.list accepts up to 50 IDs per request, so this synchronises timestamps
@@ -3145,6 +3165,18 @@ function clearPlayerReadyTimer(){
   }
 }
 
+/* The YouTube player script is loaded once when the page opens. If that single request failed
+   (weak network), the player used to wait for it forever. Ask for it again when a video is opened. */
+let ytApiRetryAt = 0;
+function reloadYouTubeApiScript(){
+  if(typeof YT !== 'undefined' && YT.Player) return;
+  if(Date.now() - ytApiRetryAt < 5000) return;
+  ytApiRetryAt = Date.now();
+  const s = document.createElement('script');
+  s.src = 'https://www.youtube.com/iframe_api';
+  s.async = true;
+  document.head.appendChild(s);
+}
 function onYouTubeIframeAPIReady(){
   if(typeof window.createPlayerPending === 'function'){
     const pending = window.createPlayerPending;
@@ -3347,8 +3379,17 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   } else {
     window.createPlayerPending = () => {
       if(!isCurrentPlayer()) return;
+      clearPlayerReadyTimer();
       createPlayer('https://www.youtube-nocookie.com');
     };
+    reloadYouTubeApiScript();
+    /* Do not wait forever for the script: say so, and offer YouTube itself. */
+    playerReadyTimer = setTimeout(() => {
+      if(isCurrentPlayer() && !(typeof YT !== 'undefined' && YT.Player)){
+        window.createPlayerPending = null;
+        showPlayerFailure("The video player couldn't load. Check your connection, or open the video on YouTube.");
+      }
+    }, 15000);
   }
 }
 function formatSeconds(s){
