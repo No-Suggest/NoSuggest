@@ -1056,7 +1056,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         <div class="big-icon">📺</div>
         <h3>No channels yet</h3>
         <p>Add some YouTube channels to start watching without distractions</p>
-        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>
+        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add YouTube Channels</button>
       </div>
     </div>
   </div>
@@ -1072,7 +1072,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         <div class="big-icon">📺</div>
         <h3>No channels yet</h3>
         <p>Add some YouTube channels to start watching without distractions</p>
-        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add Channels</button>
+        <button class="btn" style="width:auto;padding:0.75rem 1.75rem" onclick="openAddChannelOnboarding()">Add YouTube Channels</button>
       </div>
     </div>
   </div>
@@ -1089,18 +1089,18 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <div class="add-body">
 
         
-        <div class="field-label">Search by channel name</div>
+        <div class="field-label">Search YouTube channel (handle/name/URL)</div>
         <div class="channel-search-anchor">
           <div class="search-row">
             <input class="text-input" id="channel-input" type="text"
-              placeholder="Channel Name or @handle"
-              aria-label="Search by channel name or handle"
+              placeholder="Channel @handle or Name or URL"
+              aria-label="Search by channel handle or name"
               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
             <button class="search-trigger-btn" onclick="triggerChannelSearch()" aria-label="Search">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
             </button>
           </div>
-          <div class="input-hint">Type a name or handle, then press Enter or tap Search</div>
+          <div class="input-hint">Type handle or name, then press Enter or tap Search</div>
 
           <div id="channel-suggestions" class="channel-suggestions"></div>
           <div id="channel-searching" class="searching-state" style="display:none">
@@ -1420,7 +1420,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
           <div class="search-choice-intro"><strong>What would you like to search?</strong></div>
           <button type="button" class="search-choice-tile" onclick="pickSearchMode('videos')" aria-label="Search Videos: Find a video or paste a link to watch.">
             <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m10 8 6 4-6 4V8Z"/></svg></span>
-            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search Videos</span><span class="search-choice-tile-sub">Find a video or paste a link to watch.</span></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search YouTube Videos</span><span class="search-choice-tile-sub">Find a video or paste a link to watch.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
           <button type="button" class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
@@ -1430,7 +1430,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
           </button>
           <button type="button" class="search-choice-tile" onclick="pickSearchMode('channels')" aria-label="Search Channels: Find creators and add them to your feed.">
             <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20v-1.5a6.5 6.5 0 0 1 13 0V20H3.5Z"/><path d="M18 7h4m-2-2v4"/></svg></span>
-            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Make it yours</span><span class="search-choice-tile-title">Search Channels</span><span class="search-choice-tile-sub">Find creators and add them to your feed.</span></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Make it yours</span><span class="search-choice-tile-title">Search YouTube Channels</span><span class="search-choice-tile-sub">Find creators and add them to your feed.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
         </div>
