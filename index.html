@@ -160,7 +160,6 @@
 <link rel="preconnect" href="https://i.ytimg.com"/>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'"/>
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap"/></noscript>
-<script async src="https://www.youtube.com/iframe_api"></script>
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "13373b3fce114bcc9f4126115c9932ea"}'></script>
 <style>
 
@@ -3165,16 +3164,21 @@ function clearPlayerReadyTimer(){
   }
 }
 
-/* The YouTube player script is loaded once when the page opens. If that single request failed
-   (weak network), the player used to wait for it forever. Ask for it again when a video is opened. */
+/* The YouTube player script is loaded lazily — only when the user opens a video — so no
+   request is made to youtube.com just by opening NoSuggest. One load is in flight at a time;
+   a failed load clears the flag so the next video open retries straight away, and a load
+   that hangs for 15 s no longer blocks a fresh attempt. */
 let ytApiRetryAt = 0;
+let ytApiLoading = false;
 function reloadYouTubeApiScript(){
   if(typeof YT !== 'undefined' && YT.Player) return;
-  if(Date.now() - ytApiRetryAt < 5000) return;
+  if(ytApiLoading && Date.now() - ytApiRetryAt < 15000) return;
+  ytApiLoading = true;
   ytApiRetryAt = Date.now();
   const s = document.createElement('script');
   s.src = 'https://www.youtube.com/iframe_api';
   s.async = true;
+  s.onerror = () => { ytApiLoading = false; s.remove(); };
   document.head.appendChild(s);
 }
 function onYouTubeIframeAPIReady(){
