@@ -158,6 +158,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preconnect" href="https://i.ytimg.com"/>
+<link rel="preconnect" href="https://api.nosuggest.com" crossorigin/>
+<link rel="preconnect" href="https://challenges.cloudflare.com"/>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'"/>
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&display=swap"/></noscript>
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "13373b3fce114bcc9f4126115c9932ea"}'></script>
@@ -1768,6 +1770,11 @@ function loadTurnstile(){
   return turnstileScriptPending;
 }
 
+/* Background work (silent feed refresh, metadata maintenance) registers here so it can
+   show the "Securing request…" overlay only if Turnstile actually needs the user to tick
+   the checkbox. Invisible verifications never show an overlay. */
+const verificationInteractiveHooks=new Set();
+function notifyVerificationInteractive(){verificationInteractiveHooks.forEach(fn=>{try{fn();}catch(e){}});}
 let verificationQueue=Promise.resolve();
 function showVerification(sitekey,action='nosuggest_session'){
   const result=verificationQueue.then(()=>renderVerification(sitekey,action));
@@ -1793,7 +1800,7 @@ function renderVerification(sitekey,action){
         sitekey,action,appearance:'interaction-only',
         size:window.innerWidth<350?'compact':'normal',
         callback:token=>finish(null,token),
-        'before-interactive-callback':()=>{backdrop.classList.add('interactive');document.getElementById('api-verify-modal').setAttribute('aria-hidden','false');verificationStatus(false);},
+        'before-interactive-callback':()=>{notifyVerificationInteractive();backdrop.classList.add('interactive');document.getElementById('api-verify-modal').setAttribute('aria-hidden','false');verificationStatus(false);},
         'after-interactive-callback':()=>{backdrop.classList.remove('interactive');document.getElementById('api-verify-modal').setAttribute('aria-hidden','true');verificationStatus(true);},
         'error-callback':()=>finish(new Error('Verification failed. Please retry.')),
         'expired-callback':()=>finish(new Error('Verification expired. Please retry.')),
@@ -2024,6 +2031,20 @@ function getCachedVideos(channelId){
     if(!raw) return null;
     const {ts, videos} = JSON.parse(raw);
     if(Date.now() - ts > CACHE_TTL) return null;
+    return videos;
+  } catch(e){ return null; }
+}
+/* Stale-while-revalidate: a channel list older than CACHE_TTL is still shown instantly
+   while a fresh copy is fetched silently in the background, as long as it is inside the
+   30-day YouTube API data limit (same limit expireStaleApiMetadata() enforces). */
+const STALE_CACHE_MAX = API_METADATA_TTL;
+function getStaleCachedVideos(channelId){
+  try{
+    const raw = localStorage.getItem('ft_vc_v2_' + channelId);
+    if(!raw) return null;
+    const {ts, videos} = JSON.parse(raw);
+    if(!Number.isFinite(ts) || !Array.isArray(videos) || !videos.length) return null;
+    if(Date.now() - ts >= STALE_CACHE_MAX) return null;
     return videos;
   } catch(e){ return null; }
 }
@@ -2485,7 +2506,7 @@ async function runForegroundMaintenance(fromResume){
 
   maintenanceRunning = true;
   /* Track whether we showed the overlay so we can hide it properly. */
-  let overlayShown = false, overlayTimer = null;
+  let overlayShown = false, overlayTimer = null, maintenanceHook = null;
   try{
     /* If there is no live session we will need Turnstile. Show the overlay
        now so the user understands something is happening. If the session
@@ -2493,14 +2514,17 @@ async function runForegroundMaintenance(fromResume){
     /* Never take over an overlay that is already up (the feed or a search the user just
        started): hiding it when this background task ends would leave their request with no
        indicator. Also never keep the screen covered for more than MAINTENANCE_OVERLAY_MAX_MS. */
-    if(!hasLiveApiSession() && !document.getElementById('ns-loading-overlay').classList.contains('show')){
+    /* Runs on app open/resume, so it stays silent unless Turnstile needs the checkbox. */
+    maintenanceHook = () => {
+      if(overlayShown || document.getElementById('ns-loading-overlay').classList.contains('show')) return;
       showLoadingOverlay(
         fromResume ? 'Refreshing your saved videos…' : 'Keeping video details current…',
         'One moment — verifying with Cloudflare'
       );
       overlayShown = true;
       overlayTimer = setTimeout(() => { if(overlayShown){ overlayShown = false; hideLoadingOverlay(); } }, MAINTENANCE_OVERLAY_MAX_MS);
-    }
+    };
+    verificationInteractiveHooks.add(maintenanceHook);
 
     allowVerificationRetry();
     /* ensureApiSession() opens the Turnstile widget only if no live session
@@ -2532,6 +2556,7 @@ async function runForegroundMaintenance(fromResume){
     /* Failed: retry after MAINTENANCE_FAILURE_RETRY_MS rather than on every foreground event. */
     try{ localStorage.setItem(MAINTENANCE_STORAGE_KEY, String(Date.now() - MAINTENANCE_CHECK_INTERVAL + MAINTENANCE_FAILURE_RETRY_MS)); }catch(err){}
   }finally{
+    if(maintenanceHook) verificationInteractiveHooks.delete(maintenanceHook);
     clearTimeout(overlayTimer);
     if(overlayShown) hideLoadingOverlay();
     maintenanceRunning = false;
@@ -2940,7 +2965,9 @@ async function initFeed(newChannelId){
 
   // Show the unified overlay during Turnstile/session phase.
   // Only needed when there is no live 5-min session already.
-  let feedOverlayHidden = hasLiveApiSession() || !channels.some(c => !getCachedVideos(c.id));
+  let userReload = false;
+  try{ userReload = sessionStorage.getItem('ns_user_reload') === '1'; sessionStorage.removeItem('ns_user_reload'); }catch(e){}
+  let feedOverlayHidden = !userReload && (hasLiveApiSession() || !channels.some(c => !getCachedVideos(c.id) && !getStaleCachedVideos(c.id)));
   if(!feedOverlayHidden){
     showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
   }
@@ -2995,11 +3022,53 @@ async function initFeed(newChannelId){
     } else { ready.set(i, videos); scheduleDrain(); }
   }
 
+  /* Background refresh for channels shown from stale cache. Failures keep the stale list.
+     Re-renders only if the video list actually changed, so nothing flickers. */
+  let silentOverlayShown = false, silentPending = 0;
+  const onSilentInteractive = () => {
+    if(feedGeneration !== myGen || silentPending === 0) return;
+    if(document.getElementById('ns-loading-overlay').classList.contains('show')) return;
+    silentOverlayShown = true;
+    showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
+  };
+  function silentSettled(){
+    if(silentOverlayShown){ silentOverlayShown = false; hideLoadingOverlay(); }
+    if(--silentPending <= 0){ silentPending = 0; verificationInteractiveHooks.delete(onSilentInteractive); }
+  }
+  async function revalidate(ch, i, stale){
+    try{
+      const fresh = await fetchVideosCVWithRetry(ch.id, resolveHandle(ch), myAbortSignal);
+      if(feedGeneration !== myGen || !Array.isArray(fresh)) return;
+      setCachedVideos(ch.id, fresh);
+      const n = STORE.videosPerChannel;
+      const ids = list => list.slice(0, n).map(v => v && v.id).join(',');
+      if(ids(fresh) === ids(stale)) return;
+      requestAnimationFrame(() => {
+        if(feedGeneration !== myGen) return;
+        if(ready.has(i)){ ready.set(i, fresh); return; }
+        if(document.getElementById('videos-' + ch.id)) renderVideos(ch, fresh.slice(0, n), false);
+      });
+    } catch(e){
+      console.warn(`[NoSuggest] ${ch.id} background refresh failed, keeping cached list:`, e.message);
+    } finally {
+      silentSettled();
+    }
+  }
+  let revalidateCount = 0;
+
   channels.forEach((ch, i) => {
-    const cached = getCachedVideos(ch.id);
+    const fresh = getCachedVideos(ch.id);
+    const stale = fresh ? null : getStaleCachedVideos(ch.id);
+    const cached = fresh || stale;
     const jitter = Math.floor(Math.random() * 80);
       // Prompt start with a light five-request wave stagger for uncached channels.
       const delay = cached ? jitter : Math.floor(i / 5) * 120 + jitter;
+    if(stale){
+      if(silentPending++ === 0) verificationInteractiveHooks.add(onSilentInteractive);
+      // Same five-request wave stagger as uncached fetches, so backend load is unchanged.
+      const rDelay = 150 + Math.floor(revalidateCount++ / 5) * 120 + jitter;
+      setTimeout(() => { if(feedGeneration === myGen) revalidate(ch, i, stale); else silentSettled(); }, rDelay);
+    }
     setTimeout(async () => {
       // Guard: if a newer load started while this fetch was in flight,
       // this generation's DOM has been wiped. Bail out.
@@ -3111,7 +3180,23 @@ function skipChannelSection(fromChannelId){
   }
 }
 
-document.getElementById('feed-refresh-btn').onclick = () => { clearVideoCache(); location.reload(); };
+/* Reload is a user action, so it always shows the "Securing request…" overlay after the
+   page reloads, even if a session token from this tab is still valid.
+   If a Turnstile verification is already running (e.g. the silent background refresh),
+   wait for it instead of throwing it away: its session token is saved to sessionStorage,
+   so the reloaded page reuses it and does not verify again. If that verification fails,
+   the reload still goes ahead and starts a fresh one. Repeated taps while waiting are ignored. */
+let feedReloadPending = false;
+document.getElementById('feed-refresh-btn').onclick = async () => {
+  if(feedReloadPending) return;
+  feedReloadPending = true;
+  try{ sessionStorage.setItem('ns_user_reload', '1'); }catch(e){}
+  if(apiSessionPending){
+    showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
+    try{ await apiSessionPending; }catch(e){}
+  }
+  clearVideoCache(); location.reload();
+};
 
 let currentVideoData    = null;
 let ytPlayer            = null;
@@ -4012,7 +4097,7 @@ function closeVpcPicker(){
 }
 function reRenderAllChannelFeeds(){
   STORE.channels.forEach(ch => {
-    const videos = getCachedVideos(ch.id);
+    const videos = getCachedVideos(ch.id) || getStaleCachedVideos(ch.id);
     if(videos) renderVideos(ch, videos.slice(0, STORE.videosPerChannel));
   });
 }
