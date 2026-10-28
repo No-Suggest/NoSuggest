@@ -2694,6 +2694,7 @@ function getStarted(){
   if(error)error.style.display='none';STORE.policyAccepted=true;
   STORE.hasLaunched = true;
   showScreen(STORE.channels.length ? 'feed' : 'channels');
+  setTimeout(runPendingLink, 400);
 }
 
 let pinBuffer = '';
@@ -3407,6 +3408,19 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
             try{
               const iframeEl = e.target.getIframe();
               if(iframeEl) iframeEl.tabIndex = -1;
+            } catch(err){}
+            /* Videos opened from a pasted or shared link carry no metadata.
+               Read it from the player so the title and channel still show. */
+            try{
+              const d = e.target.getVideoData && e.target.getVideoData();
+              if(d && d.title && currentVideoData && currentVideoData.id === videoId && !currentVideoData.title){
+                currentVideoData.title = d.title;
+                document.getElementById('player-title').textContent = d.title;
+                if(d.author && !currentVideoData.channelName){
+                  currentVideoData.channelName = d.author;
+                  document.getElementById('player-channel-name').textContent = d.author;
+                }
+              }
             } catch(err){}
           },
           onStateChange: e => {
@@ -4861,6 +4875,7 @@ function doImportBackup(){
 const PACK_MAX_CHANNELS = 40; 
 let _packCode = '';
 let _pendingPack = null; 
+let packConfirmationApplying = false; 
 
 function toUrlSafeB64(str){
   return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -5055,15 +5070,26 @@ async function confirmAddPack(){
     return;
   }
   toAdd.forEach(c => {
-    channels.push({ id: c.id, name: c.name, avatar: '', subs: '', handle: '' });
+    channels.push({
+      id:c.id,
+      name:boundedImportedText(c.name, 120, c.id),
+      avatar:importedHttpsUrl(c.avatar),
+      subs:boundedImportedText(c.subs, 80),
+      handle:boundedImportedText(c.handle, 120),
+      metadataFetchedAt:metaStamp(c) || 0
+    });
   });
   STORE.channels = channels;
   STORE.hasLaunched = true;
   const count = toAdd.length;
   toast(`Added ${count} channel${count===1?'':'s'} ✓ - Go to Feed tab to see latest videos`);
+  packConfirmationApplying = true;
   closePackConfirm();
   cleanPackUrlParam();
-  await resolvePackAvatars(toAdd);
+  /* Pack links contain only IDs/names and still need enrichment. Extension
+     follows already carry verified metadata and therefore make no duplicate call. */
+  const unresolved = toAdd.filter(c => !metaStamp(c));
+  if(unresolved.length) await resolvePackAvatars(unresolved);
   location.reload();
 }
 
@@ -5108,13 +5134,162 @@ function closePackConfirm(){
   document.getElementById('pack-confirm-backdrop').classList.remove('show');
   _pendingPack = null;
   a11yCloseModal();
+  /* If a pack and extension action arrived together, continue only after
+     the pack decision has fully closed. */
+  if(!packConfirmationApplying){
+    try{ if(sessionStorage.getItem(PENDING_LINK_KEY)) schedulePendingLink(); }catch(e){}
+  }
 }
 
 function cleanPackUrlParam(){
   const url = new URL(location.href);
   if(url.searchParams.has('pack')){
     url.searchParams.delete('pack');
-    history.replaceState(null, '', url.pathname + (url.search || ''));
+    history.replaceState(null, '', url.pathname + (url.search || '') + url.hash);
+  }
+}
+
+/* ---- Links from the NoSuggest browser extension ----------------------------
+   #v=VIDEOID       play one video (YouTube watch, youtu.be and Shorts links)
+   #follow=@handle  offer to follow a channel (a UC... channel ID also works)
+   The value sits after the # so the browser never sends it to a server. It is
+   stripped from the address as soon as it is read. In Kids Mode these links
+   are ignored. If setup has not been finished, the link waits (sessionStorage)
+   and runs once setup is done. */
+const PENDING_LINK_KEY = 'ns_pending_link';
+
+function readLinkFromHash(){
+  if(!location.hash || location.hash.length < 3) return null;
+  let params;
+  try{ params = new URLSearchParams(location.hash.slice(1)); }catch(e){ return null; }
+  const v = params.get('v');
+  const f = params.get('follow');
+  if(v === null && f === null) return null;
+  history.replaceState(null, '', location.pathname + location.search);
+  if(v !== null){
+    if(YOUTUBE_VIDEO_ID_RE.test(v)) return { type:'video', value:v };
+    setTimeout(() => toast('The extension sent an invalid YouTube video link.', 5000), 0);
+    return null;
+  }
+  const val = String(f).trim();
+  if(/^@[\p{L}\p{N}._-]+$/u.test(val) || YOUTUBE_CHANNEL_ID_RE.test(val)){
+    return { type:'follow', value:val };
+  }
+  setTimeout(() => toast('The extension sent an invalid YouTube channel link.', 5000), 0);
+  return null;
+}
+
+function checkForIncomingLink(){
+  const link = readLinkFromHash();
+  if(link){
+    try{ sessionStorage.setItem(PENDING_LINK_KEY, JSON.stringify(link)); }catch(e){}
+  }
+  runPendingLink();
+}
+
+let pendingLinkRunning = false;
+let pendingLinkRetryTimer = null;
+function validPendingLink(link){
+  if(!link || typeof link !== 'object') return null;
+  if(link.type === 'video' && typeof link.value === 'string' && YOUTUBE_VIDEO_ID_RE.test(link.value))
+    return {type:'video', value:link.value};
+  if(link.type === 'follow' && typeof link.value === 'string'){
+    const value = link.value.trim();
+    if(/^@[\p{L}\p{N}._-]+$/u.test(value) || YOUTUBE_CHANNEL_ID_RE.test(value))
+      return {type:'follow', value};
+  }
+  return null;
+}
+function schedulePendingLink(){
+  clearTimeout(pendingLinkRetryTimer);
+  pendingLinkRetryTimer = setTimeout(runPendingLink, 100);
+}
+async function runPendingLink(){
+  if(pendingLinkRunning) return;
+  let raw = null;
+  try{ raw = JSON.parse(sessionStorage.getItem(PENDING_LINK_KEY) || 'null'); }catch(e){}
+  const link = validPendingLink(raw);
+  if(!link){
+    try{ sessionStorage.removeItem(PENDING_LINK_KEY); }catch(e){}
+    return;
+  }
+  if(!(STORE.hasLaunched && STORE.policyAccepted)) return;
+  /* Do not stack this action over a pack/PIN/share/settings modal. A video
+     player is safe to replace, but all other modal flows finish first. */
+  const player = document.getElementById('player-overlay');
+  const playerOpen = !!(player && player.classList.contains('open'));
+  if(_a11yModalEl && _a11yModalEl !== player){ schedulePendingLink(); return; }
+  pendingLinkRunning = true;
+  try{
+    try{ sessionStorage.removeItem(PENDING_LINK_KEY); }catch(e){}
+    if(STORE.kidsMode){
+      toast('Shared links are turned off in Kids Mode.', 4000);
+      return;
+    }
+    if(playerOpen) closePlayer();
+    if(link.type === 'video'){
+      openPlayer(link.value, '', '', '', `https://i.ytimg.com/vi/${link.value}/mqdefault.jpg`);
+    } else {
+      await followFromLink(link.value);
+    }
+  } finally {
+    pendingLinkRunning = false;
+    /* A second extension click may have arrived while this action was running. */
+    try{ if(sessionStorage.getItem(PENDING_LINK_KEY)) schedulePendingLink(); }catch(e){}
+  }
+}
+window.addEventListener('hashchange', checkForIncomingLink);
+
+async function followFromLink(value){
+  const isId   = /^UC[A-Za-z0-9_-]{22}$/.test(value);
+  const wanted = value.replace(/^@/, '').toLowerCase();
+  const sameHandle = c => String(c.handle || '').replace(/^@/, '').toLowerCase() === wanted;
+  if(STORE.channels.some(c => isId ? c.id === value : sameHandle(c))){
+    toast('Already in your list');
+    return;
+  }
+  if(STORE.channels.length >= MAX_CHANNELS){
+    toast(`Channel limit reached (${MAX_CHANNELS}). Remove a channel to add more.`, 5000);
+    return;
+  }
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, SEARCH_TIMEOUT_MS);
+  showLoadingOverlay('Looking up channel…', '');
+  try{
+    allowVerificationRetry();
+    const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(value)}`, { signal: controller.signal });
+    if(!res.ok) throw new Error(`Channel lookup failed (${res.status})`);
+    const results = await res.json();
+    if(!Array.isArray(results) || results.error || !results.length) throw new Error('Channel not found.');
+    const ch = isId
+      ? results.find(r => r && r.id === value)
+      : results.find(r => r && sameHandle(r));
+    if(!ch || !ch.id) throw new Error('Could not verify that exact channel.');
+    clearTimeout(timer);
+    hideLoadingOverlay();
+    if(STORE.channels.some(c => c.id === ch.id)){ toast('Already in your list'); return; }
+    openFollowConfirm(ch);
+  } catch(err){
+    clearTimeout(timer);
+    hideLoadingOverlay();
+    toast(timedOut ? 'Lookup timed out. Check your connection and try again.'
+                   : (err.message || 'Could not look up that channel.'), 5000);
+  }
+}
+
+/* Reuses the pack confirmation sheet for a single channel, with its own wording. */
+function openFollowConfirm(ch){
+  const verified = normalizeImportedChannel({...ch, metadataFetchedAt:Date.now()});
+  if(!verified){ toast('Could not verify that exact channel.', 5000); return; }
+  openPackConfirm([verified]);
+  if(_pendingPack && _pendingPack.toAdd.length){
+    /* openPackConfirm preserves the verified record, including avatar, handle
+       and subscriber text, so confirming does not require a second lookup. */
+    _pendingPack.toAdd[0] = verified;
+    document.getElementById('pack-confirm-title').textContent = 'Follow this channel?';
+    document.getElementById('pack-confirm-body').textContent =
+      'This adds the channel below to your list. Your existing channels and saved videos are untouched.';
   }
 }
 
@@ -5186,6 +5361,7 @@ window.addEventListener('load', () => {
     showScreen('setup');
   }
   checkForIncomingPack();
+  checkForIncomingLink();
   /* Foreground maintenance: if stale metadata exists, obtain a session and
      refresh. This replaces the old "only refresh if session already exists"
      pattern, so users like music listeners who never trigger API calls still
