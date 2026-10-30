@@ -268,6 +268,13 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-share-strip .ss-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;max-width:400px;}
 #nav-share-strip .ss-actions{display:flex;gap:10px;margin-top:0.5rem;width:100%;max-width:320px;}
 #nav-share-strip .ss-actions button{flex:1;}
+#nav-share-strip.with-ext{height:auto;max-height:92vh;overflow-y:auto;justify-content:flex-start;}
+#nav-share-strip .ss-extra{flex-direction:column;margin-top:0;}
+#nav-share-strip .ss-extra[hidden]{display:none;}
+#nav-share-strip .ss-extra button{flex:none;width:100%;padding:0.75rem;border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;color:var(--bg);}
+#nav-share-strip .ss-extra button:active{opacity:0.85;}
+#nav-share-strip .ss-btn-ext{background:#5aa9ff;}
+#nav-share-strip .ss-btn-review{background:var(--accent2);}
 #desktop-share-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:520;display:none;align-items:center;justify-content:center;padding:1.5rem}#desktop-share-backdrop.show{display:flex}#desktop-share-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem 1.4rem;width:100%;max-width:410px;display:flex;flex-direction:column;gap:1rem;box-shadow:0 18px 60px rgba(0,0,0,.55)}.dsm-title{font-size:18px;font-weight:600}.dsm-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.55}.dsm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dsm-btn,.dsm-close{min-height:44px;padding:.7rem .8rem;background:var(--bg3);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer}.dsm-btn:hover{border-color:var(--accent)}.dsm-primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}.dsm-close{width:100%;background:transparent;color:var(--muted)}
 
 #ios-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:450;display:none;opacity:0;transition:opacity 0.25s;}
@@ -1519,11 +1526,15 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="ss-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
     </div>
-    <div class="ss-title" id="share-strip-title">Enjoying the quiet?</div>
-    <div class="ss-body">NoSuggest has no ad budget and no marketing team — it stays free because people who use it tell someone else about it. If it's helped you, sharing it with more people keeps it going.</div>
+    <div class="ss-title" id="share-strip-title">Finding NoSuggest helpful?</div>
+    <div class="ss-body">We have zero ads and no marketing budget. NoSuggest will always be free. It only grows through word of mouth when kind people like you help.</div>
     <div class="ss-actions">
       <button class="pack-btn-secondary" onclick="dismissShareStrip()">Later</button>
       <button class="pack-btn-primary" onclick="shareFromStrip()">Share</button>
+    </div>
+    <div class="ss-actions ss-extra" id="ss-extra" hidden>
+      <button type="button" class="ss-btn-ext" onclick="openChromeExtension()">Desktop Chrome extension</button>
+      <button type="button" class="ss-btn-review" onclick="openChromeReview()">Write a review</button>
     </div>
   </div>
 
@@ -4646,7 +4657,34 @@ function initSessionBanner(){
   openShareStrip();
 }
 
+/* The Chrome extension only exists for desktop Google Chrome, so the two extra
+   buttons are shown there and nowhere else (not phones, Edge, Brave, Safari...). */
+const CHROME_EXTENSION_URL = 'https://chromewebstore.google.com/detail/nosuggest-redirect/fcbfdbnikbegflnpkgefonmjbnpblcan';
+const CHROME_REVIEW_URL    = CHROME_EXTENSION_URL + '/reviews';
+
+function isDesktopChrome(){
+  if(isMobileShareDevice()) return false;
+  if(navigator.brave) return false;
+  const brands = navigator.userAgentData && navigator.userAgentData.brands;
+  if(brands && brands.length) return brands.some(b => b.brand === 'Google Chrome');
+  const ua = navigator.userAgent;
+  return /Chrome\//.test(ua) && !/Edg\/|OPR\/|Vivaldi|SamsungBrowser|YaBrowser/.test(ua);
+}
+
+function openChromeExtension(){
+  closeShareStrip();
+  window.open(CHROME_EXTENSION_URL, '_blank', 'noopener');
+}
+
+function openChromeReview(){
+  closeShareStrip();
+  window.open(CHROME_REVIEW_URL, '_blank', 'noopener');
+}
+
 function openShareStrip(){
+  const showExt = isDesktopChrome();
+  document.getElementById('ss-extra').hidden = !showExt;
+  document.getElementById('nav-share-strip').classList.toggle('with-ext', showExt);
   document.getElementById('share-strip-backdrop').classList.add('show');
   document.getElementById('nav-share-strip').classList.add('show');
   a11yOpenModal(document.getElementById('nav-share-strip'), dismissShareStrip);
