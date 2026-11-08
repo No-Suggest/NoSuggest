@@ -1533,8 +1533,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <button class="pack-btn-primary" onclick="shareFromStrip()">Share</button>
     </div>
     <div class="ss-actions ss-extra" id="ss-extra" hidden>
-      <button type="button" class="ss-btn-ext" onclick="openChromeExtension()">Desktop Chrome extension</button>
-      <button type="button" class="ss-btn-review" onclick="openChromeReview()">Write a review</button>
+      <button type="button" class="ss-btn-ext" onclick="openExtensionStore()">Desktop Chrome extension</button>
+      <button type="button" class="ss-btn-review" onclick="openExtensionReview()">Write a review</button>
     </div>
   </div>
 
@@ -1714,8 +1714,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
 const PROXY = 'https://api.nosuggest.com';
 
-/* Turnstile verifies once per session; the Worker-signed session token is
-   reused for every API operation in this tab until its 5-minute expiry. */
+/* Turnstile verifies once; the Worker-signed session token is reused for every API
+   operation until its 5-minute expiry. It is kept in localStorage so every tab of this
+   browser shares it: a new tab picks up a live token instead of verifying again, and
+   a Web Lock makes tabs that open together wait for one verification. */
 const API_SESSION_STORAGE_KEY='ns_api_session_v1:'+PROXY;
 let apiSession=null, apiSessionUntil=0, apiSessionPending=null;
 let apiSessionBlockedUntil=0, apiSessionBlockedError=null;
@@ -1734,24 +1736,33 @@ async function getSitekey(){
 }
 
 function allowVerificationRetry(){apiSessionBlockedUntil=0;apiSessionBlockedError=null;}
-function hasLiveApiSession(){return !!(apiSession && Date.now()<apiSessionUntil);}
+function hasLiveApiSession(){
+  if(apiSession && Date.now()<apiSessionUntil)return true;
+  restoreApiSession(); /* another tab may have verified in the meantime */
+  return !!(apiSession && Date.now()<apiSessionUntil);
+}
 function restoreApiSession(){
   try{
-    const saved=JSON.parse(sessionStorage.getItem(API_SESSION_STORAGE_KEY)||'null');
+    const saved=JSON.parse(localStorage.getItem(API_SESSION_STORAGE_KEY)||'null');
     if(saved && typeof saved.token==='string' && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(saved.token) &&
        Number.isFinite(saved.until) && saved.until>Date.now() && saved.until<=Date.now()+300000){
       apiSession=saved.token;apiSessionUntil=saved.until;
-    }else sessionStorage.removeItem(API_SESSION_STORAGE_KEY);
-  }catch(e){try{sessionStorage.removeItem(API_SESSION_STORAGE_KEY);}catch(ignore){}}
+    }else if(saved)localStorage.removeItem(API_SESSION_STORAGE_KEY);
+  }catch(e){try{localStorage.removeItem(API_SESSION_STORAGE_KEY);}catch(ignore){}}
 }
 function saveApiSession(token,until){
   apiSession=token;apiSessionUntil=until;
   setTimeout(() => { try{ refreshStaleApiMetadata(); }catch(e){} }, 800);
-  try{sessionStorage.setItem(API_SESSION_STORAGE_KEY,JSON.stringify({token,until}));}catch(e){}
+  try{localStorage.setItem(API_SESSION_STORAGE_KEY,JSON.stringify({token,until}));}catch(e){}
 }
-function clearApiSession(){
-  apiSession=null;apiSessionUntil=0;
-  try{sessionStorage.removeItem(API_SESSION_STORAGE_KEY);}catch(e){}
+/* Pass the token that just failed (401) so a fresher token saved by another tab is not wiped.
+   Call with no argument to clear everything (Delete all data). */
+function clearApiSession(failedToken){
+  if(!failedToken || apiSession===failedToken){apiSession=null;apiSessionUntil=0;}
+  try{
+    const saved=JSON.parse(localStorage.getItem(API_SESSION_STORAGE_KEY)||'null');
+    if(!failedToken || !saved || saved.token===failedToken)localStorage.removeItem(API_SESSION_STORAGE_KEY);
+  }catch(e){try{localStorage.removeItem(API_SESSION_STORAGE_KEY);}catch(ignore){}}
 }
 restoreApiSession();
 function verificationStatus(show){ /* Screen-local loader is the single passive status UI. */ }
@@ -1821,11 +1832,31 @@ function renderVerification(sitekey,action){
     }catch(e){finish(new Error('Verification could not start.'));}
   });
 }
+const API_SESSION_LOCK_WAIT_MS=20000;
+/* Tabs that open together queue here so only one runs Turnstile; the others then find the
+   fresh token in storage. If the lock is not available, or the wait runs long (for example a
+   background tab with a checkbox nobody can tick), carry on without it. */
+async function withApiSessionLock(task){
+  if(!(navigator.locks && navigator.locks.request))return task();
+  const ctl=new AbortController();
+  let acquired=false;
+  const waitTimer=setTimeout(()=>ctl.abort(),API_SESSION_LOCK_WAIT_MS);
+  try{
+    return await navigator.locks.request('ns-api-session',{signal:ctl.signal},async()=>{
+      acquired=true;clearTimeout(waitTimer);
+      return task();
+    });
+  }catch(e){
+    if(!acquired && e && e.name==='AbortError')return task();
+    throw e;
+  }finally{clearTimeout(waitTimer);}
+}
 async function ensureApiSession(){
   if(hasLiveApiSession())return apiSession;
   if(apiSessionPending)return apiSessionPending;
   if(Date.now()<apiSessionBlockedUntil && apiSessionBlockedError)throw apiSessionBlockedError;
-  apiSessionPending=(async()=>{
+  apiSessionPending=withApiSessionLock(async()=>{
+    if(hasLiveApiSession())return apiSession; /* another tab finished while this one waited */
     verificationStatus(true);
     try{
       const sitekey=await getSitekey();
@@ -1846,7 +1877,7 @@ async function ensureApiSession(){
       setTimeout(repairMissingChannelAvatars,0);
       return apiSession;
     }finally{verificationStatus(false);}
-  })().catch(e=>{
+  }).catch(e=>{
     apiSessionBlockedError=e;apiSessionBlockedUntil=Date.now()+API_VERIFY_COOLDOWN_MS;throw e;
   }).finally(()=>{apiSessionPending=null;});
   return apiSessionPending;
@@ -1858,7 +1889,7 @@ async function apiFetch(url,options={}){
   const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),Authorization:'Bearer '+session}});
   let response=await request();
   if(response.status===401){
-    if(apiSession===session)clearApiSession();
+    clearApiSession(session);
     session=await ensureApiSession();
     if(options.signal?.aborted)throw Object.assign(new Error('Aborted'),{name:'AbortError'});
     response=await request();
@@ -2580,7 +2611,7 @@ async function silentApiJson(path, timeoutMs, meta){
   const token = apiSession, ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), timeoutMs || 10000);
   try{
     const res = await fetch(`${PROXY}${path}`, {signal: ctl.signal, headers: {Authorization: 'Bearer ' + token}});
-    if(res.status === 401){ clearApiSession(); return null; }   // session ended: stop quietly, never prompt
+    if(res.status === 401){ clearApiSession(token); return null; }   // session ended: stop quietly, never prompt
     if(meta) meta.notFound = res.headers.get('X-Channel-Not-Found') === 'true';
     return res.ok ? await res.json() : null;
   }catch(e){ return null; }
@@ -3195,7 +3226,7 @@ function skipChannelSection(fromChannelId){
 /* Reload is a user action, so it always shows the "Securing request…" overlay after the
    page reloads, even if a session token from this tab is still valid.
    If a Turnstile verification is already running (e.g. the silent background refresh),
-   wait for it instead of throwing it away: its session token is saved to sessionStorage,
+   wait for it instead of throwing it away: its session token is saved to localStorage,
    so the reloaded page reuses it and does not verify again. If that verification fails,
    the reload still goes ahead and starts a fresh one. Repeated taps while waiting are ignored. */
 let feedReloadPending = false;
@@ -4657,34 +4688,60 @@ function initSessionBanner(){
   openShareStrip();
 }
 
-/* The Chrome extension only exists for desktop Google Chrome, so the two extra
-   buttons are shown there and nowhere else (not phones, Edge, Brave, Safari...). */
-const CHROME_EXTENSION_URL = 'https://chromewebstore.google.com/detail/nosuggest-redirect/fcbfdbnikbegflnpkgefonmjbnpblcan';
-const CHROME_REVIEW_URL    = CHROME_EXTENSION_URL + '/reviews';
+/* Extension store links. The extra buttons show only in a browser the extension
+   exists for: desktop Chrome, desktop Edge, and Firefox (desktop and Android). */
+const CHROME_EXTENSION_URL  = 'https://chromewebstore.google.com/detail/nosuggest-redirect/fcbfdbnikbegflnpkgefonmjbnpblcan';
+const CHROME_REVIEW_URL     = CHROME_EXTENSION_URL + '/reviews';
+const EDGE_EXTENSION_URL    = 'https://microsoftedge.microsoft.com/addons/detail/nosuggest-redirect/hgbibnmmmjgngcpipefpajchhncocdpd';
+const EDGE_REVIEW_URL       = EDGE_EXTENSION_URL;
+const FIREFOX_EXTENSION_URL = 'https://addons.mozilla.org/firefox/addon/nosuggest-redirect/';
+const FIREFOX_REVIEW_URL    = FIREFOX_EXTENSION_URL + 'reviews/';
 
-function isDesktopChrome(){
-  if(isMobileShareDevice()) return false;
-  if(navigator.brave) return false;
-  const brands = navigator.userAgentData && navigator.userAgentData.brands;
-  if(brands && brands.length) return brands.some(b => b.brand === 'Google Chrome');
+const STORE_CHROME  = { label:'Desktop Chrome extension', installUrl:CHROME_EXTENSION_URL,  reviewUrl:CHROME_REVIEW_URL };
+const STORE_EDGE    = { label:'Desktop Edge extension',   installUrl:EDGE_EXTENSION_URL,    reviewUrl:EDGE_REVIEW_URL };
+const STORE_FIREFOX = { label:'Firefox extension',        installUrl:FIREFOX_EXTENSION_URL, reviewUrl:FIREFOX_REVIEW_URL };
+let currentExtStore = null;
+
+function getExtensionStore(){
   const ua = navigator.userAgent;
-  return /Chrome\//.test(ua) && !/Edg\/|OPR\/|Vivaldi|SamsungBrowser|YaBrowser/.test(ua);
+  /* Firefox desktop and Android. The extension needs Firefox 140+ (desktop) or 142+ (Android). */
+  const ff = ua.match(/Firefox\/(\d+)/);
+  if(ff && !/Seamonkey/i.test(ua)){
+    const needed = /Android/i.test(ua) ? 142 : 140;
+    return parseInt(ff[1], 10) >= needed ? STORE_FIREFOX : null;
+  }
+  /* Chrome and Edge extensions are desktop only. */
+  if(isMobileShareDevice()) return null;
+  if(navigator.brave) return null;
+  const brands = navigator.userAgentData && navigator.userAgentData.brands;
+  if(brands && brands.length){
+    if(brands.some(b => b.brand === 'Google Chrome'))  return STORE_CHROME;
+    if(brands.some(b => b.brand === 'Microsoft Edge')) return STORE_EDGE;
+    return null;
+  }
+  if(/Edg\//.test(ua)) return STORE_EDGE;
+  if(/Chrome\//.test(ua) && !/OPR\/|Vivaldi|SamsungBrowser|YaBrowser/.test(ua)) return STORE_CHROME;
+  return null;
 }
 
-function openChromeExtension(){
+function openExtensionStore(){
+  const url = currentExtStore && currentExtStore.installUrl;
   closeShareStrip();
-  window.open(CHROME_EXTENSION_URL, '_blank', 'noopener');
+  if(url) window.open(url, '_blank', 'noopener');
 }
 
-function openChromeReview(){
+function openExtensionReview(){
+  const url = currentExtStore && currentExtStore.reviewUrl;
   closeShareStrip();
-  window.open(CHROME_REVIEW_URL, '_blank', 'noopener');
+  if(url) window.open(url, '_blank', 'noopener');
 }
 
 function openShareStrip(){
-  const showExt = isDesktopChrome();
+  currentExtStore = getExtensionStore();
+  const showExt = !!currentExtStore;
   document.getElementById('ss-extra').hidden = !showExt;
   document.getElementById('nav-share-strip').classList.toggle('with-ext', showExt);
+  if(showExt) document.querySelector('#ss-extra .ss-btn-ext').textContent = currentExtStore.label;
   document.getElementById('share-strip-backdrop').classList.add('show');
   document.getElementById('nav-share-strip').classList.add('show');
   a11yOpenModal(document.getElementById('nav-share-strip'), dismissShareStrip);
