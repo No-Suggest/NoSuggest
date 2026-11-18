@@ -2166,14 +2166,39 @@ function deleteResumeEntry(videoId){
 function getResumeEntry(videoId){
   return getResumeStore()[videoId] || null;
 }
-function purgeExpiredResume(){
+/* Continue Watching metadata.
+   - Entries are deleted 25 days after they were last watched (RESUME_TTL).
+   - API-derived fields (title, channel, thumbnail) are reduced to a placeholder once their
+     metadata is 25 days old. The original stamp is kept, so the refresh rule below can see it.
+   - Legacy entries with no stamp at all (saved before stamps existed) are kept as they are for
+     a short grace period so the first refresh can replace them; they are reduced to the
+     placeholder if that refresh does not happen in time or fails. */
+const RESUME_PLACEHOLDER_TITLE = 'Video in progress';
+const RESUME_LEGACY_GRACE_MS = 30 * 60 * 1000;
+const isResumePlaceholder = e => !!e && (e.ph === 1 || (e.title === RESUME_PLACEHOLDER_TITLE && !metaStamp(e)));
+const isResumeLegacy = e => !!e && !metaStamp(e) && !isResumePlaceholder(e);
+function resumePlaceholder(e, now){
+  const st = metaStamp(e);
+  return {t:e.t, saved:e.saved, title:RESUME_PLACEHOLDER_TITLE, ch:'', thumb:'', ph:1,
+          metadataFetchedAt: st > now + META_CLOCK_SKEW_MS ? 0 : st};
+}
+function purgeExpiredResume(forceLegacy){
   const store = getResumeStore();
   const now   = Date.now();
   let changed = false;
   Object.keys(store).forEach(id => {
-    if(!Number.isFinite(store[id].saved) || now - store[id].saved >= RESUME_TTL){ delete store[id]; changed = true; }
+    if(!store[id] || !Number.isFinite(store[id].saved) || now - store[id].saved >= RESUME_TTL){ delete store[id]; changed = true; }
   });
-  Object.keys(store).forEach(id => {if(!metaStampValid(metaStamp(store[id]), now)){ store[id]={t:store[id].t,saved:store[id].saved,title:'Video in progress',ch:'',thumb:'',metadataFetchedAt:0}; changed=true; } });
+  Object.keys(store).forEach(id => {
+    const e = store[id];
+    if(isResumePlaceholder(e)) return;
+    if(isResumeLegacy(e)){
+      if(!Number.isFinite(e.pendingSince)){ e.pendingSince = now; changed = true; }
+      if(!forceLegacy && now - e.pendingSince < RESUME_LEGACY_GRACE_MS) return;
+      store[id] = resumePlaceholder(e, now); changed = true; return;
+    }
+    if(!metaStampValid(metaStamp(e), now)){ store[id] = resumePlaceholder(e, now); changed = true; }
+  });
   if(changed){
     setResumeStore(store);
     Object.keys(RESUME_DATA).forEach(id => { if(store[id]) RESUME_DATA[id] = {id, ...store[id]}; else delete RESUME_DATA[id]; });
@@ -2676,7 +2701,20 @@ if(currentVideoData && expired(currentVideoData) && (currentVideoData.title || c
 function hasStaleMetadata(){
   const now = Date.now();
   const due = rec => { const s = metaStamp(rec); return !s || now - s >= API_METADATA_REFRESH_AFTER; };
-  return STORE.channels.some(due) || STORE.savedVideos.some(due);
+  return STORE.channels.some(due) || STORE.savedVideos.some(due) || resumeRefreshDueIds().length > 0;
+}
+/* Continue Watching refresh rule (different from saved videos): only entries with no stamp
+   (saved before stamps existed, or wiped to a placeholder with an unknown age) or with metadata
+   26+ days old. Entries are deleted 25 days after they were last watched, so normally only the
+   first load after deployment, or an entry whose deletion was missed, uses any quota. */
+const RESUME_REFRESH_AFTER = 26 * 24 * 60 * 60 * 1000;
+function resumeRefreshDueIds(){
+  const now = Date.now(), store = getResumeStore();
+  return Object.keys(store).filter(id => {
+    if(!YOUTUBE_VIDEO_ID_RE.test(id) || !store[id]) return false;
+    const st = metaStamp(store[id]);
+    return !st || st > now + META_CLOCK_SKEW_MS || now - st >= RESUME_REFRESH_AFTER;
+  });
 }
 
 /* Proactive foreground maintenance: obtain a session and refresh stale metadata,
@@ -2729,9 +2767,9 @@ if(overlayShown) updateLoadingOverlay(maintenanceOverlay,
 
     /* Run the normal stale-metadata refresh (channels + saved videos).
        apiMetadataRefreshRunning prevents overlap with any concurrent refresh. */
-    await refreshStaleApiMetadata();
-
-    /* Expire any fields that are still at 30 days after the refresh attempt.
+      await refreshStaleApiMetadata();
+      purgeExpiredResume(true);
+      /* Expire any fields that are still at 30 days after the refresh attempt.
        Covers records that could not be refreshed (e.g. mid-batch network error). */
     expireStaleApiMetadata();
 
@@ -2742,8 +2780,9 @@ if(overlayShown) updateLoadingOverlay(maintenanceOverlay,
     /* Session unavailable, network error, user dismissed Turnstile, etc.
        Fall back to expiring fields that have passed the hard 30-day limit.
        User-owned IDs and saved-list membership are never removed. */
-    expireStaleApiMetadata();
-    /* Failed: retry after MAINTENANCE_FAILURE_RETRY_MS rather than on every foreground event. */
+      expireStaleApiMetadata();
+      purgeExpiredResume(true);
+      /* Failed: retry after MAINTENANCE_FAILURE_RETRY_MS rather than on every foreground event. */
     try{ localStorage.setItem(MAINTENANCE_STORAGE_KEY, String(Date.now() - MAINTENANCE_CHECK_INTERVAL + MAINTENANCE_FAILURE_RETRY_MS)); }catch(err){}
   }finally{
     if(maintenanceHook) verificationInteractiveHooks.delete(maintenanceHook);
@@ -2866,6 +2905,45 @@ async function refreshSavedMetadata(){
   if(removedTotal) toast(`${removedTotal} saved video${removedTotal === 1 ? ' is' : 's are'} no longer available on YouTube and ${removedTotal === 1 ? 'was' : 'were'} removed`, 6000);
 }
 
+async function refreshResumeMetadata(){
+  const dueIds = resumeRefreshDueIds();
+  if(!dueIds.length || recentlyTried('resume')) return;
+  apiMetadataTried.set('resume', Date.now());
+  let changed = false;
+  /* videos.list accepts up to 50 IDs per call (1 list-quota unit each). */
+  for(let i = 0; i < dueIds.length; i += 50){
+    const batch = dueIds.slice(i, i + 50);
+    const data = await silentApiJson('/videos?ids=' + batch.join(','));
+    if(!Array.isArray(data)){ if(!hasLiveApiSession()) break; continue; }
+    const found = new Map(data.filter(x => x && typeof x.id === 'string').map(x => [x.id, x]));
+    const store = getResumeStore();               // re-read: playback may have saved meanwhile
+    for(const id of batch){
+      const e = store[id];
+      if(!e) continue;
+      const m = found.get(id);
+      if(m){
+        store[id] = {t:e.t, saved:e.saved,
+          title: boundedImportedText(m.title, 300, RESUME_PLACEHOLDER_TITLE),
+          ch:    boundedImportedText(m.channel, 120),
+          thumb: importedHttpsUrl(m.thumb),
+          metadataFetchedAt: metaStamp(m) || Date.now()};
+        changed = true;
+      } else if(found.size > 0){
+        /* Other videos in this batch came back but not this one: deleted or private.
+           It can no longer be resumed, so remove it. An empty answer proves nothing. */
+        delete store[id]; changed = true;
+      }
+    }
+    setResumeStore(store);
+  }
+  if(changed){
+    const store = getResumeStore();
+    Object.keys(RESUME_DATA).forEach(id => { if(store[id]) RESUME_DATA[id] = {id, ...store[id]}; else delete RESUME_DATA[id]; });
+    const pane = document.getElementById('search-continue-pane');
+    if(currentScreen === 'search' && pane && pane.style.display !== 'none') renderContinueWatching();
+  }
+}
+
 let apiMetadataRefreshRunning = false;
 async function refreshStaleApiMetadata(){
   /* Guard: must have a live session. runForegroundMaintenance() calls
@@ -2874,7 +2952,7 @@ async function refreshStaleApiMetadata(){
      Both paths are safe. */
   if(apiMetadataRefreshRunning || !hasLiveApiSession()) return;
   apiMetadataRefreshRunning = true;
-  try{ await refreshChannelMetadata(); await refreshSavedMetadata(); }
+try{ await refreshChannelMetadata(); await refreshSavedMetadata(); await refreshResumeMetadata(); }
   catch(e){ /* retried at the next session or maintenance cycle */ }
   finally{ apiMetadataRefreshRunning = false; }
 }
@@ -4912,7 +4990,8 @@ function openPlayerFromResume(videoId){
   const thumb = e.thumb || `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
   /* Entries reduced by purgeExpiredResume() carry a placeholder title; pass '' so the
      player's getVideoData() restores the real title and channel on ready. */
-  openPlayer(videoId, metaStamp(e) ? (e.title || '') : '', metaStamp(e) ? (e.ch || '') : '', '', thumb);
+  const fresh = metaStampValid(metaStamp(e), Date.now()) && !isResumePlaceholder(e);
+  openPlayer(videoId, fresh ? (e.title || '') : '', fresh ? (e.ch || '') : '', '', fresh ? thumb : '');
 }
 
 function removeResumeItem(videoId){
