@@ -608,8 +608,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .search-card-play-zone{display:flex;gap:12px;cursor:pointer;transition:transform 0.12s;}
 .search-card-play-zone:active{transform:scale(0.98);}
 
-.search-thumb-wrap{position:relative;flex-shrink:0;width:130px;}
-.search-thumb-wrap img{width:130px;height:73px;object-fit:cover;display:block;}
+.search-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
+.search-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;}
 .search-save-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
 .search-save-btn:hover{background:rgba(232,255,90,0.25);}
 .search-save-btn svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;}
@@ -799,8 +799,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .saved-count{font-size:12px;color:var(--faint);font-family:'DM Mono',monospace;}
 .saved-video-card{display:flex;gap:12px;padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;align-items:flex-start;}
 .saved-video-card:hover{background:var(--bg2);}
-.saved-thumb-wrap{position:relative;flex-shrink:0;width:120px;}
-.saved-thumb-wrap img{width:120px;height:67px;object-fit:cover;display:block;border-radius:6px;}
+.saved-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
+.saved-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;border-radius:6px;}
 .saved-card-info{flex:1;min-width:0;}
 .saved-card-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
 .saved-card-meta{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;}
@@ -883,8 +883,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .cw-card:hover{background:var(--bg2);}
 .cw-play-zone{display:flex;gap:12px;cursor:pointer;flex:1;padding:0.85rem 0 0.85rem 1.25rem;align-items:flex-start;min-width:0;}
 .cw-play-zone:active{opacity:0.85;}
-.cw-thumb-wrap{position:relative;flex-shrink:0;width:120px;}
-.cw-thumb-wrap img{width:120px;height:67px;object-fit:cover;display:block;border-radius:6px;}
+.cw-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
+.cw-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;border-radius:6px;}
 .cw-resume-badge{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.78);color:var(--accent);font-size:9px;font-family:'DM Mono',monospace;font-weight:600;text-align:center;padding:3px 4px;border-radius:0 0 5px 5px;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cw-info{flex:1;min-width:0;padding-right:4px;}
 .cw-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
@@ -957,7 +957,21 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   @keyframes nlo-shimmer{0%{transform:translateX(-120%)}100%{transform:translateX(240%)}}
   .nlo-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.01em;line-height:1.35;}
   .nlo-sub{font:12px/1.5 'DM Mono',monospace;color:var(--muted);min-height:16px;}
-  </style>
+  
+/* Audit: preserve thumbnail dimensions on small phones; stack text below the image. */
+@media(max-width:420px){
+ .search-card-play-zone{flex-direction:column;gap:0;}
+ .search-card-info{padding:10px 12px;}
+ .saved-video-card{flex-wrap:wrap;}
+ .saved-card-info{flex-basis:calc(100% - 40px);}
+ .cw-play-zone{flex-direction:column;}
+ .cw-info{width:100%;padding-bottom:4px;}
+}
+#search-error,#add-error,#fallback-error{line-height:1.65;}
+#search-error.quota-notice,#add-error.quota-notice,#fallback-error.quota-notice{
+ color:var(--text);padding:14px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;
+}
+</style>
 </head>
 <body>
 <button type="button" class="skip-to-content-link" onclick="skipToMainContent()">Skip to main content</button>
@@ -1427,12 +1441,12 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         <div class="search-choice-grid">
           <div class="search-choice-intro"><strong>What would you like to search?</strong></div>
           <button type="button" class="search-choice-tile" onclick="pickSearchMode('videos')" aria-label="Search Videos: Find a video or paste a link to watch.">
-            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m10 8 6 4-6 4V8Z"/></svg></span>
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span>
             <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search YouTube Videos</span><span class="search-choice-tile-sub">Find a video or paste a link to watch.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
           <button type="button" class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
-            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m10 7.5 6 4-6 4v-8Z"/><path d="M5.5 17.5h13"/><path d="M5.5 17.5h7" stroke-width="2.8"/></svg></span>
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a9 9 0 1 1 2.6 7"/><path d="M3 4v7h7"/><path d="M12 7v5l3 2"/></svg></span>
             <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Pick up where you left off</span><span class="search-choice-tile-title">Continue Watching</span><span class="search-choice-tile-sub">Your unfinished videos, ready when you are.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
@@ -1882,6 +1896,25 @@ async function ensureApiSession(){
   }).finally(()=>{apiSessionPending=null;});
   return apiSessionPending;
 }
+
+const SEARCH_QUOTA_VIDEO_MESSAGE = 'YouTube search is unavailable because NoSuggest has reached its daily search API quota. We have requested a quota extension from Google. Thank you for your patience. You can still paste a YouTube video link to watch it in NoSuggest or save it for later.';
+const SEARCH_QUOTA_CHANNEL_MESSAGE = 'YouTube channel-name search is unavailable because NoSuggest has reached its daily search API quota. We have requested a quota extension from Google. Thank you for your patience. You can still add a channel using its YouTube @handle, channel ID, or a channel link containing either.';
+async function apiResponseError(res, fallback) {
+  let body = null;
+  try { body = await res.json(); } catch(e) {}
+  return Object.assign(new Error(fallback), {code: body?.code || body?.error || '', status:res.status});
+}
+function quotaNotice(el, code, channel) {
+  const search = code === 'SEARCH_QUOTA_EXHAUSTED';
+  const list = code === 'LIST_QUOTA_EXHAUSTED';
+  el.classList.toggle('quota-notice', search || list);
+  if(!search && !list) return false;
+  el.textContent = search ? (channel ? SEARCH_QUOTA_CHANNEL_MESSAGE : SEARCH_QUOTA_VIDEO_MESSAGE)
+    : 'YouTube metadata lookups are temporarily unavailable because NoSuggest has reached its daily list API quota. Please try again after the quota resets. Direct video links can still open the YouTube player.';
+  el.style.display = 'block';
+  return true;
+}
+
 async function apiFetch(url,options={}){
   if(options.signal?.aborted)throw Object.assign(new Error('Aborted'),{name:'AbortError'});
   let session=await ensureApiSession();
@@ -2012,7 +2045,7 @@ if(isIos() && !isInStandaloneMode()){
 const POLICY_ACCEPTANCE_VERSION = '2026-10-youtube-1';
   /* YouTube API Services policy: stored API data must be refreshed (or deleted) within 30 days.
      Refresh starts at 20 days so anything not seen for a while still has a 10-day margin. */
-  const API_METADATA_TTL = 30 * 24 * 60 * 60 * 1000;
+  const API_METADATA_TTL = 25 * 24 * 60 * 60 * 1000;
   const API_METADATA_REFRESH_AFTER = 20 * 24 * 60 * 60 * 1000;
   /* Foreground maintenance: check at most once every 3 hours. If stale metadata is found,
      proactively obtain a Turnstile session and refresh — even with no prior user API action. */
@@ -2021,11 +2054,15 @@ const POLICY_ACCEPTANCE_VERSION = '2026-10-youtube-1';
   /* After a failed attempt (verification blocked/offline) wait this long before trying again,
      so a blocked network is not retried on every app switch. */
   const MAINTENANCE_FAILURE_RETRY_MS = 30 * 60 * 1000;
+  const MAINTENANCE_URGENT_KEY = 'ns_metadata_urgent_checked_at';
   /* The background refresh may cover the screen for at most this long. */
   const MAINTENANCE_OVERLAY_MAX_MS = 15000;
   const metaStamp = rec => { const n = Number(rec && rec.metadataFetchedAt); return Number.isFinite(n) && n > 0 ? n : 0; };
   /* Imported data (backup/pack) keeps its own stamp if valid; otherwise age is unknown (0), so it is refreshed at the next online session. */
-  const importedMetaStamp = v => { const n = Number(v); return (Number.isFinite(n) && n > 0 && n <= Date.now()) ? n : 0; };
+  /* Server stamps come from the Worker clock; allow small device-clock skew before calling a stamp "future". */
+  const META_CLOCK_SKEW_MS = 10 * 60 * 1000;
+  const metaStampValid = (s, now) => s > 0 && s <= now + META_CLOCK_SKEW_MS && now - s < API_METADATA_TTL;
+const importedMetaStamp = v => { const n = Number(v); return (Number.isFinite(n) && n > 0 && n <= Date.now() + META_CLOCK_SKEW_MS) ? n : 0; };
   const CHANNEL_LIMIT = 25;
 
 function sanitizeChannels(list, stampNew){
@@ -2034,7 +2071,7 @@ function sanitizeChannels(list, stampNew){
   for(const c of list){
     if(out.length >= CHANNEL_LIMIT) break;
     if(!c || typeof c !== 'object' || typeof c.id !== 'string' || seen.has(c.id)) continue;
-    seen.add(c.id); out.push({...c, metadataFetchedAt: Number.isFinite(c.metadataFetchedAt) ? Math.max(0, c.metadataFetchedAt) : (stampNew ? Date.now() : 0)});
+    seen.add(c.id); out.push({...c, metadataFetchedAt: Number.isFinite(c.metadataFetchedAt) ? Math.max(0, c.metadataFetchedAt) : 0}); // unknown age stays unknown
   }
   return out;
 }
@@ -2064,31 +2101,42 @@ let feedGeneration = 0;
 
 let feedEverInitialized = false;
 let feedAbortController = null;
+/* Releases the overlay entries owned by the current full feed load (its "Securing request…"
+   loader and any silent-refresh verification loader). Called when a newer full load
+   supersedes it, independently of the DOM-generation guards, so timers that never start
+   and requests that abort can never leave an owner behind. Single-channel appends do not
+   call it. */
+let releaseFeedLoadOverlays = null;
 
 const CACHE_TTL = 3 * 60 * 60 * 1000;
 
-function getCachedVideos(channelId){
+/* Reads a channel's cached list. The wrapper timestamp must be a real past time inside maxAge,
+   and every video is checked against its own original metadata age (falling back to the
+   wrapper time only when a video carries no stamp). Expired videos are never returned. */
+function readVideoCache(channelId, maxAge, requireComplete){
   try{
     const raw = localStorage.getItem('ft_vc_v2_' + channelId);
     if(!raw) return null;
     const {ts, videos} = JSON.parse(raw);
-    if(Date.now() - ts > CACHE_TTL) return null;
-    return videos;
+    const now = Date.now();
+    if(!Number.isFinite(ts) || ts <= 0 || ts > now || now - ts >= maxAge) return null;
+    if(!Array.isArray(videos) || !videos.length) return null;
+    const kept = markArrival(videos.filter(v => v && typeof v === 'object'), ts)
+      .filter(v => apiRecordUsable(v, now));
+    if(!kept.length) return null;
+    if(requireComplete && kept.length !== videos.length) return null; // force a fresh fetch
+    return kept;
   } catch(e){ return null; }
 }
+function getCachedVideos(channelId){
+  return readVideoCache(channelId, CACHE_TTL, true);
+}
 /* Stale-while-revalidate: a channel list older than CACHE_TTL is still shown instantly
-   while a fresh copy is fetched silently in the background, as long as it is inside the
-   30-day YouTube API data limit (same limit expireStaleApiMetadata() enforces). */
+   while a fresh copy is fetched silently in the background, as long as the wrapper and
+   each video are inside the 25-day API data limit (same limit expireStaleApiMetadata() enforces). */
 const STALE_CACHE_MAX = API_METADATA_TTL;
 function getStaleCachedVideos(channelId){
-  try{
-    const raw = localStorage.getItem('ft_vc_v2_' + channelId);
-    if(!raw) return null;
-    const {ts, videos} = JSON.parse(raw);
-    if(!Number.isFinite(ts) || !Array.isArray(videos) || !videos.length) return null;
-    if(Date.now() - ts >= STALE_CACHE_MAX) return null;
-    return videos;
-  } catch(e){ return null; }
+  return readVideoCache(channelId, STALE_CACHE_MAX, false);
 }
 function setCachedVideos(channelId, videos){
   try{ localStorage.setItem('ft_vc_v2_' + channelId, JSON.stringify({ts: Date.now(), videos})); } catch(e){}
@@ -2097,7 +2145,7 @@ function clearVideoCache(){
   Object.keys(localStorage).filter(k => k.startsWith('ft_vc_')).forEach(k => localStorage.removeItem(k));
 }
 
-const RESUME_TTL = 30 * 24 * 60 * 60 * 1000;
+const RESUME_TTL = 25 * 24 * 60 * 60 * 1000;
 
 function getResumeStore(){
   try{ return JSON.parse(localStorage.getItem('ns_resume') || '{}'); } catch(e){ return {}; }
@@ -2107,7 +2155,7 @@ function setResumeStore(obj){
 }
 function saveResumePosition(videoId, seconds, title, channelName, thumb){
   const store = getResumeStore();
-  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'', thumb: thumb||'' };
+  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'', thumb: thumb||'',metadataFetchedAt:metaStamp(currentVideoData) };
   setResumeStore(store);
 }
 function deleteResumeEntry(videoId){
@@ -2117,14 +2165,95 @@ function deleteResumeEntry(videoId){
 function getResumeEntry(videoId){
   return getResumeStore()[videoId] || null;
 }
+/* Grace for records with NO metadata stamp (saved by an app version before stamps existed,
+   or restored from an old backup). Their age is unknown, so they may keep their details only
+   long enough for one refresh: 3 h 3 min is just over the 3-hour maintenance interval, so at
+   least one maintenance run always falls inside it. The clock starts the first time a record
+   is seen without a stamp and is stored per record, so reloading never restarts it. If no
+   refresh succeeds in time the record is reduced to its placeholder. */
+const META_GRACE_MS  = (3 * 60 + 3) * 60 * 1000;
+const META_GRACE_KEY = 'ns_meta_grace_v1';
+function readGraceMap(){
+  try{ const m = JSON.parse(localStorage.getItem(META_GRACE_KEY) || '{}'); return (m && typeof m === 'object' && !Array.isArray(m)) ? m : {}; }
+  catch(e){ return {}; }
+}
+/* Stamp-less API data held in memory (feed rows, search results, the open player) and in the
+   feed cache carries graceFrom = the device time it arrived. It is shown for the same grace
+   period and then treated as expired. It is never turned into a stamp, so anything saved or
+   resumed from it still has an unknown age and goes through the normal stored-record grace
+   and refresh. With a backend that stamps every record this path is never used. */
+function markArrival(list, at){
+  const t = at || Date.now();
+  return (Array.isArray(list) ? list : []).map(v => (v && typeof v === 'object' && !metaStamp(v))
+    ? {...v, graceFrom: (Number.isFinite(v.graceFrom) && v.graceFrom > 0 && v.graceFrom <= t) ? v.graceFrom : t} : v);
+}
+function apiRecordUsable(rec, now){
+  if(!rec) return false;
+  const st = metaStamp(rec);
+  if(st) return metaStampValid(st, now);
+  const g = Number(rec.graceFrom);
+  return Number.isFinite(g) && g > 0 && g <= now && now - g < META_GRACE_MS;
+}
+function graceStartFor(key){ const g = Number(readGraceMap()[key]); return Number.isFinite(g) && g > 0 ? g : 0; }
+const withoutGrace = v => { if(!v || v.graceFrom === undefined) return v; const {graceFrom, ...rest} = v; return rest; };
+/* Returns a checker bound to one read of the map; call .save() once afterwards. */
+function graceTracker(now){
+  const map = readGraceMap(), seen = new Set();
+  let dirty = false;
+  return {
+    inGrace(key){
+      seen.add(key);
+      let start = Number(map[key]);
+      if(!Number.isFinite(start) || start <= 0 || start > now){ map[key] = start = now; dirty = true; }
+      return now - start < META_GRACE_MS;
+    },
+    keep(key){ seen.add(key); },
+    save(prefixes){
+      /* Drop entries for records of the given stores that are no longer stamp-less. */
+      Object.keys(map).forEach(k => { if(prefixes.some(p => k.startsWith(p)) && !seen.has(k)){ delete map[k]; dirty = true; } });
+      if(dirty){ try{ localStorage.setItem(META_GRACE_KEY, JSON.stringify(map)); }catch(e){} }
+    }
+  };
+}
+
+/* Continue Watching metadata.
+   - Entries are deleted 25 days after they were last watched (RESUME_TTL).
+   - API-derived fields (title, channel, thumbnail) are reduced to a placeholder once their
+     metadata is 25 days old. The original stamp is kept, so the refresh rule can see it.
+   - Entries with no stamp keep their details during the shared grace period above. */
+const RESUME_PLACEHOLDER_TITLE = 'Video in progress';
+const isResumePlaceholder = e => !!e && (e.ph === 1 || (e.title === RESUME_PLACEHOLDER_TITLE && !metaStamp(e)));
+const isResumeLegacy = e => !!e && !metaStamp(e) && !isResumePlaceholder(e);
+function resumePlaceholder(e, now){
+  const st = metaStamp(e);
+  return {t:e.t, saved:e.saved, title:RESUME_PLACEHOLDER_TITLE, ch:'', thumb:'', ph:1,
+          metadataFetchedAt: st > now + META_CLOCK_SKEW_MS ? 0 : st};
+}
 function purgeExpiredResume(){
   const store = getResumeStore();
   const now   = Date.now();
+  const grace = graceTracker(now);
   let changed = false;
   Object.keys(store).forEach(id => {
-    if(now - store[id].saved > RESUME_TTL){ delete store[id]; changed = true; }
+    if(!store[id] || !Number.isFinite(store[id].saved) || now - store[id].saved >= RESUME_TTL){ delete store[id]; changed = true; }
   });
-  if(changed) setResumeStore(store);
+  Object.keys(store).forEach(id => {
+    const e = store[id];
+    if(isResumePlaceholder(e)) return;
+    if(isResumeLegacy(e)){
+      if(e.pendingSince !== undefined){ delete e.pendingSince; changed = true; }   // beta-1 field, superseded
+      if(grace.inGrace('r:' + id)) return;
+      store[id] = resumePlaceholder(e, now); changed = true; return;
+    }
+    if(!metaStampValid(metaStamp(e), now)){ store[id] = resumePlaceholder(e, now); changed = true; }
+  });
+  grace.save(['r:']);
+  if(changed){
+    setResumeStore(store);
+    Object.keys(RESUME_DATA).forEach(id => { if(store[id]) RESUME_DATA[id] = {id, ...store[id]}; else delete RESUME_DATA[id]; });
+    const pane = document.getElementById('search-continue-pane');
+    if(pane && pane.style.display !== 'none' && !_cwRendering) renderContinueWatching();
+  }
 }
 
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;').trim();
@@ -2181,22 +2310,20 @@ async function repairChannelAvatar(img, id){
     if(!res.ok) return;
     const data = await res.json();
     const match = Array.isArray(data) && data.find(ch => ch.id === id);
-    const avatar = match && importedHttpsUrl(match.avatar);
-    if(!avatar) return;
+    if(!match) return;
     const channels = STORE.channels;
     const index = channels.findIndex(ch => ch.id === id);
     if(index < 0) return;
-    channels[index] = {...channels[index], avatar, handle:match.handle || channels[index].handle || '', subs:match.subs || channels[index].subs || ''};
+    /* Refresh name, avatar, handle and subscriber text together from this response;
+       renewing the stamp while keeping an older name would misstate its age. */
+    channels[index] = {...channels[index],
+      name:   boundedImportedText(match.name, 120, id),
+      avatar: importedHttpsUrl(match.avatar),
+      handle: boundedImportedText(match.handle, 120),
+      subs:   boundedImportedText(match.subs, 80),
+      metadataFetchedAt: metaStamp(match) || Date.now()};
     STORE.channels = channels;
-    
-    document.querySelectorAll('.ch-avatar, .cli-avatar').forEach(el => {
-      const row = el.closest('[data-channel-id]');
-      if(row && row.dataset.channelId === id){
-        const image = el.querySelector('img');
-        if(image){ image.onerror = () => { image.remove(); }; image.src = avatar; }
-        else { const fresh = document.createElement('img'); fresh.alt = ''; fresh.onerror = () => fresh.remove(); fresh.src = avatar; el.appendChild(fresh); }
-      }
-    });
+    patchChannelDom(channels[index]);
   } catch(e){  }
 }
 function repairMissingChannelAvatars(){
@@ -2247,42 +2374,62 @@ let _nloMsgInterval = null;
 // connection is cut off with an error instead of leaving the overlay up.
 const SEARCH_TIMEOUT_MS = 75000;
 
+/* The overlay is shared by the feed, video search, channel lookups, extension follows and
+   background maintenance. Each caller gets an owner token from showLoadingOverlay() and can
+   only update or hide its own entry. The overlay stays up while any owner is active and
+   shows the most recent owner's text, so one flow finishing never hides another's loader. */
+const _overlayOwners = new Map();
+let _overlayTokenSeq = 0;
+function _renderLoadingOverlay(){
+  stopOverlayCycling();
+  const el = document.getElementById('ns-loading-overlay');
+  if(!_overlayOwners.size){
+    el.classList.remove('show');
+    el.setAttribute('aria-hidden','true');
+    return;
+  }
+  const top = [..._overlayOwners.values()].pop();
+  document.getElementById('nlo-title').textContent = top.title || 'Searching…';
+  document.getElementById('nlo-sub').textContent   = top.sub   || '';
+  el.classList.add('show');
+  el.setAttribute('aria-hidden','false');
+  if(top.messages && top.messages.length){
+    let i = Math.max(0, top.messages.indexOf(top.title));
+    _nloMsgInterval = setInterval(() => {
+      i = (i + 1) % top.messages.length;
+      top.title = top.messages[i];
+      document.getElementById('nlo-title').textContent = top.title;
+    }, top.interval || 1900);
+  }
+}
+function isLoadingOverlayShown(){ return _overlayOwners.size > 0; }
+/* Returns the owner token. */
 function showLoadingOverlay(title, sub){
   // Dismiss the software keyboard so it doesn't cover the overlay.
   if(document.activeElement && typeof document.activeElement.blur === 'function'){
     document.activeElement.blur();
   }
-  document.getElementById('nlo-title').textContent = title || 'Searching…';
-  document.getElementById('nlo-sub').textContent   = sub   || '';
-  const el = document.getElementById('ns-loading-overlay');
-  el.classList.add('show');
-  el.setAttribute('aria-hidden','false');
-
+  const token = ++_overlayTokenSeq;
+  _overlayOwners.set(token, {title: title || 'Searching…', sub: sub || '', messages: null});
+  _renderLoadingOverlay();
+  return token;
 }
-
-function updateLoadingOverlay(title, sub){
-  const el = document.getElementById('ns-loading-overlay');
-  if(!el.classList.contains('show')) return;
-  if(title !== undefined) document.getElementById('nlo-title').textContent = title;
-  if(sub   !== undefined) document.getElementById('nlo-sub').textContent   = sub;
+function updateLoadingOverlay(token, title, sub){
+  const o = _overlayOwners.get(token);
+  if(!o) return;
+  if(title !== undefined){ o.title = title; o.messages = null; }
+  if(sub   !== undefined) o.sub = sub;
+  _renderLoadingOverlay();
 }
-function hideLoadingOverlay(){
-
-  stopOverlayCycling();
-  const el = document.getElementById('ns-loading-overlay');
-  el.classList.remove('show');
-  el.setAttribute('aria-hidden','true');
+function hideLoadingOverlay(token){
+  if(!_overlayOwners.delete(token)) return;   // not the owner (or already hidden): leave it alone
+  _renderLoadingOverlay();
 }
-function startOverlayCycling(messages, intervalMs){
-  stopOverlayCycling();
-  if(!messages || !messages.length) return;
-  intervalMs = intervalMs || 1900;
-  let i = 0;
-  updateLoadingOverlay(messages[0]);
-  _nloMsgInterval = setInterval(() => {
-    i = (i + 1) % messages.length;
-    updateLoadingOverlay(messages[i]);
-  }, intervalMs);
+function startOverlayCycling(token, messages, intervalMs){
+  const o = _overlayOwners.get(token);
+  if(!o || !messages || !messages.length) return;
+  o.messages = messages; o.interval = intervalMs || 1900; o.title = messages[0];
+  _renderLoadingOverlay();
 }
 function stopOverlayCycling(){
   if(_nloMsgInterval){ clearInterval(_nloMsgInterval); _nloMsgInterval = null; }
@@ -2428,6 +2575,8 @@ function navigateMain(name){
 }
 
 function showScreen(name, opts){
+  if(currentScreen === 'search' && name !== 'search') cancelVideoSearch();
+  expireStaleApiMetadata(); purgeExpiredResume();
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
     
@@ -2490,37 +2639,119 @@ async function deleteAllNoSuggestData(){
 function migrateApiMetadataStamps(){
   try{
     if(localStorage.getItem('ns_meta_stamps_v1')) return;
-    const spread = () => Date.now() - Math.floor(Math.random() * API_METADATA_REFRESH_AFTER);
+    const spread = () => 0; // Unknown original fetch age: clear fields and refresh, never invent freshness.
     STORE.channels    = STORE.channels.map(c => metaStamp(c) ? c : {...c, metadataFetchedAt: spread()});
     STORE.savedVideos = STORE.savedVideos.map(v => metaStamp(v) ? v : {...v, metadataFetchedAt: spread()});
     localStorage.setItem('ns_meta_stamps_v1', '1');
   }catch(e){}
 }
 
-/* Hard 30-day limit for API-derived fields. The user's own IDs and saved-list
-   membership are always preserved. Called only AFTER a proactive refresh attempt
+/* Hard 25-day limit for API-derived fields (five-day policy margin). The user's own IDs and saved-list
+   membership are always preserved. Checked before rendering and during foreground maintenance
    so users who have been away still see real data when a session can be obtained.
    If a session cannot be obtained at startup, this still runs as a last resort. */
+const CHANNEL_PLACEHOLDER_NAME = 'YouTube channel';
+const SAVED_PLACEHOLDER_TITLE  = 'Saved video';
+/* Last list rendered into each feed row, so expiry can update what is on screen. */
+const FEED_RENDERED = new Map();
+let searchResultIds = [];
 function expireStaleApiMetadata(){
   try{
     const now = Date.now();
-    const expired = rec => { const s = metaStamp(rec); return s > 0 && now - s >= API_METADATA_TTL; };
+    const expired = rec => !metaStampValid(metaStamp(rec), now);
+    const unusable = rec => !apiRecordUsable(rec, now);   // in-memory data: stamp, or grace from arrival
+    const resetStamp = rec => metaStamp(rec) > now + META_CLOCK_SKEW_MS ? 0 : rec.metadataFetchedAt;
+    /* Stamp-less records that still carry details get the shared grace period. */
+    const grace = graceTracker(now);
+    const channelLegacy = c => !metaStamp(c) && (c.name !== CHANNEL_PLACEHOLDER_NAME || c.avatar || c.subs || c.handle);
+    const savedLegacy   = v => !metaStamp(v) && (v.title !== SAVED_PLACEHOLDER_TITLE || v.channelName || v.publishedAt || v.thumb);
+    const channelExpired = c => expired(c) && !(channelLegacy(c) && grace.inGrace('c:' + c.id));
+    const savedExpired   = v => expired(v) && !(savedLegacy(v)   && grace.inGrace('s:' + v.id));
+
+    /* Channels: storage, then every row that shows them (feed + Channels screen). */
     const channels = STORE.channels;
-    if(channels.some(expired)){
-      STORE.channels = channels.map(c => expired(c)
-        ? {id:c.id, name:'YouTube channel', avatar:'', subs:'', handle:'', metadataFetchedAt:c.metadataFetchedAt} : c);
+    const chExpiredIds = new Set(channels.filter(channelExpired).map(c => c.id));
+    if(chExpiredIds.size){
+      const patched = [];
+      STORE.channels = channels.map(c => {
+        if(!chExpiredIds.has(c.id)) return c;
+        const next = {id:c.id, name:CHANNEL_PLACEHOLDER_NAME, avatar:'', subs:'', handle:'', metadataFetchedAt:resetStamp(c)};
+        if(c.name !== next.name || c.avatar || c.subs || c.handle) patched.push(next);
+        return next;
+      });
+      patched.forEach(patchChannelDom);
     }
+
+    /* Saved videos: storage, then the rendered Saved list. */
     const saved = STORE.savedVideos;
-    if(saved.some(expired)){
-      STORE.savedVideos = saved.map(v => expired(v)
-        ? {id:v.id, title:'Saved video', channelName:'', publishedAt:'', thumb:'', savedAt:v.savedAt, metadataFetchedAt:v.metadataFetchedAt} : v);
+    const svExpiredIds = new Set(saved.filter(savedExpired).map(v => v.id));
+    grace.save(['c:', 's:']);
+    if(svExpiredIds.size){
+      let savedChanged = false;
+      STORE.savedVideos = saved.map(v => {
+        if(!svExpiredIds.has(v.id)) return v;
+        if(v.title !== SAVED_PLACEHOLDER_TITLE || v.channelName || v.publishedAt || v.thumb) savedChanged = true;
+        return {id:v.id, title:SAVED_PLACEHOLDER_TITLE, channelName:'', publishedAt:'', thumb:'', savedAt:v.savedAt, metadataFetchedAt:resetStamp(v)};
+      });
+      if(savedChanged) renderSavedList();
     }
+
+    /* Feed cache: wrapper must be a real past time inside the limit; each video is checked
+       against its own stamp. Partially expired lists keep their original wrapper time. */
     Object.keys(localStorage).filter(k => k.startsWith('ft_vc_')).forEach(k => {
       try{
         const entry = JSON.parse(localStorage.getItem(k));
-        if(!entry || !Number.isFinite(entry.ts) || now - entry.ts >= API_METADATA_TTL) localStorage.removeItem(k);
+        if(!entry || !Number.isFinite(entry.ts) || entry.ts <= 0 || entry.ts > now || now - entry.ts >= API_METADATA_TTL || !Array.isArray(entry.videos)){
+          localStorage.removeItem(k); return;
+        }
+        const kept = markArrival(entry.videos.filter(v => v && typeof v === 'object'), entry.ts).filter(v => apiRecordUsable(v, now));
+        if(!kept.length) localStorage.removeItem(k);
+        else if(kept.length !== entry.videos.length) localStorage.setItem(k, JSON.stringify({ts: entry.ts, videos: kept}));
       }catch(e){ localStorage.removeItem(k); }
     });
+
+    /* In-memory video records (feed, search, saved): reduce expired ones to the ID. */
+    Object.keys(VIDEO_DATA).forEach(id => {
+      const v = VIDEO_DATA[id];
+      if(v && unusable(v) && (v.title || v.channelName || v.thumb || v.publishedAt)){
+        VIDEO_DATA[id] = {id, title:'', channelName:'', channelId:'', publishedAt:'', thumb:'', metadataFetchedAt:0};
+      }
+    });
+
+    /* Feed rows on screen: drop expired videos; the silent refresh / Reload brings fresh ones. */
+    FEED_RENDERED.forEach((videos, chId) => {
+      const kept = videos.filter(v => !unusable(v));
+      if(kept.length === videos.length) return;
+      const el = document.getElementById('videos-' + chId);
+      if(!el){ FEED_RENDERED.delete(chId); return; }
+      const ch = STORE.channels.find(c => c.id === chId);
+      if(kept.length && ch) renderVideos(ch, kept, false);
+      else{
+        FEED_RENDERED.set(chId, []);
+        el.innerHTML = '<div style="padding:1rem;font-size:13px;color:var(--faint)">Video details expired. Tap Reload to refresh.</div>';
+      }
+    });
+
+    /* Search results on screen. */
+    if(searchResultIds.length &&searchResultIds.some(id => !VIDEO_DATA[id] || unusable(VIDEO_DATA[id]))){
+      searchResultIds = [];
+      const list = document.getElementById('search-results-list');
+      if(list) list.innerHTML = '';
+      const wrap = document.getElementById('search-results-wrap');
+      if(wrap && wrap.style.display !== 'none'){
+        wrap.style.display = 'none';
+        const empty = document.getElementById('search-empty');
+        if(empty) empty.style.display = 'block';
+      }
+    }
+
+    /* Open player. */
+if(currentVideoData && unusable(currentVideoData) && (currentVideoData.title || currentVideoData.channelName || currentVideoData.thumb || currentVideoData.publishedAt)){
+      currentVideoData = {...currentVideoData, title:'', channelName:'', publishedAt:'', thumb:'', metadataFetchedAt:0};
+      document.getElementById('player-title').textContent = 'Video';
+      document.getElementById('player-channel-name').textContent = '';
+      document.getElementById('player-meta').textContent = '';
+    }
   }catch(e){}
 }
 
@@ -2529,13 +2760,37 @@ function expireStaleApiMetadata(){
 function hasStaleMetadata(){
   const now = Date.now();
   const due = rec => { const s = metaStamp(rec); return !s || now - s >= API_METADATA_REFRESH_AFTER; };
-  return STORE.channels.some(due) || STORE.savedVideos.some(due);
+  return STORE.channels.some(due) || STORE.savedVideos.some(due) || resumeRefreshDueIds().length > 0;
+}
+/* Continue Watching refresh rule (different from saved videos): only entries with no stamp
+   (saved before stamps existed, or wiped to a placeholder with an unknown age) or with metadata
+   26+ days old. Entries are deleted 25 days after they were last watched, so normally only the
+   first load after deployment, or an entry whose deletion was missed, uses any quota. */
+const RESUME_REFRESH_AFTER = 26 * 24 * 60 * 60 * 1000;
+/* Records that need a refresh now rather than at the next 3-hourly maintenance: no stamp
+   (inside or past the grace period) or already reduced to a placeholder and due under the
+   store's own rule. Regular 20-day refreshes of still-valid data are not urgent. */
+function hasUrgentMetadata(){
+  const now = Date.now();
+  const urgent = rec => { const st = metaStamp(rec); return !st || st > now + META_CLOCK_SKEW_MS || now - st >= API_METADATA_TTL; };
+  return STORE.channels.some(c => YOUTUBE_CHANNEL_ID_RE.test(c.id) && urgent(c))
+      || STORE.savedVideos.some(v => YOUTUBE_VIDEO_ID_RE.test(v.id) && urgent(v))
+      || resumeRefreshDueIds().length > 0;
+}
+function resumeRefreshDueIds(){
+  const now = Date.now(), store = getResumeStore();
+  return Object.keys(store).filter(id => {
+    if(!YOUTUBE_VIDEO_ID_RE.test(id) || !store[id]) return false;
+    const st = metaStamp(store[id]);
+    return !st || st > now + META_CLOCK_SKEW_MS || now - st >= RESUME_REFRESH_AFTER;
+  });
 }
 
 /* Proactive foreground maintenance: obtain a session and refresh stale metadata,
    showing a non-blocking status message. Called at startup and on resume. */
 let maintenanceRunning = false;
 async function runForegroundMaintenance(fromResume){
+  expireStaleApiMetadata(); purgeExpiredResume();
   if(maintenanceRunning) return;
   if(!STORE.hasLaunched || !STORE.policyAccepted) return;
   if(!hasStaleMetadata()) return;
@@ -2544,11 +2799,20 @@ async function runForegroundMaintenance(fromResume){
      so the next foreground event is eligible to retry immediately. */
   const lastCheck = parseInt(localStorage.getItem(MAINTENANCE_STORAGE_KEY) || '0', 10);
   const now = Date.now();
-  if(Number.isFinite(lastCheck) && now - lastCheck < MAINTENANCE_CHECK_INTERVAL) return;
+  const urgent = hasUrgentMetadata();
+  if(Number.isFinite(lastCheck) && now - lastCheck < MAINTENANCE_CHECK_INTERVAL){
+    /* Urgent records skip the 3-hour interval, but an urgent run happens at most once per
+       30 minutes (stored, so reloading cannot repeat it). Records that a refresh cannot fix
+       (for example an older backend that returns nothing for them) therefore never loop. */
+    if(!urgent) return;
+    const lastUrgent = parseInt(localStorage.getItem(MAINTENANCE_URGENT_KEY) || '0', 10);
+    if(Number.isFinite(lastUrgent) && lastUrgent <= now && now - lastUrgent < MAINTENANCE_FAILURE_RETRY_MS) return;
+  }
+  if(urgent){ try{ localStorage.setItem(MAINTENANCE_URGENT_KEY, String(now)); }catch(e){} }
 
   maintenanceRunning = true;
   /* Track whether we showed the overlay so we can hide it properly. */
-  let overlayShown = false, overlayTimer = null, maintenanceHook = null;
+let overlayShown = false, overlayTimer = null, maintenanceHook = null, maintenanceOverlay = 0;
   try{
     /* If there is no live session we will need Turnstile. Show the overlay
        now so the user understands something is happening. If the session
@@ -2558,13 +2822,13 @@ async function runForegroundMaintenance(fromResume){
        indicator. Also never keep the screen covered for more than MAINTENANCE_OVERLAY_MAX_MS. */
     /* Runs on app open/resume, so it stays silent unless Turnstile needs the checkbox. */
     maintenanceHook = () => {
-      if(overlayShown || document.getElementById('ns-loading-overlay').classList.contains('show')) return;
-      showLoadingOverlay(
+    if(overlayShown || isLoadingOverlayShown()) return;
+      maintenanceOverlay = showLoadingOverlay(
         fromResume ? 'Refreshing your saved videos…' : 'Keeping video details current…',
         'One moment — verifying with Cloudflare'
       );
       overlayShown = true;
-      overlayTimer = setTimeout(() => { if(overlayShown){ overlayShown = false; hideLoadingOverlay(); } }, MAINTENANCE_OVERLAY_MAX_MS);
+overlayTimer = setTimeout(() => { if(overlayShown){ overlayShown = false; hideLoadingOverlay(maintenanceOverlay); } }, MAINTENANCE_OVERLAY_MAX_MS);
     };
     verificationInteractiveHooks.add(maintenanceHook);
 
@@ -2574,16 +2838,16 @@ async function runForegroundMaintenance(fromResume){
     await ensureApiSession();
 
     /* Update overlay text now that we have a session. */
-    if(overlayShown) updateLoadingOverlay(
+if(overlayShown) updateLoadingOverlay(maintenanceOverlay,
       fromResume ? 'Refreshing your saved videos…' : 'Keeping video details current…',
       ''
     );
 
     /* Run the normal stale-metadata refresh (channels + saved videos).
        apiMetadataRefreshRunning prevents overlap with any concurrent refresh. */
-    await refreshStaleApiMetadata();
-
-    /* Expire any fields that are still at 30 days after the refresh attempt.
+      await refreshStaleApiMetadata();
+      purgeExpiredResume();
+      /* Expire any fields that are still at 30 days after the refresh attempt.
        Covers records that could not be refreshed (e.g. mid-batch network error). */
     expireStaleApiMetadata();
 
@@ -2594,13 +2858,14 @@ async function runForegroundMaintenance(fromResume){
     /* Session unavailable, network error, user dismissed Turnstile, etc.
        Fall back to expiring fields that have passed the hard 30-day limit.
        User-owned IDs and saved-list membership are never removed. */
-    expireStaleApiMetadata();
-    /* Failed: retry after MAINTENANCE_FAILURE_RETRY_MS rather than on every foreground event. */
+      expireStaleApiMetadata();
+      purgeExpiredResume();
+      /* Failed: retry after MAINTENANCE_FAILURE_RETRY_MS rather than on every foreground event. */
     try{ localStorage.setItem(MAINTENANCE_STORAGE_KEY, String(Date.now() - MAINTENANCE_CHECK_INTERVAL + MAINTENANCE_FAILURE_RETRY_MS)); }catch(err){}
   }finally{
     if(maintenanceHook) verificationInteractiveHooks.delete(maintenanceHook);
-    clearTimeout(overlayTimer);
-    if(overlayShown) hideLoadingOverlay();
+clearTimeout(overlayTimer);
+    if(overlayShown) hideLoadingOverlay(maintenanceOverlay);
     maintenanceRunning = false;
   }
 }
@@ -2630,8 +2895,22 @@ function patchChannelDom(ch){
 
 /* Remember what was asked recently, so an answer that does not change the stamp (a deleted
    channel, a failed request) is not asked again on every session. */
-const apiMetadataTried = new Map();
-const recentlyTried = key => Date.now() - (apiMetadataTried.get(key) || 0) < MAINTENANCE_FAILURE_RETRY_MS;
+/* Stored in localStorage so reloading or a new session cannot ask again within 30 minutes. */
+const META_TRIED_KEY = 'ns_meta_tried_v1';
+const apiMetadataTried = {
+  read(){
+    try{ const m = JSON.parse(localStorage.getItem(META_TRIED_KEY) || '{}'); return (m && typeof m === 'object' && !Array.isArray(m)) ? m : {}; }
+    catch(e){ return {}; }
+  },
+  get(key){ const t = Number(this.read()[key]); return Number.isFinite(t) ? t : 0; },
+  set(key, t){
+    const m = this.read(), now = Date.now();
+    Object.keys(m).forEach(k => { const v = Number(m[k]); if(!Number.isFinite(v) || v > now || now - v >= MAINTENANCE_FAILURE_RETRY_MS) delete m[k]; });
+    m[key] = t;
+    try{ localStorage.setItem(META_TRIED_KEY, JSON.stringify(m)); }catch(e){}
+  }
+};
+const recentlyTried = key => { const t = apiMetadataTried.get(key), now = Date.now(); return t > 0 && t <= now && now - t < MAINTENANCE_FAILURE_RETRY_MS; };
 
 async function refreshChannelMetadata(){
   const now = Date.now();
@@ -2662,11 +2941,11 @@ async function refreshChannelMetadata(){
       const channels = STORE.channels, i = channels.findIndex(c => c.id === id);
       if(i < 0) continue;
       channels[i] = {...channels[i],
-        name:   boundedImportedText(m.name, 120, channels[i].name || id),
+        name:   boundedImportedText(m.name, 120, id),
         avatar: importedHttpsUrl(m.avatar),
         subs:   boundedImportedText(m.subs, 80),
         handle: boundedImportedText(m.handle, 120),
-        metadataFetchedAt: Date.now()};
+        metadataFetchedAt: metaStamp(m) || Date.now()};
       STORE.channels = channels;
       patchChannelDom(channels[i]);
     }
@@ -2703,7 +2982,7 @@ async function refreshSavedMetadata(){
           channelName: boundedImportedText(m.channel, 120),
           publishedAt: boundedImportedText(m.publishedAt, 80),
           thumb:       importedHttpsUrl(m.thumb),
-          metadataFetchedAt: Date.now()});
+          metadataFetchedAt: metaStamp(m) || Date.now()});
         changed = true;
       } else if(found.size > 0){
         /* YouTube returned other videos from this batch but not this one (deleted/private):
@@ -2718,6 +2997,45 @@ async function refreshSavedMetadata(){
   if(removedTotal) toast(`${removedTotal} saved video${removedTotal === 1 ? ' is' : 's are'} no longer available on YouTube and ${removedTotal === 1 ? 'was' : 'were'} removed`, 6000);
 }
 
+async function refreshResumeMetadata(){
+  const dueIds = resumeRefreshDueIds();
+  if(!dueIds.length || recentlyTried('resume')) return;
+  apiMetadataTried.set('resume', Date.now());
+  let changed = false;
+  /* videos.list accepts up to 50 IDs per call (1 list-quota unit each). */
+  for(let i = 0; i < dueIds.length; i += 50){
+    const batch = dueIds.slice(i, i + 50);
+    const data = await silentApiJson('/videos?ids=' + batch.join(','));
+    if(!Array.isArray(data)){ if(!hasLiveApiSession()) break; continue; }
+    const found = new Map(data.filter(x => x && typeof x.id === 'string').map(x => [x.id, x]));
+    const store = getResumeStore();               // re-read: playback may have saved meanwhile
+    for(const id of batch){
+      const e = store[id];
+      if(!e) continue;
+      const m = found.get(id);
+      if(m){
+        store[id] = {t:e.t, saved:e.saved,
+          title: boundedImportedText(m.title, 300, RESUME_PLACEHOLDER_TITLE),
+          ch:    boundedImportedText(m.channel, 120),
+          thumb: importedHttpsUrl(m.thumb),
+          metadataFetchedAt: metaStamp(m) || Date.now()};
+        changed = true;
+      } else if(found.size > 0){
+        /* Other videos in this batch came back but not this one: deleted or private.
+           It can no longer be resumed, so remove it. An empty answer proves nothing. */
+        delete store[id]; changed = true;
+      }
+    }
+    setResumeStore(store);
+  }
+  if(changed){
+    const store = getResumeStore();
+    Object.keys(RESUME_DATA).forEach(id => { if(store[id]) RESUME_DATA[id] = {id, ...store[id]}; else delete RESUME_DATA[id]; });
+    const pane = document.getElementById('search-continue-pane');
+    if(currentScreen === 'search' && pane && pane.style.display !== 'none') renderContinueWatching();
+  }
+}
+
 let apiMetadataRefreshRunning = false;
 async function refreshStaleApiMetadata(){
   /* Guard: must have a live session. runForegroundMaintenance() calls
@@ -2726,7 +3044,7 @@ async function refreshStaleApiMetadata(){
      Both paths are safe. */
   if(apiMetadataRefreshRunning || !hasLiveApiSession()) return;
   apiMetadataRefreshRunning = true;
-  try{ await refreshChannelMetadata(); await refreshSavedMetadata(); }
+try{ await refreshChannelMetadata(); await refreshSavedMetadata(); await refreshResumeMetadata(); }
   catch(e){ /* retried at the next session or maintenance cycle */ }
   finally{ apiMetadataRefreshRunning = false; }
 }
@@ -2823,7 +3141,20 @@ function resolveHandle(ch) {
   return '';
 }
 
+/* Channel feeds use YouTube's list quota. Once the Worker reports it exhausted, further feed
+   requests in this page session pause briefly instead of calling the Worker (and Google)
+   again; each skipped request fails fast with the same quota code. In memory only, so the
+   Reload button or reopening the app tries again straight away. */
+const LIST_QUOTA_PAUSE_MS = 5 * 60 * 1000;
+let listQuotaPausedUntil = 0;
+const LIST_QUOTA_FEED_MESSAGE = 'Some channel videos could not load because NoSuggest has reached its daily YouTube API quota. Please try again after the quota resets. Videos already on this device are still shown.';
+function isListQuotaError(e){ return !!e && e.code === 'LIST_QUOTA_EXHAUSTED'; }
+function listQuotaError(){
+  return Object.assign(new Error('Channel Videos fetch skipped: list quota exhausted'), {code:'LIST_QUOTA_EXHAUSTED', status:429});
+}
+
 async function fetchVideosCV(channelId, handle, externalSignal) {
+  if (Date.now() < listQuotaPausedUntil) throw listQuotaError();
   const handleParam = (handle && handle.trim()) ? encodeURIComponent(handle.trim()) : '';
   const CVUrl     = handleParam
     ? `${PROXY}/channel-videos?channel=${channelId}&handle=${handleParam}`
@@ -2852,7 +3183,10 @@ async function fetchVideosCV(channelId, handle, externalSignal) {
   }
 
   if (!res.ok) {
-    throw new Error(`Channel Videos fetch failed: ${res.status}`);
+    // Keep the Worker's error code (e.g. LIST_QUOTA_EXHAUSTED) instead of a bare status.
+    const err = await apiResponseError(res, `Channel Videos fetch failed: ${res.status}`);
+    if (isListQuotaError(err)) listQuotaPausedUntil = Date.now() + LIST_QUOTA_PAUSE_MS;
+    throw err;
   }
 
   let videos;
@@ -2866,7 +3200,7 @@ async function fetchVideosCV(channelId, handle, externalSignal) {
     throw new Error('Invalid Channel Videos response format');
   }
 
-  return videos;
+  return markArrival(videos);
 }
 
 async function fetchVideosCVWithRetry(channelId, handle, externalSignal) {
@@ -2882,6 +3216,7 @@ async function fetchVideosCVWithRetry(channelId, handle, externalSignal) {
       console.warn(`[NoSuggest] ${channelId} attempt ${attempt} failed:`, e.message);
       if (externalSignal && externalSignal.aborted) throw e;
       if (/^Verification |^Invalid verification/.test(e.message)) throw e;
+      if (isListQuotaError(e)) throw e;   // daily quota will not recover in 2 s: no retries
       if (attempt < 3) await new Promise(r => setTimeout(r, RETRY_DELAY));
     }
   }
@@ -2929,6 +3264,7 @@ async function loadChannelVideos(ch, gen, body){
   } catch(e){
     
     console.warn(`[NoSuggest] ${ch.id} not shown after all retries:`, e.message);
+    if(isListQuotaError(e) && feedGeneration === gen) toast(LIST_QUOTA_FEED_MESSAGE, 7000);
   }
 }
 
@@ -2984,8 +3320,9 @@ async function initFeed(newChannelId){
     return;
   }
 
-  const myGen = ++feedGeneration; 
-  if(feedAbortController) feedAbortController.abort();
+const myGen = ++feedGeneration;
+    if(feedAbortController) feedAbortController.abort();
+    if(releaseFeedLoadOverlays){ const release = releaseFeedLoadOverlays; releaseFeedLoadOverlays = null; release(); }
   const myAbortController = new AbortController();
   feedAbortController = myAbortController;
   const myAbortSignal  = myAbortController.signal;
@@ -3011,9 +3348,7 @@ async function initFeed(newChannelId){
   let userReload = false;
   try{ userReload = sessionStorage.getItem('ns_user_reload') === '1'; sessionStorage.removeItem('ns_user_reload'); }catch(e){}
   let feedOverlayHidden = !userReload && (hasLiveApiSession() || !channels.some(c => !getCachedVideos(c.id) && !getStaleCachedVideos(c.id)));
-  if(!feedOverlayHidden){
-    showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
-  }
+const feedOverlay = feedOverlayHidden ? 0 : showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
 
   function updateSentinelText(){
     const textEl = document.getElementById('feed-progress-text');
@@ -3032,6 +3367,7 @@ async function initFeed(newChannelId){
   // back; it is appended when it arrives.
   const STRAGGLER_MS = 1500;
   const ready = new Map(), failed = new Set();
+  let quotaFailures = 0;
   let nextIdx = 0, straggleTimer = null;
   function afterDrain(){
     const s = document.getElementById('feed-loading-sentinel');
@@ -3067,15 +3403,20 @@ async function initFeed(newChannelId){
 
   /* Background refresh for channels shown from stale cache. Failures keep the stale list.
      Re-renders only if the video list actually changed, so nothing flickers. */
-  let silentOverlayShown = false, silentPending = 0;
+let silentOverlayShown = false, silentPending = 0, silentOverlay = 0;
   const onSilentInteractive = () => {
     if(feedGeneration !== myGen || silentPending === 0) return;
-    if(document.getElementById('ns-loading-overlay').classList.contains('show')) return;
+if(isLoadingOverlayShown()) return;
     silentOverlayShown = true;
-    showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
+    silentOverlay = showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
   };
-  function silentSettled(){
-    if(silentOverlayShown){ silentOverlayShown = false; hideLoadingOverlay(); }
+releaseFeedLoadOverlays = () => {
+      if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(feedOverlay); }
+      if(silentOverlayShown){ silentOverlayShown = false; hideLoadingOverlay(silentOverlay); }
+      verificationInteractiveHooks.delete(onSilentInteractive);
+    };
+    function silentSettled(){
+if(silentOverlayShown){ silentOverlayShown = false; hideLoadingOverlay(silentOverlay); }
     if(--silentPending <= 0){ silentPending = 0; verificationInteractiveHooks.delete(onSilentInteractive); }
   }
   async function revalidate(ch, i, stale){
@@ -3125,17 +3466,17 @@ async function initFeed(newChannelId){
         if(feedGeneration !== myGen) return;
         loaded++;
         // Hide the securing overlay the moment the first channel arrives.
-        if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(); }
+if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(feedOverlay); }
         arrive(i, videos);
       } catch(e){
         console.warn(`[NoSuggest] ${ch.id} failed silently:`, e.message);
-        if(feedGeneration === myGen){ failed.add(i); scheduleDrain(); }
+        if(feedGeneration === myGen){ if(isListQuotaError(e)) quotaFailures++; failed.add(i); scheduleDrain(); }
       } finally {
         if(feedGeneration !== myGen) return;
         completed++;
         if(completed === total){
           clearTimeout(straggleTimer); straggleTimer = null;
-          if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(); }
+if(!feedOverlayHidden){ feedOverlayHidden = true; hideLoadingOverlay(feedOverlay); }
           requestAnimationFrame(() => {
             
             const s = document.getElementById('feed-loading-sentinel');
@@ -3144,11 +3485,19 @@ async function initFeed(newChannelId){
               body.innerHTML = '';
               const failEmpty = ensureFeedEmptyEl();
               body.appendChild(failEmpty);
-              failEmpty.querySelector('h3').textContent = 'Connection failure';
-              failEmpty.querySelector('p').textContent  = 'Could not load any channels. Check your connection and refresh.';
+              if(quotaFailures){
+                failEmpty.querySelector('h3').textContent = 'Daily YouTube limit reached';
+                failEmpty.querySelector('p').textContent  = 'Channel videos are temporarily unavailable because NoSuggest has reached its daily YouTube API quota. Please try again after the quota resets. Direct video links can still be opened from Search.';
+              } else {
+                failEmpty.querySelector('h3').textContent = 'Connection failure';
+                failEmpty.querySelector('p').textContent  = 'Could not load any channels. Check your connection and refresh.';
+              }
               const failBtn = failEmpty.querySelector('.btn');
               if(failBtn){ failBtn.textContent = '↺ Refresh'; failBtn.removeAttribute('onclick'); failBtn.onclick = () => { clearVideoCache(); location.reload(); }; }
               failEmpty.style.display = 'flex';
+            } else if(quotaFailures){
+              // Partial feed: say why some channels are missing instead of failing silently.
+              toast(LIST_QUOTA_FEED_MESSAGE, 7000);
             }
           });
         } else {
@@ -3171,6 +3520,7 @@ const RESUME_DATA = {};
 function renderVideos(ch, videos, prioritizeFirst){
   const el = document.getElementById('videos-' + ch.id);
   if(!el) return;
+  FEED_RENDERED.set(ch.id, videos.slice());
   if(!videos.length){
     el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No full-form latest videos found for this channel</div>`;
     return;
@@ -3329,6 +3679,8 @@ function toggleSearchSaveById(videoId, btn){
 function openPlayerFromSaved(videoId){
   const v = VIDEO_DATA[videoId];
   if(!v) return;
+  /* An expired record only carries a placeholder; let the player read the real details. */
+  if(!apiRecordUsable(v, Date.now())){ openPlayer(v.id, '', '', '', ''); return; }
   openPlayer(v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
 }
 function openPlayerById(videoId, chId){
@@ -3354,7 +3706,11 @@ function decodeVideoTitle(value){
 function openPlayer(videoId, title, channelName, publishedAt, thumb){
   const myPlayerGeneration = ++playerGeneration;
   const displayTitle = decodeVideoTitle(title);
-  currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'' };
+  currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'',metadataFetchedAt:(displayTitle || channelName || thumb) ? (metaStamp(VIDEO_DATA[videoId]) || metaStamp(RESUME_DATA[videoId])) : 0 };
+  if(!currentVideoData.metadataFetchedAt && (displayTitle || channelName || thumb)){
+    const g = Number(VIDEO_DATA[videoId] && VIDEO_DATA[videoId].graceFrom);
+    if(Number.isFinite(g) && g > 0) currentVideoData.graceFrom = g;
+  }
   document.getElementById('player-title').textContent = displayTitle || 'Video';
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent         = timeAgo(publishedAt);
@@ -3456,7 +3812,9 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
             try{
               const d = e.target.getVideoData && e.target.getVideoData();
               if(d && d.title && currentVideoData && currentVideoData.id === videoId && !currentVideoData.title){
-                currentVideoData.title = d.title;
+currentVideoData.title = d.title;
+                currentVideoData.thumb = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+                currentVideoData.metadataFetchedAt = Date.now(); // read from YouTube's player just now
                 document.getElementById('player-title').textContent = d.title;
                 if(d.author && !currentVideoData.channelName){
                   currentVideoData.channelName = d.author;
@@ -3708,6 +4066,7 @@ function removeChannel(id){
 let searchTimeout = null;
 let channelRequestGeneration = 0;
 let channelRequestController = null;
+let channelOverlay = 0;
 
 function cancelChannelRequest(){
   channelRequestGeneration++;
@@ -3715,7 +4074,7 @@ function cancelChannelRequest(){
     channelRequestController.abort();
     channelRequestController = null;
   }
-  hideLoadingOverlay(); // a cancelled request must never leave the overlay up
+hideLoadingOverlay(channelOverlay); channelOverlay = 0; // a cancelled lookup removes only its own loader
 }
 
 function resetChannelSearchUi({ showFallback = true } = {}){
@@ -3764,6 +4123,7 @@ document.getElementById('channel-input').addEventListener('input', e => {
     const vResult = validateChannelUrl(q);
     if(!vResult.ok){
       const errEl = document.getElementById('add-error');
+      errEl.classList.remove('quota-notice');
       errEl.textContent = vResult.msg;
       errEl.style.display = 'block';
       return;
@@ -3785,6 +4145,7 @@ function triggerChannelSearch(){
     const vResult = validateChannelUrl(q);
     if(!vResult.ok){
       const errEl = document.getElementById('add-error');
+      errEl.classList.remove('quota-notice');
       errEl.textContent   = vResult.msg;
       errEl.style.display = 'block';
       return;
@@ -3840,6 +4201,7 @@ async function doChannelSearch(query){
 
   searching.style.display = 'none';
   errEl.style.display = 'none';
+    errEl.classList.remove('quota-notice');
   suggestions.style.display = 'none';
   suggestions.innerHTML = '';
   setFallbackHintVisible(false);
@@ -3847,11 +4209,11 @@ async function doChannelSearch(query){
   try{
     allowVerificationRetry();
     // All channel lookups use the same reusable 5-minute session token.
-    showLoadingOverlay('Searching YouTube…', '');
-    startOverlayCycling(['Searching YouTube for channels…','Checking names and handles…','Matching against creators…','Almost there…']);
+channelOverlay = showLoadingOverlay('Searching YouTube…', '');
+    startOverlayCycling(channelOverlay, ['Searching YouTube for channels…','Checking names and handles…','Matching against creators…','Almost there…']);
     startReqTimeout();
     const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(query)}`, { signal: controller.signal });
-    if(!res.ok) throw new Error(`Channel search failed (${res.status})`);
+    if(!res.ok) throw await apiResponseError(res, `Channel search failed (${res.status})`);
     const channels = await res.json();
     clearTimeout(reqTimer);
 
@@ -3859,8 +4221,8 @@ async function doChannelSearch(query){
     const currentQ = document.getElementById('channel-input').value.trim();
     if(currentQ.toLowerCase() !== query.trim().toLowerCase()) return;
 
-    channelRequestController = null;
-    hideLoadingOverlay();
+channelRequestController = null;
+    hideLoadingOverlay(channelOverlay); channelOverlay = 0;
 
     if(!Array.isArray(channels) || channels.error || !channels.length){
       errEl.textContent = 'No channels found. Try a different name or paste the channel URL directly in this box.';
@@ -3908,9 +4270,10 @@ async function doChannelSearch(query){
     clearTimeout(reqTimer);
     if(generation !== channelRequestGeneration) return;
     if(err.name === 'AbortError' && !timedOut) return;
-    channelRequestController = null;
-    hideLoadingOverlay();
-    errEl.textContent = timedOut
+channelRequestController = null;
+    hideLoadingOverlay(channelOverlay); channelOverlay = 0;
+    if(quotaNotice(errEl, err.code, true)){ setFallbackHintVisible(true); return; }
+      errEl.textContent = timedOut
       ? 'Search timed out. Check your connection and try again, or paste the channel URL directly in this box.'
       : 'Search failed. Check your connection or paste the channel URL directly in this box.';
     errEl.style.display = 'block';
@@ -4001,6 +4364,7 @@ async function doFallbackAdd(inputVal){
   const searching = document.getElementById('channel-searching');
 
   errEl.style.display = 'none';
+    errEl.classList.remove('quota-notice');
   if(!input){
     errEl.textContent = 'Could not recognise that URL. Try: youtube.com/@creator or youtube.com/channel/UCxxx';
     errEl.style.display = 'block';
@@ -4022,8 +4386,8 @@ async function doFallbackAdd(inputVal){
   cancelChannelRequest();
   const generation = channelRequestGeneration;
   const controller = new AbortController();
-  channelRequestController = controller;
-  showLoadingOverlay('Looking up channel…', '');
+channelRequestController = controller;
+  channelOverlay = showLoadingOverlay('Looking up channel…', '');
   setFallbackHintVisible(false);
 
   // Same limit as the searches; here it also covers session setup (apiFetch).
@@ -4033,7 +4397,7 @@ async function doFallbackAdd(inputVal){
   try{
     allowVerificationRetry();
     const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(parsed.value)}`, { signal: controller.signal });
-    if(!res.ok) throw new Error(`Channel lookup failed (${res.status})`);
+    if(!res.ok) throw await apiResponseError(res, `Channel lookup failed (${res.status})`);
     const results = await res.json();
     clearTimeout(reqTimer);
     if(generation !== channelRequestGeneration) return;
@@ -4055,8 +4419,8 @@ async function doFallbackAdd(inputVal){
     if(!ch || !ch.id) throw new Error('Could not resolve channel ID from that URL.');
     if(parsed.type === 'handle' && String(ch.handle || '').toLowerCase() !== parsed.value.toLowerCase()) throw new Error('Could not verify the exact handle. Paste its /channel/ ID instead.');
 
-    channelRequestController = null;
-    hideLoadingOverlay();
+channelRequestController = null;
+    hideLoadingOverlay(channelOverlay); channelOverlay = 0;
     setFallbackHintVisible(true);
 
     if(STORE.channels.some(c => c.id === ch.id)){
@@ -4074,7 +4438,8 @@ async function doFallbackAdd(inputVal){
       name: ch.name || 'Unknown channel',
       avatar: ch.avatar || '',
       subs: ch.subs || '',
-      handle: ch.handle || ''
+      handle: ch.handle || '',
+      metadataFetchedAt: metaStamp(ch) || Date.now()
     });
     STORE.channels = channels;
     _addedThisSession = true;
@@ -4084,10 +4449,11 @@ async function doFallbackAdd(inputVal){
     clearTimeout(reqTimer);
     if(generation !== channelRequestGeneration) return;
     if(err.name === 'AbortError' && !timedOut) return;
-    channelRequestController = null;
-    hideLoadingOverlay();
+channelRequestController = null;
+    hideLoadingOverlay(channelOverlay); channelOverlay = 0;
     setFallbackHintVisible(true);
-    errEl.textContent = timedOut
+    if(quotaNotice(errEl, err.code, true)){ setFallbackHintVisible(true); return; }
+      errEl.textContent = timedOut
       ? 'Lookup timed out. Check your connection and try again.'
       : (err.message || 'Could not add channel. Check the URL and try again.');
     errEl.style.display = 'block';
@@ -4162,7 +4528,7 @@ function toggleSaveVideo(video){
   let saved = STORE.savedVideos;
   const idx = saved.findIndex(v => v.id === video.id);
   if(idx >= 0){ saved.splice(idx, 1); toast('Removed from saved'); }
-  else{ saved.unshift({...video, savedAt: new Date().toISOString(), metadataFetchedAt:Date.now()}); toast('Saved! ✓'); }
+  else{saved.unshift({...withoutGrace(video), savedAt: new Date().toISOString(),metadataFetchedAt:metaStamp(video) || metaStamp(VIDEO_DATA[video.id])}); toast('Saved! ✓'); }
   STORE.savedVideos = saved;
   const countEl = document.getElementById('saved-count');
   if(countEl) countEl.textContent = `${STORE.savedVideos.length} video${STORE.savedVideos.length===1?'':'s'}`;
@@ -4179,8 +4545,23 @@ function toggleFeedSave(btn, id, title, channelName, publishedAt, thumb){
 }
 
 let searchVideoTimeout = null;
+let videoSearchGeneration = 0;
+let videoSearchController = null;
+let videoSearchOverlay = 0;
+/* Invalidates any in-flight video search. Hides the overlay only if a search owned it,
+   so leaving Search never removes the feed's or another flow's overlay. */
+function cancelVideoSearch(){
+  videoSearchGeneration++;
+  if(videoSearchController){
+videoSearchController.abort();
+    videoSearchController = null;
+  }
+  hideLoadingOverlay(videoSearchOverlay); videoSearchOverlay = 0;
+}
 
 function initSearch(){
+  cancelVideoSearch();
+
   
   document.getElementById('search-header-title').textContent  = 'Search';
   document.getElementById('search-input-row').style.display   = 'none';
@@ -4220,9 +4601,14 @@ function pickSearchMode(mode){
 }
 
 document.getElementById('search-input').addEventListener('input', e => {
+  /* Any edit makes an in-flight search stale, so its late result, error or quota
+     notice can never appear against different text. */
+  clearTimeout(searchVideoTimeout);
+  cancelVideoSearch();
   const q = e.target.value.trim();
 
   if(!q){
+    cancelVideoSearch();
     document.getElementById('search-results-wrap').style.display = 'none';
     document.getElementById('search-loading').style.display      = 'none';
     stopLoadingMessages();
@@ -4238,6 +4624,7 @@ document.getElementById('search-input').addEventListener('input', e => {
       document.getElementById('search-results-wrap').style.display = 'none';
       document.getElementById('search-loading').style.display      = 'none';
       const errEl = document.getElementById('search-error');
+      errEl.classList.remove('quota-notice');
       errEl.textContent   = vResult.msg;
       errEl.style.display = 'block';
       document.getElementById('search-empty').style.display = 'none';
@@ -4245,6 +4632,7 @@ document.getElementById('search-input').addEventListener('input', e => {
     }
     const videoId = extractYouTubeId(q);
     if(videoId){
+      cancelVideoSearch();
       document.getElementById('search-results-wrap').style.display = 'none';
       document.getElementById('search-error').style.display        = 'none';
       document.getElementById('search-empty').style.display        = 'none';
@@ -4269,6 +4657,7 @@ function triggerVideoSearch(){
     const vResult = validateVideoUrl(q);
     if(!vResult.ok){
       const errEl = document.getElementById('search-error');
+      errEl.classList.remove('quota-notice');
       errEl.textContent   = vResult.msg;
       errEl.style.display = 'block';
       document.getElementById('search-loading').style.display      = 'none';
@@ -4278,6 +4667,7 @@ function triggerVideoSearch(){
     }
     const videoId = extractYouTubeId(q);
     if(videoId){
+      cancelVideoSearch();
       document.getElementById('search-results-wrap').style.display = 'none';
       document.getElementById('search-error').style.display        = 'none';
       document.getElementById('search-empty').style.display        = 'none';
@@ -4296,6 +4686,7 @@ function triggerVideoSearch(){
 document.getElementById('search-input').addEventListener('search', () => {
   if(!document.getElementById('search-input').value.trim()){
     clearTimeout(searchVideoTimeout);
+    cancelVideoSearch();
     document.getElementById('search-results-wrap').style.display = 'none';
     document.getElementById('search-loading').style.display      = 'none';
     stopLoadingMessages();
@@ -4317,29 +4708,39 @@ async function doYTSearch(q){
   loading.style.display     = 'none';
   resultsWrap.style.display = 'none';
   errEl.style.display       = 'none';
+    errEl.classList.remove('quota-notice');
   empty.style.display       = 'none';
-  showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
+  cancelVideoSearch();
+  const generation = videoSearchGeneration;
+  const vCtl = new AbortController();
+  videoSearchController = vCtl;
+  const isCurrent = () => generation === videoSearchGeneration;
+videoSearchOverlay = showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
+  const myOverlay = videoSearchOverlay;
 
   let vTimedOut = false, vTimer = null;
   try{
     allowVerificationRetry();
     // Video search uses the same reusable 5-minute session token as every other API call.
-    updateLoadingOverlay('Fetching results…', '');
-    startOverlayCycling(['Fetching results…','Sorting through results…','Filtering the noise…','Almost done…']);
-    const vCtl = new AbortController();
+updateLoadingOverlay(myOverlay, 'Fetching results…', '');
+    startOverlayCycling(myOverlay, ['Fetching results…','Sorting through results…','Filtering the noise…','Almost done…']);
     vTimer = setTimeout(() => { vTimedOut = true; vCtl.abort(); }, SEARCH_TIMEOUT_MS);
     const res = await apiFetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`, { signal: vCtl.signal });
+    if(!isCurrent()) return;
+    if(!res.ok) throw await apiResponseError(res, 'Video search unavailable.');
     const videos  = await res.json();
     clearTimeout(vTimer);
-    hideLoadingOverlay();
+    /* A newer search, a cleared box, a direct link or leaving Search has superseded this one:
+       it must not touch results, errors or the overlay. */
+    if(!isCurrent()) return;
+videoSearchController = null;
+    hideLoadingOverlay(myOverlay); videoSearchOverlay = 0;
 
     const currentQ = document.getElementById('search-input').value.trim();
     if(currentQ.toLowerCase() !== q.trim().toLowerCase()) return;
 
-    if(!res.ok || !Array.isArray(videos) || !videos.length || videos.error){
-      errEl.textContent = !res.ok
-        ? (res.status===403 ? 'Verification failed. Please try again.' : 'Search unavailable. Check your connection.')
-        : 'No results found. Try a different keyword.';
+    if(!Array.isArray(videos) || !videos.length || videos.error){
+      errEl.textContent = 'No results found. Try a different keyword.';
       errEl.style.display = 'block';
       return;
     }
@@ -4347,8 +4748,10 @@ async function doYTSearch(q){
     dismissSearchKeyboard(document.getElementById('search-input'));
     document.getElementById('search-results-label').textContent = `Results for "${q}"`;
 
+    searchResultIds = videos.map(v => v.id);
+    const searchArrivedAt = Date.now();
     resultsList.innerHTML = videos.map(v => {
-      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb, publishedAt: v.publishedAt || '' };
+      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb,publishedAt: v.publishedAt || '', metadataFetchedAt:metaStamp(v), ...(metaStamp(v) ? {} : {graceFrom: searchArrivedAt}) };
       const saved    = isVideoSaved(v.id);
       const timeStr  = v.publishedAt ? timeAgo(v.publishedAt) : '';
       const durationDisplay = v.duration
@@ -4414,9 +4817,14 @@ async function doYTSearch(q){
     resultsWrap.style.display = 'block';
 
   } catch(err){
-    hideLoadingOverlay();
     clearTimeout(vTimer);
-    errEl.textContent     = vTimedOut ? 'Search timed out. Check your connection and try again.' : 'Search failed. Check your connection.';
+    if(!isCurrent()) return;                              // superseded: leave the UI alone
+    if(err && err.name === 'AbortError' && !vTimedOut) return;
+videoSearchController = null;
+    hideLoadingOverlay(myOverlay); videoSearchOverlay = 0;
+    if(quotaNotice(errEl, err.code, false)) return;
+      errEl.textContent     = vTimedOut ? 'Search timed out. Check your connection and try again.'
+        : (/^Verification |^Invalid verification/.test(err.message || '') ? err.message : 'Search failed. Check your connection.');
     errEl.style.display   = 'block';
   }
 }
@@ -4494,9 +4902,10 @@ async function openFollowChannelPopup(channelName, channelId, thumb){
       const results = await res.json();
       const match = Array.isArray(results) && results.find(r => r.id === channelId);
       if(match){
-        _followChannelPending.avatar = match.avatar || _followChannelPending.avatar;
+          _followChannelPending.avatar = importedHttpsUrl(match.avatar);
         _followChannelPending.subs   = match.subs   || '';
         _followChannelPending.handle = match.handle || '';
+        _followChannelPending.metadataFetchedAt = metaStamp(match) || Date.now();
         _followChannelPending.name   = match.name   || _followChannelPending.name;
         document.getElementById('follow-ch-title').textContent  = _followChannelPending.name;
         document.getElementById('follow-ch-handle').textContent = [match.handle, match.subs].filter(Boolean).join(' · ');
@@ -4516,7 +4925,8 @@ function confirmFollowChannel(){
     name:   _followChannelPending.name,
     avatar: _followChannelPending.avatar || '',
     subs:   _followChannelPending.subs   || '',
-    handle: _followChannelPending.handle || ''
+    handle: _followChannelPending.handle || '',
+    metadataFetchedAt:_followChannelPending.metadataFetchedAt || 0
   };
   if(!ch.id){
     toast('Could not verify this channel. Try again in a moment.');
@@ -4576,6 +4986,10 @@ function _refreshFollowLinksInResults(channelName, channelId){
 }
 
 function initSaved(){
+  expireStaleApiMetadata();
+  renderSavedList();
+}
+function renderSavedList(){
   const videos  = STORE.savedVideos;
   const list    = document.getElementById('saved-list');
   const empty   = document.getElementById('saved-empty');
@@ -4587,7 +5001,7 @@ function initSaved(){
   empty.style.display = 'none';
 
   list.innerHTML = videos.map((v, i) => {
-    VIDEO_DATA[v.id] = v;
+    VIDEO_DATA[v.id] = metaStamp(v) ? v : {...v, graceFrom: graceStartFor('s:' + v.id)};
     return `
     <div class="saved-video-card" style="animation:fadeUp 0.3s ease ${i*30}ms both"
          onclick="openPlayerFromSaved('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
@@ -4612,7 +5026,16 @@ function removeSaved(id){
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
 }
 
+let _cwRendering = false;
 function initContinueWatching(){
+  purgeExpiredResume();
+  renderContinueWatching();
+}
+function renderContinueWatching(){
+  _cwRendering = true;
+  try{ renderContinueWatchingList(); } finally { _cwRendering = false; }
+}
+function renderContinueWatchingList(){
   const store   = getResumeStore();
   const listEl  = document.getElementById('cw-list');
   const emptyEl = document.getElementById('cw-empty');
@@ -4662,7 +5085,10 @@ function openPlayerFromResume(videoId){
   const e = RESUME_DATA[videoId];
   if(!e) return;
   const thumb = e.thumb || `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
-  openPlayer(videoId, e.title || '', e.ch || '', '', thumb);
+  /* Entries reduced by purgeExpiredResume() carry a placeholder title; pass '' so the
+     player's getVideoData() restores the real title and channel on ready. */
+  const fresh = metaStampValid(metaStamp(e), Date.now()) && !isResumePlaceholder(e);
+  openPlayer(videoId, fresh ? (e.title || '') : '', fresh ? (e.ch || '') : '', '', fresh ? thumb : '');
 }
 
 function removeResumeItem(videoId){
@@ -4871,6 +5297,7 @@ function showImportPanel(){
   if(!panel) return;
   ta.value            = '';
   errEl.style.display = 'none';
+    errEl.classList.remove('quota-notice');
   errEl.textContent   = '';
   label.textContent   = 'Tap to paste backup code from clipboard';
   area.style.borderColor = '';
@@ -4883,6 +5310,7 @@ async function pasteFromClipboard(){
   const area  = document.getElementById('import-paste-area');
   const errEl = document.getElementById('import-error');
   errEl.style.display = 'none';
+    errEl.classList.remove('quota-notice');
   try{
     const text = await navigator.clipboard.readText();
     if(!text || !text.trim()){
@@ -4908,6 +5336,7 @@ function hideImportPanel(){
   panel.style.display = 'none';
   ta.value            = '';
   errEl.style.display = 'none';
+    errEl.classList.remove('quota-notice');
   errEl.textContent   = '';
 }
 
@@ -4917,6 +5346,7 @@ function doImportBackup(){
   const raw   = (ta.value || '').trim();
 
   errEl.style.display = 'none';
+    errEl.classList.remove('quota-notice');
   errEl.textContent   = '';
 
   if(!raw){
@@ -4964,6 +5394,7 @@ function doImportBackup(){
   STORE.channels    = channels;
   STORE.savedVideos = savedVideos;
   toast('Restored successfully ✓');
+  try{ localStorage.removeItem(MAINTENANCE_STORAGE_KEY); }catch(e){}
   setTimeout(() => location.reload(), 800);
 }
 
@@ -5185,6 +5616,7 @@ async function confirmAddPack(){
      follows already carry verified metadata and therefore make no duplicate call. */
   const unresolved = toAdd.filter(c => !metaStamp(c));
   if(unresolved.length) await resolvePackAvatars(unresolved);
+  try{ localStorage.removeItem(MAINTENANCE_STORAGE_KEY); }catch(e){}
   location.reload();
 }
 
@@ -5206,7 +5638,8 @@ async function resolvePackAvatars(toAdd){
       const channels = STORE.channels;
       const idx = channels.findIndex(ch => ch.id === c.id);
       if(idx !== -1){
-        channels[idx] = { ...channels[idx], avatar: importedHttpsUrl(match.avatar) || channels[idx].avatar || '', subs: match.subs || channels[idx].subs || '', handle: match.handle || channels[idx].handle || '' };
+          /* Every API-derived field comes from this verified response, so the stamp is honest. */
+          channels[idx] = { ...channels[idx], name: boundedImportedText(match.name, 120, c.id), avatar: importedHttpsUrl(match.avatar), subs: boundedImportedText(match.subs, 80), handle: boundedImportedText(match.handle, 120), metadataFetchedAt: metaStamp(match) || Date.now() };
         STORE.channels = channels;
       }
     } catch(e){
@@ -5350,32 +5783,34 @@ async function followFromLink(value){
   const controller = new AbortController();
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, SEARCH_TIMEOUT_MS);
-  showLoadingOverlay('Looking up channel…', '');
+const followOverlay = showLoadingOverlay('Looking up channel…', '');
   try{
     allowVerificationRetry();
     const res = await apiFetch(`${PROXY}/channels?q=${encodeURIComponent(value)}`, { signal: controller.signal });
-    if(!res.ok) throw new Error(`Channel lookup failed (${res.status})`);
+    if(!res.ok) throw await apiResponseError(res, `Channel lookup failed (${res.status})`);
     const results = await res.json();
     if(!Array.isArray(results) || results.error || !results.length) throw new Error('Channel not found.');
     const ch = isId
       ? results.find(r => r && r.id === value)
       : results.find(r => r && sameHandle(r));
     if(!ch || !ch.id) throw new Error('Could not verify that exact channel.');
-    clearTimeout(timer);
-    hideLoadingOverlay();
+clearTimeout(timer);
+    hideLoadingOverlay(followOverlay);
     if(STORE.channels.some(c => c.id === ch.id)){ toast('Already in your list'); return; }
     openFollowConfirm(ch);
   } catch(err){
-    clearTimeout(timer);
-    hideLoadingOverlay();
+clearTimeout(timer);
+    hideLoadingOverlay(followOverlay);
     toast(timedOut ? 'Lookup timed out. Check your connection and try again.'
-                   : (err.message || 'Could not look up that channel.'), 5000);
+                   : (err.code === 'LIST_QUOTA_EXHAUSTED' || err.code === 'SEARCH_QUOTA_EXHAUSTED')
+                     ? 'YouTube lookups are temporarily unavailable because NoSuggest has reached its daily API quota. Please try again after the quota resets.'
+                     : (err.message || 'Could not look up that channel.'), 6000);
   }
 }
 
 /* Reuses the pack confirmation sheet for a single channel, with its own wording. */
 function openFollowConfirm(ch){
-  const verified = normalizeImportedChannel({...ch, metadataFetchedAt:Date.now()});
+  const verified = normalizeImportedChannel({...ch, metadataFetchedAt:metaStamp(ch) || Date.now()});
   if(!verified){ toast('Could not verify that exact channel.', 5000); return; }
   openPackConfirm([verified]);
   if(_pendingPack && _pendingPack.toAdd.length){
@@ -5445,7 +5880,7 @@ window.addEventListener('load', () => {
      AFTER a refresh attempt, so real data is preserved when connectivity exists.
      If runForegroundMaintenance() fails entirely, it still calls expireStaleApiMetadata()
      as a safety net. For users with a fresh session it runs immediately after refresh.
-     We do NOT call expireStaleApiMetadata() eagerly here any more. */
+     showScreen() now expires old fields before rendering. */
   purgeExpiredResume();
   updateVideosPerChannelLabel();
   applyKidsMode();
@@ -5482,6 +5917,7 @@ window.addEventListener('popstate', () => {
    browser to auto-release any held lock when the document goes hidden. */
 /* Track when the app was last hidden so we can detect long absences on resume. */
 let _lastHiddenAt = 0;
+setInterval(() => { expireStaleApiMetadata(); purgeExpiredResume(); }, 60 * 60 * 1000);
 document.addEventListener('visibilitychange', () => {
   const overlay = document.getElementById('player-overlay');
   if(document.hidden){
