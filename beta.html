@@ -2054,6 +2054,7 @@ const POLICY_ACCEPTANCE_VERSION = '2026-10-youtube-1';
   /* After a failed attempt (verification blocked/offline) wait this long before trying again,
      so a blocked network is not retried on every app switch. */
   const MAINTENANCE_FAILURE_RETRY_MS = 30 * 60 * 1000;
+  const MAINTENANCE_URGENT_KEY = 'ns_metadata_urgent_checked_at';
   /* The background refresh may cover the screen for at most this long. */
   const MAINTENANCE_OVERLAY_MAX_MS = 15000;
   const metaStamp = rec => { const n = Number(rec && rec.metadataFetchedAt); return Number.isFinite(n) && n > 0 ? n : 0; };
@@ -2120,10 +2121,8 @@ function readVideoCache(channelId, maxAge, requireComplete){
     const now = Date.now();
     if(!Number.isFinite(ts) || ts <= 0 || ts > now || now - ts >= maxAge) return null;
     if(!Array.isArray(videos) || !videos.length) return null;
-    const kept = videos
-      .filter(v => v && typeof v === 'object')
-      .map(v => ({...v, metadataFetchedAt: metaStamp(v) || ts}))
-      .filter(v => metaStampValid(v.metadataFetchedAt, now));
+    const kept = markArrival(videos.filter(v => v && typeof v === 'object'), ts)
+      .filter(v => apiRecordUsable(v, now));
     if(!kept.length) return null;
     if(requireComplete && kept.length !== videos.length) return null; // force a fresh fetch
     return kept;
@@ -2166,15 +2165,63 @@ function deleteResumeEntry(videoId){
 function getResumeEntry(videoId){
   return getResumeStore()[videoId] || null;
 }
+/* Grace for records with NO metadata stamp (saved by an app version before stamps existed,
+   or restored from an old backup). Their age is unknown, so they may keep their details only
+   long enough for one refresh: 3 h 3 min is just over the 3-hour maintenance interval, so at
+   least one maintenance run always falls inside it. The clock starts the first time a record
+   is seen without a stamp and is stored per record, so reloading never restarts it. If no
+   refresh succeeds in time the record is reduced to its placeholder. */
+const META_GRACE_MS  = (3 * 60 + 3) * 60 * 1000;
+const META_GRACE_KEY = 'ns_meta_grace_v1';
+function readGraceMap(){
+  try{ const m = JSON.parse(localStorage.getItem(META_GRACE_KEY) || '{}'); return (m && typeof m === 'object' && !Array.isArray(m)) ? m : {}; }
+  catch(e){ return {}; }
+}
+/* Stamp-less API data held in memory (feed rows, search results, the open player) and in the
+   feed cache carries graceFrom = the device time it arrived. It is shown for the same grace
+   period and then treated as expired. It is never turned into a stamp, so anything saved or
+   resumed from it still has an unknown age and goes through the normal stored-record grace
+   and refresh. With a backend that stamps every record this path is never used. */
+function markArrival(list, at){
+  const t = at || Date.now();
+  return (Array.isArray(list) ? list : []).map(v => (v && typeof v === 'object' && !metaStamp(v))
+    ? {...v, graceFrom: (Number.isFinite(v.graceFrom) && v.graceFrom > 0 && v.graceFrom <= t) ? v.graceFrom : t} : v);
+}
+function apiRecordUsable(rec, now){
+  if(!rec) return false;
+  const st = metaStamp(rec);
+  if(st) return metaStampValid(st, now);
+  const g = Number(rec.graceFrom);
+  return Number.isFinite(g) && g > 0 && g <= now && now - g < META_GRACE_MS;
+}
+function graceStartFor(key){ const g = Number(readGraceMap()[key]); return Number.isFinite(g) && g > 0 ? g : 0; }
+const withoutGrace = v => { if(!v || v.graceFrom === undefined) return v; const {graceFrom, ...rest} = v; return rest; };
+/* Returns a checker bound to one read of the map; call .save() once afterwards. */
+function graceTracker(now){
+  const map = readGraceMap(), seen = new Set();
+  let dirty = false;
+  return {
+    inGrace(key){
+      seen.add(key);
+      let start = Number(map[key]);
+      if(!Number.isFinite(start) || start <= 0 || start > now){ map[key] = start = now; dirty = true; }
+      return now - start < META_GRACE_MS;
+    },
+    keep(key){ seen.add(key); },
+    save(prefixes){
+      /* Drop entries for records of the given stores that are no longer stamp-less. */
+      Object.keys(map).forEach(k => { if(prefixes.some(p => k.startsWith(p)) && !seen.has(k)){ delete map[k]; dirty = true; } });
+      if(dirty){ try{ localStorage.setItem(META_GRACE_KEY, JSON.stringify(map)); }catch(e){} }
+    }
+  };
+}
+
 /* Continue Watching metadata.
    - Entries are deleted 25 days after they were last watched (RESUME_TTL).
    - API-derived fields (title, channel, thumbnail) are reduced to a placeholder once their
-     metadata is 25 days old. The original stamp is kept, so the refresh rule below can see it.
-   - Legacy entries with no stamp at all (saved before stamps existed) are kept as they are for
-     a short grace period so the first refresh can replace them; they are reduced to the
-     placeholder if that refresh does not happen in time or fails. */
+     metadata is 25 days old. The original stamp is kept, so the refresh rule can see it.
+   - Entries with no stamp keep their details during the shared grace period above. */
 const RESUME_PLACEHOLDER_TITLE = 'Video in progress';
-const RESUME_LEGACY_GRACE_MS = 30 * 60 * 1000;
 const isResumePlaceholder = e => !!e && (e.ph === 1 || (e.title === RESUME_PLACEHOLDER_TITLE && !metaStamp(e)));
 const isResumeLegacy = e => !!e && !metaStamp(e) && !isResumePlaceholder(e);
 function resumePlaceholder(e, now){
@@ -2182,9 +2229,10 @@ function resumePlaceholder(e, now){
   return {t:e.t, saved:e.saved, title:RESUME_PLACEHOLDER_TITLE, ch:'', thumb:'', ph:1,
           metadataFetchedAt: st > now + META_CLOCK_SKEW_MS ? 0 : st};
 }
-function purgeExpiredResume(forceLegacy){
+function purgeExpiredResume(){
   const store = getResumeStore();
   const now   = Date.now();
+  const grace = graceTracker(now);
   let changed = false;
   Object.keys(store).forEach(id => {
     if(!store[id] || !Number.isFinite(store[id].saved) || now - store[id].saved >= RESUME_TTL){ delete store[id]; changed = true; }
@@ -2193,12 +2241,13 @@ function purgeExpiredResume(forceLegacy){
     const e = store[id];
     if(isResumePlaceholder(e)) return;
     if(isResumeLegacy(e)){
-      if(!Number.isFinite(e.pendingSince)){ e.pendingSince = now; changed = true; }
-      if(!forceLegacy && now - e.pendingSince < RESUME_LEGACY_GRACE_MS) return;
+      if(e.pendingSince !== undefined){ delete e.pendingSince; changed = true; }   // beta-1 field, superseded
+      if(grace.inGrace('r:' + id)) return;
       store[id] = resumePlaceholder(e, now); changed = true; return;
     }
     if(!metaStampValid(metaStamp(e), now)){ store[id] = resumePlaceholder(e, now); changed = true; }
   });
+  grace.save(['r:']);
   if(changed){
     setResumeStore(store);
     Object.keys(RESUME_DATA).forEach(id => { if(store[id]) RESUME_DATA[id] = {id, ...store[id]}; else delete RESUME_DATA[id]; });
@@ -2610,14 +2659,22 @@ function expireStaleApiMetadata(){
   try{
     const now = Date.now();
     const expired = rec => !metaStampValid(metaStamp(rec), now);
+    const unusable = rec => !apiRecordUsable(rec, now);   // in-memory data: stamp, or grace from arrival
     const resetStamp = rec => metaStamp(rec) > now + META_CLOCK_SKEW_MS ? 0 : rec.metadataFetchedAt;
+    /* Stamp-less records that still carry details get the shared grace period. */
+    const grace = graceTracker(now);
+    const channelLegacy = c => !metaStamp(c) && (c.name !== CHANNEL_PLACEHOLDER_NAME || c.avatar || c.subs || c.handle);
+    const savedLegacy   = v => !metaStamp(v) && (v.title !== SAVED_PLACEHOLDER_TITLE || v.channelName || v.publishedAt || v.thumb);
+    const channelExpired = c => expired(c) && !(channelLegacy(c) && grace.inGrace('c:' + c.id));
+    const savedExpired   = v => expired(v) && !(savedLegacy(v)   && grace.inGrace('s:' + v.id));
 
     /* Channels: storage, then every row that shows them (feed + Channels screen). */
     const channels = STORE.channels;
-    if(channels.some(expired)){
+    const chExpiredIds = new Set(channels.filter(channelExpired).map(c => c.id));
+    if(chExpiredIds.size){
       const patched = [];
       STORE.channels = channels.map(c => {
-        if(!expired(c)) return c;
+        if(!chExpiredIds.has(c.id)) return c;
         const next = {id:c.id, name:CHANNEL_PLACEHOLDER_NAME, avatar:'', subs:'', handle:'', metadataFetchedAt:resetStamp(c)};
         if(c.name !== next.name || c.avatar || c.subs || c.handle) patched.push(next);
         return next;
@@ -2627,10 +2684,12 @@ function expireStaleApiMetadata(){
 
     /* Saved videos: storage, then the rendered Saved list. */
     const saved = STORE.savedVideos;
-    if(saved.some(expired)){
+    const svExpiredIds = new Set(saved.filter(savedExpired).map(v => v.id));
+    grace.save(['c:', 's:']);
+    if(svExpiredIds.size){
       let savedChanged = false;
       STORE.savedVideos = saved.map(v => {
-        if(!expired(v)) return v;
+        if(!svExpiredIds.has(v.id)) return v;
         if(v.title !== SAVED_PLACEHOLDER_TITLE || v.channelName || v.publishedAt || v.thumb) savedChanged = true;
         return {id:v.id, title:SAVED_PLACEHOLDER_TITLE, channelName:'', publishedAt:'', thumb:'', savedAt:v.savedAt, metadataFetchedAt:resetStamp(v)};
       });
@@ -2645,7 +2704,7 @@ function expireStaleApiMetadata(){
         if(!entry || !Number.isFinite(entry.ts) || entry.ts <= 0 || entry.ts > now || now - entry.ts >= API_METADATA_TTL || !Array.isArray(entry.videos)){
           localStorage.removeItem(k); return;
         }
-        const kept = entry.videos.filter(v => v && metaStampValid(metaStamp(v) || entry.ts, now));
+        const kept = markArrival(entry.videos.filter(v => v && typeof v === 'object'), entry.ts).filter(v => apiRecordUsable(v, now));
         if(!kept.length) localStorage.removeItem(k);
         else if(kept.length !== entry.videos.length) localStorage.setItem(k, JSON.stringify({ts: entry.ts, videos: kept}));
       }catch(e){ localStorage.removeItem(k); }
@@ -2654,14 +2713,14 @@ function expireStaleApiMetadata(){
     /* In-memory video records (feed, search, saved): reduce expired ones to the ID. */
     Object.keys(VIDEO_DATA).forEach(id => {
       const v = VIDEO_DATA[id];
-      if(v && expired(v) && (v.title || v.channelName || v.thumb || v.publishedAt)){
+      if(v && unusable(v) && (v.title || v.channelName || v.thumb || v.publishedAt)){
         VIDEO_DATA[id] = {id, title:'', channelName:'', channelId:'', publishedAt:'', thumb:'', metadataFetchedAt:0};
       }
     });
 
     /* Feed rows on screen: drop expired videos; the silent refresh / Reload brings fresh ones. */
     FEED_RENDERED.forEach((videos, chId) => {
-      const kept = videos.filter(v => !expired(v));
+      const kept = videos.filter(v => !unusable(v));
       if(kept.length === videos.length) return;
       const el = document.getElementById('videos-' + chId);
       if(!el){ FEED_RENDERED.delete(chId); return; }
@@ -2674,7 +2733,7 @@ function expireStaleApiMetadata(){
     });
 
     /* Search results on screen. */
-    if(searchResultIds.length && searchResultIds.some(id => !VIDEO_DATA[id] || expired(VIDEO_DATA[id]))){
+    if(searchResultIds.length &&searchResultIds.some(id => !VIDEO_DATA[id] || unusable(VIDEO_DATA[id]))){
       searchResultIds = [];
       const list = document.getElementById('search-results-list');
       if(list) list.innerHTML = '';
@@ -2687,7 +2746,7 @@ function expireStaleApiMetadata(){
     }
 
     /* Open player. */
-if(currentVideoData && expired(currentVideoData) && (currentVideoData.title || currentVideoData.channelName || currentVideoData.thumb || currentVideoData.publishedAt)){
+if(currentVideoData && unusable(currentVideoData) && (currentVideoData.title || currentVideoData.channelName || currentVideoData.thumb || currentVideoData.publishedAt)){
       currentVideoData = {...currentVideoData, title:'', channelName:'', publishedAt:'', thumb:'', metadataFetchedAt:0};
       document.getElementById('player-title').textContent = 'Video';
       document.getElementById('player-channel-name').textContent = '';
@@ -2708,6 +2767,16 @@ function hasStaleMetadata(){
    26+ days old. Entries are deleted 25 days after they were last watched, so normally only the
    first load after deployment, or an entry whose deletion was missed, uses any quota. */
 const RESUME_REFRESH_AFTER = 26 * 24 * 60 * 60 * 1000;
+/* Records that need a refresh now rather than at the next 3-hourly maintenance: no stamp
+   (inside or past the grace period) or already reduced to a placeholder and due under the
+   store's own rule. Regular 20-day refreshes of still-valid data are not urgent. */
+function hasUrgentMetadata(){
+  const now = Date.now();
+  const urgent = rec => { const st = metaStamp(rec); return !st || st > now + META_CLOCK_SKEW_MS || now - st >= API_METADATA_TTL; };
+  return STORE.channels.some(c => YOUTUBE_CHANNEL_ID_RE.test(c.id) && urgent(c))
+      || STORE.savedVideos.some(v => YOUTUBE_VIDEO_ID_RE.test(v.id) && urgent(v))
+      || resumeRefreshDueIds().length > 0;
+}
 function resumeRefreshDueIds(){
   const now = Date.now(), store = getResumeStore();
   return Object.keys(store).filter(id => {
@@ -2730,7 +2799,16 @@ async function runForegroundMaintenance(fromResume){
      so the next foreground event is eligible to retry immediately. */
   const lastCheck = parseInt(localStorage.getItem(MAINTENANCE_STORAGE_KEY) || '0', 10);
   const now = Date.now();
-  if(Number.isFinite(lastCheck) && now - lastCheck < MAINTENANCE_CHECK_INTERVAL) return;
+  const urgent = hasUrgentMetadata();
+  if(Number.isFinite(lastCheck) && now - lastCheck < MAINTENANCE_CHECK_INTERVAL){
+    /* Urgent records skip the 3-hour interval, but an urgent run happens at most once per
+       30 minutes (stored, so reloading cannot repeat it). Records that a refresh cannot fix
+       (for example an older backend that returns nothing for them) therefore never loop. */
+    if(!urgent) return;
+    const lastUrgent = parseInt(localStorage.getItem(MAINTENANCE_URGENT_KEY) || '0', 10);
+    if(Number.isFinite(lastUrgent) && lastUrgent <= now && now - lastUrgent < MAINTENANCE_FAILURE_RETRY_MS) return;
+  }
+  if(urgent){ try{ localStorage.setItem(MAINTENANCE_URGENT_KEY, String(now)); }catch(e){} }
 
   maintenanceRunning = true;
   /* Track whether we showed the overlay so we can hide it properly. */
@@ -2768,7 +2846,7 @@ if(overlayShown) updateLoadingOverlay(maintenanceOverlay,
     /* Run the normal stale-metadata refresh (channels + saved videos).
        apiMetadataRefreshRunning prevents overlap with any concurrent refresh. */
       await refreshStaleApiMetadata();
-      purgeExpiredResume(true);
+      purgeExpiredResume();
       /* Expire any fields that are still at 30 days after the refresh attempt.
        Covers records that could not be refreshed (e.g. mid-batch network error). */
     expireStaleApiMetadata();
@@ -2781,7 +2859,7 @@ if(overlayShown) updateLoadingOverlay(maintenanceOverlay,
        Fall back to expiring fields that have passed the hard 30-day limit.
        User-owned IDs and saved-list membership are never removed. */
       expireStaleApiMetadata();
-      purgeExpiredResume(true);
+      purgeExpiredResume();
       /* Failed: retry after MAINTENANCE_FAILURE_RETRY_MS rather than on every foreground event. */
     try{ localStorage.setItem(MAINTENANCE_STORAGE_KEY, String(Date.now() - MAINTENANCE_CHECK_INTERVAL + MAINTENANCE_FAILURE_RETRY_MS)); }catch(err){}
   }finally{
@@ -2817,8 +2895,22 @@ function patchChannelDom(ch){
 
 /* Remember what was asked recently, so an answer that does not change the stamp (a deleted
    channel, a failed request) is not asked again on every session. */
-const apiMetadataTried = new Map();
-const recentlyTried = key => Date.now() - (apiMetadataTried.get(key) || 0) < MAINTENANCE_FAILURE_RETRY_MS;
+/* Stored in localStorage so reloading or a new session cannot ask again within 30 minutes. */
+const META_TRIED_KEY = 'ns_meta_tried_v1';
+const apiMetadataTried = {
+  read(){
+    try{ const m = JSON.parse(localStorage.getItem(META_TRIED_KEY) || '{}'); return (m && typeof m === 'object' && !Array.isArray(m)) ? m : {}; }
+    catch(e){ return {}; }
+  },
+  get(key){ const t = Number(this.read()[key]); return Number.isFinite(t) ? t : 0; },
+  set(key, t){
+    const m = this.read(), now = Date.now();
+    Object.keys(m).forEach(k => { const v = Number(m[k]); if(!Number.isFinite(v) || v > now || now - v >= MAINTENANCE_FAILURE_RETRY_MS) delete m[k]; });
+    m[key] = t;
+    try{ localStorage.setItem(META_TRIED_KEY, JSON.stringify(m)); }catch(e){}
+  }
+};
+const recentlyTried = key => { const t = apiMetadataTried.get(key), now = Date.now(); return t > 0 && t <= now && now - t < MAINTENANCE_FAILURE_RETRY_MS; };
 
 async function refreshChannelMetadata(){
   const now = Date.now();
@@ -3108,7 +3200,7 @@ async function fetchVideosCV(channelId, handle, externalSignal) {
     throw new Error('Invalid Channel Videos response format');
   }
 
-  return videos;
+  return markArrival(videos);
 }
 
 async function fetchVideosCVWithRetry(channelId, handle, externalSignal) {
@@ -3588,7 +3680,7 @@ function openPlayerFromSaved(videoId){
   const v = VIDEO_DATA[videoId];
   if(!v) return;
   /* An expired record only carries a placeholder; let the player read the real details. */
-  if(!metaStampValid(metaStamp(v), Date.now())){ openPlayer(v.id, '', '', '', ''); return; }
+  if(!apiRecordUsable(v, Date.now())){ openPlayer(v.id, '', '', '', ''); return; }
   openPlayer(v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
 }
 function openPlayerById(videoId, chId){
@@ -3615,6 +3707,10 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   const myPlayerGeneration = ++playerGeneration;
   const displayTitle = decodeVideoTitle(title);
   currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'',metadataFetchedAt:(displayTitle || channelName || thumb) ? (metaStamp(VIDEO_DATA[videoId]) || metaStamp(RESUME_DATA[videoId])) : 0 };
+  if(!currentVideoData.metadataFetchedAt && (displayTitle || channelName || thumb)){
+    const g = Number(VIDEO_DATA[videoId] && VIDEO_DATA[videoId].graceFrom);
+    if(Number.isFinite(g) && g > 0) currentVideoData.graceFrom = g;
+  }
   document.getElementById('player-title').textContent = displayTitle || 'Video';
   document.getElementById('player-channel-name').textContent = channelName;
   document.getElementById('player-meta').textContent         = timeAgo(publishedAt);
@@ -4432,7 +4528,7 @@ function toggleSaveVideo(video){
   let saved = STORE.savedVideos;
   const idx = saved.findIndex(v => v.id === video.id);
   if(idx >= 0){ saved.splice(idx, 1); toast('Removed from saved'); }
-  else{ saved.unshift({...video, savedAt: new Date().toISOString(),metadataFetchedAt:metaStamp(video) || metaStamp(VIDEO_DATA[video.id])}); toast('Saved! ✓'); }
+  else{saved.unshift({...withoutGrace(video), savedAt: new Date().toISOString(),metadataFetchedAt:metaStamp(video) || metaStamp(VIDEO_DATA[video.id])}); toast('Saved! ✓'); }
   STORE.savedVideos = saved;
   const countEl = document.getElementById('saved-count');
   if(countEl) countEl.textContent = `${STORE.savedVideos.length} video${STORE.savedVideos.length===1?'':'s'}`;
@@ -4653,8 +4749,9 @@ videoSearchController = null;
     document.getElementById('search-results-label').textContent = `Results for "${q}"`;
 
     searchResultIds = videos.map(v => v.id);
+    const searchArrivedAt = Date.now();
     resultsList.innerHTML = videos.map(v => {
-      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb, publishedAt: v.publishedAt || '', metadataFetchedAt:metaStamp(v) };
+      VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb,publishedAt: v.publishedAt || '', metadataFetchedAt:metaStamp(v), ...(metaStamp(v) ? {} : {graceFrom: searchArrivedAt}) };
       const saved    = isVideoSaved(v.id);
       const timeStr  = v.publishedAt ? timeAgo(v.publishedAt) : '';
       const durationDisplay = v.duration
@@ -4904,7 +5001,7 @@ function renderSavedList(){
   empty.style.display = 'none';
 
   list.innerHTML = videos.map((v, i) => {
-    VIDEO_DATA[v.id] = v;
+    VIDEO_DATA[v.id] = metaStamp(v) ? v : {...v, graceFrom: graceStartFor('s:' + v.id)};
     return `
     <div class="saved-video-card" style="animation:fadeUp 0.3s ease ${i*30}ms both"
          onclick="openPlayerFromSaved('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
