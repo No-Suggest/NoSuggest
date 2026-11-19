@@ -1426,13 +1426,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="search-header">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 id="search-header-title">Search</h2><span class="yt-source">Results from YouTube</span></div>
       <div class="search-row" id="search-input-row" style="display:none">
-        <input class="text-input" id="search-input" type="search"
-          placeholder="keyword or paste a YouTube URL"
-          aria-label="Search videos by keyword or paste a YouTube URL"
+        <input class="text-input" id="search-input" type="search" inputmode="none"
+          placeholder="Paste a YouTube video link here"
+          aria-label="Paste a YouTube video link"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-        <button class="search-trigger-btn" onclick="triggerVideoSearch()" aria-label="Search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        </button>
       </div>
     </div>
     <div class="screen-body" id="search-body">
@@ -1440,9 +1437,9 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <div id="search-chooser" style="display:flex;flex-direction:column">
         <div class="search-choice-grid">
           <div class="search-choice-intro"><strong>What would you like to search?</strong></div>
-          <button type="button" class="search-choice-tile" onclick="pickSearchMode('videos')" aria-label="Search Videos: Find a video or paste a link to watch.">
+          <button type="button" class="search-choice-tile" onclick="pickSearchMode('videos')" aria-label="Search Videos: Paste a link to preview and watch a video.">
             <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span>
-            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search YouTube Videos</span><span class="search-choice-tile-sub">Find a video or paste a link to watch.</span></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search YouTube Videos</span><span class="search-choice-tile-sub">Paste a link to preview and watch a video.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
           <button type="button" class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
@@ -1461,7 +1458,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <div id="search-video-pane" style="display:none">
         <div class="search-empty-state" id="search-empty">
           <div class="big-icon">🔍</div>
-          <p>Type a keyword or paste a YouTube URL.</p>
+          <p>Paste a YouTube video URL to preview it here.</p>
         </div>
         <div id="search-results-wrap" style="display:none">
           <div class="search-results">
@@ -4561,6 +4558,7 @@ videoSearchController.abort();
 
 function initSearch(){
   cancelVideoSearch();
+  linkCardShownId = '';
 
   
   document.getElementById('search-header-title').textContent  = 'Search';
@@ -4597,156 +4595,106 @@ function pickSearchMode(mode){
   document.getElementById('search-chooser').style.display    = 'none';
   document.getElementById('search-video-pane').style.display = 'block';
   document.getElementById('search-input-row').style.display  = 'flex';
+  showSearchPausedNotice();
   setTimeout(() => document.getElementById('search-input').focus(), 300);
 }
 
+/* The Search Videos tab is link-only. It shows the paused notice as soon as it opens, there is
+   no Search button, and Enter does nothing. The box accepts a pasted YouTube link and nothing else:
+   typing is blocked where the browser lets us (beforeinput), and anything that still gets in that
+   is not a link is cleared below. No keyword is ever sent to the backend. */
+function showSearchPausedNotice(){
+  const errEl = document.getElementById('search-error');
+  errEl.classList.add('quota-notice');
+  errEl.textContent   = VIDEO_KEYWORD_PAUSED_MESSAGE;
+  errEl.style.display = 'block';
+  document.getElementById('search-empty').style.display        = 'none';
+  document.getElementById('search-loading').style.display      = 'none';
+  document.getElementById('search-results-wrap').style.display = 'none';
+}
+
+document.getElementById('search-input').addEventListener('beforeinput', e => {
+  const t = e.inputType || '';
+  if(/^(insertFromPaste|insertFromDrop|insertFromYank|delete|history)/.test(t)) return;
+  if(e.cancelable) e.preventDefault();
+});
+
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if(e.key === 'Enter') e.preventDefault();
+});
+
 document.getElementById('search-input').addEventListener('input', e => {
-  /* Any edit makes an in-flight search stale, so its late result, error or quota
-     notice can never appear against different text. */
+  /* Any edit makes an in-flight lookup stale, so a late result or error can never
+     appear against different text. */
   clearTimeout(searchVideoTimeout);
   cancelVideoSearch();
   const q = e.target.value.trim();
 
   if(!q){
-    cancelVideoSearch();
-    document.getElementById('search-results-wrap').style.display = 'none';
-    document.getElementById('search-loading').style.display      = 'none';
     stopLoadingMessages();
-    document.getElementById('search-error').style.display        = 'none';
-    document.getElementById('search-empty').style.display        = 'block';
+    showSearchPausedNotice();
     return;
   }
 
-  
-  if(/^https?:\/\//i.test(q)){
-    const vResult = validateVideoUrl(q);
-    if(!vResult.ok){
-      document.getElementById('search-results-wrap').style.display = 'none';
-      document.getElementById('search-loading').style.display      = 'none';
-      const errEl = document.getElementById('search-error');
-      errEl.classList.remove('quota-notice');
-      errEl.textContent   = vResult.msg;
-      errEl.style.display = 'block';
-      document.getElementById('search-empty').style.display = 'none';
-      return;
-    }
-    const videoId = extractYouTubeId(q);
-    if(videoId){
-      cancelVideoSearch();
-      document.getElementById('search-results-wrap').style.display = 'none';
-      document.getElementById('search-error').style.display        = 'none';
-      document.getElementById('search-empty').style.display        = 'none';
-      openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
-      document.getElementById('search-input').value = '';
-      return;
-    }
+  if(!/^https?:\/\//i.test(q)){
+    /* Not a link. A single typed character is simply discarded; a pasted block of text gets the
+       usual "paste a full link" message. Either way nothing is sent to the backend. */
+    const pasted = /^insertFrom/.test(e.inputType || '') || q.length > 1;
+    e.target.value = '';
+    if(!pasted){ showSearchPausedNotice(); return; }
+    const errEl = document.getElementById('search-error');
+    errEl.classList.remove('quota-notice');
+    errEl.textContent   = validateVideoUrl(q).msg;
+    errEl.style.display = 'block';
+    document.getElementById('search-results-wrap').style.display = 'none';
+    document.getElementById('search-loading').style.display      = 'none';
+    document.getElementById('search-empty').style.display        = 'none';
+    return;
   }
-  
-});
 
-document.getElementById('search-input').addEventListener('keydown', e => {
-  if(e.key === 'Enter') triggerVideoSearch();
-});
-
-function triggerVideoSearch(){
-  clearTimeout(searchVideoTimeout);
-  const q = document.getElementById('search-input').value.trim();
-  if(!q) return;
-  
-  if(/^https?:\/\//i.test(q)){
-    const vResult = validateVideoUrl(q);
-    if(!vResult.ok){
-      const errEl = document.getElementById('search-error');
-      errEl.classList.remove('quota-notice');
-      errEl.textContent   = vResult.msg;
-      errEl.style.display = 'block';
-      document.getElementById('search-loading').style.display      = 'none';
-      document.getElementById('search-results-wrap').style.display = 'none';
-      document.getElementById('search-empty').style.display        = 'none';
-      return;
-    }
-    const videoId = extractYouTubeId(q);
-    if(videoId){
-      cancelVideoSearch();
-      document.getElementById('search-results-wrap').style.display = 'none';
-      document.getElementById('search-error').style.display        = 'none';
-      document.getElementById('search-empty').style.display        = 'none';
-      openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
-      document.getElementById('search-input').value = '';
-      return;
-    }
+  const vResult = validateVideoUrl(q);
+  if(!vResult.ok){
+    document.getElementById('search-results-wrap').style.display = 'none';
+    document.getElementById('search-loading').style.display      = 'none';
+    const errEl = document.getElementById('search-error');
+    errEl.classList.remove('quota-notice');
+    errEl.textContent   = vResult.msg;
+    errEl.style.display = 'block';
+    document.getElementById('search-empty').style.display = 'none';
+    return;
   }
-  document.getElementById('search-loading').style.display      = 'block';
-  document.getElementById('search-results-wrap').style.display = 'none';
-  document.getElementById('search-error').style.display        = 'none';
-  document.getElementById('search-empty').style.display        = 'none';
-  doYTSearch(q);
-}
+  const videoId = extractYouTubeId(q);
+  if(videoId){
+    /* The same link is already shown as a card: leave it (edits to a pasted link must not re-fetch). */
+    if(videoId === linkCardShownId && document.getElementById('search-results-wrap').style.display === 'block') return;
+    document.getElementById('search-results-wrap').style.display = 'none';
+    document.getElementById('search-error').style.display        = 'none';
+    document.getElementById('search-empty').style.display        = 'none';
+    showVideoLinkCard(videoId);
+  }
+});
 
 document.getElementById('search-input').addEventListener('search', () => {
   if(!document.getElementById('search-input').value.trim()){
     clearTimeout(searchVideoTimeout);
     cancelVideoSearch();
-    document.getElementById('search-results-wrap').style.display = 'none';
-    document.getElementById('search-loading').style.display      = 'none';
     stopLoadingMessages();
-    document.getElementById('search-error').style.display        = 'none';
-    document.getElementById('search-empty').style.display        = 'block';
+    showSearchPausedNotice();
   }
 });
 
-async function doYTSearch(q){
-  if(!q) q = document.getElementById('search-input').value.trim();
-  if(!q) return;
+/* Keyword video search is switched off (it spends the shared 100-call search.list quota).
+   NoSuggest never sends a keyword to the backend's keyword video endpoint. Video links are
+   resolved with /videos?ids= instead, which uses the general quota pool. */
+const VIDEO_KEYWORD_PAUSED_MESSAGE = 'Keyword video search is paused while a YouTube API quota request is under review. Paste a YouTube video link to preview and watch it, or use Search YouTube Channels to find creators.';
+let linkCardShownId = '';
 
-  const loading     = document.getElementById('search-loading');
+/* Draws video cards in the Search results list, with the same markup the keyword results used. */
+function renderVideoResultCards(videos, labelText){
   const resultsWrap = document.getElementById('search-results-wrap');
   const resultsList = document.getElementById('search-results-list');
-  const errEl       = document.getElementById('search-error');
-  const empty       = document.getElementById('search-empty');
-
-  loading.style.display     = 'none';
-  resultsWrap.style.display = 'none';
-  errEl.style.display       = 'none';
-    errEl.classList.remove('quota-notice');
-  empty.style.display       = 'none';
-  cancelVideoSearch();
-  const generation = videoSearchGeneration;
-  const vCtl = new AbortController();
-  videoSearchController = vCtl;
-  const isCurrent = () => generation === videoSearchGeneration;
-videoSearchOverlay = showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
-  const myOverlay = videoSearchOverlay;
-
-  let vTimedOut = false, vTimer = null;
-  try{
-    allowVerificationRetry();
-    // Video search uses the same reusable 5-minute session token as every other API call.
-updateLoadingOverlay(myOverlay, 'Fetching results…', '');
-    startOverlayCycling(myOverlay, ['Fetching results…','Sorting through results…','Filtering the noise…','Almost done…']);
-    vTimer = setTimeout(() => { vTimedOut = true; vCtl.abort(); }, SEARCH_TIMEOUT_MS);
-    const res = await apiFetch(`${PROXY}/videos?q=${encodeURIComponent(q)}`, { signal: vCtl.signal });
-    if(!isCurrent()) return;
-    if(!res.ok) throw await apiResponseError(res, 'Video search unavailable.');
-    const videos  = await res.json();
-    clearTimeout(vTimer);
-    /* A newer search, a cleared box, a direct link or leaving Search has superseded this one:
-       it must not touch results, errors or the overlay. */
-    if(!isCurrent()) return;
-videoSearchController = null;
-    hideLoadingOverlay(myOverlay); videoSearchOverlay = 0;
-
-    const currentQ = document.getElementById('search-input').value.trim();
-    if(currentQ.toLowerCase() !== q.trim().toLowerCase()) return;
-
-    if(!Array.isArray(videos) || !videos.length || videos.error){
-      errEl.textContent = 'No results found. Try a different keyword.';
-      errEl.style.display = 'block';
-      return;
-    }
-
     dismissSearchKeyboard(document.getElementById('search-input'));
-    document.getElementById('search-results-label').textContent = `Results for "${q}"`;
+    document.getElementById('search-results-label').textContent = labelText;
 
     searchResultIds = videos.map(v => v.id);
     const searchArrivedAt = Date.now();
@@ -4815,17 +4763,59 @@ videoSearchController = null;
     }).join('');
 
     resultsWrap.style.display = 'block';
+}
 
-  } catch(err){
-    clearTimeout(vTimer);
-    if(!isCurrent()) return;                              // superseded: leave the UI alone
-    if(err && err.name === 'AbortError' && !vTimedOut) return;
-videoSearchController = null;
+/* A pasted video link first shows a result card (thumbnail, title, channel, date) so the
+   metadata can be seen before playback. If the lookup fails, the link still opens the player. */
+async function showVideoLinkCard(videoId){
+  const loading     = document.getElementById('search-loading');
+  const resultsWrap = document.getElementById('search-results-wrap');
+  const errEl       = document.getElementById('search-error');
+  const empty       = document.getElementById('search-empty');
+
+  loading.style.display     = 'none';
+  resultsWrap.style.display = 'none';
+  errEl.style.display       = 'none';
+  errEl.classList.remove('quota-notice');
+  empty.style.display       = 'none';
+  cancelVideoSearch();
+  const generation = videoSearchGeneration;
+  const vCtl = new AbortController();
+  videoSearchController = vCtl;
+  const isCurrent = () => generation === videoSearchGeneration;
+  videoSearchOverlay = showLoadingOverlay('Securing request…', 'Verifying with Cloudflare Turnstile');
+  const myOverlay = videoSearchOverlay;
+
+  let timedOut = false, timer = null;
+  try{
+    allowVerificationRetry();
+    updateLoadingOverlay(myOverlay, 'Fetching video…', '');
+    timer = setTimeout(() => { timedOut = true; vCtl.abort(); }, SEARCH_TIMEOUT_MS);
+    const res = await apiFetch(`${PROXY}/videos?ids=${encodeURIComponent(videoId)}`, { signal: vCtl.signal });
+    if(!isCurrent()) return;
+    if(!res.ok) throw await apiResponseError(res, 'Video lookup unavailable.');
+    const videos = await res.json();
+    clearTimeout(timer);
+    if(!isCurrent()) return;
+    videoSearchController = null;
     hideLoadingOverlay(myOverlay); videoSearchOverlay = 0;
-    if(quotaNotice(errEl, err.code, false)) return;
-      errEl.textContent     = vTimedOut ? 'Search timed out. Check your connection and try again.'
-        : (/^Verification |^Invalid verification/.test(err.message || '') ? err.message : 'Search failed. Check your connection.');
-    errEl.style.display   = 'block';
+
+    const video = Array.isArray(videos) ? (videos.find(v => v && v.id === videoId) || null) : null;
+    if(!video){
+      errEl.textContent = 'That video could not be found. It may be private, deleted or unavailable.';
+      errEl.style.display = 'block';
+      return;
+    }
+    linkCardShownId = videoId;
+    renderVideoResultCards([video], 'Video from your link');
+  } catch(err){
+    clearTimeout(timer);
+    if(!isCurrent()) return;
+    if(err && err.name === 'AbortError' && !timedOut) return;
+    videoSearchController = null;
+    hideLoadingOverlay(myOverlay); videoSearchOverlay = 0;
+    /* The lookup failed (offline, timeout, quota). The link itself is valid, so open the player as before. */
+    openPlayer(videoId, '', '', '', `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
   }
 }
 
