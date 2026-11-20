@@ -80,7 +80,7 @@
       "name": "How does Kids Mode work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children. To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device. A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time."
+        "text": "Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children. To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device. A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time. Parents can also choose an optional time limit (30 minutes by default). A countdown shows at the top of the screen, and when time is up the video pauses and the screen locks until the parent enters the PIN to add more time or exit Kids Mode."
       }
     },
     {
@@ -295,6 +295,48 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .pin-key{background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:1.2rem;font-weight:500;color:var(--text);padding:0.9rem 0;cursor:pointer;transition:background 0.15s;font-family:'DM Mono',monospace;}
 .pin-key:active{background:var(--accent);color:var(--on-accent);}
 .pin-error{font-size:12px;color:var(--danger);min-height:16px;}
+/* ── Kids Mode timer ── */
+.kids-timer{display:none;align-items:center;gap:6px;padding:0.38rem 0.8rem;border-radius:999px;background:rgba(var(--accent-rgb),0.12);border:1.5px solid rgba(var(--accent-rgb),0.45);color:var(--accent);font-family:'DM Mono',monospace;font-size:14px;font-weight:600;letter-spacing:0.02em;white-space:nowrap;font-variant-numeric:tabular-nums;flex-shrink:0;}
+.kids-timer svg{width:15px;height:15px;flex-shrink:0;}
+body.kids-timed .kids-timer{display:inline-flex;}
+body.kids-timed #feed-refresh-btn,body.kids-timed #saved-count{display:none !important;}
+.kids-timer.low{background:rgba(var(--danger-rgb),0.12);border-color:rgba(var(--danger-rgb),0.55);color:var(--danger);animation:kt-pulse 1.4s ease-in-out infinite;}
+@keyframes kt-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.player-top .kids-timer{margin-right:10px;}
+.settings-header{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+#settings-kids-time-row{display:none;}
+body.kids-on #settings-kids-time-row{display:flex;}
+/* Time-limit picker (shown when a parent turns Kids Mode on) */
+#kids-limit-backdrop{position:fixed;inset:0;background:var(--scrim-strong);z-index:9990;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#kids-limit-backdrop.show{display:flex;}
+.kl-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem 1.4rem 1.3rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1rem;box-shadow:0 18px 60px var(--shadow-lg);animation:fadeUp .2s ease;}
+.kl-title{font-size:17px;font-weight:700;color:var(--text);}
+.kl-sub{font-size:13px;color:var(--muted);line-height:1.55;margin-top:-0.4rem;}
+.kl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.kl-opt{min-height:46px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;}
+.kl-opt:hover{border-color:var(--accent);}
+.kl-opt[aria-checked="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.kl-opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.kl-actions{display:flex;gap:8px;margin-top:0.25rem;}
+.kl-primary{flex:1;min-height:46px;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+.kl-secondary{min-height:46px;padding:0 1.1rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+/* Full-screen lock when time is up / parent controls */
+#kids-gate{position:fixed;inset:0;z-index:10050;display:none;align-items:center;justify-content:center;padding:calc(1.25rem + var(--safe-top)) 1.25rem calc(1.25rem + var(--safe-bot));background:var(--bg);overflow-y:auto;}
+#kids-gate.show{display:flex;}
+.kg-box{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:1.1rem;text-align:center;}
+.kg-icon{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:rgba(var(--accent-rgb),0.12);color:var(--accent);}
+.kg-icon svg{width:38px;height:38px;}
+.kg-title{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);line-height:1.15;}
+.kg-sub{font-size:14px;color:var(--muted);line-height:1.55;margin-top:-0.5rem;}
+.kg-panel{width:100%;display:flex;flex-direction:column;gap:1rem;}
+.kg-panel[hidden]{display:none;}
+.kg-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;}
+.kg-add{min-height:52px;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+.kg-wide{width:100%;min-height:48px;background:var(--bg2);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.kg-wide.danger{color:var(--danger);border-color:rgba(var(--danger-rgb),0.4);}
+.kg-link{background:none;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;text-decoration:underline;cursor:pointer;padding:4px;}
+.kg-add:focus-visible,.kg-wide:focus-visible,.kg-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+#kids-gate .pin-keypad{width:100%;}
 .pin-cancel{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;}
 
 .screen-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(80px + var(--safe-bot));}
@@ -995,7 +1037,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .cw-play-zone:active{opacity:0.85;}
 .cw-thumb-wrap{position:relative;flex-shrink:0;width:var(--thumb-w);min-width:var(--thumb-w);height:var(--thumb-h);background:var(--thumb-bg);border-radius:6px;overflow:hidden;}
 .cw-thumb-wrap img{width:var(--thumb-w);height:var(--thumb-h);object-fit:contain;display:block;}
-.cw-resume-badge{position:absolute;bottom:0;left:0;right:0;background:var(--chip-bg);color:var(--accent);font-size:9px;font-family:'DM Mono',monospace;font-weight:600;text-align:center;padding:3px 4px;border-radius:0 0 5px 5px;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cw-thumb-col{flex-shrink:0;width:var(--thumb-w);display:flex;flex-direction:column;gap:6px;}
+/* Resume note sits BELOW the thumbnail — nothing is drawn over YouTube's image. */
+.cw-resume-badge{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;min-height:24px;padding:3px 6px;background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.35);color:var(--accent);font-size:11px;font-family:'DM Mono',monospace;font-weight:600;border-radius:6px;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cw-resume-badge svg{width:9px;height:9px;flex-shrink:0;fill:currentColor;}
 .cw-info{flex:1;min-width:0;padding-right:4px;}
 .cw-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
 .cw-meta{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1177,6 +1222,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="feed-header">
       <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px" id="feed-vpc-label">Latest 5 videos/channel</span></h2>
       <div class="feed-actions">
+        <span class="kids-timer" role="timer" aria-label="Kids Mode time left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="kids-timer-text">--:--</span></span>
         <button class="header-label-btn" id="feed-refresh-btn" title="Reload feed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:15px;height:15px;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Reload
@@ -1259,7 +1305,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
   
   <div class="screen" id="screen-settings">
-    <div class="settings-header"><h2>Settings</h2></div>
+    <div class="settings-header"><h2>Settings</h2><span class="kids-timer" role="timer" aria-label="Kids Mode time left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="kids-timer-text">--:--</span></span></div>
     <div class="screen-body">
       <div class="settings-section">
         <div class="settings-card">
@@ -1341,9 +1387,19 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
             </div>
             <div class="settings-row-text">
               <div class="settings-row-label">Kids Mode</div>
-              <div class="settings-row-sub">Hides Search and Channels tabs. Requires PIN to disable.</div>
+              <div class="settings-row-sub" id="kids-mode-sub">Hides Search and Channels tabs. Optional time limit. Requires PIN to disable.</div>
             </div>
             <div class="settings-row-action" id="kids-mode-status" style="font-size:12px;font-weight:600;color:var(--muted)">Off</div>
+          </div>
+          <div class="settings-row" id="settings-kids-time-row" style="cursor:pointer" onclick="openKidsGate('manage')" role="button" tabindex="0">
+            <div class="settings-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Time limit</div>
+              <div class="settings-row-sub" id="kids-time-sub">No time limit</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:600">Change · PIN</div>
           </div>
         </div>
       </div>
@@ -1422,7 +1478,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <span>How does Kids Mode work?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children.<br><br>To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.</div>
+            <div class="faq-a">Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children.<br><br>To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.<br><br>Parents can also choose an optional time limit (30 minutes by default). A countdown shows at the top of the screen, and when time is up the video pauses and the screen locks until the parent enters the PIN to add more time or exit Kids Mode.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1645,6 +1701,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="saved-header">
       <div><h2>Saved Videos</h2><span class="yt-source">Metadata from YouTube</span></div>
       <span class="saved-count" id="saved-count">0 videos</span>
+      <span class="kids-timer" role="timer" aria-label="Kids Mode time left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="kids-timer-text">--:--</span></span>
     </div>
     <div class="screen-body" id="saved-body">
       <div class="saved-empty-state" id="saved-empty">
@@ -1751,6 +1808,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <div id="player-overlay">
     <div class="player-top">
       <div class="player-channel" id="player-channel-name"></div>
+      <span class="kids-timer" role="timer" aria-label="Kids Mode time left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="kids-timer-text">--:--</span></span>
       <button class="close-player" onclick="closePlayer()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
@@ -1864,6 +1922,42 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="nlo-bar"   aria-hidden="true"></div>
     <div class="nlo-title" id="nlo-title">Searching…</div>
     <div class="nlo-sub"   id="nlo-sub"></div>
+  </div>
+</div>
+<div id="kids-limit-backdrop">
+  <div class="kl-box" id="kids-limit-modal" role="dialog" aria-modal="true" aria-labelledby="kl-title">
+    <div class="kl-title" id="kl-title">Set a time limit</div>
+    <div class="kl-sub">When time is up, the video pauses and the screen locks until a parent enters the PIN.</div>
+    <div class="kl-grid" role="radiogroup" aria-labelledby="kl-title"><button type="button" class="kl-opt" role="radio" data-min="15" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(15)">15 min</button><button type="button" class="kl-opt" role="radio" data-min="30" aria-checked="true" tabindex="0" onclick="pickKidsLimit(30)">30 min</button><button type="button" class="kl-opt" role="radio" data-min="45" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(45)">45 min</button><button type="button" class="kl-opt" role="radio" data-min="60" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(60)">1 hour</button><button type="button" class="kl-opt" role="radio" data-min="90" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(90)">1.5 hours</button><button type="button" class="kl-opt" role="radio" data-min="0" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(0)">No limit</button></div>
+    <div class="kl-actions">
+      <button type="button" class="kl-secondary" onclick="closeKidsLimitPicker()">Cancel</button>
+      <button type="button" class="kl-primary" onclick="confirmKidsLimit()">Continue</button>
+    </div>
+  </div>
+</div>
+<div id="kids-gate" role="dialog" aria-modal="true" aria-labelledby="kg-title" aria-describedby="kg-sub">
+  <div class="kg-box">
+    <div class="kg-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div>
+    <div class="kg-title" id="kg-title">Time's up!</div>
+    <div class="kg-sub" id="kg-sub">Great watching today. Hand the device to a grown-up.</div>
+    <div class="kg-panel" id="kg-pin-panel">
+      <div style="font-size:13px;color:var(--muted);font-weight:600" id="kg-pin-label">Parent: enter your PIN</div>
+      <div class="pin-dots"><div class="pin-dot" id="kgd0"></div><div class="pin-dot" id="kgd1"></div><div class="pin-dot" id="kgd2"></div><div class="pin-dot" id="kgd3"></div><div class="pin-dot" id="kgd4"></div><div class="pin-dot" id="kgd5"></div></div>
+      <div class="pin-error" id="kg-error" role="alert"></div>
+      <div class="pin-keypad"><button type="button" class="pin-key" onclick="kgKey('1')">1</button><button type="button" class="pin-key" onclick="kgKey('2')">2</button><button type="button" class="pin-key" onclick="kgKey('3')">3</button><button type="button" class="pin-key" onclick="kgKey('4')">4</button><button type="button" class="pin-key" onclick="kgKey('5')">5</button><button type="button" class="pin-key" onclick="kgKey('6')">6</button><button type="button" class="pin-key" onclick="kgKey('7')">7</button><button type="button" class="pin-key" onclick="kgKey('8')">8</button><button type="button" class="pin-key" onclick="kgKey('9')">9</button><button type="button" class="pin-key" onclick="kgKey('back')" style="font-size:0.9rem" aria-label="Delete">⌫</button><button type="button" class="pin-key" onclick="kgKey('0')">0</button><span aria-hidden="true"></span></div>
+      <button type="button" class="kg-link" id="kg-cancel" onclick="closeKidsGate()" hidden>Cancel</button>
+    </div>
+    <div class="kg-panel" id="kg-choice-panel" hidden>
+      <div style="font-size:13px;color:var(--muted);font-weight:600" id="kg-choice-label">Add more time</div>
+      <div class="kg-choices">
+        <button type="button" class="kg-add" onclick="kidsAddTime(15)">+15 min</button>
+        <button type="button" class="kg-add" onclick="kidsAddTime(30)">+30 min</button>
+        <button type="button" class="kg-add" onclick="kidsAddTime(60)">+1 hour</button>
+      </div>
+      <button type="button" class="kg-wide" id="kg-nolimit" onclick="kidsRemoveLimit()">Remove time limit</button>
+      <button type="button" class="kg-wide danger" onclick="kidsExitFromGate()">Exit Kids Mode</button>
+      <button type="button" class="kg-link" id="kg-done" onclick="closeKidsGate()" hidden>Done</button>
+    </div>
   </div>
 </div>
 <div id="vpc-backdrop" onclick="if(event.target===this)closeVpcPicker()">
@@ -3299,12 +3393,11 @@ function handlePinComplete(){
   const errEl = document.getElementById('pin-error');
   if(pinMode === 'set'){
     STORE.kidsPin  = pinBuffer;
-    STORE.kidsMode = true;
-    closePinOverlay(); applyKidsMode(); toast('Kids Mode enabled 🛡️');
+    closePinOverlay();
+    enableKidsMode();
   } else if(pinMode === 'verify-disable'){
     if(pinBuffer === STORE.kidsPin){
-      STORE.kidsMode = false; STORE.kidsPin = '';
-      closePinOverlay(); applyKidsMode(); toast('Kids Mode disabled');
+      closePinOverlay(); disableKidsMode();
     } else {
       errEl.textContent = 'Incorrect PIN. Try again.';
       pinBuffer = ''; updatePinDots();
@@ -3331,13 +3424,13 @@ function toggleKidsMode(){
   if(STORE.kidsMode){
     showPinOverlay('verify-disable');
   } else {
-    if(STORE.kidsPin){ STORE.kidsMode = true; applyKidsMode(); toast('Kids Mode enabled 🛡️'); }
-    else { showPinOverlay('set'); }
+    openKidsLimitPicker();   // time limit first, then the PIN
   }
   initSettings();
 }
 function applyKidsMode(){
   const on = STORE.kidsMode;
+  document.body.classList.toggle('kids-on', on);
   document.getElementById('kids-banner').classList.toggle('show', on);
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
@@ -3358,7 +3451,222 @@ function applyKidsMode(){
   }
   const statusEl = document.getElementById('kids-mode-status');
   if(statusEl){ statusEl.textContent = on ? 'On' : 'Off'; statusEl.style.color = on ? 'var(--accent)' : 'var(--muted)'; }
+  kidsTimerSync();
 }
+
+/* ── Kids Mode time limit ───────────────────────────────────────────────────
+   The END TIME is stored (not a countdown), so reloading, closing the app or
+   switching tabs can never reset it. Phones pause background timers, so the
+   time is re-checked whenever the app becomes visible again.
+     ns_kids_until  : end time in ms (absent = no limit)
+     ns_kids_locked : '1' while the time-up lock is waiting for the parent PIN */
+const KIDS_UNTIL_KEY = 'ns_kids_until', KIDS_LOCK_KEY = 'ns_kids_locked';
+const KIDS_WARN_MS = 2 * 60 * 1000;
+let kidsPendingLimit = 30;
+let kidsTickTimer = null, kidsWarnedFor = 0;
+function kidsUntil(){ const n = parseInt(localStorage.getItem(KIDS_UNTIL_KEY) || '0', 10); return Number.isFinite(n) && n > 0 ? n : 0; }
+function kidsLocked(){ return STORE.kidsMode && localStorage.getItem(KIDS_LOCK_KEY) === '1'; }
+function setKidsUntil(ms){ ms ? localStorage.setItem(KIDS_UNTIL_KEY, String(ms)) : localStorage.removeItem(KIDS_UNTIL_KEY); }
+function formatCountdown(ms){
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return h ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}` : `${m}:${String(sec).padStart(2,'0')}`;
+}
+function describeMinutes(min){ return min >= 60 ? (min % 60 ? `${Math.floor(min/60)} h ${min%60} min` : `${min/60} hour${min === 60 ? '' : 's'}`) : `${min} min`; }
+
+/* Picker shown when a parent turns Kids Mode on. */
+function openKidsLimitPicker(){
+  pickKidsLimit(30);
+  document.getElementById('kids-limit-backdrop').classList.add('show');
+  a11yOpenModal(document.getElementById('kids-limit-modal'), closeKidsLimitPicker);
+  const sel = document.querySelector('.kl-opt[aria-checked="true"]'); if(sel) sel.focus();
+}
+function closeKidsLimitPicker(){
+  document.getElementById('kids-limit-backdrop').classList.remove('show');
+  a11yCloseModal();
+}
+function pickKidsLimit(min){
+  kidsPendingLimit = min;
+  document.querySelectorAll('.kl-opt').forEach(b => {
+    const on = Number(b.dataset.min) === min;
+    b.setAttribute('aria-checked', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1;
+  });
+}
+function confirmKidsLimit(){
+  closeKidsLimitPicker();
+  if(STORE.kidsPin) enableKidsMode();
+  else showPinOverlay('set');
+}
+function enableKidsMode(){
+  STORE.kidsMode = true;
+  localStorage.removeItem(KIDS_LOCK_KEY);
+  setKidsUntil(kidsPendingLimit > 0 ? Date.now() + kidsPendingLimit * 60000 : 0);
+  kidsWarnedFor = 0;
+  applyKidsMode();
+  toast(kidsPendingLimit > 0 ? `Kids Mode on · ${describeMinutes(kidsPendingLimit)} 🛡️` : 'Kids Mode enabled 🛡️');
+}
+function disableKidsMode(){
+  STORE.kidsMode = false; STORE.kidsPin = '';
+  setKidsUntil(0); localStorage.removeItem(KIDS_LOCK_KEY);
+  applyKidsMode(); toast('Kids Mode disabled');
+}
+
+/* Keeps every countdown pill, the Settings rows and the 1-second tick in step with storage. */
+function kidsTimerSync(){
+  const until = STORE.kidsMode ? kidsUntil() : 0;
+  const timed = !!until;
+  document.body.classList.toggle('kids-timed', timed);
+  if(timed && !kidsTickTimer) kidsTickTimer = setInterval(kidsTick, 1000);
+  if(!timed && kidsTickTimer){ clearInterval(kidsTickTimer); kidsTickTimer = null; }
+  const sub = document.getElementById('kids-time-sub');
+  if(sub) sub.textContent = timed ? `${formatCountdown(until - Date.now())} left` : 'No time limit';
+  if(STORE.kidsMode && kidsLocked()) showKidsLock();
+  else if(!STORE.kidsMode && kidsGateMode) hideKidsGate();
+  if(timed) kidsTick();
+}
+function kidsTick(){
+  const until = STORE.kidsMode ? kidsUntil() : 0;
+  if(!until){ kidsTimerSync(); return; }
+  const left = until - Date.now();
+  const text = formatCountdown(left), low = left <= KIDS_WARN_MS;
+  document.querySelectorAll('.kids-timer').forEach(p => {
+    p.querySelector('.kids-timer-text').textContent = text;
+    p.classList.toggle('low', low);
+    p.setAttribute('aria-label', `Kids Mode time left: ${text}`);
+  });
+  const sub = document.getElementById('kids-time-sub');
+  if(sub) sub.textContent = `${text} left`;
+  if(left <= 0){ kidsTimeUp(); return; }
+  if(low && kidsWarnedFor !== until && !kidsLocked()){
+    kidsWarnedFor = until;
+    toast(`${Math.max(1, Math.ceil(left / 60000))} minute${left > 60000 ? 's' : ''} left`, 5000);
+  }
+}
+function kidsTimeUp(){
+  if(!STORE.kidsMode) return;
+  localStorage.setItem(KIDS_LOCK_KEY, '1');
+  showKidsLock();
+}
+
+/* Full-screen lock. The player is paused, its position saved to Continue Watching, and
+   then CLOSED (never covered, per YouTube's player rules) before the lock appears. */
+let kidsGateMode = '';           // '' | 'timeup' | 'manage'
+let kgBuffer = '', kgPhase = 'pin';
+function showKidsLock(){
+  if(kidsGateMode === 'timeup') return;
+  try{ if(ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo(); }catch(e){}
+  const overlay = document.getElementById('player-overlay');
+  if(overlay && overlay.classList.contains('open')) closePlayer();
+  try{
+    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+    else if(document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }catch(e){}
+  /* Close anything else that is open so nothing sits on top of, or behind, the lock. */
+  ['pin-overlay','kids-limit-backdrop','vpc-backdrop','export-modal-backdrop','pack-modal-backdrop','pack-confirm-backdrop','follow-ch-backdrop','share-strip-backdrop','nav-share-strip','desktop-share-backdrop']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('show'); });
+  pinBuffer = ''; pinMode = '';
+  _a11yModalEl = null; _a11yCloseFn = null;
+  openKidsGate('timeup');
+}
+function openKidsGate(mode){
+  if(mode === 'manage' && !STORE.kidsMode) return;
+  kidsGateMode = mode; kgBuffer = ''; kgPhase = 'pin';
+  const timeup = mode === 'timeup';
+  document.getElementById('kg-title').textContent = timeup ? "Time's up!" : 'Parent controls';
+  document.getElementById('kg-sub').textContent   = timeup ? 'Great watching today. Hand the device to a grown-up.' : 'Change the time limit or turn off Kids Mode.';
+  document.getElementById('kg-pin-label').textContent = timeup ? 'Parent: enter your PIN to continue' : 'Enter your PIN';
+  document.getElementById('kg-cancel').hidden = timeup;
+  document.getElementById('kg-done').hidden   = timeup;
+  document.getElementById('kg-pin-panel').hidden = false;
+  document.getElementById('kg-choice-panel').hidden = true;
+  document.getElementById('kg-error').textContent = '';
+  kgDots();
+  const gate = document.getElementById('kids-gate');
+  gate.classList.add('show');
+  document.getElementById('app').setAttribute('inert', '');
+  a11yOpenModal(gate, timeup ? () => {} : closeKidsGate);   // Escape cannot dismiss the time-up lock
+}
+function hideKidsGate(){
+  kidsGateMode = ''; kgBuffer = '';
+  document.getElementById('kids-gate').classList.remove('show');
+  document.getElementById('app').removeAttribute('inert');
+  a11yCloseModal();
+}
+function closeKidsGate(){
+  if(kidsGateMode === 'timeup' && kidsLocked()) return;   // only PIN choices can leave the lock
+  hideKidsGate();
+  if(currentScreen === 'settings') initSettings();
+}
+function kgDots(){ for(let i = 0; i < 6; i++) document.getElementById('kgd' + i).classList.toggle('filled', i < kgBuffer.length); }
+function kgKey(k){
+  if(kgPhase !== 'pin') return;
+  document.getElementById('kg-error').textContent = '';
+  if(k === 'back'){ kgBuffer = kgBuffer.slice(0, -1); kgDots(); return; }
+  if(kgBuffer.length >= 6) return;
+  kgBuffer += k; kgDots();
+  if(kgBuffer.length === 6) setTimeout(kgCheck, 150);
+}
+function kgCheck(){
+  if(kgBuffer === STORE.kidsPin){
+    kgPhase = 'choice'; kgBuffer = ''; kgDots();
+    const timed = !!kidsUntil();
+    document.getElementById('kg-choice-label').textContent = kidsGateMode === 'timeup' ? 'Add more time' : (timed ? `${formatCountdown(kidsUntil() - Date.now())} left · add time` : 'Set a time limit');
+    document.getElementById('kg-nolimit').hidden = !timed && kidsGateMode !== 'timeup';
+    document.getElementById('kg-pin-panel').hidden = true;
+    document.getElementById('kg-choice-panel').hidden = false;
+    const first = document.querySelector('#kg-choice-panel .kg-add'); if(first) first.focus();
+  } else {
+    document.getElementById('kg-error').textContent = 'Incorrect PIN. Try again.';
+    kgBuffer = ''; kgDots();
+  }
+}
+/* Adding time: after time-up it starts from now; during a session it extends the
+   current end time; with no limit it starts a new limit. */
+function kidsAddTime(min){
+  if(kgPhase !== 'choice' || !STORE.kidsMode) return;
+  const wasLocked = kidsLocked(), until = kidsUntil();
+  const base = (!wasLocked && until > Date.now()) ? until : Date.now();
+  setKidsUntil(base + min * 60000);
+  localStorage.removeItem(KIDS_LOCK_KEY);
+  kidsWarnedFor = 0;
+  hideKidsGate(); kidsTimerSync();
+  if(wasLocked) showScreen('feed');
+  else if(currentScreen === 'settings') initSettings();
+  toast(`Added ${describeMinutes(min)} ✓`);
+}
+function kidsRemoveLimit(){
+  if(kgPhase !== 'choice' || !STORE.kidsMode) return;
+  const wasLocked = kidsLocked();
+  setKidsUntil(0); localStorage.removeItem(KIDS_LOCK_KEY);
+  hideKidsGate(); kidsTimerSync();
+  if(wasLocked) showScreen('feed');
+  else if(currentScreen === 'settings') initSettings();
+  toast('Time limit removed');
+}
+function kidsExitFromGate(){
+  if(kgPhase !== 'choice') return;
+  hideKidsGate();
+  disableKidsMode();
+  showScreen('feed');
+}
+/* Arrow keys inside the time-limit radio group. */
+document.addEventListener('keydown', e => {
+  const b = e.target && e.target.closest ? e.target.closest('.kl-opt') : null;
+  if(!b) return;
+  const d = {ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1}[e.key];
+  if(!d) return;
+  e.preventDefault();
+  const all = [...document.querySelectorAll('.kl-opt')];
+  const next = all[(all.indexOf(b) + d + all.length) % all.length];
+  pickKidsLimit(Number(next.dataset.min)); next.focus();
+});
+/* Another tab changed Kids Mode or its timer. */
+window.addEventListener('storage', e => {
+  if(e.key === null || e.key === KIDS_UNTIL_KEY || e.key === KIDS_LOCK_KEY || e.key === 'ns_kids_mode'){
+    if(!kidsLocked() && kidsGateMode === 'timeup') hideKidsGate();
+    applyKidsMode();
+  }
+});
 
 /* Resolve the best available handle for a channel object.
    New channels store it in ch.handle.
@@ -3992,6 +4300,7 @@ function decodeVideoTitle(value){
   return new DOMParser().parseFromString('<!doctype html><title>' + safe + '</title>', 'text/html').title;
 }
 function openPlayer(videoId, title, channelName, publishedAt, thumb){
+  if(kidsLocked()) return;
   const myPlayerGeneration = ++playerGeneration;
   const displayTitle = decodeVideoTitle(title);
   currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'',metadataFetchedAt:(displayTitle || channelName || thumb) ? (metaStamp(VIDEO_DATA[videoId]) || metaStamp(RESUME_DATA[videoId])) : 0 };
@@ -4761,6 +5070,7 @@ function initSettings(){
   }
   const statusEl = document.getElementById('kids-mode-status');
   if(statusEl){ statusEl.textContent = STORE.kidsMode ? 'On' : 'Off'; statusEl.style.color = STORE.kidsMode ? 'var(--accent)' : 'var(--muted)'; }
+  kidsTimerSync();
 
   const vpcTriggerValue = document.getElementById('vpc-trigger-value');
   if(vpcTriggerValue) vpcTriggerValue.textContent = STORE.videosPerChannel;
@@ -5350,10 +5660,12 @@ function renderContinueWatchingList(){
            onclick="openPlayerFromResume('${esc(e.id)}')"
            role="button" tabindex="0"
            aria-label="Resume: ${escHtml(e.title || 'video')}">
-        <div class="cw-thumb-wrap">
-          <img src="${esc(thumb)}" alt="" loading="lazy"
-               onerror="this.src='https://i.ytimg.com/vi/${esc(e.id)}/mqdefault.jpg'"/>
-          <div class="cw-resume-badge">&#9654; Resume at ${escHtml(resumeAt)}</div>
+        <div class="cw-thumb-col">
+          <div class="cw-thumb-wrap">
+            <img src="${esc(thumb)}" alt="" loading="lazy"
+                 onerror="this.src='https://i.ytimg.com/vi/${esc(e.id)}/mqdefault.jpg'"/>
+          </div>
+          <div class="cw-resume-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>Resume at ${escHtml(resumeAt)}</div>
         </div>
         <div class="cw-info">
           <div class="cw-title">${escHtml(e.title || 'Untitled video')}</div>
@@ -6217,7 +6529,8 @@ document.addEventListener('visibilitychange', () => {
       captureResumeOnPause();
     }
   } else {
-    /* App became visible again. */
+    /* App became visible again. Background timers may have been paused: re-check Kids time now. */
+    if(STORE.kidsMode) kidsTimerSync();
     if(overlay && overlay.classList.contains('open') && ytPlayer){
       try{
         if(ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) requestScreenWakeLock();
