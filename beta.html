@@ -897,7 +897,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .search-choice-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:clamp(16px,4vw,32px);max-width:920px;width:100%;margin:0 auto}
 .search-choice-intro{color:var(--muted);font-size:13px;line-height:1.5;padding:0 2px 8px}.search-choice-intro strong{display:block;color:var(--text);font:500 clamp(22px,3vw,29px) 'Fraunces',serif;letter-spacing:-.03em;margin-bottom:5px}
 .search-choice-tile{--tone:var(--tone1);--glow:var(--tone1-glow);position:relative;overflow:hidden;width:100%;min-height:125px;display:grid;grid-template-columns:62px minmax(0,1fr) 34px;align-items:center;gap:clamp(12px,3vw,22px);padding:clamp(16px,3vw,24px);text-align:left;color:var(--text);background:linear-gradient(115deg,var(--glow),var(--tile-base) 60%);border:1px solid var(--border2);border-radius:20px;box-shadow:0 9px 30px var(--shadow-md),inset 0 1px var(--tile-inset);cursor:pointer;font-family:'Outfit',sans-serif;transition:transform .2s,border-color .2s,box-shadow .2s}
-.search-choice-tile:nth-of-type(2){--tone:var(--tone2);--glow:var(--tone2-glow)}.search-choice-tile:nth-of-type(3){--tone:var(--tone3);--glow:var(--tone3-glow)}
+/* Colours follow the tile, not its position: main action (Channels) gets the brand accent. */
+.search-choice-tile.tone-videos{--tone:var(--tone3);--glow:var(--tone3-glow)}.search-choice-tile.tone-continue{--tone:var(--tone2);--glow:var(--tone2-glow)}
 .search-choice-tile::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--tone)}.search-choice-tile:hover{transform:translateY(-3px);border-color:var(--tone);box-shadow:0 18px 38px var(--shadow-lg)}.search-choice-tile:active{transform:scale(.99)}.search-choice-tile:focus-visible{outline:2px solid var(--tone);outline-offset:3px}
 .search-choice-tile-icon{width:62px;height:62px;display:grid;place-items:center;border:1px solid var(--border2);border-radius:17px;background:var(--glow);color:var(--tone)}.search-choice-tile-icon svg{width:29px;height:29px}.search-choice-tile-content{min-width:0}.search-choice-tile-kicker{display:block;font:500 10px 'DM Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--tone);margin-bottom:6px}.search-choice-tile-title{display:block;font-size:clamp(17px,2.2vw,22px);font-weight:700;line-height:1.15;letter-spacing:-.025em;margin-bottom:6px}.search-choice-tile-sub{display:block;font-size:13px;line-height:1.45;color:var(--muted)}.search-choice-tile-arrow{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border2);border-radius:50%;color:var(--tone);font-size:20px;transition:transform .2s}.search-choice-tile:hover .search-choice-tile-arrow{transform:translateX(3px)}
 @media(max-width:480px){.search-choice-grid{gap:10px;padding:16px}.search-choice-tile{grid-template-columns:50px minmax(0,1fr) 28px;gap:12px;min-height:116px;padding:15px;border-radius:17px}.search-choice-tile-icon{width:50px;height:50px;border-radius:13px}.search-choice-tile-icon svg{width:24px;height:24px}.search-choice-tile-arrow{width:28px;height:28px;font-size:18px}.search-choice-tile-sub{font-size:12px}}
@@ -1576,19 +1577,19 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <div id="search-chooser" style="display:flex;flex-direction:column">
         <div class="search-choice-grid">
           <div class="search-choice-intro"><strong>What would you like to search?</strong></div>
-          <button type="button" class="search-choice-tile" onclick="pickSearchMode('videos')" aria-label="Search Videos: Find a video or paste a link to watch.">
+          <button type="button" class="search-choice-tile" onclick="pickSearchMode('channels')" aria-label="Search Channels: Find creators and add them to your feed.">
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20v-1.5a6.5 6.5 0 0 1 13 0V20H3.5Z"/><path d="M18 7h4m-2-2v4"/></svg></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Make it yours</span><span class="search-choice-tile-title">Search YouTube Channels</span><span class="search-choice-tile-sub">Find creators and add them to your feed.</span></span>
+            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="search-choice-tile tone-videos" onclick="pickSearchMode('videos')" aria-label="Search Videos: Find a video or paste a link to watch.">
             <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span>
             <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search YouTube Videos</span><span class="search-choice-tile-sub">Find a video or paste a link to watch.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
-          <button type="button" class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
+          <button type="button" class="search-choice-tile tone-continue" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
             <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a9 9 0 1 1 2.6 7"/><path d="M3 4v7h7"/><path d="M12 7v5l3 2"/></svg></span>
             <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Pick up where you left off</span><span class="search-choice-tile-title">Continue Watching</span><span class="search-choice-tile-sub">Your unfinished videos, ready when you are.</span></span>
-            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
-          </button>
-          <button type="button" class="search-choice-tile" onclick="pickSearchMode('channels')" aria-label="Search Channels: Find creators and add them to your feed.">
-            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20v-1.5a6.5 6.5 0 0 1 13 0V20H3.5Z"/><path d="M18 7h4m-2-2v4"/></svg></span>
-            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Make it yours</span><span class="search-choice-tile-title">Search YouTube Channels</span><span class="search-choice-tile-sub">Find creators and add them to your feed.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
         </div>
@@ -3347,7 +3348,12 @@ function applyKidsMode(){
     if(el) el.style.display = on ? 'none' : '';
   });
   if(on){ closeShareStrip(); closeDesktopShare(); }
-  if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add' || currentScreen === 'settings')){
+  /* Re-draw feed rows so "See more" tiles appear/disappear immediately. */
+  FEED_RENDERED.forEach((list, chId) => {
+    const ch = STORE.channels.find(c => c.id === chId);
+    if(ch && document.getElementById('videos-' + chId)) renderVideos(ch, list, false);
+  });
+  if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add' || currentScreen === 'settings' || currentScreen === 'channel-videos')){
     showScreen('feed');
   }
   const statusEl = document.getElementById('kids-mode-status');
@@ -3754,7 +3760,8 @@ function renderVideos(ch, allVideos, prioritizeFirst){
     el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No full-form latest videos found for this channel</div>`;
     return;
   }
-  const more = all.length > videos.length
+  /* Kids Mode: the parent's videos-per-channel setting is a hard limit, so no "See more". */
+  const more = (!STORE.kidsMode && all.length > videos.length)
     ? `<button type="button" class="see-more-card" onclick="openChannelVideos('${esc(ch.id)}')" aria-label="See all ${all.length} videos from ${escHtml(ch.name || 'this channel')}">
         <span class="see-more-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         <span class="see-more-label">See more</span>
@@ -3790,6 +3797,7 @@ function videoCardHtml(v, ch, highPriority){
    Uses the list already fetched for the feed (no extra API call). */
 let channelVideosId = '';
 function openChannelVideos(chId){
+  if(STORE.kidsMode) return;
   const ch = STORE.channels.find(c => c.id === chId);
   if(!ch) return;
   channelVideosId = chId;
