@@ -476,6 +476,27 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .thumb-meta{font-size:10px;color:var(--faint);font-family:'DM Mono',monospace;}
 
 .section-divider{height:1px;background:var(--border);margin:1rem 1.25rem 0;}
+/* "See more" tile at the end of a channel row — same width as a video card, full row height. */
+.see-more-card{flex-shrink:0;width:132px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:1rem 0.75rem;
+  background:var(--bg2);border:1.5px dashed var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;cursor:pointer;text-align:center;
+  transition:border-color .15s,background-color .15s,transform .15s;}
+.see-more-card:hover{border-color:var(--accent);background:rgba(var(--accent-rgb),0.06);}
+.see-more-card:active{transform:scale(0.97);}
+.see-more-card:focus-visible{outline:none;border-style:solid;border-color:var(--accent);}
+.see-more-icon{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;box-shadow:0 4px 14px rgba(var(--accent-rgb),0.25);}
+.see-more-icon svg{width:20px;height:20px;}
+.see-more-label{font-size:14px;font-weight:700;letter-spacing:0.01em;}
+.see-more-count{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+/* Channel "all videos" page */
+.chv-header{padding:calc(var(--safe-top) + 1rem) 1.25rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;}
+.chv-header .ch-avatar{width:34px;height:34px;}
+.chv-title-wrap{flex:1;min-width:0;}
+.chv-title-wrap h2{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:500;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chv-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+.chv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:1.25rem;}
+.chv-grid .video-thumb{width:auto;}
+.chv-empty{padding:3rem 1.5rem;text-align:center;color:var(--faint);font-size:14px;line-height:1.6;}
+@media(max-width:520px){.chv-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:1rem;}.chv-grid .thumb-title{font-size:11.5px;}}
 .empty-feed{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;padding:2rem;text-align:center;}
 .empty-feed .big-icon{font-size:4rem;opacity:0.3;}
 .empty-feed h3{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;color:var(--muted);}
@@ -1144,7 +1165,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   
   <div class="screen" id="screen-feed">
     <div class="feed-header">
-      <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px" id="feed-vpc-label">Latest 10 videos/channel</span></h2>
+      <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px" id="feed-vpc-label">Latest 5 videos/channel</span></h2>
       <div class="feed-actions">
         <button class="header-label-btn" id="feed-refresh-btn" title="Reload feed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:15px;height:15px;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -1294,7 +1315,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <div class="settings-row-sub">How many videos to load per channel in your feed</div>
             </div>
             <button type="button" class="settings-select" id="vpc-trigger" onclick="openVpcPicker()" aria-haspopup="dialog" aria-label="Videos per channel">
-              <span id="vpc-trigger-value">10</span>
+              <span id="vpc-trigger-value">5</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
@@ -1594,6 +1615,22 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   </div>
 
   
+  <div class="screen" id="screen-channel-videos">
+    <div class="chv-header">
+      <button type="button" class="back-btn" onclick="closeChannelVideos()" aria-label="Back to Feed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="ch-avatar" id="chv-avatar"></div>
+      <div class="chv-title-wrap">
+        <h2 id="chv-title">Channel</h2>
+        <div class="chv-sub" id="chv-sub"></div>
+      </div>
+    </div>
+    <div class="screen-body" id="chv-body">
+      <div class="chv-grid" id="chv-grid"></div>
+    </div>
+  </div>
+
   <div class="screen" id="screen-saved">
     <div class="saved-header">
       <div><h2>Saved Videos</h2><span class="yt-source">Metadata from YouTube</span></div>
@@ -2267,7 +2304,7 @@ const STORE = {
   get sessionCount(){ return parseInt(localStorage.getItem('ns_session_count')||'0',10) },
   set sessionCount(v){ localStorage.setItem('ns_session_count', String(v)) },
 
-get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_channel')||'10',10); return (v>=1 && v<=50) ? v : 10; },
+get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_channel')||'5',10); return (v>=1 && v<=50) ? v : 5; },
   set videosPerChannel(v){ localStorage.setItem('ns_videos_per_channel', String(v)) },
 };
 
@@ -2762,7 +2799,7 @@ function showScreen(name, opts){
   });
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-  if(name !== 'setup' && name !== 'add'){
+  if(name !== 'setup' && name !== 'add' && name !== 'channel-videos'){
     localStorage.setItem('ns_active_tab', name);
   }
 
@@ -2777,6 +2814,7 @@ function showScreen(name, opts){
   const navMap = {feed:'nav-feed', channels:'nav-channels', settings:'nav-settings', search:'nav-search', saved:'nav-saved'};
   if(navMap[name]) document.getElementById(navMap[name]).classList.add('active');
   else if(name === 'add') document.getElementById('nav-channels').classList.add('active');
+  else if(name === 'channel-videos') document.getElementById('nav-feed').classList.add('active');
 
   if(name === 'feed'){
     // Only kick off a real load the first time Feed is shown this session,
@@ -2907,6 +2945,7 @@ function expireStaleApiMetadata(){
       }
     });
 
+    if(currentScreen === 'channel-videos' && channelVideosId) renderChannelVideosPage(false);
     /* Search results on screen. */
     if(searchResultIds.length &&searchResultIds.some(id => !VIDEO_DATA[id] || unusable(VIDEO_DATA[id]))){
       searchResultIds = [];
@@ -3421,7 +3460,7 @@ function appendChannelToFeed(ch, videos, body){
   const block = wrapper.firstElementChild;
   block.style.animation = 'fadeUp 0.35s ease both';
   body.appendChild(block);
-  renderVideos(ch, videos.slice(0, STORE.videosPerChannel), !hasSections);
+  renderVideos(ch, videos, !hasSections);
   
   const el = document.getElementById('videos-' + ch.id);
   if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
@@ -3599,13 +3638,14 @@ if(silentOverlayShown){ silentOverlayShown = false; hideLoadingOverlay(silentOve
       const fresh = await fetchVideosCVWithRetry(ch.id, resolveHandle(ch), myAbortSignal);
       if(feedGeneration !== myGen || !Array.isArray(fresh)) return;
       setCachedVideos(ch.id, fresh);
-      const n = STORE.videosPerChannel;
-      const ids = list => list.slice(0, n).map(v => v && v.id).join(',');
+      /* Compare the whole list: the "See more" page and button depend on all of it. */
+      const ids = list => list.map(v => v && v.id).join(',');
       if(ids(fresh) === ids(stale)) return;
       requestAnimationFrame(() => {
         if(feedGeneration !== myGen) return;
         if(ready.has(i)){ ready.set(i, fresh); return; }
-        if(document.getElementById('videos-' + ch.id)) renderVideos(ch, fresh.slice(0, n), false);
+        if(document.getElementById('videos-' + ch.id)) renderVideos(ch, fresh, false);
+        if(currentScreen === 'channel-videos' && channelVideosId === ch.id) renderChannelVideosPage(false);
       });
     } catch(e){
       console.warn(`[NoSuggest] ${ch.id} background refresh failed, keeping cached list:`, e.message);
@@ -3692,35 +3732,90 @@ const VIDEO_DATA = {};
    Avoids escaping complexities in onclick attrs for resume cards. */
 const RESUME_DATA = {};
 
-function renderVideos(ch, videos, prioritizeFirst){
+/* renderVideos() receives the channel's FULL fetched list (up to 50). The feed row shows the
+   first STORE.videosPerChannel; a "See more" tile is added only when the channel actually has
+   more videos than that. The full list is kept in FEED_RENDERED for the channel page. */
+function renderVideos(ch, allVideos, prioritizeFirst){
   const el = document.getElementById('videos-' + ch.id);
   if(!el) return;
-  FEED_RENDERED.set(ch.id, videos.slice());
+  const all = Array.isArray(allVideos) ? allVideos.slice() : [];
+  FEED_RENDERED.set(ch.id, all);
+  const videos = all.slice(0, STORE.videosPerChannel);
   if(!videos.length){
     el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No full-form latest videos found for this channel</div>`;
     return;
   }
-  el.innerHTML = videos.map((v, idx) => {
+  const more = all.length > videos.length
+    ? `<button type="button" class="see-more-card" onclick="openChannelVideos('${esc(ch.id)}')" aria-label="See all ${all.length} videos from ${escHtml(ch.name || 'this channel')}">
+        <span class="see-more-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <span class="see-more-label">See more</span>
+        <span class="see-more-count">${all.length} videos</span>
+      </button>`
+    : '';
+  el.innerHTML = videos.map((v, idx) => videoCardHtml(v, ch, prioritizeFirst && idx === 0)).join('') + more;
+}
+
+function videoCardHtml(v, ch, highPriority){
     VIDEO_DATA[v.id] = v;
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
     const isNew    = isNewVideo(v.publishedAt);
     return `
     <div class="video-thumb${isNew ? ' is-new' : ''}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
       <div class="thumb-img-wrap">
-        <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"${prioritizeFirst && idx === 0 ? ' fetchpriority="high"' : ""}/>
+        <img src="${esc(v.thumb)}" alt="" loading="${highPriority === 'lazy' ? 'lazy' : 'eager'}" decoding="async"${highPriority === true ? ' fetchpriority="high"' : ""}/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
       </div>
       <div class="thumb-info">
         <div class="thumb-title">${escHtml(v.title)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="thumb-meta" style="${isNew ? 'color:var(--accent)' : ''}">${timeAgo(v.publishedAt)}</div>
-          <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
+          <button type="button" class="feed-save-btn" data-video-id="${esc(v.id)}" aria-label="${savedNow ? 'Remove from saved' : 'Save video'}" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
             <svg width="12" height="12" viewBox="0 0 24 24" stroke-width="2" fill="${savedNow?'var(--accent)':'none'}" stroke="${savedNow?'var(--accent)':'var(--faint)'}"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
       </div>
     </div>`;
-  }).join('');
+}
+
+/* ── Channel "all videos" page ─────────────────────────────────────────────
+   Uses the list already fetched for the feed (no extra API call). */
+let channelVideosId = '';
+function openChannelVideos(chId){
+  const ch = STORE.channels.find(c => c.id === chId);
+  if(!ch) return;
+  channelVideosId = chId;
+  showScreen('channel-videos');
+  renderChannelVideosPage(true);
+}
+function renderChannelVideosPage(resetScroll){
+  const ch   = STORE.channels.find(c => c.id === channelVideosId);
+  const grid = document.getElementById('chv-grid');
+  if(!ch || !grid) return;
+  const videos = (FEED_RENDERED.get(ch.id) || []).filter(v => apiRecordUsable(v, Date.now()));
+  document.getElementById('chv-title').innerHTML  = escHtml(ch.name || 'Channel');
+  document.getElementById('chv-avatar').innerHTML = channelAvatarMarkup(ch);
+  document.getElementById('chv-sub').textContent  = videos.length ? `${videos.length} latest video${videos.length === 1 ? '' : 's'} · from YouTube` : '';
+  grid.innerHTML = videos.length
+    ? videos.map((v, i) => videoCardHtml(v, ch, i < 8 ? false : 'lazy')).join('')
+    : '<div class="chv-empty" style="grid-column:1/-1">Video details expired. Go back and tap Reload to refresh.</div>';
+  if(resetScroll){ const body = document.getElementById('chv-body'); if(body) body.scrollTop = 0; }
+}
+function closeChannelVideos(){
+  const id = channelVideosId;
+  showScreen('feed');
+  /* Return keyboard focus to the channel row the user came from. */
+  const btn = id && document.querySelector(`#videos-${CSS.escape(id)} .see-more-card`);
+  if(btn) btn.focus({preventScroll:true});
+}
+/* Keep every visible bookmark icon for a video (feed row, channel page) in sync. */
+function syncFeedSaveIcons(id){
+  const saved = isVideoSaved(id);
+  document.querySelectorAll('.feed-save-btn').forEach(b => {
+    if(b.dataset.videoId !== id) return;
+    const svg = b.querySelector('svg');
+    svg.setAttribute('fill',   saved ? 'var(--accent)' : 'none');
+    svg.setAttribute('stroke', saved ? 'var(--accent)' : 'var(--faint)');
+  });
 }
 
 function skipToMainContent(){
@@ -3868,8 +3963,9 @@ function toggleFeedSaveById(videoId, chId){
   const v  = VIDEO_DATA[videoId];
   const ch = STORE.channels.find(c => c.id === chId) || {};
   if(!v) return;
-  const btn = document.querySelector(`.feed-save-btn[onclick*="'${videoId}'"]`);
-  toggleFeedSave(btn, v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
+  toggleSaveVideo({id:v.id, title:v.title, channelName:ch.name||'', publishedAt:v.publishedAt||'', thumb:v.thumb||''});
+  syncFeedSaveIcons(v.id);
+  if(currentVideoData?.id === v.id) updatePlayerSaveBtn(v.id);
 }
 
 function decodeVideoTitle(value){
@@ -4123,6 +4219,7 @@ function toggleSaveFromPlayer(){
   if(!currentVideoData) return;
   toggleSaveVideo(currentVideoData);
   updatePlayerSaveBtn(currentVideoData.id);
+  syncFeedSaveIcons(currentVideoData.id);
   if(currentScreen === 'saved') initSaved();
 }
 function closePlayer(){
@@ -4695,7 +4792,7 @@ function closeVpcPicker(){
 function reRenderAllChannelFeeds(){
   STORE.channels.forEach(ch => {
     const videos = getCachedVideos(ch.id) || getStaleCachedVideos(ch.id);
-    if(videos) renderVideos(ch, videos.slice(0, STORE.videosPerChannel));
+    if(videos) renderVideos(ch, videos);
   });
 }
 
@@ -5198,6 +5295,7 @@ function renderSavedList(){
 function removeSaved(id){
   STORE.savedVideos = STORE.savedVideos.filter(v => v.id !== id);
   initSaved();
+  syncFeedSaveIcons(id);
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
 }
 
@@ -6085,6 +6183,7 @@ window.addEventListener('popstate', () => {
   const overlay = document.getElementById('player-overlay');
   if(overlay.classList.contains('open')){ closePlayer(); }
   else if(currentScreen === 'add'){ leaveAddScreen(); }
+  else if(currentScreen === 'channel-videos'){ history.pushState(null, '', location.href); closeChannelVideos(); }
   else{ history.pushState(null, '', location.href); }
 });
 
