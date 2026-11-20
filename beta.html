@@ -207,6 +207,9 @@ html{height:100%;overflow:hidden;background:var(--bg);}
   --tone2:#ffb985; --tone2-glow:rgba(255,185,133,.09);
   --tone3:#a9c5ff; --tone3-glow:rgba(169,197,255,.09);
   --radius:16px; --radius-sm:10px;
+  /* One thumbnail size everywhere (feed, channel page, Saved, Search, Continue Watching).
+     160×90 is exact 16:9 — YouTube thumbnails fill it with no bars and no cropping. */
+  --thumb-w:160px; --thumb-h:90px; --thumb-bg:#000;
   --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
 }
 /* ── Light theme ──
@@ -307,7 +310,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .nav-btn{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;color:var(--nav-ink);transition:color 0.15s;padding-bottom:4px;}
 .nav-btn.active{color:var(--accent);}
 .nav-btn svg{width:22px;height:22px;}
-.nav-btn span{font-size:11px;font-weight:600;letter-spacing:0.05em;line-height:1.2;text-transform:uppercase;}
+.nav-btn span{font-size:11px;font-weight:600;letter-spacing:0.05em;line-height:1.2;text-transform:uppercase;white-space:nowrap;}
+@media(max-width:359px){.nav-btn{min-width:0;}.nav-btn span{font-size:10px;letter-spacing:0.02em;}}
+/* Under 300px (fold cover screens) uppercase "CHANNELS" can't fit 1/5 of the width — use title case. */
+@media(max-width:299px){.nav-btn svg{width:20px;height:20px;}.nav-btn span{font-size:10px;letter-spacing:0;text-transform:none;}}
 .nav-btn.active span{font-weight:800;}
 .nav-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;border-radius:12px;}
 
@@ -445,7 +451,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .ch-name{font-size:13px;font-weight:600;color:var(--text);letter-spacing:0.01em;}
 .videos-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;transform:translateZ(0);will-change:transform;backface-visibility:hidden;}
 .videos-scroll::-webkit-scrollbar{display:none;}
-.video-thumb{flex-shrink:0;width:200px;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
+.video-thumb{flex-shrink:0;width:auto;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
 .video-thumb:active{transform:scale(0.97);}
 .video-thumb:hover{border-color:var(--border2);}
 
@@ -466,18 +472,19 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .video-thumb.is-new{
   border: 2px solid var(--accent);
 }
-.thumb-img-wrap{position:relative;padding-bottom:56.25%;background:var(--bg3);}
-.thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);backface-visibility:hidden;}
+/* Fixed 160×90. The new-video green border sits on the card, outside this box, so the image size never changes. */
+.thumb-img-wrap{position:relative;width:var(--thumb-w);height:var(--thumb-h);flex-shrink:0;background:var(--thumb-bg);}
+.thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform:translateZ(0);backface-visibility:hidden;}
 .thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(0,0,0,0.4);transition:opacity 0.15s;}
 .video-thumb:hover .thumb-play{opacity:1;}
 .thumb-play svg{width:36px;height:36px;fill:white;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));}
-.thumb-info{padding:0.6rem 0.65rem 0.7rem;}
+.thumb-info{width:var(--thumb-w);padding:0.6rem 0.65rem 0.7rem;}
 .thumb-title{font-size:12px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
 .thumb-meta{font-size:10px;color:var(--faint);font-family:'DM Mono',monospace;}
 
 .section-divider{height:1px;background:var(--border);margin:1rem 1.25rem 0;}
 /* "See more" tile at the end of a channel row — same width as a video card, full row height. */
-.see-more-card{flex-shrink:0;width:132px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:1rem 0.75rem;
+.see-more-card{flex-shrink:0;width:var(--thumb-w);scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:1rem 0.75rem;
   background:var(--bg2);border:1.5px dashed var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;cursor:pointer;text-align:center;
   transition:border-color .15s,background-color .15s,transform .15s;}
 .see-more-card:hover{border-color:var(--accent);background:rgba(var(--accent-rgb),0.06);}
@@ -493,10 +500,12 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .chv-title-wrap{flex:1;min-width:0;}
 .chv-title-wrap h2{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:500;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .chv-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
-.chv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:1.25rem;}
+.chv-grid{display:grid;grid-template-columns:repeat(auto-fill,calc(var(--thumb-w) + 4px));justify-content:center;justify-items:center;align-items:start;gap:12px;padding:1.25rem;}
 .chv-grid .video-thumb{width:auto;}
 .chv-empty{padding:3rem 1.5rem;text-align:center;color:var(--faint);font-size:14px;line-height:1.6;}
-@media(max-width:520px){.chv-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:1rem;}.chv-grid .thumb-title{font-size:11.5px;}}
+@media(max-width:520px){.chv-grid{gap:10px;padding:1rem;}}
+/* Tighter padding keeps 2 columns on 360px phones (2×164 + 8 gap + 2×12 = 360). Narrower → 1 centred column. */
+@media(max-width:400px){.chv-grid{gap:8px;padding:1rem 12px;}}
 .empty-feed{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;padding:2rem;text-align:center;}
 .empty-feed .big-icon{font-size:4rem;opacity:0.3;}
 .empty-feed h3{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;color:var(--muted);}
@@ -708,8 +717,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .search-card-play-zone{display:flex;gap:12px;cursor:pointer;transition:transform 0.12s;}
 .search-card-play-zone:active{transform:scale(0.98);}
 
-.search-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
-.search-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;}
+.search-thumb-wrap{position:relative;flex-shrink:0;width:var(--thumb-w);min-width:var(--thumb-w);height:var(--thumb-h);background:var(--thumb-bg);}
+.search-thumb-wrap img{width:var(--thumb-w);height:var(--thumb-h);object-fit:contain;display:block;}
 .search-save-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;background:var(--chip-bg);border:1px solid var(--chip-border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
 .search-save-btn:hover{background:rgba(var(--accent-rgb),0.25);}
 .search-save-btn svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;}
@@ -899,8 +908,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .saved-count{font-size:12px;color:var(--faint);font-family:'DM Mono',monospace;}
 .saved-video-card{display:flex;gap:12px;padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;align-items:flex-start;}
 .saved-video-card:hover{background:var(--bg2);}
-.saved-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
-.saved-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;border-radius:6px;}
+.saved-thumb-wrap{position:relative;flex-shrink:0;width:var(--thumb-w);min-width:var(--thumb-w);height:var(--thumb-h);background:var(--thumb-bg);border-radius:6px;overflow:hidden;}
+.saved-thumb-wrap img{width:var(--thumb-w);height:var(--thumb-h);object-fit:contain;display:block;}
 .saved-card-info{flex:1;min-width:0;}
 .saved-card-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
 .saved-card-meta{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;}
@@ -983,8 +992,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .cw-card:hover{background:var(--bg2);}
 .cw-play-zone{display:flex;gap:12px;cursor:pointer;flex:1;padding:0.85rem 0 0.85rem 1.25rem;align-items:flex-start;min-width:0;}
 .cw-play-zone:active{opacity:0.85;}
-.cw-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
-.cw-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;border-radius:6px;}
+.cw-thumb-wrap{position:relative;flex-shrink:0;width:var(--thumb-w);min-width:var(--thumb-w);height:var(--thumb-h);background:var(--thumb-bg);border-radius:6px;overflow:hidden;}
+.cw-thumb-wrap img{width:var(--thumb-w);height:var(--thumb-h);object-fit:contain;display:block;}
 .cw-resume-badge{position:absolute;bottom:0;left:0;right:0;background:var(--chip-bg);color:var(--accent);font-size:9px;font-family:'DM Mono',monospace;font-weight:600;text-align:center;padding:3px 4px;border-radius:0 0 5px 5px;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cw-info{flex:1;min-width:0;padding-right:4px;}
 .cw-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
@@ -1058,8 +1067,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   .nlo-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.01em;line-height:1.35;}
   .nlo-sub{font:12px/1.5 'DM Mono',monospace;color:var(--muted);min-height:16px;}
   
-/* Audit: preserve thumbnail dimensions on small phones; stack text below the image. */
-@media(max-width:420px){
+/* Thumbnails stay 160×90 at every width. Below 360px the text moves under the image. */
+@media(max-width:359px){
  .search-card-play-zone{flex-direction:column;gap:0;}
  .search-card-info{padding:10px 12px;}
  .saved-video-card{flex-wrap:wrap;}
