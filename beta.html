@@ -197,7 +197,7 @@ html{height:100%;overflow:hidden;background:var(--bg);}
   --accent2:#ff6b35; --accent2-rgb:255,107,53;
   --danger:#ff4444; --danger-rgb:255,68,68;
   --warn:#e8a53b; --info:#5aa9ff;
-  --nav-bg:rgba(10,10,10,0.92); --nav-ink:#ffffff;
+  --nav-bg:rgba(10,10,10,0.92); --nav-ink:#e6e6e0;
   --scrim:rgba(0,0,0,0.7); --scrim-strong:rgba(0,0,0,0.88);
   --player-bg:rgba(0,0,0,0.97);
   --chip-bg:rgba(0,0,0,0.72); --chip-border:rgba(255,255,255,0.15);
@@ -212,8 +212,7 @@ html{height:100%;overflow:hidden;background:var(--bg);}
 /* ── Light theme ──
    Warm paper background, pure-white cards, near-black ink. The neon brand lime cannot
    carry text on white (contrast ≈1.1:1), so light mode uses a deep lime-green accent
-   (≈5:1 on the page) with white text on filled buttons. Every colour pair here meets
-   WCAG AA for normal text. */
+   (≈5:1 on the page) with white text on filled buttons. Every pair meets WCAG AA. */
 :root[data-theme="light"]{
   color-scheme:light;
   --bg:#f6f6f1; --bg2:#ffffff; --bg3:#ecece5;
@@ -223,7 +222,7 @@ html{height:100%;overflow:hidden;background:var(--bg);}
   --accent2:#c2410c; --accent2-rgb:194,65,12;
   --danger:#c62828; --danger-rgb:198,40,40;
   --warn:#9a5b00; --info:#2563eb;
-  --nav-bg:rgba(246,246,241,0.92); --nav-ink:#2b2b24;
+  --nav-bg:rgba(250,250,246,0.94); --nav-ink:#2b2b24;
   --scrim:rgba(24,24,16,0.45); --scrim-strong:rgba(24,24,16,0.62);
   --player-bg:rgba(246,246,241,0.985);
   --chip-bg:rgba(255,255,255,0.94); --chip-border:rgba(24,24,16,0.14);
@@ -233,7 +232,6 @@ html{height:100%;overflow:hidden;background:var(--bg);}
   --tone2:#c2410c; --tone2-glow:rgba(194,65,12,.07);
   --tone3:#2558c9; --tone3-glow:rgba(37,88,201,.07);
 }
-/* Smooth cross-fade only while the user is switching themes (class removed after 350 ms). */
 html.theme-switching, html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after{
   transition:background-color .3s ease, color .3s ease, border-color .3s ease, fill .3s ease, stroke .3s ease !important;
 }
@@ -308,8 +306,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
 .nav-btn{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;color:var(--nav-ink);transition:color 0.15s;padding-bottom:4px;}
 .nav-btn.active{color:var(--accent);}
-.nav-btn svg{width:20px;height:20px;}
-.nav-btn span{font-size:9px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
+.nav-btn svg{width:22px;height:22px;}
+.nav-btn span{font-size:11px;font-weight:600;letter-spacing:0.05em;line-height:1.2;text-transform:uppercase;}
+.nav-btn.active span{font-weight:800;}
+.nav-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;border-radius:12px;}
 
 #nav-install-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:99;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:linear-gradient(135deg,rgba(var(--accent-rgb),0.08),rgba(var(--accent-rgb),0.04));border-top:1px solid rgba(var(--accent-rgb),0.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;}
 #nav-install-strip.show{display:flex;}
@@ -575,8 +575,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .player-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:500;line-height:1.4;color:var(--text);margin-bottom:0.5rem;word-break:break-word;overflow-wrap:break-word;max-width:100%;}
 .player-meta{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;min-width:0;}
 .player-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:0.75rem;}
-/* High-visibility Save. Not saved → solid accent pill (call to action).
-   Saved → inverted: page-colour pill with accent text + accent outline (state, not action). */
+/* Not saved → solid accent pill (call to action). Saved → page-colour pill, accent text + outline. */
 .player-save-btn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;min-width:108px;padding:0 18px;
   background:var(--accent);color:var(--on-accent);border:1.5px solid var(--accent);border-radius:999px;
   font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.01em;cursor:pointer;
@@ -639,7 +638,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .settings-select:hover{border-color:var(--accent);}
 .settings-select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .settings-select svg{color:var(--muted);flex-shrink:0;}
-/* Appearance: 3-way segmented control (System / Light / Dark) */
 .theme-row{flex-wrap:wrap;}
 .theme-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;width:100%;margin-top:0.15rem;}
 .theme-seg-btn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 8px;background:transparent;border:none;border-radius:9px;
@@ -1834,10 +1832,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 <script>
 'use strict';
 
-/* ── Theme (System / Light / Dark) ─────────────────────────────────────────
-   Preference lives in localStorage 'ns_theme' (absent = 'system').
-   The <head> bootstrap applies it before first paint; this keeps it live:
-   follows OS changes while on System, and syncs across open tabs. */
+/* ── Theme (System / Light / Dark) ── 'ns_theme' in localStorage (absent = system). */
 const THEME_KEY = 'ns_theme';
 const THEME_COLORS = { dark:'#0a0a0a', light:'#f6f6f1' };
 const themeMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
@@ -1876,7 +1871,7 @@ function updateThemeControl(){
   const sub = document.getElementById('theme-sub');
   if(sub){
     sub.textContent = pref === 'system'
-      ? `Matches your device setting (currently ${resolveTheme('system') === 'light' ? 'light' : 'dark'})`
+      ? `Matches your device setting (currently ${resolveTheme('system')})`
       : (pref === 'light' ? 'Always light' : 'Always dark');
   }
 }
@@ -1890,10 +1885,9 @@ function setThemePref(pref){
 if(themeMedia){
   const onSystemThemeChange = () => { if(getThemePref() === 'system') applyTheme(true); };
   if(themeMedia.addEventListener) themeMedia.addEventListener('change', onSystemThemeChange);
-  else if(themeMedia.addListener) themeMedia.addListener(onSystemThemeChange);   // Safari < 14
+  else if(themeMedia.addListener) themeMedia.addListener(onSystemThemeChange);
 }
 window.addEventListener('storage', e => { if(e.key === THEME_KEY || e.key === null) applyTheme(true); });
-/* Arrow-key navigation inside the radiogroup (standard ARIA radio pattern). */
 document.addEventListener('keydown', e => {
   const btn = e.target && e.target.closest ? e.target.closest('.theme-seg-btn') : null;
   if(!btn) return;
