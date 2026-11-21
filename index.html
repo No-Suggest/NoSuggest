@@ -8,6 +8,22 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="NoSuggest"/>
 <meta name="theme-color" content="#0a0a0a"/>
+<meta name="color-scheme" content="dark light"/>
+<script>
+/* Theme bootstrap — runs before first paint so there is never a flash of the wrong theme.
+   Preference: 'system' (default) | 'light' | 'dark'. Resolved value goes on <html data-theme>. */
+(function(){
+  var p='system',t='dark';
+  try{p=localStorage.getItem('ns_theme');}catch(e){}
+  if(p!=='light'&&p!=='dark')p='system';
+  if(p==='system'){try{t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}catch(e){}}
+  else t=p;
+  var d=document.documentElement;d.setAttribute('data-theme',t);d.setAttribute('data-theme-pref',p);
+  var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t==='light'?'#f6f6f1':'#0a0a0a');
+  /* iOS home-screen apps: dark status-bar text in light mode (read at launch). */
+  var sb=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(sb&&t==='light')sb.setAttribute('content','default');
+})();
+</script>
 <title>NoSuggest – Clean, Clutter-Free Videos</title>
 <meta name="description" content="Watch YouTube without algorithms, recommendations, Shorts, or autoplay. Follow your favorite channels privacy-first with no sign-in required."/>
 <link rel="canonical" href="https://www.nosuggest.com/" />
@@ -64,7 +80,7 @@
       "name": "How does Kids Mode work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children. To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device. A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time."
+        "text": "Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children. To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device. A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time. Parents can also choose an optional time limit (30 minutes by default). A countdown shows at the top of the screen, and when time is up the video pauses and the screen locks until the parent enters the PIN to add more time or exit Kids Mode."
       }
     },
     {
@@ -172,12 +188,55 @@ html{height:100%;overflow:hidden;background:var(--bg);}
    the app's own dark colour rather than the system UI background. */
 
 :root{
+  /* ── Dark theme (default) ── */
+  color-scheme:dark;
   --bg:#0a0a0a; --bg2:#111111; --bg3:#1a1a1a;
   --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.15);
   --text:#f0f0ee; --muted:#b0b0aa; --faint:#c8c8c2;
-  --accent:#e8ff5a; --accent2:#ff6b35; --danger:#ff4444;
+  --accent:#e8ff5a; --accent-rgb:232,255,90; --on-accent:#0a0a0a;
+  --accent2:#ff6b35; --accent2-rgb:255,107,53;
+  --danger:#ff4444; --danger-rgb:255,68,68;
+  --warn:#e8a53b; --info:#5aa9ff;
+  --nav-bg:rgba(10,10,10,0.92); --nav-ink:#e6e6e0;
+  --scrim:rgba(0,0,0,0.7); --scrim-strong:rgba(0,0,0,0.88);
+  --player-bg:rgba(0,0,0,0.97);
+  --chip-bg:rgba(0,0,0,0.72); --chip-border:rgba(255,255,255,0.15);
+  --shadow-md:rgba(0,0,0,0.35); --shadow-lg:rgba(0,0,0,0.55);
+  --tile-base:#171717; --tile-inset:rgba(255,255,255,.05);
+  --tone1:#e8ff5a; --tone1-glow:rgba(var(--accent-rgb),.09);
+  --tone2:#ffb985; --tone2-glow:rgba(255,185,133,.09);
+  --tone3:#a9c5ff; --tone3-glow:rgba(169,197,255,.09);
   --radius:16px; --radius-sm:10px;
+  /* One thumbnail size everywhere (feed, channel page, Saved, Search, Continue Watching).
+     160×90 is exact 16:9 — YouTube thumbnails fill it with no bars and no cropping. */
+  --thumb-w:160px; --thumb-h:90px; --thumb-bg:#000;
   --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
+}
+/* ── Light theme ──
+   Warm paper background, pure-white cards, near-black ink. The neon brand lime cannot
+   carry text on white (contrast ≈1.1:1), so light mode uses a deep lime-green accent
+   (≈5:1 on the page) with white text on filled buttons. Every pair meets WCAG AA. */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f6f6f1; --bg2:#ffffff; --bg3:#ecece5;
+  --border:rgba(24,24,16,0.10); --border2:rgba(24,24,16,0.18);
+  --text:#15150f; --muted:#56564d; --faint:#66665c;
+  --accent:#41730a; --accent-rgb:65,115,10; --on-accent:#ffffff;
+  --accent2:#c2410c; --accent2-rgb:194,65,12;
+  --danger:#c62828; --danger-rgb:198,40,40;
+  --warn:#9a5b00; --info:#2563eb;
+  --nav-bg:rgba(250,250,246,0.94); --nav-ink:#2b2b24;
+  --scrim:rgba(24,24,16,0.45); --scrim-strong:rgba(24,24,16,0.62);
+  --player-bg:rgba(246,246,241,0.985);
+  --chip-bg:rgba(255,255,255,0.94); --chip-border:rgba(24,24,16,0.14);
+  --shadow-md:rgba(30,30,20,0.12); --shadow-lg:rgba(30,30,20,0.18);
+  --tile-base:#ffffff; --tile-inset:rgba(255,255,255,.6);
+  --tone1:#41730a; --tone1-glow:rgba(65,115,10,.08);
+  --tone2:#c2410c; --tone2-glow:rgba(194,65,12,.07);
+  --tone3:#2558c9; --tone3-glow:rgba(37,88,201,.07);
+}
+html.theme-switching, html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after{
+  transition:background-color .3s ease, color .3s ease, border-color .3s ease, fill .3s ease, stroke .3s ease !important;
 }
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;height:100%;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
@@ -222,9 +281,9 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transform:translate3d(0,12px,0);transition:opacity 0.25s ease,transform 0.25s ease;backface-visibility:hidden;will-change:transform;}
 .screen.active{opacity:1;pointer-events:auto;transform:translate3d(0,0,0);}
 
-.kids-mode-banner{display:none;align-items:center;gap:8px;background:#e8ff5a;color:#0a0a0a;font-size:12px;font-weight:600;padding:6px 1rem;letter-spacing:0.04em;text-transform:uppercase;}
+.kids-mode-banner{display:none;align-items:center;gap:8px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:600;padding:6px 1rem;letter-spacing:0.04em;text-transform:uppercase;}
 .kids-mode-banner.show{display:flex;}
-.pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:9999;padding:2rem;}
+.pin-overlay{position:fixed;inset:0;background:var(--scrim-strong);display:none;align-items:center;justify-content:center;z-index:9999;padding:2rem;}
 .pin-overlay.show{display:flex;}
 .pin-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:2rem 1.5rem;width:100%;max-width:320px;text-align:center;display:flex;flex-direction:column;gap:1.25rem;}
 .pin-box h3{font-size:1rem;font-weight:600;color:var(--text);}
@@ -234,8 +293,50 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 .pin-dot.filled{background:var(--accent);border-color:var(--accent);}
 .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 .pin-key{background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:1.2rem;font-weight:500;color:var(--text);padding:0.9rem 0;cursor:pointer;transition:background 0.15s;font-family:'DM Mono',monospace;}
-.pin-key:active{background:var(--accent);color:#0a0a0a;}
-.pin-error{font-size:12px;color:#ff4444;min-height:16px;}
+.pin-key:active{background:var(--accent);color:var(--on-accent);}
+.pin-error{font-size:12px;color:var(--danger);min-height:16px;}
+/* ── Kids Mode timer ── */
+.kids-timer{display:none;align-items:center;gap:6px;padding:0.38rem 0.8rem;border-radius:999px;background:rgba(var(--accent-rgb),0.12);border:1.5px solid rgba(var(--accent-rgb),0.45);color:var(--accent);font-family:'DM Mono',monospace;font-size:14px;font-weight:600;letter-spacing:0.02em;white-space:nowrap;font-variant-numeric:tabular-nums;flex-shrink:0;}
+.kids-timer svg{width:15px;height:15px;flex-shrink:0;}
+body.kids-timed .kids-timer{display:inline-flex;}
+body.kids-timed #feed-refresh-btn,body.kids-timed #saved-count{display:none !important;}
+.kids-timer.low{background:rgba(var(--danger-rgb),0.12);border-color:rgba(var(--danger-rgb),0.55);color:var(--danger);animation:kt-pulse 1.4s ease-in-out infinite;}
+@keyframes kt-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.player-top .kids-timer{margin-right:10px;}
+.settings-header{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+#settings-kids-time-row{display:none;}
+body.kids-on #settings-kids-time-row{display:flex;}
+/* Time-limit picker (shown when a parent turns Kids Mode on) */
+#kids-limit-backdrop{position:fixed;inset:0;background:var(--scrim-strong);z-index:9990;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#kids-limit-backdrop.show{display:flex;}
+.kl-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem 1.4rem 1.3rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1rem;box-shadow:0 18px 60px var(--shadow-lg);animation:fadeUp .2s ease;}
+.kl-title{font-size:17px;font-weight:700;color:var(--text);}
+.kl-sub{font-size:13px;color:var(--muted);line-height:1.55;margin-top:-0.4rem;}
+.kl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.kl-opt{min-height:46px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;}
+.kl-opt:hover{border-color:var(--accent);}
+.kl-opt[aria-checked="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.kl-opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.kl-actions{display:flex;gap:8px;margin-top:0.25rem;}
+.kl-primary{flex:1;min-height:46px;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+.kl-secondary{min-height:46px;padding:0 1.1rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+/* Full-screen lock when time is up / parent controls */
+#kids-gate{position:fixed;inset:0;z-index:10050;display:none;align-items:center;justify-content:center;padding:calc(1.25rem + var(--safe-top)) 1.25rem calc(1.25rem + var(--safe-bot));background:var(--bg);overflow-y:auto;}
+#kids-gate.show{display:flex;}
+.kg-box{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:1.1rem;text-align:center;}
+.kg-icon{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:rgba(var(--accent-rgb),0.12);color:var(--accent);}
+.kg-icon svg{width:38px;height:38px;}
+.kg-title{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);line-height:1.15;}
+.kg-sub{font-size:14px;color:var(--muted);line-height:1.55;margin-top:-0.5rem;}
+.kg-panel{width:100%;display:flex;flex-direction:column;gap:1rem;}
+.kg-panel[hidden]{display:none;}
+.kg-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;}
+.kg-add{min-height:52px;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+.kg-wide{width:100%;min-height:48px;background:var(--bg2);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.kg-wide.danger{color:var(--danger);border-color:rgba(var(--danger-rgb),0.4);}
+.kg-link{background:none;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;text-decoration:underline;cursor:pointer;padding:4px;}
+.kg-add:focus-visible,.kg-wide:focus-visible,.kg-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+#kids-gate .pin-keypad{width:100%;}
 .pin-cancel{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;}
 
 .screen-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(80px + var(--safe-bot));}
@@ -246,23 +347,28 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;heig
 body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot));}
 @media(max-width:768px){body.show-install-strip .screen-body{padding-bottom:calc(156px + var(--safe-bot));}}
 
-.nav{position:fixed;bottom:0;left:0;right:0;height:calc(64px + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:100;}
+.nav{position:fixed;bottom:0;left:0;right:0;height:calc(64px + var(--safe-bot));padding-bottom:var(--safe-bot);background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:100;}
 
-.nav-btn{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;color:#fff;transition:color 0.15s;padding-bottom:4px;}
+.nav-btn{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;color:var(--nav-ink);transition:color 0.15s;padding-bottom:4px;}
 .nav-btn.active{color:var(--accent);}
-.nav-btn svg{width:20px;height:20px;}
-.nav-btn span{font-size:9px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
+.nav-btn svg{width:22px;height:22px;}
+.nav-btn span{font-size:11px;font-weight:600;letter-spacing:0.05em;line-height:1.2;text-transform:uppercase;white-space:nowrap;}
+@media(max-width:359px){.nav-btn{min-width:0;}.nav-btn span{font-size:10px;letter-spacing:0.02em;}}
+/* Under 300px (fold cover screens) uppercase "CHANNELS" can't fit 1/5 of the width — use title case. */
+@media(max-width:299px){.nav-btn svg{width:20px;height:20px;}.nav-btn span{font-size:10px;letter-spacing:0;text-transform:none;}}
+.nav-btn.active span{font-weight:800;}
+.nav-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;border-radius:12px;}
 
-#nav-install-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:99;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:linear-gradient(135deg,rgba(232,255,90,0.08),rgba(232,255,90,0.04));border-top:1px solid rgba(232,255,90,0.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;}
+#nav-install-strip{position:fixed;bottom:calc(64px + var(--safe-bot));left:0;right:0;z-index:99;display:none;align-items:center;justify-content:center;gap:8px;padding:7px 1rem;background:linear-gradient(135deg,rgba(var(--accent-rgb),0.08),rgba(var(--accent-rgb),0.04));border-top:1px solid rgba(var(--accent-rgb),0.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;}
 #nav-install-strip.show{display:flex;}
 #nav-install-strip span{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.02em;}
 #nav-install-strip .strip-dismiss{margin-left:auto;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
 
-#share-strip-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;display:none;}
+#share-strip-backdrop{position:fixed;inset:0;background:var(--scrim);z-index:500;display:none;}
 #share-strip-backdrop.show{display:block;}
-#nav-share-strip{position:fixed;left:0;right:0;bottom:0;z-index:501;height:40vh;max-height:360px;min-height:280px;background:var(--bg2);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:2rem 1.75rem calc(1.75rem + var(--safe-bot));box-shadow:0 -12px 40px rgba(0,0,0,0.5);}
+#nav-share-strip{position:fixed;left:0;right:0;bottom:0;z-index:501;height:40vh;max-height:360px;min-height:280px;background:var(--bg2);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:2rem 1.75rem calc(1.75rem + var(--safe-bot));box-shadow:0 -12px 40px var(--shadow-lg);}
 #nav-share-strip.show{display:flex;}
-#nav-share-strip .ss-icon{width:48px;height:48px;background:rgba(232,255,90,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#nav-share-strip .ss-icon{width:48px;height:48px;background:rgba(var(--accent-rgb),0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 #nav-share-strip .ss-icon svg{width:24px;height:24px;stroke:var(--accent);}
 #nav-share-strip .ss-title{font-size:18px;font-weight:600;color:var(--text);}
 #nav-share-strip .ss-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;max-width:400px;}
@@ -271,13 +377,13 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #nav-share-strip.with-ext{height:auto;max-height:92vh;overflow-y:auto;justify-content:flex-start;}
 #nav-share-strip .ss-extra{flex-direction:column;margin-top:0;}
 #nav-share-strip .ss-extra[hidden]{display:none;}
-#nav-share-strip .ss-extra button{flex:none;width:100%;padding:0.75rem;border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;color:var(--bg);}
+#nav-share-strip .ss-extra button{flex:none;width:100%;padding:0.75rem;border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;color:var(--on-accent);}
 #nav-share-strip .ss-extra button:active{opacity:0.85;}
-#nav-share-strip .ss-btn-ext{background:#5aa9ff;}
+#nav-share-strip .ss-btn-ext{background:var(--info);}
 #nav-share-strip .ss-btn-review{background:var(--accent2);}
-#desktop-share-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:520;display:none;align-items:center;justify-content:center;padding:1.5rem}#desktop-share-backdrop.show{display:flex}#desktop-share-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem 1.4rem;width:100%;max-width:410px;display:flex;flex-direction:column;gap:1rem;box-shadow:0 18px 60px rgba(0,0,0,.55)}.dsm-title{font-size:18px;font-weight:600}.dsm-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.55}.dsm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dsm-btn,.dsm-close{min-height:44px;padding:.7rem .8rem;background:var(--bg3);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer}.dsm-btn:hover{border-color:var(--accent)}.dsm-primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}.dsm-close{width:100%;background:transparent;color:var(--muted)}
+#desktop-share-backdrop{position:fixed;inset:0;background:var(--scrim);z-index:520;display:none;align-items:center;justify-content:center;padding:1.5rem}#desktop-share-backdrop.show{display:flex}#desktop-share-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem 1.4rem;width:100%;max-width:410px;display:flex;flex-direction:column;gap:1rem;box-shadow:0 18px 60px var(--shadow-lg)}.dsm-title{font-size:18px;font-weight:600}.dsm-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.55}.dsm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dsm-btn,.dsm-close{min-height:44px;padding:.7rem .8rem;background:var(--bg3);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer}.dsm-btn:hover{border-color:var(--accent)}.dsm-primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}.dsm-close{width:100%;background:transparent;color:var(--muted)}
 
-#ios-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:450;display:none;opacity:0;transition:opacity 0.25s;}
+#ios-sheet-backdrop{position:fixed;inset:0;background:var(--scrim);z-index:450;display:none;opacity:0;transition:opacity 0.25s;}
 #ios-sheet-backdrop.show{display:block;opacity:1;}
 #ios-sheet{position:fixed;bottom:0;left:0;right:0;z-index:451;background:var(--bg2);border-radius:20px 20px 0 0;border-top:1px solid var(--border2);padding:0 1.25rem calc(var(--safe-bot) + 1.5rem);transform:translateY(100%);transition:transform 0.32s cubic-bezier(0.32,0.72,0,1);}
 #ios-sheet.show{transform:translateY(0);}
@@ -288,7 +394,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .ios-steps{display:flex;flex-direction:column;gap:0;}
 .ios-step{display:flex;align-items:center;gap:14px;padding:0.9rem 0;border-bottom:1px solid var(--border);}
 .ios-step:last-child{border-bottom:none;}
-.ios-step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#0a0a0a;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ios-step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .ios-step-text{flex:1;}
 .ios-step-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
 .ios-step-sub{font-size:12px;color:var(--muted);line-height:1.4;}
@@ -306,7 +412,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .setup-logo h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;letter-spacing:-0.03em;color:var(--text);line-height:1;margin-bottom:0.4rem;}
 .setup-logo p{font-size:14px;color:var(--muted);font-weight:300;}
 .setup-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem;}
-.btn{width:100%;padding:0.9rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:opacity 0.15s,transform 0.1s;margin-top:1rem;letter-spacing:0.01em;}
+.btn{width:100%;padding:0.9rem;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:opacity 0.15s,transform 0.1s;margin-top:1rem;letter-spacing:0.01em;}
 .btn:active{transform:scale(0.98);opacity:0.9;}
 .btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border2);}
 .error-msg{color:var(--danger);font-size:12px;margin-top:0.5rem;display:none;font-family:'DM Mono',monospace;}
@@ -320,10 +426,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .icon-btn:hover{border-color:var(--border2);color:var(--text);}
 .icon-btn svg{width:16px;height:16px;}
 
-.header-label-btn{display:flex;align-items:center;gap:6px;padding:0.4rem 0.85rem;background:var(--accent);border:none;border-radius:20px;color:#0a0a0a;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
+.header-label-btn{display:flex;align-items:center;gap:6px;padding:0.4rem 0.85rem;background:var(--accent);border:none;border-radius:20px;color:var(--on-accent);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
 .header-label-btn:hover{opacity:0.88;}
 .header-label-btn:active{transform:scale(0.97);opacity:0.85;}
-.header-label-btn svg{flex-shrink:0;stroke:#0a0a0a;}
+.header-label-btn svg{flex-shrink:0;stroke:currentColor;}
 .channel-section{padding:1.25rem 1.25rem 0.5rem;animation:fadeUp 0.35s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .channel-label{display:flex;align-items:center;gap:8px;margin-bottom:0.9rem;}
@@ -338,7 +444,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   width:1px;height:1px;
   overflow:hidden;
   background:var(--accent);
-  color:var(--bg);
+  color:var(--on-accent);
   padding:0.5rem 0.9rem;
   border:none;
   border-radius:var(--radius-sm);
@@ -363,7 +469,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   width:1px;height:1px;
   overflow:hidden;
   background:var(--accent);
-  color:var(--bg);
+  color:var(--on-accent);
   padding:0.6rem 1rem;
   border:none;
   border-radius:var(--radius-sm);
@@ -387,7 +493,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .ch-name{font-size:13px;font-weight:600;color:var(--text);letter-spacing:0.01em;}
 .videos-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;transform:translateZ(0);will-change:transform;backface-visibility:hidden;}
 .videos-scroll::-webkit-scrollbar{display:none;}
-.video-thumb{flex-shrink:0;width:200px;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
+.video-thumb{flex-shrink:0;width:auto;scroll-snap-align:start;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.15s,transform 0.15s;transform:translateZ(0);backface-visibility:hidden;will-change:transform;}
 .video-thumb:active{transform:scale(0.97);}
 .video-thumb:hover{border-color:var(--border2);}
 
@@ -408,16 +514,40 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .video-thumb.is-new{
   border: 2px solid var(--accent);
 }
-.thumb-img-wrap{position:relative;padding-bottom:56.25%;background:#111;}
-.thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);backface-visibility:hidden;}
+/* Fixed 160×90. The new-video green border sits on the card, outside this box, so the image size never changes. */
+.thumb-img-wrap{position:relative;width:var(--thumb-w);height:var(--thumb-h);flex-shrink:0;background:var(--thumb-bg);}
+.thumb-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform:translateZ(0);backface-visibility:hidden;}
 .thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(0,0,0,0.4);transition:opacity 0.15s;}
 .video-thumb:hover .thumb-play{opacity:1;}
 .thumb-play svg{width:36px;height:36px;fill:white;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));}
-.thumb-info{padding:0.6rem 0.65rem 0.7rem;}
+.thumb-info{width:var(--thumb-w);padding:0.6rem 0.65rem 0.7rem;}
 .thumb-title{font-size:12px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
 .thumb-meta{font-size:10px;color:var(--faint);font-family:'DM Mono',monospace;}
 
 .section-divider{height:1px;background:var(--border);margin:1rem 1.25rem 0;}
+/* "See more" tile at the end of a channel row — same width as a video card, full row height. */
+.see-more-card{flex-shrink:0;width:var(--thumb-w);scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:1rem 0.75rem;
+  background:var(--bg2);border:1.5px dashed var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;cursor:pointer;text-align:center;
+  transition:border-color .15s,background-color .15s,transform .15s;}
+.see-more-card:hover{border-color:var(--accent);background:rgba(var(--accent-rgb),0.06);}
+.see-more-card:active{transform:scale(0.97);}
+.see-more-card:focus-visible{outline:none;border-style:solid;border-color:var(--accent);}
+.see-more-icon{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;box-shadow:0 4px 14px rgba(var(--accent-rgb),0.25);}
+.see-more-icon svg{width:20px;height:20px;}
+.see-more-label{font-size:14px;font-weight:700;letter-spacing:0.01em;}
+.see-more-count{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+/* Channel "all videos" page */
+.chv-header{padding:calc(var(--safe-top) + 1rem) 1.25rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;}
+.chv-header .ch-avatar{width:34px;height:34px;}
+.chv-title-wrap{flex:1;min-width:0;}
+.chv-title-wrap h2{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:500;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chv-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+.chv-grid{display:grid;grid-template-columns:repeat(auto-fill,calc(var(--thumb-w) + 4px));justify-content:center;justify-items:center;align-items:start;gap:12px;padding:1.25rem;}
+.chv-grid .video-thumb{width:auto;}
+.chv-empty{padding:3rem 1.5rem;text-align:center;color:var(--faint);font-size:14px;line-height:1.6;}
+@media(max-width:520px){.chv-grid{gap:10px;padding:1rem;}}
+/* Tighter padding keeps 2 columns on 360px phones (2×164 + 8 gap + 2×12 = 360). Narrower → 1 centred column. */
+@media(max-width:400px){.chv-grid{gap:8px;padding:1rem 12px;}}
 .empty-feed{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;padding:2rem;text-align:center;}
 .empty-feed .big-icon{font-size:4rem;opacity:0.3;}
 .empty-feed h3{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;color:var(--muted);}
@@ -437,12 +567,12 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .cli-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cli-handle{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;margin-top:1px;}
 .cli-remove{width:32px;height:32px;background:none;border:none;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s,color 0.15s;}
-.cli-remove:hover{background:rgba(255,68,68,0.1);color:var(--danger);}
+.cli-remove:hover{background:rgba(var(--danger-rgb),0.1);color:var(--danger);}
 .cli-remove svg{width:16px;height:16px;}
 .no-channels{padding:3rem 2rem;text-align:center;color:var(--faint);font-size:14px;line-height:1.7;}
-.add-channel-fab{position:fixed;bottom:120px;right:1.25rem;width:52px;height:52px;background:var(--accent);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(232,255,90,0.3);transition:transform 0.15s,box-shadow 0.15s;z-index:50;}
+.add-channel-fab{position:fixed;bottom:120px;right:1.25rem;width:52px;height:52px;background:var(--accent);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(var(--accent-rgb),0.3);transition:transform 0.15s,box-shadow 0.15s;z-index:50;}
 .add-channel-fab:active{transform:scale(0.92);}
-.add-channel-fab svg{width:24px;height:24px;fill:var(--bg);}
+.add-channel-fab svg{width:24px;height:24px;fill:var(--on-accent);}
 
 .add-header{padding:calc(var(--safe-top) + 1rem) 1.25rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;}
 .back-btn{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);flex-shrink:0;}
@@ -462,10 +592,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .preview-name{font-size:15px;font-weight:500;color:var(--text);}
 .preview-subs{font-size:12px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;}
 .preview-check{width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.preview-check svg{width:14px;height:14px;fill:var(--bg);}
-.searching-state{position:absolute;top:100%;left:0;right:0;margin-top:0.75rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:6;padding:1.5rem;text-align:center;color:var(--muted);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.preview-check svg{width:14px;height:14px;fill:var(--on-accent);}
+.searching-state{position:absolute;top:100%;left:0;right:0;margin-top:0.75rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 12px 28px var(--shadow-md);z-index:6;padding:1.5rem;text-align:center;color:var(--muted);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:10px;}
 .channel-search-anchor{position:relative;}
-.channel-suggestions{position:absolute;top:100%;left:0;right:0;margin-top:0.75rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow-x:hidden;overflow-y:auto;max-height:calc(100vh - 190px - var(--safe-top) - var(--safe-bot) - 64px);max-height:calc(100dvh - 190px - var(--safe-top) - var(--safe-bot) - 64px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none;animation:fadeUp 0.2s ease;box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:6;}
+.channel-suggestions{position:absolute;top:100%;left:0;right:0;margin-top:0.75rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow-x:hidden;overflow-y:auto;max-height:calc(100vh - 190px - var(--safe-top) - var(--safe-bot) - 64px);max-height:calc(100dvh - 190px - var(--safe-top) - var(--safe-bot) - 64px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none;animation:fadeUp 0.2s ease;box-shadow:0 12px 28px var(--shadow-md);z-index:6;}
 .channel-suggestions::-webkit-scrollbar{display:none;width:0;height:0;}
 @media(max-width:768px){.channel-suggestions{max-height:calc(100vh - 180px - var(--safe-top) - var(--safe-bot) - 64px);max-height:calc(100dvh - 180px - var(--safe-top) - var(--safe-bot) - 64px);}}
 
@@ -485,7 +615,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .suggestion-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .suggestion-subs{font-size:11px;color:var(--muted);margin-top:1px;font-family:'DM Mono',monospace;}
 
-.suggestion-add-btn{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:0.4rem 0.75rem;background:var(--accent);color:var(--bg);border-radius:20px;font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;letter-spacing:0.02em;transition:opacity 0.15s;white-space:nowrap;}
+.suggestion-add-btn{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:0.4rem 0.75rem;background:var(--accent);color:var(--on-accent);border-radius:20px;font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;letter-spacing:0.02em;transition:opacity 0.15s;white-space:nowrap;}
 .channel-suggestion-item:disabled .suggestion-add-btn,.channel-suggestion-item[disabled] .suggestion-add-btn{background:transparent;color:var(--muted);padding:0;gap:4px;}
 
 .suggestion-cap-notice{padding:0.75rem 1rem;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;border-top:1px solid var(--border);}
@@ -495,7 +625,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .fallback-divider span{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;}
 .fallback-card{background:var(--bg2);border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.5rem;}
 .fallback-card p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;font-family:'DM Mono',monospace;}
-.fallback-card p code{color:var(--accent);background:rgba(232,255,90,0.08);padding:1px 4px;border-radius:3px;}
+.fallback-card p code{color:var(--accent);background:rgba(var(--accent-rgb),0.08);padding:1px 4px;border-radius:3px;}
 .fallback-row{display:flex;gap:8px;}
 .fallback-input{flex:1;padding:0.7rem 0.9rem;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:16px;outline:none;transition:border-color 0.15s;-webkit-appearance:none;}
 .fallback-input:focus{border-color:var(--accent);}
@@ -505,7 +635,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .fallback-go-btn:active{transform:scale(0.97);}
 .fallback-go-btn:disabled{opacity:0.5;cursor:default;}
 
-#player-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:200;display:none;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+#player-overlay{position:fixed;inset:0;background:var(--player-bg);z-index:200;display:none;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.2s;}
 #player-overlay.open{display:flex;opacity:1;pointer-events:all;}
 .player-top{padding:calc(var(--safe-top) + 0.75rem) 1rem 0.75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .player-channel{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.04em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-right:0.5rem;}
@@ -515,11 +645,24 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .player-video-wrap iframe{width:100%;aspect-ratio:16/9;border:none;max-height:60vh;}
 .player-info{padding:0 1.25rem calc(var(--safe-bot) + 1rem);flex-shrink:0;}
 .player-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:500;line-height:1.4;color:var(--text);margin-bottom:0.5rem;word-break:break-word;overflow-wrap:break-word;max-width:100%;}
-.player-meta{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.player-meta{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;min-width:0;}
+.player-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:0.75rem;}
+/* Not saved → solid accent pill (call to action). Saved → page-colour pill, accent text + outline. */
+.player-save-btn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;min-width:108px;padding:0 18px;
+  background:var(--accent);color:var(--on-accent);border:1.5px solid var(--accent);border-radius:999px;
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.01em;cursor:pointer;
+  box-shadow:0 6px 20px rgba(var(--accent-rgb),0.25);transition:background-color .18s,color .18s,box-shadow .18s,transform .1s;}
+.player-save-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;flex-shrink:0;}
+.player-save-btn:hover{box-shadow:0 8px 26px rgba(var(--accent-rgb),0.35);}
+.player-save-btn:active{transform:scale(0.97);}
+.player-save-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+.player-save-btn.is-saved{background:var(--bg);color:var(--accent);box-shadow:none;}
+.player-save-btn.is-saved svg{fill:currentColor;}
+.player-save-btn.is-saved:hover{background:rgba(var(--accent-rgb),0.12);}
 .player-embed-blocked{display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem;text-align:center;padding:2rem;flex:1;}
 .player-embed-blocked.show{display:flex;}
 .player-embed-blocked p{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px;}
-.player-embed-blocked a{display:inline-block;padding:0.65rem 1.4rem;background:var(--accent);color:var(--bg);border-radius:var(--radius-sm);font-size:14px;font-weight:600;text-decoration:none;}
+.player-embed-blocked a{display:inline-block;padding:0.65rem 1.4rem;background:var(--accent);color:var(--on-accent);border-radius:var(--radius-sm);font-size:14px;font-weight:600;text-decoration:none;}
 
 .faq-list{display:flex;flex-direction:column;gap:2px;}
 .faq-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.15s;}
@@ -567,10 +710,18 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .settings-select:hover{border-color:var(--accent);}
 .settings-select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .settings-select svg{color:var(--muted);flex-shrink:0;}
+.theme-row{flex-wrap:wrap;}
+.theme-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;width:100%;margin-top:0.15rem;}
+.theme-seg-btn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 8px;background:transparent;border:none;border-radius:9px;
+  color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background-color .15s,color .15s,box-shadow .15s;}
+.theme-seg-btn svg{width:15px;height:15px;flex-shrink:0;}
+.theme-seg-btn:hover{color:var(--text);}
+.theme-seg-btn[aria-checked="true"]{background:var(--accent);color:var(--on-accent);box-shadow:0 2px 10px rgba(var(--accent-rgb),0.25);}
+.theme-seg-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-#vpc-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#vpc-backdrop{position:fixed;inset:0;background:var(--scrim);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
 #vpc-backdrop.show{display:flex;}
-#vpc-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.5rem 1.4rem 1.25rem;width:100%;max-width:280px;max-height:min(70vh,480px);display:flex;flex-direction:column;gap:0.85rem;box-shadow:0 18px 60px rgba(0,0,0,0.55);animation:fadeUp 0.2s ease;}
+#vpc-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.5rem 1.4rem 1.25rem;width:100%;max-width:280px;max-height:min(70vh,480px);display:flex;flex-direction:column;gap:0.85rem;box-shadow:0 18px 60px var(--shadow-lg);animation:fadeUp 0.2s ease;}
 .vpc-title{font-size:16px;font-weight:600;color:var(--text);flex-shrink:0;}
 .vpc-list{overflow-y:auto;display:flex;flex-direction:column;gap:2px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
 .vpc-list::-webkit-scrollbar{width:6px;}
@@ -579,16 +730,16 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .vpc-list::-webkit-scrollbar-thumb:hover{background:var(--muted);}
 .vpc-option{padding:0.6rem 0.8rem;border-radius:8px;font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--text);background:transparent;border:none;text-align:left;cursor:pointer;transition:background 0.12s;flex-shrink:0;}
 .vpc-option:hover{background:var(--bg3);}
-.vpc-option.selected{background:var(--accent);color:var(--bg);}
+.vpc-option.selected{background:var(--accent);color:var(--on-accent);}
 .vpc-close{padding:0.7rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;}
-.btn-danger{background:rgba(255,68,68,0.1);color:var(--danger);border:1.5px solid rgba(255,68,68,0.2);}
+.btn-danger{background:rgba(var(--danger-rgb),0.1);color:var(--danger);border:1.5px solid rgba(var(--danger-rgb),0.2);}
 
 .search-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
 .search-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:0.9rem;}
 .search-row{display:flex;gap:8px;align-items:center;}
 .search-trigger-btn{
   flex-shrink:0;width:44px;height:44px;
-  background:var(--accent);color:var(--bg);
+  background:var(--accent);color:var(--on-accent);
   border:none;border-radius:var(--radius-sm);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:opacity 0.15s;
@@ -596,7 +747,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .search-trigger-btn:active{opacity:0.85;}
 .search-trigger-btn svg{width:20px;height:20px;}
 .search-row .text-input{flex:1;font-size:16px;padding:0.7rem 0.9rem;}
-.search-go-btn{flex-shrink:0;height:42px;padding:0 1.1rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
+.search-go-btn{flex-shrink:0;height:42px;padding:0 1.1rem;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;}
 .search-go-btn:active{transform:scale(0.97);opacity:0.9;}
 .search-go-btn:disabled{opacity:0.5;cursor:default;}
 #search-input::-webkit-search-cancel-button{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);clip-path:polygon(20% 0%,0% 20%,30% 50%,0% 80%,20% 100%,50% 70%,80% 100%,100% 80%,70% 50%,100% 20%,80% 0%,50% 30%);cursor:pointer;}
@@ -608,10 +759,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .search-card-play-zone{display:flex;gap:12px;cursor:pointer;transition:transform 0.12s;}
 .search-card-play-zone:active{transform:scale(0.98);}
 
-.search-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
-.search-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;}
-.search-save-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
-.search-save-btn:hover{background:rgba(232,255,90,0.25);}
+.search-thumb-wrap{position:relative;flex-shrink:0;width:var(--thumb-w);min-width:var(--thumb-w);height:var(--thumb-h);background:var(--thumb-bg);}
+.search-thumb-wrap img{width:var(--thumb-w);height:var(--thumb-h);object-fit:contain;display:block;}
+.search-save-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;background:var(--chip-bg);border:1px solid var(--chip-border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
+.search-save-btn:hover{background:rgba(var(--accent-rgb),0.25);}
 .search-save-btn svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;}
 .search-save-btn.saved svg{fill:var(--accent);}
 .search-card-info{flex:1;padding:0.65rem 0.75rem 0.65rem 0;display:flex;flex-direction:column;justify-content:flex-start;gap:3px;min-width:0;}
@@ -629,7 +780,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   color:var(--accent);
   text-decoration:underline;
   text-underline-offset:2px;
-  text-decoration-color:rgba(232,255,90,0.45);
+  text-decoration-color:rgba(var(--accent-rgb),0.45);
   cursor:pointer;
   background:none;
   border:none;
@@ -646,7 +797,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
 #follow-ch-backdrop{
   position:fixed;inset:0;
-  background:rgba(0,0,0,0.72);
+  background:var(--scrim);
   z-index:600;
   display:none;
   align-items:center;
@@ -664,7 +815,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   display:flex;
   flex-direction:column;
   gap:1rem;
-  box-shadow:0 18px 60px rgba(0,0,0,0.55);
+  box-shadow:0 18px 60px var(--shadow-lg);
   animation:fadeUp 0.2s ease;
 }
 .follow-ch-avatar-row{display:flex;align-items:center;gap:12px;}
@@ -688,7 +839,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .follow-ch-actions{display:flex;gap:9px;margin-top:0.25rem;}
 .follow-ch-btn-primary{
   flex:1;padding:0.78rem;
-  background:var(--accent);color:var(--bg);
+  background:var(--accent);color:var(--on-accent);
   border:none;border-radius:var(--radius-sm);
   font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;
   cursor:pointer;transition:opacity 0.15s;
@@ -711,7 +862,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   color:var(--accent);
   text-decoration:underline;
   text-underline-offset:2px;
-  text-decoration-color:rgba(232,255,90,0.45);
+  text-decoration-color:rgba(var(--accent-rgb),0.45);
   cursor:pointer;
   background:none;
   border:none;
@@ -728,7 +879,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
 #follow-ch-backdrop{
   position:fixed;inset:0;
-  background:rgba(0,0,0,0.72);
+  background:var(--scrim);
   z-index:600;
   display:none;
   align-items:center;
@@ -746,7 +897,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   display:flex;
   flex-direction:column;
   gap:1rem;
-  box-shadow:0 18px 60px rgba(0,0,0,0.55);
+  box-shadow:0 18px 60px var(--shadow-lg);
   animation:fadeUp 0.2s ease;
 }
 .follow-ch-avatar-row{display:flex;align-items:center;gap:12px;}
@@ -770,7 +921,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .follow-ch-actions{display:flex;gap:9px;margin-top:0.25rem;}
 .follow-ch-btn-primary{
   flex:1;padding:0.78rem;
-  background:var(--accent);color:var(--bg);
+  background:var(--accent);color:var(--on-accent);
   border:none;border-radius:var(--radius-sm);
   font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;
   cursor:pointer;transition:opacity 0.15s;
@@ -787,9 +938,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
 .search-choice-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:clamp(16px,4vw,32px);max-width:920px;width:100%;margin:0 auto}
 .search-choice-intro{color:var(--muted);font-size:13px;line-height:1.5;padding:0 2px 8px}.search-choice-intro strong{display:block;color:var(--text);font:500 clamp(22px,3vw,29px) 'Fraunces',serif;letter-spacing:-.03em;margin-bottom:5px}
-.search-choice-tile{--tone:#e8ff5a;--glow:rgba(232,255,90,.09);position:relative;overflow:hidden;width:100%;min-height:125px;display:grid;grid-template-columns:62px minmax(0,1fr) 34px;align-items:center;gap:clamp(12px,3vw,22px);padding:clamp(16px,3vw,24px);text-align:left;color:var(--text);background:linear-gradient(115deg,var(--glow),#171717 60%);border:1px solid rgba(255,255,255,.13);border-radius:20px;box-shadow:0 9px 30px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.05);cursor:pointer;font-family:'Outfit',sans-serif;transition:transform .2s,border-color .2s,box-shadow .2s}
-.search-choice-tile:nth-of-type(2){--tone:#ffb985;--glow:rgba(255,185,133,.09)}.search-choice-tile:nth-of-type(3){--tone:#a9c5ff;--glow:rgba(169,197,255,.09)}
-.search-choice-tile::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--tone)}.search-choice-tile:hover{transform:translateY(-3px);border-color:var(--tone);box-shadow:0 18px 38px rgba(0,0,0,.36)}.search-choice-tile:active{transform:scale(.99)}.search-choice-tile:focus-visible{outline:2px solid var(--tone);outline-offset:3px}
+.search-choice-tile{--tone:var(--tone1);--glow:var(--tone1-glow);position:relative;overflow:hidden;width:100%;min-height:125px;display:grid;grid-template-columns:62px minmax(0,1fr) 34px;align-items:center;gap:clamp(12px,3vw,22px);padding:clamp(16px,3vw,24px);text-align:left;color:var(--text);background:linear-gradient(115deg,var(--glow),var(--tile-base) 60%);border:1px solid var(--border2);border-radius:20px;box-shadow:0 9px 30px var(--shadow-md),inset 0 1px var(--tile-inset);cursor:pointer;font-family:'Outfit',sans-serif;transition:transform .2s,border-color .2s,box-shadow .2s}
+/* Colours follow the tile, not its position: main action (Channels) gets the brand accent. */
+.search-choice-tile.tone-videos{--tone:var(--tone3);--glow:var(--tone3-glow)}.search-choice-tile.tone-continue{--tone:var(--tone2);--glow:var(--tone2-glow)}
+.search-choice-tile::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--tone)}.search-choice-tile:hover{transform:translateY(-3px);border-color:var(--tone);box-shadow:0 18px 38px var(--shadow-lg)}.search-choice-tile:active{transform:scale(.99)}.search-choice-tile:focus-visible{outline:2px solid var(--tone);outline-offset:3px}
 .search-choice-tile-icon{width:62px;height:62px;display:grid;place-items:center;border:1px solid var(--border2);border-radius:17px;background:var(--glow);color:var(--tone)}.search-choice-tile-icon svg{width:29px;height:29px}.search-choice-tile-content{min-width:0}.search-choice-tile-kicker{display:block;font:500 10px 'DM Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--tone);margin-bottom:6px}.search-choice-tile-title{display:block;font-size:clamp(17px,2.2vw,22px);font-weight:700;line-height:1.15;letter-spacing:-.025em;margin-bottom:6px}.search-choice-tile-sub{display:block;font-size:13px;line-height:1.45;color:var(--muted)}.search-choice-tile-arrow{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border2);border-radius:50%;color:var(--tone);font-size:20px;transition:transform .2s}.search-choice-tile:hover .search-choice-tile-arrow{transform:translateX(3px)}
 @media(max-width:480px){.search-choice-grid{gap:10px;padding:16px}.search-choice-tile{grid-template-columns:50px minmax(0,1fr) 28px;gap:12px;min-height:116px;padding:15px;border-radius:17px}.search-choice-tile-icon{width:50px;height:50px;border-radius:13px}.search-choice-tile-icon svg{width:24px;height:24px}.search-choice-tile-arrow{width:28px;height:28px;font-size:18px}.search-choice-tile-sub{font-size:12px}}
 @media(max-width:360px){.search-choice-tile{grid-template-columns:44px minmax(0,1fr) 24px;gap:9px;padding:12px}.search-choice-tile-icon{width:44px;height:44px}.search-choice-tile-title{font-size:16px}.search-choice-tile-arrow{width:24px;height:24px}}
@@ -799,13 +951,13 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .saved-count{font-size:12px;color:var(--faint);font-family:'DM Mono',monospace;}
 .saved-video-card{display:flex;gap:12px;padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;align-items:flex-start;}
 .saved-video-card:hover{background:var(--bg2);}
-.saved-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
-.saved-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;border-radius:6px;}
+.saved-thumb-wrap{position:relative;flex-shrink:0;width:var(--thumb-w);min-width:var(--thumb-w);height:var(--thumb-h);background:var(--thumb-bg);border-radius:6px;overflow:hidden;}
+.saved-thumb-wrap img{width:var(--thumb-w);height:var(--thumb-h);object-fit:contain;display:block;}
 .saved-card-info{flex:1;min-width:0;}
 .saved-card-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
 .saved-card-meta{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;}
 .saved-remove-btn{flex-shrink:0;width:28px;height:28px;background:none;border:none;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s,color 0.15s;align-self:center;}
-.saved-remove-btn:hover{background:rgba(255,68,68,0.1);color:var(--danger);}
+.saved-remove-btn:hover{background:rgba(var(--danger-rgb),0.1);color:var(--danger);}
 .saved-remove-btn svg{width:15px;height:15px;}
 .saved-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;padding:2rem;text-align:center;}
 .saved-empty-state .big-icon{font-size:4rem;opacity:0.3;}
@@ -824,38 +976,38 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 #toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:0.6rem 1.2rem;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:300;width:max-content;max-width:calc(100vw - 32px);white-space:normal;text-align:center;line-height:1.4;overflow-wrap:anywhere;pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-#export-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#export-modal-backdrop{position:fixed;inset:0;background:var(--scrim);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
 #export-modal-backdrop.show{display:flex;}
 #export-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1rem;}
-#export-modal .em-icon{width:48px;height:48px;background:rgba(232,255,90,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.25rem;}
+#export-modal .em-icon{width:48px;height:48px;background:rgba(var(--accent-rgb),0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.25rem;}
 #export-modal .em-icon svg{width:24px;height:24px;stroke:var(--accent);}
 #export-modal .em-title{font-size:16px;font-weight:600;color:var(--text);}
 #export-modal .em-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;}
 #export-modal .em-code{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.75rem 1rem;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);word-break:break-all;line-height:1.5;max-height:80px;overflow-y:auto;user-select:all;-webkit-user-select:all;}
 #export-modal .em-hint{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;}
 #export-modal .em-actions{display:flex;gap:8px;margin-top:0.25rem;}
-#export-modal .em-btn-copy{flex:1;padding:0.75rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
+#export-modal .em-btn-copy{flex:1;padding:0.75rem;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
 #export-modal .em-btn-copy:active{opacity:0.85;}
 #export-modal .em-btn-close{padding:0.75rem 1.1rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
 
-#pack-modal-backdrop,#pack-confirm-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#pack-modal-backdrop,#pack-confirm-backdrop{position:fixed;inset:0;background:var(--scrim);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
 #pack-modal-backdrop.show,#pack-confirm-backdrop.show{display:flex;}
 #pack-modal,#pack-confirm-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1rem;max-height:85vh;overflow-y:auto;}
-#pack-modal .em-icon,#pack-confirm-modal .em-icon{width:48px;height:48px;background:rgba(232,255,90,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.25rem;}
+#pack-modal .em-icon,#pack-confirm-modal .em-icon{width:48px;height:48px;background:rgba(var(--accent-rgb),0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.25rem;}
 #pack-modal .em-icon svg,#pack-confirm-modal .em-icon svg{width:24px;height:24px;stroke:var(--accent);}
 #pack-modal .em-title,#pack-confirm-modal .em-title{font-size:16px;font-weight:600;color:var(--text);}
 #pack-modal .em-body,#pack-confirm-modal .em-body{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;}
 #pack-modal .em-code{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.75rem 1rem;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);word-break:break-all;line-height:1.5;max-height:80px;overflow-y:auto;user-select:all;-webkit-user-select:all;}
 #pack-modal .em-hint,#pack-confirm-modal .em-hint{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;}
 #pack-modal .em-actions,#pack-confirm-modal .em-actions{display:flex;gap:8px;margin-top:0.25rem;}
-.pack-btn-primary{flex:1;padding:0.75rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
+.pack-btn-primary{flex:1;padding:0.75rem;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
 .pack-btn-primary:active{opacity:0.85;}
 .pack-btn-secondary{padding:0.75rem 1.1rem;background:var(--bg3);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
 .pack-channel-list{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.6rem 0.75rem;}
 .pack-channel-item{font-size:13px;color:var(--text);font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:6px;}
 .pack-channel-item::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;}
 .pack-note{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.5;}
-.pack-note.warn{color:#e8a53b;}
+.pack-note.warn{color:var(--warn);}
 
 .pack-qr-wrap{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:var(--radius-sm);padding:0.85rem;box-sizing:border-box;width:100%;max-width:300px;margin:0 auto;}
 .pack-qr-wrap svg{width:100%;height:auto;display:block;}
@@ -883,9 +1035,12 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .cw-card:hover{background:var(--bg2);}
 .cw-play-zone{display:flex;gap:12px;cursor:pointer;flex:1;padding:0.85rem 0 0.85rem 1.25rem;align-items:flex-start;min-width:0;}
 .cw-play-zone:active{opacity:0.85;}
-.cw-thumb-wrap{position:relative;flex-shrink:0;width:160px;min-width:160px;}
-.cw-thumb-wrap img{width:160px;min-width:160px;height:90px;min-height:90px;object-fit:contain;display:block;border-radius:6px;}
-.cw-resume-badge{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.78);color:var(--accent);font-size:9px;font-family:'DM Mono',monospace;font-weight:600;text-align:center;padding:3px 4px;border-radius:0 0 5px 5px;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cw-thumb-wrap{position:relative;flex-shrink:0;width:var(--thumb-w);min-width:var(--thumb-w);height:var(--thumb-h);background:var(--thumb-bg);border-radius:6px;overflow:hidden;}
+.cw-thumb-wrap img{width:var(--thumb-w);height:var(--thumb-h);object-fit:contain;display:block;}
+.cw-thumb-col{flex-shrink:0;width:var(--thumb-w);display:flex;flex-direction:column;gap:6px;}
+/* Resume note sits BELOW the thumbnail — nothing is drawn over YouTube's image. */
+.cw-resume-badge{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;min-height:24px;padding:3px 6px;background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.35);color:var(--accent);font-size:11px;font-family:'DM Mono',monospace;font-weight:600;border-radius:6px;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cw-resume-badge svg{width:9px;height:9px;flex-shrink:0;fill:currentColor;}
 .cw-info{flex:1;min-width:0;padding-right:4px;}
 .cw-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;}
 .cw-meta{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -894,7 +1049,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .cw-remove-btn svg{width:15px;height:15px;}
 
 #api-verify-backdrop{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bot));pointer-events:none;background:transparent;}
-#api-verify-backdrop.interactive{background:rgba(0,0,0,.88);pointer-events:auto;}
+#api-verify-backdrop.interactive{background:var(--scrim-strong);pointer-events:auto;}
 #api-verify-modal{width:100%;max-width:370px;max-height:90vh;overflow:auto;background:transparent;border:0;border-radius:16px;padding:16px 8px;text-align:center;box-sizing:border-box;pointer-events:none;}
 #api-verify-backdrop.interactive #api-verify-modal{background:var(--bg2);border:1px solid var(--border2);pointer-events:auto;}
 #api-verify-title{display:none;font-size:18px;margin-bottom:12px;}
@@ -906,10 +1061,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
   /* Unified, larger feed loading experience */
   #feed-loading-sentinel{gap:18px;padding:3.25rem 1.25rem 3.5rem;}
-  #feed-loading-sentinel .feed-orbit{position:relative;width:58px;height:58px;border-radius:50%;border:2px solid rgba(255,255,255,.08);box-shadow:inset 0 0 18px rgba(232,255,90,.04);animation:feed-orbit 1.4s linear infinite;}
+  #feed-loading-sentinel .feed-orbit{position:relative;width:58px;height:58px;border-radius:50%;border:2px solid var(--border);box-shadow:inset 0 0 18px rgba(var(--accent-rgb),.04);animation:feed-orbit 1.4s linear infinite;}
   #feed-loading-sentinel .feed-orbit::before,#feed-loading-sentinel .feed-orbit::after{content:'';position:absolute;border-radius:50%;}
-  #feed-loading-sentinel .feed-orbit::before{width:12px;height:12px;left:3px;top:4px;background:var(--accent);box-shadow:0 0 16px rgba(232,255,90,.65);}
-  #feed-loading-sentinel .feed-orbit::after{width:9px;height:9px;right:5px;bottom:5px;background:var(--accent2);box-shadow:0 0 14px rgba(255,107,53,.55);}
+  #feed-loading-sentinel .feed-orbit::before{width:12px;height:12px;left:3px;top:4px;background:var(--accent);box-shadow:0 0 16px rgba(var(--accent-rgb),.65);}
+  #feed-loading-sentinel .feed-orbit::after{width:9px;height:9px;right:5px;bottom:5px;background:var(--accent2);box-shadow:0 0 14px rgba(var(--accent2-rgb),.55);}
   @keyframes feed-orbit{to{transform:rotate(360deg)}}
   #feed-loading-sentinel .feed-progress-bar{width:min(260px,72vw);height:6px;border-radius:999px;}
   #feed-loading-sentinel .feed-progress-bar::after{display:none;}
@@ -923,7 +1078,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     position:fixed;inset:0;z-index:9500;
     display:none;align-items:center;justify-content:center;
     padding:24px;
-    background:rgba(5,5,5,.86);
+    background:var(--scrim-strong);
     backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);contain:strict;
     pointer-events:auto;
   }
@@ -932,21 +1087,21 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     display:flex;flex-direction:column;align-items:center;gap:20px;
     width:min(340px,calc(100vw - 40px));
     padding:30px 26px 26px;
-    background:rgba(17,17,17,.98);
+    background:var(--bg2);
     border:1px solid var(--border2);border-radius:22px;
-    box-shadow:0 28px 80px rgba(0,0,0,.65);
+    box-shadow:0 28px 80px var(--shadow-lg);
     text-align:center;
   }
   .nlo-orbit{
     position:relative;width:62px;height:62px;border-radius:50%;
-    border:2px solid rgba(255,255,255,.08);
-    box-shadow:inset 0 0 20px rgba(232,255,90,.05);
+    border:2px solid var(--border);
+    box-shadow:inset 0 0 20px rgba(var(--accent-rgb),.05);
     animation:feed-orbit 1.4s linear infinite;
     flex-shrink:0;
   }
   .nlo-orbit::before,.nlo-orbit::after{content:'';position:absolute;border-radius:50%;}
-  .nlo-orbit::before{width:13px;height:13px;left:3px;top:4px;background:var(--accent);box-shadow:0 0 18px rgba(232,255,90,.7);}
-  .nlo-orbit::after{width:10px;height:10px;right:5px;bottom:6px;background:var(--accent2);box-shadow:0 0 16px rgba(255,107,53,.6);}
+  .nlo-orbit::before{width:13px;height:13px;left:3px;top:4px;background:var(--accent);box-shadow:0 0 18px rgba(var(--accent-rgb),.7);}
+  .nlo-orbit::after{width:10px;height:10px;right:5px;bottom:6px;background:var(--accent2);box-shadow:0 0 16px rgba(var(--accent2-rgb),.6);}
   .nlo-bar{width:min(240px,72vw);height:6px;background:var(--border);border-radius:999px;overflow:hidden;}
   .nlo-bar::after{
     content:'';display:block;height:100%;width:50%;
@@ -958,8 +1113,8 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   .nlo-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.01em;line-height:1.35;}
   .nlo-sub{font:12px/1.5 'DM Mono',monospace;color:var(--muted);min-height:16px;}
   
-/* Audit: preserve thumbnail dimensions on small phones; stack text below the image. */
-@media(max-width:420px){
+/* Thumbnails stay 160×90 at every width. Below 360px the text moves under the image. */
+@media(max-width:359px){
  .search-card-play-zone{flex-direction:column;gap:0;}
  .search-card-info{padding:10px 12px;}
  .saved-video-card{flex-wrap:wrap;}
@@ -1065,8 +1220,9 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   
   <div class="screen" id="screen-feed">
     <div class="feed-header">
-      <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px" id="feed-vpc-label">Latest 10 videos/channel</span></h2>
+      <h2 class="feed-logo"><span class="dot"></span> Feed <span style="font-size:0.75rem;font-weight:400;color:var(--muted);letter-spacing:0;font-family:'Outfit',sans-serif;margin-left:2px" id="feed-vpc-label">Latest 5 videos/channel</span></h2>
       <div class="feed-actions">
+        <span class="kids-timer" role="timer" aria-label="Kids Mode time left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="kids-timer-text">--:--</span></span>
         <button class="header-label-btn" id="feed-refresh-btn" title="Reload feed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:15px;height:15px;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Reload
@@ -1149,7 +1305,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
   
   <div class="screen" id="screen-settings">
-    <div class="settings-header"><h2>Settings</h2></div>
+    <div class="settings-header"><h2>Settings</h2><span class="kids-timer" role="timer" aria-label="Kids Mode time left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="kids-timer-text">--:--</span></span></div>
     <div class="screen-body">
       <div class="settings-section">
         <div class="settings-card">
@@ -1176,6 +1332,33 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
       </div>
 
+
+      <div class="settings-section" id="settings-appearance" style="padding-top:0">
+        <div class="settings-label">Appearance</div>
+        <div class="settings-card">
+          <div class="settings-row theme-row">
+            <div class="settings-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label" id="theme-label">Theme</div>
+              <div class="settings-row-sub" id="theme-sub">Matches your device setting</div>
+            </div>
+            <div class="theme-seg" role="radiogroup" aria-labelledby="theme-label">
+              <button type="button" class="theme-seg-btn" role="radio" data-theme-pref="system" aria-checked="true" tabindex="0" onclick="setThemePref('system')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>System
+              </button>
+              <button type="button" class="theme-seg-btn" role="radio" data-theme-pref="light" aria-checked="false" tabindex="-1" onclick="setThemePref('light')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>Light
+              </button>
+              <button type="button" class="theme-seg-btn" role="radio" data-theme-pref="dark" aria-checked="false" tabindex="-1" onclick="setThemePref('dark')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Dark
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-section" id="settings-vpc-row" style="padding-top:0">
         <div class="settings-label">Feed</div>
         <div class="settings-card">
@@ -1188,7 +1371,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <div class="settings-row-sub">How many videos to load per channel in your feed</div>
             </div>
             <button type="button" class="settings-select" id="vpc-trigger" onclick="openVpcPicker()" aria-haspopup="dialog" aria-label="Videos per channel">
-              <span id="vpc-trigger-value">10</span>
+              <span id="vpc-trigger-value">5</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
@@ -1204,9 +1387,19 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
             </div>
             <div class="settings-row-text">
               <div class="settings-row-label">Kids Mode</div>
-              <div class="settings-row-sub">Hides Search and Channels tabs. Requires PIN to disable.</div>
+              <div class="settings-row-sub" id="kids-mode-sub">Hides Search and Channels tabs. Optional time limit. Requires PIN to disable.</div>
             </div>
             <div class="settings-row-action" id="kids-mode-status" style="font-size:12px;font-weight:600;color:var(--muted)">Off</div>
+          </div>
+          <div class="settings-row" id="settings-kids-time-row" style="cursor:pointer" onclick="openKidsGate('manage')" role="button" tabindex="0">
+            <div class="settings-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+            </div>
+            <div class="settings-row-text">
+              <div class="settings-row-label">Time limit</div>
+              <div class="settings-row-sub" id="kids-time-sub">No time limit</div>
+            </div>
+            <div class="settings-row-action" style="color:var(--accent);font-size:12px;font-weight:600">Change · PIN</div>
           </div>
         </div>
       </div>
@@ -1244,7 +1437,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
           <textarea id="import-textarea" style="display:none" readonly></textarea>
           <div id="import-error" style="display:none;color:var(--danger);font-size:12px;margin-top:0.4rem;font-family:'DM Mono',monospace;"></div>
           <div style="display:flex;gap:8px;margin-top:0.6rem">
-            <button onclick="doImportBackup()" style="flex:1;padding:0.75rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Restore</button>
+            <button onclick="doImportBackup()" style="flex:1;padding:0.75rem;background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Restore</button>
             <button onclick="hideImportPanel()" style="padding:0.75rem 1.1rem;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
           </div>
         </div>
@@ -1285,7 +1478,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
               <span>How does Kids Mode work?</span>
               <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="faq-a">Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children.<br><br>To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.</div>
+            <div class="faq-a">Kids Mode is a PIN-protected channel-curation control. When enabled, the Search and Channels tabs are hidden, so the person using the device can watch only from the channel list already configured on that device. It can be used by a parent, teacher, student, or adult who wants an extra layer of resistance against adding more channels. Kids Mode does not filter, classify, or certify videos or channels as suitable for children.<br><br>To prevent accidental taps, sharing options in Settings are also hidden — we don't want a child triggering an unintended share action on a parent's device.<br><br>A 6-digit PIN is required to enable or disable Kids Mode, so children cannot change these restrictions themselves. The PIN is set by the parent when turning Kids Mode on every time.<br><br>Parents can also choose an optional time limit (30 minutes by default). A countdown shows at the top of the screen, and when time is up the video pauses and the screen locks until the parent enters the PIN to add more time or exit Kids Mode.</div>
           </div>
 
           <div class="faq-item" onclick="toggleFaq(this)" role="button" tabindex="0">
@@ -1416,6 +1609,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         </div>
         <div class="footer-bottom">
           <p>&copy; 2026 NoSuggest. A quiet act of resistance.</p>
+          <p>NoSuggest is an independent app and is not affiliated with YouTube or Google. YouTube is a trademark of Google LLC.</p>
         </div>
       </div>
     </div>
@@ -1437,19 +1631,19 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
       <div id="search-chooser" style="display:flex;flex-direction:column">
         <div class="search-choice-grid">
           <div class="search-choice-intro"><strong>What would you like to search?</strong></div>
-          <button type="button" class="search-choice-tile" onclick="pickSearchMode('videos')" aria-label="Search Videos: Paste a link to preview and watch a video.">
+          <button type="button" class="search-choice-tile" onclick="pickSearchMode('channels')" aria-label="Search Channels: Find creators and add them to your feed.">
+            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20v-1.5a6.5 6.5 0 0 1 13 0V20H3.5Z"/><path d="M18 7h4m-2-2v4"/></svg></span>
+            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Make it yours</span><span class="search-choice-tile-title">Search YouTube Channels</span><span class="search-choice-tile-sub">Find creators and add them to your feed.</span></span>
+            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="search-choice-tile tone-videos" onclick="pickSearchMode('videos')" aria-label="Search Videos: Paste a link to preview and watch a video.">
             <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span>
             <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Explore</span><span class="search-choice-tile-title">Search YouTube Videos</span><span class="search-choice-tile-sub">Paste a link to preview and watch a video.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
-          <button type="button" class="search-choice-tile" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
+          <button type="button" class="search-choice-tile tone-continue" id="cw-chooser-tile" onclick="pickSearchMode('continue')" aria-label="Continue Watching: Your unfinished videos, ready when you are.">
             <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a9 9 0 1 1 2.6 7"/><path d="M3 4v7h7"/><path d="M12 7v5l3 2"/></svg></span>
             <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Pick up where you left off</span><span class="search-choice-tile-title">Continue Watching</span><span class="search-choice-tile-sub">Your unfinished videos, ready when you are.</span></span>
-            <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
-          </button>
-          <button type="button" class="search-choice-tile" onclick="pickSearchMode('channels')" aria-label="Search Channels: Find creators and add them to your feed.">
-            <span class="search-choice-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20v-1.5a6.5 6.5 0 0 1 13 0V20H3.5Z"/><path d="M18 7h4m-2-2v4"/></svg></span>
-            <span class="search-choice-tile-content"><span class="search-choice-tile-kicker">Make it yours</span><span class="search-choice-tile-title">Search YouTube Channels</span><span class="search-choice-tile-sub">Find creators and add them to your feed.</span></span>
             <span class="search-choice-tile-arrow" aria-hidden="true">→</span>
           </button>
         </div>
@@ -1485,10 +1679,27 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   </div>
 
   
+  <div class="screen" id="screen-channel-videos">
+    <div class="chv-header">
+      <button type="button" class="back-btn" onclick="closeChannelVideos()" aria-label="Back to Feed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="ch-avatar" id="chv-avatar"></div>
+      <div class="chv-title-wrap">
+        <h2 id="chv-title">Channel</h2>
+        <div class="chv-sub" id="chv-sub"></div>
+      </div>
+    </div>
+    <div class="screen-body" id="chv-body">
+      <div class="chv-grid" id="chv-grid"></div>
+    </div>
+  </div>
+
   <div class="screen" id="screen-saved">
     <div class="saved-header">
       <div><h2>Saved Videos</h2><span class="yt-source">Metadata from YouTube</span></div>
       <span class="saved-count" id="saved-count">0 videos</span>
+      <span class="kids-timer" role="timer" aria-label="Kids Mode time left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="kids-timer-text">--:--</span></span>
     </div>
     <div class="screen-body" id="saved-body">
       <div class="saved-empty-state" id="saved-empty">
@@ -1595,6 +1806,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
   <div id="player-overlay">
     <div class="player-top">
       <div class="player-channel" id="player-channel-name"></div>
+      <span class="kids-timer" role="timer" aria-label="Kids Mode time left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="kids-timer-text">--:--</span></span>
       <button class="close-player" onclick="closePlayer()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
@@ -1609,10 +1821,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     </div>
     <div class="player-info">
       <div class="player-title" id="player-title"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.5rem">
+      <div class="player-actions">
         <div class="player-meta" id="player-meta"></div>
-        <button id="player-save-btn" onclick="toggleSaveFromPlayer()" style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s,color 0.15s">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="player-save-icon"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <button type="button" id="player-save-btn" class="player-save-btn" onclick="toggleSaveFromPlayer()" aria-pressed="false">
+          <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linejoin="round" id="player-save-icon" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           <span id="player-save-label">Save</span>
         </button>
       </div>
@@ -1710,6 +1922,42 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
     <div class="nlo-sub"   id="nlo-sub"></div>
   </div>
 </div>
+<div id="kids-limit-backdrop">
+  <div class="kl-box" id="kids-limit-modal" role="dialog" aria-modal="true" aria-labelledby="kl-title">
+    <div class="kl-title" id="kl-title">Set a time limit</div>
+    <div class="kl-sub">When time is up, the video pauses and the screen locks until a parent enters the PIN.</div>
+    <div class="kl-grid" role="radiogroup" aria-labelledby="kl-title"><button type="button" class="kl-opt" role="radio" data-min="15" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(15)">15 min</button><button type="button" class="kl-opt" role="radio" data-min="30" aria-checked="true" tabindex="0" onclick="pickKidsLimit(30)">30 min</button><button type="button" class="kl-opt" role="radio" data-min="45" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(45)">45 min</button><button type="button" class="kl-opt" role="radio" data-min="60" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(60)">1 hour</button><button type="button" class="kl-opt" role="radio" data-min="90" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(90)">1.5 hours</button><button type="button" class="kl-opt" role="radio" data-min="0" aria-checked="false" tabindex="-1" onclick="pickKidsLimit(0)">No limit</button></div>
+    <div class="kl-actions">
+      <button type="button" class="kl-secondary" onclick="closeKidsLimitPicker()">Cancel</button>
+      <button type="button" class="kl-primary" onclick="confirmKidsLimit()">Continue</button>
+    </div>
+  </div>
+</div>
+<div id="kids-gate" role="dialog" aria-modal="true" aria-labelledby="kg-title" aria-describedby="kg-sub">
+  <div class="kg-box">
+    <div class="kg-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div>
+    <div class="kg-title" id="kg-title">Time's up!</div>
+    <div class="kg-sub" id="kg-sub">Great watching today!</div>
+    <div class="kg-panel" id="kg-pin-panel">
+      <div style="font-size:13px;color:var(--muted);font-weight:600" id="kg-pin-label">Enter the PIN to continue.</div>
+      <div class="pin-dots"><div class="pin-dot" id="kgd0"></div><div class="pin-dot" id="kgd1"></div><div class="pin-dot" id="kgd2"></div><div class="pin-dot" id="kgd3"></div><div class="pin-dot" id="kgd4"></div><div class="pin-dot" id="kgd5"></div></div>
+      <div class="pin-error" id="kg-error" role="alert"></div>
+      <div class="pin-keypad"><button type="button" class="pin-key" onclick="kgKey('1')">1</button><button type="button" class="pin-key" onclick="kgKey('2')">2</button><button type="button" class="pin-key" onclick="kgKey('3')">3</button><button type="button" class="pin-key" onclick="kgKey('4')">4</button><button type="button" class="pin-key" onclick="kgKey('5')">5</button><button type="button" class="pin-key" onclick="kgKey('6')">6</button><button type="button" class="pin-key" onclick="kgKey('7')">7</button><button type="button" class="pin-key" onclick="kgKey('8')">8</button><button type="button" class="pin-key" onclick="kgKey('9')">9</button><button type="button" class="pin-key" onclick="kgKey('back')" style="font-size:0.9rem" aria-label="Delete">⌫</button><button type="button" class="pin-key" onclick="kgKey('0')">0</button><span aria-hidden="true"></span></div>
+      <button type="button" class="kg-link" id="kg-cancel" onclick="closeKidsGate()" hidden>Cancel</button>
+    </div>
+    <div class="kg-panel" id="kg-choice-panel" hidden>
+      <div style="font-size:13px;color:var(--muted);font-weight:600" id="kg-choice-label">Add more time</div>
+      <div class="kg-choices">
+        <button type="button" class="kg-add" onclick="kidsAddTime(15)">+15 min</button>
+        <button type="button" class="kg-add" onclick="kidsAddTime(30)">+30 min</button>
+        <button type="button" class="kg-add" onclick="kidsAddTime(60)">+1 hour</button>
+      </div>
+      <button type="button" class="kg-wide" id="kg-nolimit" onclick="kidsRemoveLimit()">Remove time limit</button>
+      <button type="button" class="kg-wide danger" onclick="kidsExitFromGate()">Exit Kids Mode</button>
+      <button type="button" class="kg-link" id="kg-done" onclick="closeKidsGate()" hidden>Done</button>
+    </div>
+  </div>
+</div>
 <div id="vpc-backdrop" onclick="if(event.target===this)closeVpcPicker()">
   <div id="vpc-modal" role="dialog" aria-modal="true" aria-labelledby="vpc-title">
     <div class="vpc-title" id="vpc-title">Videos per Channel</div>
@@ -1722,6 +1970,75 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 <div id="api-verify-backdrop"><div id="api-verify-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="api-verify-title"><h2 id="api-verify-title">Verify to continue</h2><div id="api-verify-widget"></div></div></div>
 <script>
 'use strict';
+
+/* ── Theme (System / Light / Dark) ── 'ns_theme' in localStorage (absent = system). */
+const THEME_KEY = 'ns_theme';
+const THEME_COLORS = { dark:'#0a0a0a', light:'#f6f6f1' };
+const themeMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+function getThemePref(){
+  try{ const p = localStorage.getItem(THEME_KEY); return (p === 'light' || p === 'dark') ? p : 'system'; }
+  catch(e){ return 'system'; }
+}
+function resolveTheme(pref){
+  if(pref === 'light' || pref === 'dark') return pref;
+  return (themeMedia && themeMedia.matches) ? 'light' : 'dark';
+}
+function currentResolvedTheme(){ return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
+let themeSwitchTimer = null;
+function applyTheme(animate){
+  const pref = getThemePref();
+  const theme = resolveTheme(pref);
+  const root = document.documentElement;
+  if(animate && root.getAttribute('data-theme') !== theme){
+    root.classList.add('theme-switching');
+    clearTimeout(themeSwitchTimer);
+    themeSwitchTimer = setTimeout(() => root.classList.remove('theme-switching'), 350);
+  }
+  root.setAttribute('data-theme', theme);
+  root.setAttribute('data-theme-pref', pref);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', THEME_COLORS[theme]);
+  updateThemeControl();
+}
+function updateThemeControl(){
+  const pref = getThemePref();
+  document.querySelectorAll('.theme-seg-btn').forEach(b => {
+    const on = b.dataset.themePref === pref;
+    b.setAttribute('aria-checked', on ? 'true' : 'false');
+    b.tabIndex = on ? 0 : -1;
+  });
+  const sub = document.getElementById('theme-sub');
+  if(sub){
+    sub.textContent = pref === 'system'
+      ? `Matches your device setting (currently ${resolveTheme('system')})`
+      : (pref === 'light' ? 'Always light' : 'Always dark');
+  }
+}
+function setThemePref(pref){
+  try{
+    if(pref === 'light' || pref === 'dark') localStorage.setItem(THEME_KEY, pref);
+    else localStorage.removeItem(THEME_KEY);
+  }catch(e){}
+  applyTheme(true);
+}
+if(themeMedia){
+  const onSystemThemeChange = () => { if(getThemePref() === 'system') applyTheme(true); };
+  if(themeMedia.addEventListener) themeMedia.addEventListener('change', onSystemThemeChange);
+  else if(themeMedia.addListener) themeMedia.addListener(onSystemThemeChange);
+}
+window.addEventListener('storage', e => { if(e.key === THEME_KEY || e.key === null) applyTheme(true); });
+document.addEventListener('keydown', e => {
+  const btn = e.target && e.target.closest ? e.target.closest('.theme-seg-btn') : null;
+  if(!btn) return;
+  const keys = { ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1 };
+  if(!(e.key in keys)) return;
+  e.preventDefault();
+  const all = [...document.querySelectorAll('.theme-seg-btn')];
+  const next = all[(all.indexOf(btn) + keys[e.key] + all.length) % all.length];
+  setThemePref(next.dataset.themePref);
+  next.focus();
+});
+applyTheme(false);
 
 const PROXY = 'https://api.nosuggest.com';
 
@@ -1830,7 +2147,7 @@ function renderVerification(sitekey,action){
     const timer=setTimeout(()=>finish(new Error('Verification timed out. Please retry.')),90000);
     try{
       widgetId=turnstile.render(widget,{
-        sitekey,action,appearance:'interaction-only',
+        sitekey,action,appearance:'interaction-only',theme:currentResolvedTheme(),
         size:window.innerWidth<350?'compact':'normal',
         callback:token=>finish(null,token),
         'before-interactive-callback':()=>{notifyVerificationInteractive();backdrop.classList.add('interactive');document.getElementById('api-verify-modal').setAttribute('aria-hidden','false');verificationStatus(false);},
@@ -2089,7 +2406,7 @@ const STORE = {
   get sessionCount(){ return parseInt(localStorage.getItem('ns_session_count')||'0',10) },
   set sessionCount(v){ localStorage.setItem('ns_session_count', String(v)) },
 
-get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_channel')||'10',10); return (v>=1 && v<=50) ? v : 10; },
+get videosPerChannel(){ const v = parseInt(localStorage.getItem('ns_videos_per_channel')||'5',10); return (v>=1 && v<=50) ? v : 5; },
   set videosPerChannel(v){ localStorage.setItem('ns_videos_per_channel', String(v)) },
 };
 
@@ -2584,7 +2901,7 @@ function showScreen(name, opts){
   });
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-  if(name !== 'setup' && name !== 'add'){
+  if(name !== 'setup' && name !== 'add' && name !== 'channel-videos'){
     localStorage.setItem('ns_active_tab', name);
   }
 
@@ -2599,6 +2916,7 @@ function showScreen(name, opts){
   const navMap = {feed:'nav-feed', channels:'nav-channels', settings:'nav-settings', search:'nav-search', saved:'nav-saved'};
   if(navMap[name]) document.getElementById(navMap[name]).classList.add('active');
   else if(name === 'add') document.getElementById('nav-channels').classList.add('active');
+  else if(name === 'channel-videos') document.getElementById('nav-feed').classList.add('active');
 
   if(name === 'feed'){
     // Only kick off a real load the first time Feed is shown this session,
@@ -2729,6 +3047,7 @@ function expireStaleApiMetadata(){
       }
     });
 
+    if(currentScreen === 'channel-videos' && channelVideosId) renderChannelVideosPage(false);
     /* Search results on screen. */
     if(searchResultIds.length &&searchResultIds.some(id => !VIDEO_DATA[id] || unusable(VIDEO_DATA[id]))){
       searchResultIds = [];
@@ -3072,12 +3391,11 @@ function handlePinComplete(){
   const errEl = document.getElementById('pin-error');
   if(pinMode === 'set'){
     STORE.kidsPin  = pinBuffer;
-    STORE.kidsMode = true;
-    closePinOverlay(); applyKidsMode(); toast('Kids Mode enabled 🛡️');
+    closePinOverlay();
+    enableKidsMode();
   } else if(pinMode === 'verify-disable'){
     if(pinBuffer === STORE.kidsPin){
-      STORE.kidsMode = false; STORE.kidsPin = '';
-      closePinOverlay(); applyKidsMode(); toast('Kids Mode disabled');
+      closePinOverlay(); disableKidsMode();
     } else {
       errEl.textContent = 'Incorrect PIN. Try again.';
       pinBuffer = ''; updatePinDots();
@@ -3104,13 +3422,13 @@ function toggleKidsMode(){
   if(STORE.kidsMode){
     showPinOverlay('verify-disable');
   } else {
-    if(STORE.kidsPin){ STORE.kidsMode = true; applyKidsMode(); toast('Kids Mode enabled 🛡️'); }
-    else { showPinOverlay('set'); }
+    openKidsLimitPicker();   // time limit first, then the PIN
   }
   initSettings();
 }
 function applyKidsMode(){
   const on = STORE.kidsMode;
+  document.body.classList.toggle('kids-on', on);
   document.getElementById('kids-banner').classList.toggle('show', on);
   document.getElementById('nav-search').style.display   = on ? 'none' : '';
   document.getElementById('nav-channels').style.display = on ? 'none' : '';
@@ -3121,12 +3439,232 @@ function applyKidsMode(){
     if(el) el.style.display = on ? 'none' : '';
   });
   if(on){ closeShareStrip(); closeDesktopShare(); }
-  if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add' || currentScreen === 'settings')){
+  /* Re-draw feed rows so "See more" tiles appear/disappear immediately. */
+  FEED_RENDERED.forEach((list, chId) => {
+    const ch = STORE.channels.find(c => c.id === chId);
+    if(ch && document.getElementById('videos-' + chId)) renderVideos(ch, list, false);
+  });
+  if(on && (currentScreen === 'search' || currentScreen === 'channels' || currentScreen === 'add' || currentScreen === 'settings' || currentScreen === 'channel-videos')){
     showScreen('feed');
   }
   const statusEl = document.getElementById('kids-mode-status');
   if(statusEl){ statusEl.textContent = on ? 'On' : 'Off'; statusEl.style.color = on ? 'var(--accent)' : 'var(--muted)'; }
+  kidsTimerSync();
 }
+
+/* ── Kids Mode time limit ───────────────────────────────────────────────────
+   The END TIME is stored (not a countdown), so reloading, closing the app or
+   switching tabs can never reset it. Phones pause background timers, so the
+   time is re-checked whenever the app becomes visible again.
+     ns_kids_until  : end time in ms (absent = no limit)
+     ns_kids_locked : '1' while the time-up lock is waiting for the parent PIN */
+const KIDS_UNTIL_KEY = 'ns_kids_until', KIDS_LOCK_KEY = 'ns_kids_locked';
+const KIDS_WARN_MS = 2 * 60 * 1000;
+let kidsPendingLimit = 30;
+let kidsTickTimer = null, kidsWarnedFor = 0;
+function kidsUntil(){ const n = parseInt(localStorage.getItem(KIDS_UNTIL_KEY) || '0', 10); return Number.isFinite(n) && n > 0 ? n : 0; }
+function kidsLocked(){ return STORE.kidsMode && localStorage.getItem(KIDS_LOCK_KEY) === '1'; }
+function setKidsUntil(ms){ ms ? localStorage.setItem(KIDS_UNTIL_KEY, String(ms)) : localStorage.removeItem(KIDS_UNTIL_KEY); }
+function formatCountdown(ms){
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return h ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}` : `${m}:${String(sec).padStart(2,'0')}`;
+}
+function describeMinutes(min){ return min >= 60 ? (min % 60 ? `${Math.floor(min/60)} h ${min%60} min` : `${min/60} hour${min === 60 ? '' : 's'}`) : `${min} min`; }
+
+/* Picker shown when a parent turns Kids Mode on. */
+function openKidsLimitPicker(){
+  pickKidsLimit(30);
+  document.getElementById('kids-limit-backdrop').classList.add('show');
+  a11yOpenModal(document.getElementById('kids-limit-modal'), closeKidsLimitPicker);
+  const sel = document.querySelector('.kl-opt[aria-checked="true"]'); if(sel) sel.focus();
+}
+function closeKidsLimitPicker(){
+  document.getElementById('kids-limit-backdrop').classList.remove('show');
+  a11yCloseModal();
+}
+function pickKidsLimit(min){
+  kidsPendingLimit = min;
+  document.querySelectorAll('.kl-opt').forEach(b => {
+    const on = Number(b.dataset.min) === min;
+    b.setAttribute('aria-checked', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1;
+  });
+}
+function confirmKidsLimit(){
+  closeKidsLimitPicker();
+  if(STORE.kidsPin) enableKidsMode();
+  else showPinOverlay('set');
+}
+function enableKidsMode(){
+  STORE.kidsMode = true;
+  localStorage.removeItem(KIDS_LOCK_KEY);
+  setKidsUntil(kidsPendingLimit > 0 ? Date.now() + kidsPendingLimit * 60000 : 0);
+  kidsWarnedFor = 0;
+  applyKidsMode();
+  toast(kidsPendingLimit > 0 ? `Kids Mode on · ${describeMinutes(kidsPendingLimit)} 🛡️` : 'Kids Mode enabled 🛡️');
+}
+function disableKidsMode(){
+  STORE.kidsMode = false; STORE.kidsPin = '';
+  setKidsUntil(0); localStorage.removeItem(KIDS_LOCK_KEY);
+  applyKidsMode(); toast('Kids Mode disabled');
+}
+
+/* Keeps every countdown pill, the Settings rows and the 1-second tick in step with storage. */
+function kidsTimerSync(){
+  const until = STORE.kidsMode ? kidsUntil() : 0;
+  const timed = !!until;
+  document.body.classList.toggle('kids-timed', timed);
+  if(timed && !kidsTickTimer) kidsTickTimer = setInterval(kidsTick, 1000);
+  if(!timed && kidsTickTimer){ clearInterval(kidsTickTimer); kidsTickTimer = null; }
+  const sub = document.getElementById('kids-time-sub');
+  if(sub) sub.textContent = timed ? `${formatCountdown(until - Date.now())} left` : 'No time limit';
+  if(STORE.kidsMode && kidsLocked()) showKidsLock();
+  else if(!STORE.kidsMode && kidsGateMode) hideKidsGate();
+  if(timed) kidsTick();
+}
+function kidsTick(){
+  const until = STORE.kidsMode ? kidsUntil() : 0;
+  if(!until){ kidsTimerSync(); return; }
+  const left = until - Date.now();
+  const text = formatCountdown(left), low = left <= KIDS_WARN_MS;
+  document.querySelectorAll('.kids-timer').forEach(p => {
+    p.querySelector('.kids-timer-text').textContent = text;
+    p.classList.toggle('low', low);
+    p.setAttribute('aria-label', `Kids Mode time left: ${text}`);
+  });
+  const sub = document.getElementById('kids-time-sub');
+  if(sub) sub.textContent = `${text} left`;
+  if(left <= 0){ kidsTimeUp(); return; }
+  if(low && kidsWarnedFor !== until && !kidsLocked()){
+    kidsWarnedFor = until;
+    toast(`${Math.max(1, Math.ceil(left / 60000))} minute${left > 60000 ? 's' : ''} left`, 5000);
+  }
+}
+function kidsTimeUp(){
+  if(!STORE.kidsMode) return;
+  localStorage.setItem(KIDS_LOCK_KEY, '1');
+  showKidsLock();
+}
+
+/* Full-screen lock. The player is paused, its position saved to Continue Watching, and
+   then CLOSED (never covered, per YouTube's player rules) before the lock appears. */
+let kidsGateMode = '';           // '' | 'timeup' | 'manage'
+let kgBuffer = '', kgPhase = 'pin';
+function showKidsLock(){
+  if(kidsGateMode === 'timeup') return;
+  try{ if(ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo(); }catch(e){}
+  const overlay = document.getElementById('player-overlay');
+  if(overlay && overlay.classList.contains('open')) closePlayer();
+  try{
+    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+    else if(document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }catch(e){}
+  /* Close anything else that is open so nothing sits on top of, or behind, the lock. */
+  ['pin-overlay','kids-limit-backdrop','vpc-backdrop','export-modal-backdrop','pack-modal-backdrop','pack-confirm-backdrop','follow-ch-backdrop','share-strip-backdrop','nav-share-strip','desktop-share-backdrop']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('show'); });
+  pinBuffer = ''; pinMode = '';
+  _a11yModalEl = null; _a11yCloseFn = null;
+  openKidsGate('timeup');
+}
+function openKidsGate(mode){
+  if(mode === 'manage' && !STORE.kidsMode) return;
+  kidsGateMode = mode; kgBuffer = ''; kgPhase = 'pin';
+  const timeup = mode === 'timeup';
+  document.getElementById('kg-title').textContent = timeup ? "Time's up!" : 'Parent controls';
+  document.getElementById('kg-sub').textContent   = timeup ? 'Great watching today. Hand the device to a grown-up.' : 'Change the time limit or turn off Kids Mode.';
+  document.getElementById('kg-pin-label').textContent = timeup ? 'Parent: enter your PIN to continue' : 'Enter your PIN';
+  document.getElementById('kg-cancel').hidden = timeup;
+  document.getElementById('kg-done').hidden   = timeup;
+  document.getElementById('kg-pin-panel').hidden = false;
+  document.getElementById('kg-choice-panel').hidden = true;
+  document.getElementById('kg-error').textContent = '';
+  kgDots();
+  const gate = document.getElementById('kids-gate');
+  gate.classList.add('show');
+  document.getElementById('app').setAttribute('inert', '');
+  a11yOpenModal(gate, timeup ? () => {} : closeKidsGate);   // Escape cannot dismiss the time-up lock
+}
+function hideKidsGate(){
+  kidsGateMode = ''; kgBuffer = '';
+  document.getElementById('kids-gate').classList.remove('show');
+  document.getElementById('app').removeAttribute('inert');
+  a11yCloseModal();
+}
+function closeKidsGate(){
+  if(kidsGateMode === 'timeup' && kidsLocked()) return;   // only PIN choices can leave the lock
+  hideKidsGate();
+  if(currentScreen === 'settings') initSettings();
+}
+function kgDots(){ for(let i = 0; i < 6; i++) document.getElementById('kgd' + i).classList.toggle('filled', i < kgBuffer.length); }
+function kgKey(k){
+  if(kgPhase !== 'pin') return;
+  document.getElementById('kg-error').textContent = '';
+  if(k === 'back'){ kgBuffer = kgBuffer.slice(0, -1); kgDots(); return; }
+  if(kgBuffer.length >= 6) return;
+  kgBuffer += k; kgDots();
+  if(kgBuffer.length === 6) setTimeout(kgCheck, 150);
+}
+function kgCheck(){
+  if(kgBuffer === STORE.kidsPin){
+    kgPhase = 'choice'; kgBuffer = ''; kgDots();
+    const timed = !!kidsUntil();
+    document.getElementById('kg-choice-label').textContent = kidsGateMode === 'timeup' ? 'Add more time' : (timed ? `${formatCountdown(kidsUntil() - Date.now())} left · add time` : 'Set a time limit');
+    document.getElementById('kg-nolimit').hidden = !timed && kidsGateMode !== 'timeup';
+    document.getElementById('kg-pin-panel').hidden = true;
+    document.getElementById('kg-choice-panel').hidden = false;
+    const first = document.querySelector('#kg-choice-panel .kg-add'); if(first) first.focus();
+  } else {
+    document.getElementById('kg-error').textContent = 'Incorrect PIN. Try again.';
+    kgBuffer = ''; kgDots();
+  }
+}
+/* Adding time: after time-up it starts from now; during a session it extends the
+   current end time; with no limit it starts a new limit. */
+function kidsAddTime(min){
+  if(kgPhase !== 'choice' || !STORE.kidsMode) return;
+  const wasLocked = kidsLocked(), until = kidsUntil();
+  const base = (!wasLocked && until > Date.now()) ? until : Date.now();
+  setKidsUntil(base + min * 60000);
+  localStorage.removeItem(KIDS_LOCK_KEY);
+  kidsWarnedFor = 0;
+  hideKidsGate(); kidsTimerSync();
+  if(wasLocked) showScreen('feed');
+  else if(currentScreen === 'settings') initSettings();
+  toast(`Added ${describeMinutes(min)} ✓`);
+}
+function kidsRemoveLimit(){
+  if(kgPhase !== 'choice' || !STORE.kidsMode) return;
+  const wasLocked = kidsLocked();
+  setKidsUntil(0); localStorage.removeItem(KIDS_LOCK_KEY);
+  hideKidsGate(); kidsTimerSync();
+  if(wasLocked) showScreen('feed');
+  else if(currentScreen === 'settings') initSettings();
+  toast('Time limit removed');
+}
+function kidsExitFromGate(){
+  if(kgPhase !== 'choice') return;
+  hideKidsGate();
+  disableKidsMode();
+  showScreen('feed');
+}
+/* Arrow keys inside the time-limit radio group. */
+document.addEventListener('keydown', e => {
+  const b = e.target && e.target.closest ? e.target.closest('.kl-opt') : null;
+  if(!b) return;
+  const d = {ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1}[e.key];
+  if(!d) return;
+  e.preventDefault();
+  const all = [...document.querySelectorAll('.kl-opt')];
+  const next = all[(all.indexOf(b) + d + all.length) % all.length];
+  pickKidsLimit(Number(next.dataset.min)); next.focus();
+});
+/* Another tab changed Kids Mode or its timer. */
+window.addEventListener('storage', e => {
+  if(e.key === null || e.key === KIDS_UNTIL_KEY || e.key === KIDS_LOCK_KEY || e.key === 'ns_kids_mode'){
+    if(!kidsLocked() && kidsGateMode === 'timeup') hideKidsGate();
+    applyKidsMode();
+  }
+});
 
 /* Resolve the best available handle for a channel object.
    New channels store it in ch.handle.
@@ -3243,7 +3781,7 @@ function appendChannelToFeed(ch, videos, body){
   const block = wrapper.firstElementChild;
   block.style.animation = 'fadeUp 0.35s ease both';
   body.appendChild(block);
-  renderVideos(ch, videos.slice(0, STORE.videosPerChannel), !hasSections);
+  renderVideos(ch, videos, !hasSections);
   
   const el = document.getElementById('videos-' + ch.id);
   if(el){ el.style.transform = 'translateZ(0)'; void el.offsetHeight; }
@@ -3421,13 +3959,14 @@ if(silentOverlayShown){ silentOverlayShown = false; hideLoadingOverlay(silentOve
       const fresh = await fetchVideosCVWithRetry(ch.id, resolveHandle(ch), myAbortSignal);
       if(feedGeneration !== myGen || !Array.isArray(fresh)) return;
       setCachedVideos(ch.id, fresh);
-      const n = STORE.videosPerChannel;
-      const ids = list => list.slice(0, n).map(v => v && v.id).join(',');
+      /* Compare the whole list: the "See more" page and button depend on all of it. */
+      const ids = list => list.map(v => v && v.id).join(',');
       if(ids(fresh) === ids(stale)) return;
       requestAnimationFrame(() => {
         if(feedGeneration !== myGen) return;
         if(ready.has(i)){ ready.set(i, fresh); return; }
-        if(document.getElementById('videos-' + ch.id)) renderVideos(ch, fresh.slice(0, n), false);
+        if(document.getElementById('videos-' + ch.id)) renderVideos(ch, fresh, false);
+        if(currentScreen === 'channel-videos' && channelVideosId === ch.id) renderChannelVideosPage(false);
       });
     } catch(e){
       console.warn(`[NoSuggest] ${ch.id} background refresh failed, keeping cached list:`, e.message);
@@ -3514,35 +4053,92 @@ const VIDEO_DATA = {};
    Avoids escaping complexities in onclick attrs for resume cards. */
 const RESUME_DATA = {};
 
-function renderVideos(ch, videos, prioritizeFirst){
+/* renderVideos() receives the channel's FULL fetched list (up to 50). The feed row shows the
+   first STORE.videosPerChannel; a "See more" tile is added only when the channel actually has
+   more videos than that. The full list is kept in FEED_RENDERED for the channel page. */
+function renderVideos(ch, allVideos, prioritizeFirst){
   const el = document.getElementById('videos-' + ch.id);
   if(!el) return;
-  FEED_RENDERED.set(ch.id, videos.slice());
+  const all = Array.isArray(allVideos) ? allVideos.slice() : [];
+  FEED_RENDERED.set(ch.id, all);
+  const videos = all.slice(0, STORE.videosPerChannel);
   if(!videos.length){
     el.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--faint)">No full-form latest videos found for this channel</div>`;
     return;
   }
-  el.innerHTML = videos.map((v, idx) => {
+  /* Kids Mode: the parent's videos-per-channel setting is a hard limit, so no "See more". */
+  const more = (!STORE.kidsMode && all.length > videos.length)
+    ? `<button type="button" class="see-more-card" onclick="openChannelVideos('${esc(ch.id)}')" aria-label="See all ${all.length} videos from ${escHtml(ch.name || 'this channel')}">
+        <span class="see-more-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <span class="see-more-label">See more</span>
+        <span class="see-more-count">${all.length} videos</span>
+      </button>`
+    : '';
+  el.innerHTML = videos.map((v, idx) => videoCardHtml(v, ch, prioritizeFirst && idx === 0)).join('') + more;
+}
+
+function videoCardHtml(v, ch, highPriority){
     VIDEO_DATA[v.id] = v;
     const savedNow = STORE.savedVideos.some(s => s.id === v.id);
     const isNew    = isNewVideo(v.publishedAt);
     return `
     <div class="video-thumb${isNew ? ' is-new' : ''}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
       <div class="thumb-img-wrap">
-        <img src="${esc(v.thumb)}" alt="" loading="eager" decoding="async"${prioritizeFirst && idx === 0 ? ' fetchpriority="high"' : ""}/>
+        <img src="${esc(v.thumb)}" alt="" loading="${highPriority === 'lazy' ? 'lazy' : 'eager'}" decoding="async"${highPriority === true ? ' fetchpriority="high"' : ""}/>
         <div class="thumb-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
       </div>
       <div class="thumb-info">
         <div class="thumb-title">${escHtml(v.title)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="thumb-meta" style="${isNew ? 'color:var(--accent)' : ''}">${timeAgo(v.publishedAt)}</div>
-          <button class="feed-save-btn" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
+          <button type="button" class="feed-save-btn" data-video-id="${esc(v.id)}" aria-label="${savedNow ? 'Remove from saved' : 'Save video'}" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
             <svg width="12" height="12" viewBox="0 0 24 24" stroke-width="2" fill="${savedNow?'var(--accent)':'none'}" stroke="${savedNow?'var(--accent)':'var(--faint)'}"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
       </div>
     </div>`;
-  }).join('');
+}
+
+/* ── Channel "all videos" page ─────────────────────────────────────────────
+   Uses the list already fetched for the feed (no extra API call). */
+let channelVideosId = '';
+function openChannelVideos(chId){
+  if(STORE.kidsMode) return;
+  const ch = STORE.channels.find(c => c.id === chId);
+  if(!ch) return;
+  channelVideosId = chId;
+  showScreen('channel-videos');
+  renderChannelVideosPage(true);
+}
+function renderChannelVideosPage(resetScroll){
+  const ch   = STORE.channels.find(c => c.id === channelVideosId);
+  const grid = document.getElementById('chv-grid');
+  if(!ch || !grid) return;
+  const videos = (FEED_RENDERED.get(ch.id) || []).filter(v => apiRecordUsable(v, Date.now()));
+  document.getElementById('chv-title').innerHTML  = escHtml(ch.name || 'Channel');
+  document.getElementById('chv-avatar').innerHTML = channelAvatarMarkup(ch);
+  document.getElementById('chv-sub').textContent  = videos.length ? `${videos.length} latest video${videos.length === 1 ? '' : 's'} · from YouTube` : '';
+  grid.innerHTML = videos.length
+    ? videos.map((v, i) => videoCardHtml(v, ch, i < 8 ? false : 'lazy')).join('')
+    : '<div class="chv-empty" style="grid-column:1/-1">Video details expired. Go back and tap Reload to refresh.</div>';
+  if(resetScroll){ const body = document.getElementById('chv-body'); if(body) body.scrollTop = 0; }
+}
+function closeChannelVideos(){
+  const id = channelVideosId;
+  showScreen('feed');
+  /* Return keyboard focus to the channel row the user came from. */
+  const btn = id && document.querySelector(`#videos-${CSS.escape(id)} .see-more-card`);
+  if(btn) btn.focus({preventScroll:true});
+}
+/* Keep every visible bookmark icon for a video (feed row, channel page) in sync. */
+function syncFeedSaveIcons(id){
+  const saved = isVideoSaved(id);
+  document.querySelectorAll('.feed-save-btn').forEach(b => {
+    if(b.dataset.videoId !== id) return;
+    const svg = b.querySelector('svg');
+    svg.setAttribute('fill',   saved ? 'var(--accent)' : 'none');
+    svg.setAttribute('stroke', saved ? 'var(--accent)' : 'var(--faint)');
+  });
 }
 
 function skipToMainContent(){
@@ -3690,8 +4286,9 @@ function toggleFeedSaveById(videoId, chId){
   const v  = VIDEO_DATA[videoId];
   const ch = STORE.channels.find(c => c.id === chId) || {};
   if(!v) return;
-  const btn = document.querySelector(`.feed-save-btn[onclick*="'${videoId}'"]`);
-  toggleFeedSave(btn, v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
+  toggleSaveVideo({id:v.id, title:v.title, channelName:ch.name||'', publishedAt:v.publishedAt||'', thumb:v.thumb||''});
+  syncFeedSaveIcons(v.id);
+  if(currentVideoData?.id === v.id) updatePlayerSaveBtn(v.id);
 }
 
 function decodeVideoTitle(value){
@@ -3701,6 +4298,7 @@ function decodeVideoTitle(value){
   return new DOMParser().parseFromString('<!doctype html><title>' + safe + '</title>', 'text/html').title;
 }
 function openPlayer(videoId, title, channelName, publishedAt, thumb){
+  if(kidsLocked()) return;
   const myPlayerGeneration = ++playerGeneration;
   const displayTitle = decodeVideoTitle(title);
   currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'',metadataFetchedAt:(displayTitle || channelName || thumb) ? (metaStamp(VIDEO_DATA[videoId]) || metaStamp(RESUME_DATA[videoId])) : 0 };
@@ -3936,16 +4534,16 @@ function updatePlayerSaveBtn(videoId){
   const icon   = document.getElementById('player-save-icon');
   const label  = document.getElementById('player-save-label');
   const btn    = document.getElementById('player-save-btn');
-  icon.style.fill   = saved ? 'var(--accent)' : 'none';
-  icon.style.stroke = saved ? 'var(--accent)' : 'currentColor';
+  btn.classList.toggle('is-saved', saved);
+  btn.setAttribute('aria-pressed', saved ? 'true' : 'false');
+  btn.setAttribute('aria-label', saved ? 'Saved. Remove from saved videos' : 'Save video for later');
   label.textContent = saved ? 'Saved' : 'Save';
-  btn.style.color       = saved ? 'var(--accent)' : 'var(--muted)';
-  btn.style.borderColor = saved ? 'var(--accent)' : 'var(--border)';
 }
 function toggleSaveFromPlayer(){
   if(!currentVideoData) return;
   toggleSaveVideo(currentVideoData);
   updatePlayerSaveBtn(currentVideoData.id);
+  syncFeedSaveIcons(currentVideoData.id);
   if(currentScreen === 'saved') initSaved();
 }
 function closePlayer(){
@@ -4458,6 +5056,7 @@ channelRequestController = null;
 }
 
 function initSettings(){
+  updateThemeControl();
   const row = document.getElementById('settings-install-row');
   if(row){
     
@@ -4469,6 +5068,7 @@ function initSettings(){
   }
   const statusEl = document.getElementById('kids-mode-status');
   if(statusEl){ statusEl.textContent = STORE.kidsMode ? 'On' : 'Off'; statusEl.style.color = STORE.kidsMode ? 'var(--accent)' : 'var(--muted)'; }
+  kidsTimerSync();
 
   const vpcTriggerValue = document.getElementById('vpc-trigger-value');
   if(vpcTriggerValue) vpcTriggerValue.textContent = STORE.videosPerChannel;
@@ -4517,7 +5117,7 @@ function closeVpcPicker(){
 function reRenderAllChannelFeeds(){
   STORE.channels.forEach(ch => {
     const videos = getCachedVideos(ch.id) || getStaleCachedVideos(ch.id);
-    if(videos) renderVideos(ch, videos.slice(0, STORE.videosPerChannel));
+    if(videos) renderVideos(ch, videos);
   });
 }
 
@@ -5013,6 +5613,7 @@ function renderSavedList(){
 function removeSaved(id){
   STORE.savedVideos = STORE.savedVideos.filter(v => v.id !== id);
   initSaved();
+  syncFeedSaveIcons(id);
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
 }
 
@@ -5050,10 +5651,12 @@ function renderContinueWatchingList(){
            onclick="openPlayerFromResume('${esc(e.id)}')"
            role="button" tabindex="0"
            aria-label="Resume: ${escHtml(e.title || 'video')}">
-        <div class="cw-thumb-wrap">
-          <img src="${esc(thumb)}" alt="" loading="lazy"
-               onerror="this.src='https://i.ytimg.com/vi/${esc(e.id)}/mqdefault.jpg'"/>
-          <div class="cw-resume-badge">&#9654; Resume at ${escHtml(resumeAt)}</div>
+        <div class="cw-thumb-col">
+          <div class="cw-thumb-wrap">
+            <img src="${esc(thumb)}" alt="" loading="lazy"
+                 onerror="this.src='https://i.ytimg.com/vi/${esc(e.id)}/mqdefault.jpg'"/>
+          </div>
+          <div class="cw-resume-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>Resume at ${escHtml(resumeAt)}</div>
         </div>
         <div class="cw-info">
           <div class="cw-title">${escHtml(e.title || 'Untitled video')}</div>
@@ -5900,6 +6503,7 @@ window.addEventListener('popstate', () => {
   const overlay = document.getElementById('player-overlay');
   if(overlay.classList.contains('open')){ closePlayer(); }
   else if(currentScreen === 'add'){ leaveAddScreen(); }
+  else if(currentScreen === 'channel-videos'){ history.pushState(null, '', location.href); closeChannelVideos(); }
   else{ history.pushState(null, '', location.href); }
 });
 
@@ -5916,7 +6520,8 @@ document.addEventListener('visibilitychange', () => {
       captureResumeOnPause();
     }
   } else {
-    /* App became visible again. */
+    /* App became visible again. Background timers may have been paused: re-check Kids time now. */
+    if(STORE.kidsMode) kidsTimerSync();
     if(overlay && overlay.classList.contains('open') && ytPlayer){
       try{
         if(ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) requestScreenWakeLock();
