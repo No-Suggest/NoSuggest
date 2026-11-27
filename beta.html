@@ -555,7 +555,10 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .thumb-foot .thumb-meta{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 /* beta-12: compact "+ Save" / "+ Follow" action pills, shared by every screen. */
 .ch-pill[hidden]{display:none !important;}
-.ch-pill.sm{min-height:26px;padding:0 10px;font-size:11.5px;}
+.ch-pill.sm{min-height:26px;min-width:74px;padding:0 10px;font-size:11.5px;}
+/* beta-13: "✓ Following" / "✓ Added" are a status, not a button: plain accent text. */
+.ch-pill.is-done,.ch-pill.is-done:disabled{background:transparent;border-color:transparent;color:var(--accent);min-width:0;padding:0 2px;cursor:default;}
+.ch-pill.is-done::after{display:none;}
 .card-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;margin-top:8px;min-width:0;}
 .card-actions:empty{display:none;}
 
@@ -787,8 +790,20 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .search-channel-card .suggestion-name{font-size:14.5px;font-weight:600;}
 .search-channel-card .suggestion-subs{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .search-ch-kicker{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);font-family:'DM Mono',monospace;margin-bottom:2px;}
-.search-card-channel{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;margin-top:2px;min-width:0;}
-.search-card-channel-name{font-size:11.5px;color:var(--muted);min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* beta-13: the channel name + action pills sit in their own row, outside the play zone.
+   Desktop: the row is pinned under the title/meta beside the thumbnail (same look as before).
+   Phones (<600px): the row spans the full card width under the thumbnail, name left, pills right. */
+.search-video-card{position:relative;}
+.search-card-channel{display:flex;align-items:center;flex-wrap:nowrap;gap:8px;min-width:0;}
+.search-card-channel-name{font-size:11.5px;color:var(--muted);min-width:0;flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.search-card-channel .ch-pill{flex-shrink:0;}
+.search-video-card.has-actions .search-card-info{padding-bottom:44px;}
+.search-video-card.has-actions .search-card-channel{position:absolute;left:calc(var(--thumb-w) + 12px);right:0.75rem;bottom:10px;}
+@media(max-width:599px){
+ .search-video-card.has-actions .search-card-info{padding-bottom:0.65rem;}
+ .search-video-card.has-actions .search-card-channel{position:static;padding:8px 12px;border-top:1px solid var(--border);}
+ .search-card-channel-name{flex:1 1 auto;}
+}
 .ch-pill{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:30px;padding:0 12px;border-radius:999px;border:1.5px solid var(--accent);background:var(--accent);color:var(--on-accent);font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.02em;white-space:nowrap;cursor:pointer;position:relative;transition:opacity 0.15s,transform 0.1s;}
 .ch-pill::after{content:'';position:absolute;inset:-6px -2px;}
 .ch-pill:hover{opacity:0.88;}
@@ -4889,8 +4904,8 @@ function videoResultHtml(v, arrivedAt){
   const meta = [durationDisplay, timeStr, esc(v.views || '')].filter(Boolean).join(' • ');
   /* beta-12: channel name, then "+ Follow" and "+ Save" side by side (Save hidden once saved). */
   let channelRow = '';
-  const followPart = YOUTUBE_CHANNEL_ID_RE.test(v.channelId || '') ? followPillHtml(v.channelId, 'follow', v.channel) : '';
-  const savePart   = v.basic ? '' : savePillHtml(v.id, 'search', '', v.title);
+    const followPart = YOUTUBE_CHANNEL_ID_RE.test(v.channelId || '') ? followPillHtml(v.channelId, 'follow', v.channel, {small:true}) : '';
+    const savePart   = v.basic ? '' : savePillHtml(v.id, 'search', '', v.title, true);
   if(v.channel || followPart || savePart){
     channelRow = `<div class="search-card-channel">
       ${v.channel ? `<span class="search-card-channel-name">${escHtml(v.channel)}</span>` : ''}
@@ -4899,7 +4914,7 @@ function videoResultHtml(v, arrivedAt){
   }
   const title = v.basic ? 'YouTube video' : (v.title || 'Untitled video');
   return `
-  <div class="search-video-card">
+    <div class="search-video-card${channelRow ? ' has-actions' : ''}">
     <div class="search-card-play-zone" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(title)}">
       <div class="search-thumb-wrap">
         <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
@@ -4908,11 +4923,11 @@ function videoResultHtml(v, arrivedAt){
         <div class="search-card-title">${escHtml(title)}</div>
         ${meta ? `<div class="search-card-meta" style="margin-bottom:4px">${meta}</div>` : ''}
         ${v.basic ? '<div class="search-card-meta">Details unavailable right now. Tap to play.</div>' : ''}
-        ${v.embeddable === false ? '<span class="search-card-flag">The creator may not allow playback outside YouTube</span>' : ''}
-        ${channelRow}
+          ${v.embeddable === false ? '<span class="search-card-flag">The creator may not allow playback outside YouTube</span>' : ''}
+        </div>
       </div>
-    </div>
-  </div>`;
+      ${channelRow}
+    </div>`;
 }
 
 /* Results keep YouTube's relevance order: videos and channels interleaved as returned. */
@@ -4964,9 +4979,10 @@ function refreshResultButtons(){
   if(!list) return;
   list.querySelectorAll('[data-follow-ch]').forEach(btn => {
     const id = btn.dataset.followCh, kind = btn.dataset.kind, name = btn.dataset.name || 'this channel';
-    btn.classList.remove('is-busy');
-    if(followed.has(id)){
-      btn.disabled = true;
+      btn.classList.remove('is-busy');
+      btn.classList.toggle('is-done', followed.has(id));
+      if(followed.has(id)){
+        btn.disabled = true;
       btn.textContent = kind === 'add' ? '✓ Added' : '✓ Following';
       btn.setAttribute('aria-label', `Already following ${name}`);
     } else if(atLimit){
