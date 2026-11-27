@@ -551,8 +551,13 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 .empty-feed h3{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;color:var(--muted);}
 .empty-feed p{font-size:13.5px;color:var(--faint);line-height:1.6;}
 .empty-feed .btn{width:auto;padding:0.75rem 1.75rem;}
-.feed-save-btn{background:none;border:none;cursor:pointer;padding:2px;border-radius:3px;display:flex;align-items:center;transition:opacity 0.15s;flex-shrink:0;}
-.feed-save-btn:hover{opacity:0.7;}
+.thumb-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:26px;}
+.thumb-foot .thumb-meta{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* beta-12: compact "+ Save" / "+ Follow" action pills, shared by every screen. */
+.ch-pill[hidden]{display:none !important;}
+.ch-pill.sm{min-height:26px;padding:0 10px;font-size:11.5px;}
+.card-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;margin-top:8px;min-width:0;}
+.card-actions:empty{display:none;}
 
 .channels-header{padding:calc(var(--safe-top) + 1.2rem) 1.25rem 1rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;}
 .channels-header h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;letter-spacing:-0.02em;}
@@ -768,10 +773,6 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
 
 .search-thumb-wrap{position:relative;flex-shrink:0;width:var(--thumb-w);min-width:var(--thumb-w);height:var(--thumb-h);background:var(--thumb-bg);}
 .search-thumb-wrap img{width:var(--thumb-w);height:var(--thumb-h);object-fit:contain;display:block;}
-.search-save-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;background:var(--chip-bg);border:1px solid var(--chip-border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
-.search-save-btn:hover{background:rgba(var(--accent-rgb),0.25);}
-.search-save-btn svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;}
-.search-save-btn.saved svg{fill:var(--accent);}
 .search-card-info{flex:1;padding:0.65rem 0.75rem 0.65rem 0;display:flex;flex-direction:column;justify-content:flex-start;gap:3px;min-width:0;}
 .search-card-title{font-size:12.5px;font-weight:500;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:0.3rem;max-width:100%;word-break:break-word;}
 .search-card-meta{font-size:10.5px;color:var(--faint);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
@@ -1512,7 +1513,7 @@ body.show-install-strip .screen-body{padding-bottom:calc(116px + var(--safe-bot)
         <div class="saved-empty-state" id="saved-empty">
           <div class="big-icon">🔖</div>
           <h3>Nothing saved yet</h3>
-          <p>Tap the bookmark icon on any video<br/>to save it for later.</p>
+          <p>Tap <b>+ Save</b> on any video<br/>to keep it here for later.</p>
         </div>
         <div id="saved-list"></div>
       </div>
@@ -2275,7 +2276,8 @@ function setResumeStore(obj){
 }
 function saveResumePosition(videoId, seconds, title, channelName, thumb){
   const store = getResumeStore();
-  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'', thumb: thumb||'',metadataFetchedAt:metaStamp(currentVideoData) };
+  const chId = currentVideoData && YOUTUBE_CHANNEL_ID_RE.test(currentVideoData.channelId || '') ? currentVideoData.channelId : '';
+  store[videoId] = { t: Math.floor(seconds), saved: Date.now(), title: title||'', ch: channelName||'', thumb: thumb||'', chId, metadataFetchedAt:metaStamp(currentVideoData) };
   setResumeStore(store);
 }
 function deleteResumeEntry(videoId){
@@ -2346,7 +2348,7 @@ const isResumePlaceholder = e => !!e && (e.ph === 1 || (e.title === RESUME_PLACE
 const isResumeLegacy = e => !!e && !metaStamp(e) && !isResumePlaceholder(e);
 function resumePlaceholder(e, now){
   const st = metaStamp(e);
-  return {t:e.t, saved:e.saved, title:RESUME_PLACEHOLDER_TITLE, ch:'', thumb:'', ph:1,
+  return {t:e.t, saved:e.saved, title:RESUME_PLACEHOLDER_TITLE, ch:'', thumb:'', ph:1, chId: validChannelId(e.chId),
           metadataFetchedAt: st > now + META_CLOCK_SKEW_MS ? 0 : st};
 }
 function purgeExpiredResume(){
@@ -2385,6 +2387,8 @@ const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 const escHtml = s => { if(!s) return ''; const d = String(s).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'"); return d.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').trim(); };
 const YOUTUBE_CHANNEL_ID_RE = /^UC[A-Za-z0-9_-]{22}$/;
 const YOUTUBE_VIDEO_ID_RE   = /^[A-Za-z0-9_-]{11}$/;
+/* Channel IDs are kept on saved and Continue Watching records so "+ Follow" works without a search. */
+const validChannelId = v => (typeof v === 'string' && YOUTUBE_CHANNEL_ID_RE.test(v)) ? v : '';
 
 function boundedImportedText(value, maxLength, fallback=''){
   if(typeof value !== 'string') return fallback;
@@ -2481,6 +2485,7 @@ function normalizeImportedVideo(video){
     channelName: boundedImportedText(video.channelName, 120),
     publishedAt: boundedImportedText(video.publishedAt, 80),
     thumb:       importedHttpsUrl(video.thumb),
+    channelId:   validChannelId(video.channelId),
     savedAt:     Number.isNaN(savedAtDate.getTime()) ? new Date().toISOString() : savedAtDate.toISOString(),
       metadataFetchedAt: importedMetaStamp(video.metadataFetchedAt)
   };
@@ -2834,7 +2839,7 @@ function expireStaleApiMetadata(){
       STORE.savedVideos = saved.map(v => {
         if(!svExpiredIds.has(v.id)) return v;
         if(v.title !== SAVED_PLACEHOLDER_TITLE || v.channelName || v.publishedAt || v.thumb) savedChanged = true;
-        return {id:v.id, title:SAVED_PLACEHOLDER_TITLE, channelName:'', publishedAt:'', thumb:'', savedAt:v.savedAt, metadataFetchedAt:resetStamp(v)};
+        return {id:v.id, title:SAVED_PLACEHOLDER_TITLE, channelName:'', publishedAt:'', thumb:'', channelId:validChannelId(v.channelId), savedAt:v.savedAt, metadataFetchedAt:resetStamp(v)};
       });
       if(savedChanged) renderSavedList();
     }
@@ -3098,23 +3103,30 @@ async function refreshChannelMetadata(){
   await Promise.all([lane(), lane(), lane()]);
 }
 
+const SAVED_CHID_BACKFILL_KEY  = 'ns_saved_chid_backfill_v1';
+const RESUME_CHID_BACKFILL_KEY = 'ns_resume_chid_backfill_v1';
 async function refreshSavedMetadata(){
   const now = Date.now();
   const savedAtStart = STORE.savedVideos;
   const validAtStart = savedAtStart.filter(v => YOUTUBE_VIDEO_ID_RE.test(v.id));
   const refreshDue = validAtStart.some(v => !metaStamp(v) || now - metaStamp(v) >= API_METADATA_REFRESH_AFTER);
-  if(!refreshDue || recentlyTried('saved')) return;
+  /* beta-12: one-time backfill of channel IDs on saved videos (videos.list, 1 unit per 50 videos). */
+  let backfillDone = false;
+  try{ backfillDone = localStorage.getItem(SAVED_CHID_BACKFILL_KEY) === '1'; }catch(e){}
+  const backfillDue = !backfillDone && validAtStart.some(v => !validChannelId(v.channelId));
+  if((!refreshDue && !backfillDue) || recentlyTried('saved')) return;
   apiMetadataTried.set('saved', Date.now());
 
   /* One stale saved video triggers a refresh of the complete saved-video list.
      videos.list accepts up to 50 IDs per request, so this synchronises timestamps
      into 20-day refresh waves instead of making one request per ageing video. */
   const allIds = [...new Set(validAtStart.map(v => v.id))];
-  let removedTotal = 0, changed = false;
+  let removedTotal = 0, changed = false, anyAnswered = false;
   for(let i = 0; i < allIds.length; i += 50){
     const batch = allIds.slice(i, i + 50);
     const data = await silentApiJson('/videos?ids=' + batch.join(','));
     if(!Array.isArray(data)){ if(!hasLiveApiSession()) break; continue; }
+    anyAnswered = true;
     const found = new Map(data.filter(x => x && typeof x.id === 'string').map(x => [x.id, x]));
     const inBatch = new Set(batch);
     const saved = [];
@@ -3127,6 +3139,7 @@ async function refreshSavedMetadata(){
           channelName: boundedImportedText(m.channel, 120),
           publishedAt: boundedImportedText(m.publishedAt, 80),
           thumb:       importedHttpsUrl(m.thumb),
+          channelId:   validChannelId(m.channelId) || validChannelId(v.channelId),
           metadataFetchedAt: metaStamp(m) || Date.now()});
         changed = true;
       } else if(found.size > 0){
@@ -3138,20 +3151,29 @@ async function refreshSavedMetadata(){
     }
     STORE.savedVideos = saved;
   }
-  if(changed && currentScreen === 'saved') initSaved();
+  if(anyAnswered){ try{ localStorage.setItem(SAVED_CHID_BACKFILL_KEY, '1'); }catch(e){} }
+  if(changed){ syncSaveButtons(); if(currentScreen === 'saved') initSaved(); }
   if(removedTotal) toast(`${removedTotal} saved video${removedTotal === 1 ? ' is' : 's are'} no longer available on YouTube and ${removedTotal === 1 ? 'was' : 'were'} removed`, 6000);
 }
 
 async function refreshResumeMetadata(){
   const dueIds = resumeRefreshDueIds();
+  /* beta-12: one-time backfill of channel IDs on Continue Watching entries saved before they were stored. */
+  let backfillDone = false;
+  try{ backfillDone = localStorage.getItem(RESUME_CHID_BACKFILL_KEY) === '1'; }catch(e){}
+  if(!backfillDone){
+    const rs = getResumeStore();
+    Object.keys(rs).forEach(id => { if(YOUTUBE_VIDEO_ID_RE.test(id) && rs[id] && !validChannelId(rs[id].chId) && !dueIds.includes(id)) dueIds.push(id); });
+  }
   if(!dueIds.length || recentlyTried('resume')) return;
   apiMetadataTried.set('resume', Date.now());
-  let changed = false;
+  let changed = false, anyAnswered = false;
   /* videos.list accepts up to 50 IDs per call (1 list-quota unit each). */
   for(let i = 0; i < dueIds.length; i += 50){
     const batch = dueIds.slice(i, i + 50);
     const data = await silentApiJson('/videos?ids=' + batch.join(','));
     if(!Array.isArray(data)){ if(!hasLiveApiSession()) break; continue; }
+    anyAnswered = true;
     const found = new Map(data.filter(x => x && typeof x.id === 'string').map(x => [x.id, x]));
     const store = getResumeStore();               // re-read: playback may have saved meanwhile
     for(const id of batch){
@@ -3163,6 +3185,7 @@ async function refreshResumeMetadata(){
           title: boundedImportedText(m.title, 300, RESUME_PLACEHOLDER_TITLE),
           ch:    boundedImportedText(m.channel, 120),
           thumb: importedHttpsUrl(m.thumb),
+          chId:  validChannelId(m.channelId) || validChannelId(e.chId),
           metadataFetchedAt: metaStamp(m) || Date.now()};
         changed = true;
       } else if(found.size > 0){
@@ -3173,6 +3196,7 @@ async function refreshResumeMetadata(){
     }
     setResumeStore(store);
   }
+  if(anyAnswered){ try{ localStorage.setItem(RESUME_CHID_BACKFILL_KEY, '1'); }catch(e){} }
   if(changed){
     const store = getResumeStore();
     Object.keys(RESUME_DATA).forEach(id => { if(store[id]) RESUME_DATA[id] = {id, ...store[id]}; else delete RESUME_DATA[id]; });
@@ -3273,6 +3297,7 @@ function applyKidsMode(){
     if(ch && document.getElementById('videos-' + chId)) renderVideos(ch, list, false);
   });
   if(currentScreen === 'saved' && getLibraryTab() === 'channels') initChannels();   // show/hide remove buttons
+  refreshResultButtons();   // Library "+ Follow" pills are hidden in Kids Mode
   if(on && (currentScreen === 'search' || currentScreen === 'settings' || currentScreen === 'channel-videos')){
     showScreen('feed');
   }
@@ -3904,8 +3929,7 @@ function renderVideos(ch, allVideos, prioritizeFirst){
 }
 
 function videoCardHtml(v, ch, highPriority){
-    VIDEO_DATA[v.id] = v;
-    const savedNow = STORE.savedVideos.some(s => s.id === v.id);
+    VIDEO_DATA[v.id] = validChannelId(v.channelId) ? v : {...v, channelId: ch.id};
     const isNew    = isNewVideo(v.publishedAt);
     return `
     <div class="video-thumb${isNew ? ' is-new' : ''}" onclick="openPlayerById('${esc(v.id)}','${esc(ch.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(v.title || 'video')}">
@@ -3915,11 +3939,9 @@ function videoCardHtml(v, ch, highPriority){
       </div>
       <div class="thumb-info">
         <div class="thumb-title">${escHtml(v.title)}</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="thumb-foot">
           <div class="thumb-meta" style="${isNew ? 'color:var(--accent)' : ''}">${timeAgo(v.publishedAt)}</div>
-          <button type="button" class="feed-save-btn" data-video-id="${esc(v.id)}" aria-label="${savedNow ? 'Remove from saved' : 'Save video'}" onclick="event.stopPropagation();toggleFeedSaveById('${esc(v.id)}','${esc(ch.id)}')">
-            <svg width="12" height="12" viewBox="0 0 24 24" stroke-width="2" fill="${savedNow?'var(--accent)':'none'}" stroke="${savedNow?'var(--accent)':'var(--faint)'}"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          </button>
+          ${savePillHtml(v.id, 'feed', ch.id, v.title, true)}
         </div>
       </div>
     </div>`;
@@ -3999,15 +4021,50 @@ function closeChannelVideos(){
   const btn = id && document.querySelector(`#feed-ch-${CSS.escape(id)} .see-more-btn`);
   if(btn) btn.focus({preventScroll:true});
 }
-/* Keep every visible bookmark icon for a video (feed row, channel page) in sync. */
-function syncFeedSaveIcons(id){
-  const saved = isVideoSaved(id);
-  document.querySelectorAll('.feed-save-btn').forEach(b => {
-    if(b.dataset.videoId !== id) return;
-    const svg = b.querySelector('svg');
-    svg.setAttribute('fill',   saved ? 'var(--accent)' : 'none');
-    svg.setAttribute('stroke', saved ? 'var(--accent)' : 'var(--faint)');
+/* ── beta-12: "+ Save" pills ─────────────────────────────────────────────────
+   One pill style everywhere (Feed, See more, Search, Continue Watching). The pill is shown only
+   while the video is NOT saved; once saved it disappears on every screen. Removing a video from
+   Saved Videos (or Saved in the player) brings the pill back. Purely local: no API calls. */
+function savePillHtml(videoId, source, chId, title, small){
+  const saved = isVideoSaved(videoId);
+  return `<button type="button" class="ch-pill save-pill${small ? ' sm' : ''}" data-save-video="${esc(videoId)}"${saved ? ' hidden' : ''}
+    aria-label="Save ${escHtml(title || 'video')} for later"
+    onclick="event.stopPropagation();saveFromCard('${esc(videoId)}','${esc(source)}','${esc(chId || '')}')">+ Save</button>`;
+}
+/* Show/hide every Save pill for one video (or all videos when id is omitted). */
+function syncSaveButtons(id){
+  const savedIds = new Set(STORE.savedVideos.map(v => v.id));
+  document.querySelectorAll('[data-save-video]').forEach(b => {
+    if(id && b.dataset.saveVideo !== id) return;
+    b.hidden = savedIds.has(b.dataset.saveVideo);
   });
+}
+const syncFeedSaveIcons = syncSaveButtons;   // older call sites
+/* Builds the saved record from whatever this screen already holds. Never fetches. */
+function saveFromCard(videoId, source, chId){
+  if(isVideoSaved(videoId)){ syncSaveButtons(videoId); return; }
+  let rec = null;
+  if(source === 'resume'){
+    const e = RESUME_DATA[videoId];
+    if(!e || isResumePlaceholder(e)) return;
+    rec = {id:videoId, title:e.title || '', channelName:e.ch || '', publishedAt:'', thumb:e.thumb || '',
+           channelId:validChannelId(e.chId), metadataFetchedAt:metaStamp(e)};
+  } else {
+    const v = VIDEO_DATA[videoId];
+    if(!v) return;
+    const ch = source === 'feed' ? (STORE.channels.find(c => c.id === chId) || {}) : {};
+    rec = {id:v.id, title:v.title || '', channelName:(source === 'feed' ? ch.name : v.channelName) || v.channelName || '',
+           publishedAt:v.publishedAt || '', thumb:v.thumb || '',
+           channelId:validChannelId(source === 'feed' ? chId : v.channelId) || validChannelId(v.channelId),
+           metadataFetchedAt:metaStamp(v), ...(v.graceFrom !== undefined ? {graceFrom:v.graceFrom} : {})};
+  }
+  toggleSaveVideo(rec);
+  afterSavedChange(videoId);
+}
+function afterSavedChange(videoId){
+  syncSaveButtons(videoId);
+  if(currentVideoData?.id === videoId) updatePlayerSaveBtn(videoId);
+  updateLibraryCounts();
 }
 
 function skipToMainContent(){
@@ -4133,11 +4190,7 @@ function openPlayerFromSearch(videoId){
   if(!v) return;
   openPlayer(v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
 }
-function toggleSearchSaveById(videoId, btn){
-  const v = VIDEO_DATA[videoId];
-  if(!v) return;
-  toggleSearchSave(btn, v.id, v.title, v.channelName||'', v.publishedAt||'', v.thumb||'');
-}
+
 function openPlayerFromSaved(videoId){
   const v = VIDEO_DATA[videoId];
   if(!v) return;
@@ -4151,14 +4204,6 @@ function openPlayerById(videoId, chId){
   if(!v) return;
   openPlayer(v.id, v.title, ch.name||'', v.publishedAt||'', v.thumb||'');
 }
-function toggleFeedSaveById(videoId, chId){
-  const v  = VIDEO_DATA[videoId];
-  const ch = STORE.channels.find(c => c.id === chId) || {};
-  if(!v) return;
-  toggleSaveVideo({id:v.id, title:v.title, channelName:ch.name||'', publishedAt:v.publishedAt||'', thumb:v.thumb||''});
-  syncFeedSaveIcons(v.id);
-  if(currentVideoData?.id === v.id) updatePlayerSaveBtn(v.id);
-}
 
 function decodeVideoTitle(value){
   const raw = String(value || '');
@@ -4170,7 +4215,9 @@ function openPlayer(videoId, title, channelName, publishedAt, thumb){
   if(kidsLocked()) return;
   const myPlayerGeneration = ++playerGeneration;
   const displayTitle = decodeVideoTitle(title);
-  currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'',metadataFetchedAt:(displayTitle || channelName || thumb) ? (metaStamp(VIDEO_DATA[videoId]) || metaStamp(RESUME_DATA[videoId])) : 0 };
+  const knownChannelId = validChannelId(VIDEO_DATA[videoId]?.channelId) || validChannelId(RESUME_DATA[videoId]?.chId)
+    || validChannelId(STORE.savedVideos.find(s => s.id === videoId)?.channelId) || validChannelId(getResumeEntry(videoId)?.chId);
+  currentVideoData = { id:videoId, title:displayTitle, channelName, publishedAt, thumb: thumb||'', channelId: knownChannelId, metadataFetchedAt:(displayTitle || channelName || thumb) ? (metaStamp(VIDEO_DATA[videoId]) || metaStamp(RESUME_DATA[videoId])) : 0 };
   if(!currentVideoData.metadataFetchedAt && (displayTitle || channelName || thumb)){
     const g = Number(VIDEO_DATA[videoId] && VIDEO_DATA[videoId].graceFrom);
     if(Number.isFinite(g) && g > 0) currentVideoData.graceFrom = g;
@@ -4412,7 +4459,7 @@ function toggleSaveFromPlayer(){
   if(!currentVideoData) return;
   toggleSaveVideo(currentVideoData);
   updatePlayerSaveBtn(currentVideoData.id);
-  syncFeedSaveIcons(currentVideoData.id);
+  syncSaveButtons(currentVideoData.id);
   if(currentScreen === 'saved') initSaved();
 }
 function closePlayer(){
@@ -4587,20 +4634,16 @@ function toggleSaveVideo(video){
   let saved = STORE.savedVideos;
   const idx = saved.findIndex(v => v.id === video.id);
   if(idx >= 0){ saved.splice(idx, 1); toast('Removed from saved'); }
-  else{saved.unshift({...withoutGrace(video), savedAt: new Date().toISOString(),metadataFetchedAt:metaStamp(video) || metaStamp(VIDEO_DATA[video.id])}); toast('Saved! ✓'); }
+  else{
+    const channelId = validChannelId(video.channelId) || validChannelId(VIDEO_DATA[video.id]?.channelId);
+    saved.unshift({...withoutGrace(video), channelId, savedAt: new Date().toISOString(),metadataFetchedAt:metaStamp(video) || metaStamp(VIDEO_DATA[video.id])});
+    toast('Saved! ✓');
+  }
   STORE.savedVideos = saved;
   updateLibraryCounts();
 }
 function isVideoSaved(id){ return STORE.savedVideos.some(v => v.id === id); }
 
-function toggleFeedSave(btn, id, title, channelName, publishedAt, thumb){
-  toggleSaveVideo({id, title, channelName, publishedAt, thumb});
-  const saved = isVideoSaved(id);
-  const svg   = btn.querySelector('svg');
-  svg.setAttribute('fill',   saved ? 'var(--accent)' : 'none');
-  svg.setAttribute('stroke', saved ? 'var(--accent)' : 'var(--faint)');
-  if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
-}
 
 /* ── Search (beta-9) ────────────────────────────────────────────────────────────────
    One box for channels and videos. Nothing is sent while typing; a search runs on Enter / Search.
@@ -4813,9 +4856,11 @@ async function showVideoLinkCard(videoId){
     thumb:`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`, basic:true}], null, 'Video from your link', key, '');
 }
 
-function followPillHtml(channelId, kind, name){
-  /* kind: 'add' on channel rows, 'follow' on video cards. Final state is set by refreshResultButtons(). */
-  return `<button type="button" class="ch-pill" data-follow-ch="${esc(channelId)}" data-kind="${kind}" data-name="${esc(name || '')}"
+function followPillHtml(channelId, kind, name, opts){
+  /* kind: 'add' on channel rows, 'follow' on video cards. Final state is set by refreshResultButtons().
+     opts.hideDone (Library cards): hidden once followed, at the channel limit, or in Kids Mode. */
+  const o = opts || {};
+  return `<button type="button" class="ch-pill${o.small ? ' sm' : ''}" data-follow-ch="${esc(channelId)}" data-kind="${kind}" data-name="${esc(name || '')}"${o.hideDone ? ' data-hide-done="1"' : ''}
     onclick="event.stopPropagation();followChannelFromResult('${esc(channelId)}', this)"></button>`;
 }
 
@@ -4837,17 +4882,19 @@ function channelResultHtml(ch){
 function videoResultHtml(v, arrivedAt){
   VIDEO_DATA[v.id] = { id: v.id, title: v.title, channelName: v.channel, channelId: v.channelId || '', thumb: v.thumb, publishedAt: v.publishedAt || '',
     metadataFetchedAt: metaStamp(v), ...(metaStamp(v) || v.basic ? {} : {graceFrom: arrivedAt}) };
-  const saved   = isVideoSaved(v.id);
   const timeStr = v.publishedAt ? timeAgo(v.publishedAt) : '';
   const durationDisplay = v.duration
     ? `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:2px;margin-top:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>${esc(v.duration)}`
     : '';
   const meta = [durationDisplay, timeStr, esc(v.views || '')].filter(Boolean).join(' • ');
+  /* beta-12: channel name, then "+ Follow" and "+ Save" side by side (Save hidden once saved). */
   let channelRow = '';
-  if(v.channel || v.channelId){
+  const followPart = YOUTUBE_CHANNEL_ID_RE.test(v.channelId || '') ? followPillHtml(v.channelId, 'follow', v.channel) : '';
+  const savePart   = v.basic ? '' : savePillHtml(v.id, 'search', '', v.title);
+  if(v.channel || followPart || savePart){
     channelRow = `<div class="search-card-channel">
       ${v.channel ? `<span class="search-card-channel-name">${escHtml(v.channel)}</span>` : ''}
-      ${YOUTUBE_CHANNEL_ID_RE.test(v.channelId || '') ? followPillHtml(v.channelId, 'follow', v.channel) : ''}
+      ${followPart}${savePart}
     </div>`;
   }
   const title = v.basic ? 'YouTube video' : (v.title || 'Untitled video');
@@ -4856,9 +4903,6 @@ function videoResultHtml(v, arrivedAt){
     <div class="search-card-play-zone" onclick="openPlayerFromSearch('${esc(v.id)}')" role="button" tabindex="0" aria-label="Play: ${escHtml(title)}">
       <div class="search-thumb-wrap">
         <img src="${esc(v.thumb)}" alt="" loading="lazy"/>
-        ${v.basic ? '' : `<button type="button" class="search-save-btn ${saved?'saved':''}" onclick="event.stopPropagation();toggleSearchSaveById('${esc(v.id)}',this)" aria-label="${saved ? 'Remove from saved' : 'Save video'}">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="${saved?'var(--accent)':'none'}" stroke="var(--accent)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-        </button>`}
       </div>
       <div class="search-card-info">
         <div class="search-card-title">${escHtml(title)}</div>
@@ -4905,10 +4949,19 @@ function renderSearchResults(results, channelInfo, labelText, key, altQuery){
 /* Every Add / Follow button reflects the current channel list: following, limit reached, or available.
    Buttons are matched by channel ID, never by name. */
 function refreshResultButtons(){
-  const list = document.getElementById('search-results-list');
-  if(!list) return;
   const followed = new Set(STORE.channels.map(c => c.id));
   const atLimit  = STORE.channels.length >= MAX_CHANNELS;
+  /* Library cards (Saved Videos, Continue Watching): show "+ Follow" only when it can be used. */
+  document.querySelectorAll('[data-follow-ch][data-hide-done]').forEach(btn => {
+    const id = btn.dataset.followCh, name = btn.dataset.name || 'this channel';
+    if(btn.classList.contains('is-busy')) return;
+    btn.hidden = STORE.kidsMode || followed.has(id) || atLimit;
+    btn.disabled = false;
+    btn.textContent = '+ Follow';
+    btn.setAttribute('aria-label', `Follow ${name}`);
+  });
+  const list = document.getElementById('search-results-list');
+  if(!list) return;
   list.querySelectorAll('[data-follow-ch]').forEach(btn => {
     const id = btn.dataset.followCh, kind = btn.dataset.kind, name = btn.dataset.name || 'this channel';
     btn.classList.remove('is-busy');
@@ -4947,6 +5000,7 @@ async function followChannelFromResult(channelId, btn){
   }
   let ch = SEARCH_CHANNEL_INFO[channelId] || null;
   if(!ch){
+    /* Saved Videos / Continue Watching only know the channel ID: one cached channel lookup (1 unit), never a keyword search. */
     if(btn){ btn.disabled = true; btn.classList.add('is-busy'); btn.textContent = 'Adding…'; }
     try{
       allowVerificationRetry();
@@ -4961,12 +5015,14 @@ async function followChannelFromResult(channelId, btn){
       if(!ch) throw new Error('Could not verify this channel.');
       SEARCH_CHANNEL_INFO[channelId] = ch;
     } catch(err){
+      if(btn) btn.classList.remove('is-busy');
       refreshResultButtons();
       toast((err.code === 'LIST_QUOTA_EXHAUSTED' || err.code === 'SEARCH_QUOTA_EXHAUSTED')
         ? 'YouTube lookups are temporarily unavailable because NoSuggest has reached its daily API quota.'
         : (err.name === 'AbortError' ? 'Lookup timed out. Check your connection and try again.' : 'Could not add this channel. Check your connection and try again.'), 5000);
       return;
     }
+    if(btn) btn.classList.remove('is-busy');
     /* State may have changed while the lookup was running. */
     if(STORE.channels.some(c => c.id === channelId)){ refreshResultButtons(); return; }
     if(STORE.channels.length >= MAX_CHANNELS){ refreshResultButtons(); toast(`Channel limit reached (${MAX_CHANNELS}).`); return; }
@@ -4980,14 +5036,6 @@ async function followChannelFromResult(channelId, btn){
   toast(`Following ${ch.name} ✓ Its latest videos are now in your Feed.`);
 }
 
-function toggleSearchSave(btn, id, title, channelName, publishedAt, thumb){
-  toggleSaveVideo({id, title, channelName, publishedAt, thumb});
-  const saved = isVideoSaved(id);
-  btn.querySelector('svg').setAttribute('fill', saved ? 'var(--accent)' : 'none');
-  btn.classList.toggle('saved', saved);
-  btn.setAttribute('aria-label', saved ? 'Remove from saved' : 'Save video');
-  if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
-}
 
 /* ── Library: Saved Videos | Continue Watching ─────────────────────────────────────────
    Both sections are available in Kids Mode too. The last-used section is remembered. */
@@ -5058,18 +5106,20 @@ function renderSavedList(){
         <div class="saved-card-title">${escHtml(v.title)}</div>
         <div class="saved-card-meta">${escHtml(v.channelName)}</div>
         <div class="saved-card-meta" style="margin-top:2px">Saved ${timeAgo(v.savedAt)}</div>
+        <div class="card-actions">${validChannelId(v.channelId) ? followPillHtml(v.channelId, 'follow', v.channelName, {hideDone:true, small:true}) : ''}</div>
       </div>
-      <button class="saved-remove-btn" onclick="event.stopPropagation();removeSaved('${esc(v.id)}')" title="Remove">
+      <button type="button" class="saved-remove-btn" onclick="event.stopPropagation();removeSaved('${esc(v.id)}')" title="Remove" aria-label="Remove from saved videos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>`;
   }).join('');
+  refreshResultButtons();
 }
 
 function removeSaved(id){
   STORE.savedVideos = STORE.savedVideos.filter(v => v.id !== id);
   initSaved();
-  syncFeedSaveIcons(id);
+  syncSaveButtons(id);
   if(currentVideoData?.id === id) updatePlayerSaveBtn(id);
 }
 
@@ -5081,6 +5131,7 @@ function initContinueWatching(){
 function renderContinueWatching(){
   _cwRendering = true;
   try{ renderContinueWatchingList(); } finally { _cwRendering = false; }
+  refreshResultButtons();
 }
 function renderContinueWatchingList(){
   const store   = getResumeStore();
@@ -5119,9 +5170,10 @@ function renderContinueWatchingList(){
           <div class="cw-title">${escHtml(e.title || 'Untitled video')}</div>
           <div class="cw-meta">${escHtml(e.ch || '')}</div>
           ${watchedAgo ? `<div class="cw-meta" style="margin-top:2px">Watched ${escHtml(watchedAgo)}</div>` : ''}
+          <div class="card-actions">${validChannelId(e.chId) ? followPillHtml(e.chId, 'follow', e.ch, {hideDone:true, small:true}) : ''}${isResumePlaceholder(e) ? '' : savePillHtml(e.id, 'resume', '', e.title, true)}</div>
         </div>
       </div>
-      <button class="cw-remove-btn"
+      <button type="button" class="cw-remove-btn"
               onclick="removeResumeItem('${esc(e.id)}')"
               aria-label="Remove from Continue Watching"
               title="Remove">
